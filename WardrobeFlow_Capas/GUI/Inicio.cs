@@ -64,6 +64,12 @@ namespace GUI
             form.Show();
         }
 
+        // ── Menú: Outfits ──────────────────────────────────────────────────
+        private void mnuOutfits_Click(object sender, EventArgs e)
+        {
+            AbrirFormulario(new Modales.frmOutfit(_usuarioActual));
+        }
+
         // ── Menú: Prendas ──────────────────────────────────────────────────
         private void mnuPrendas_Click(object sender, EventArgs e)
         {

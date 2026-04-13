@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 using BE;
@@ -45,17 +44,29 @@ namespace GUI.Modales
         {
             try
             {
-                if (cboUsuarios.SelectedValue == null) return;
-                int idUsu = (int)cboUsuarios.SelectedValue;
-                DataTable dt = new DataTable();
-                dt.Columns.Add("IdPermiso", typeof(int));
-                foreach (Permiso p in clbPermisos.CheckedItems)
-                    dt.Rows.Add(p.IdPermiso);
+                if (cboUsuarios.SelectedValue == null)
+                {
+                    MessageBox.Show("Seleccione un usuario.", "Aviso",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-                // Llamar DAL directamente para guardar permisos via SP
-                MessageBox.Show("Permisos guardados correctamente.");
+                int idUsu = (int)cboUsuarios.SelectedValue;
+
+                // Recolectar IDs de los permisos marcados
+                List<int> idsSeleccionados = new List<int>();
+                foreach (Permiso p in clbPermisos.CheckedItems)
+                    idsSeleccionados.Add(p.IdPermiso);
+
+                // Guardar via BLL (reemplaza permisos actuales del usuario)
+                string msg = _bllPerm.GuardarPermisosUsuario(idUsu, idsSeleccionados);
+                MessageBox.Show(msg, "Exito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            catch (Exception ex) { MessageBox.Show("Error: " + ex.Message); }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

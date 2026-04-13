@@ -1,12 +1,13 @@
 {
   "ExpandedNodes": [
     "",
+    "\\BD",
     "\\BE",
     "\\BLL",
     "\\DAL",
     "\\GUI",
     "\\Seguridad"
   ],
-  "SelectedNode": "\\BE\\DetalleOutfit.cs",
+  "SelectedNode": "\\DAL",
   "PreviewInSolutionExplorer": false
 }

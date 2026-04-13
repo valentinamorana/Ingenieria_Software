@@ -20,6 +20,7 @@ namespace BE
         public string Rol { get { return rol; } set { rol = value; } }
         public bool Estado { get { return estado; } set { estado = value; } }
         public void SetClave(string clave) { this.clave = clave; }
+        public string GetClave() { return this.clave; }
         public void SetPermisos(List<Permiso> permisos) { this.permisos = permisos; }
         public List<Permiso> GetPermisos() { return this.permisos; }
         #endregion
