@@ -9,7 +9,7 @@ namespace GUI
     // Permite ver, agregar, editar y eliminar categorias.
     public partial class frmGestorCategorias : Form
     {
-        // BLL de categorias
+        // BLL de categorias 
         private readonly CategoriaBLL _bllCategorias;
 
         // Constructor: carga la lista de categorias al iniciar
