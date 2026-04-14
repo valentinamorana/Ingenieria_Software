@@ -1,19 +1,17 @@
 namespace BE
 {
-    public class DetalleOutfit
+    // Entidad que representa la relacion entre un Outfit y una Prenda.
+    // Un Outfit esta compuesto por varios DetalleOutfit (cada uno referencia una prenda).
+    public class DetalleOutfit : Entity
     {
-        #region Atributos
-        private int idDetalle;
-        private int idOutfit;
-        private int idPrenda;
-        private Prenda oPrenda;
-        #endregion
+        // Prenda que forma parte de este detalle del outfit
+        public Prenda OPrenda { get; set; }
 
-        #region Propiedades
-        public int IdDetalle { get { return idDetalle; } set { idDetalle = value; } }
-        public int IdOutfit { get { return idOutfit; } set { idOutfit = value; } }
-        public int IdPrenda { get { return idPrenda; } set { idPrenda = value; } }
-        public Prenda OPrenda { get { return oPrenda; } set { oPrenda = value; } }
-        #endregion
+        // Para mostrar en listas y controles visuales
+        public override string ToString()
+        {
+            // Si hay prenda asignada, muestra su nombre; de lo contrario "Sin prenda"
+            return OPrenda != null ? OPrenda.Nombre : "Sin prenda";
+        }
     }
 }

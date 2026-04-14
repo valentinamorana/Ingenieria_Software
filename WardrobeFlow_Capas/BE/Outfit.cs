@@ -3,30 +3,49 @@ using System.Collections.Generic;
 
 namespace BE
 {
-    public class Outfit
+    // Entidad que representa un conjunto/outfit armado por el usuario.
+    // Contiene una lista de DetalleOutfit (las prendas que lo componen).
+    public class Outfit : Entity
     {
-        #region Atributos
-        private int idOutfit;
-        private string nombre;
-        private string descripcion;
-        private string ocasion;
-        private string temporada;
-        private bool estado;
-        private DateTime fechaCreacion;
-        private int idUsuario;
-        private List<DetalleOutfit> detalles;
-        #endregion
+        // Lista de prendas que conforman el outfit
+        private IList<DetalleOutfit> _detalles;
 
-        #region Propiedades
-        public int IdOutfit { get { return idOutfit; } set { idOutfit = value; } }
-        public string Nombre { get { return nombre; } set { nombre = value; } }
-        public string Descripcion { get { return descripcion; } set { descripcion = value; } }
-        public string Ocasion { get { return ocasion; } set { ocasion = value; } }
-        public string Temporada { get { return temporada; } set { temporada = value; } }
-        public bool Estado { get { return estado; } set { estado = value; } }
-        public DateTime FechaCreacion { get { return fechaCreacion; } set { fechaCreacion = value; } }
-        public int IdUsuario { get { return idUsuario; } set { idUsuario = value; } }
-        public List<DetalleOutfit> Detalles { get { return detalles; } set { detalles = value; } }
-        #endregion
+        public Outfit()
+        {
+            _detalles = new List<DetalleOutfit>();
+        }
+
+        // Nombre del outfit (ej: "Look casual verano")
+        public string Nombre { get; set; }
+
+        // Descripcion general del conjunto
+        public string Descripcion { get; set; }
+
+        // Ocasion para la que sirve (Casual, Formal, Deportivo, Fiesta, Trabajo)
+        public string Ocasion { get; set; }
+
+        // Temporada recomendada (Verano, Invierno, etc.)
+        public string Temporada { get; set; }
+
+        // Estado activo o inactivo
+        public bool Estado { get; set; } = true;
+
+        // Fecha en que se creo el outfit
+        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
+        // Usuario propietario del outfit
+        public Usuario OUsuario { get; set; }
+
+        // Lista de prendas del outfit (solo lectura desde afuera)
+        public IList<DetalleOutfit> Detalles
+        {
+            get { return _detalles; }
+        }
+
+        // Para mostrar en DataGridView
+        public override string ToString()
+        {
+            return Nombre;
+        }
     }
 }

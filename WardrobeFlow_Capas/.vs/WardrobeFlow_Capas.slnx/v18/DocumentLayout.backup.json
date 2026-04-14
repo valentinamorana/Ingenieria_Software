@@ -1,7 +1,116 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\CLAUDE\\WardrobeFlow_Capas\\",
-  "Documents": [],
+  "WorkspaceRootPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BD\\WardrobeFlowDB.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BD\\WardrobeFlowDB.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\App.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:GUI\\App.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\DAL\\DAL_Conexion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:DAL\\DAL_Conexion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\DAL_Permiso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Seguridad\\DAL_Permiso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\DAL_AuditoriaSesion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Seguridad\\DAL_AuditoriaSesion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\BLL_Permiso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Seguridad\\BLL_Permiso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\BLL_AuditoriaSesion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Seguridad\\BLL_AuditoriaSesion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\Inicio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:GUI\\Inicio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\InicioDeSesion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:GUI\\InicioDeSesion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\PrendaDescripcionBase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\PrendaDescripcionBase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Prenda.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\Prenda.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Persona.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\Persona.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Permiso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\Permiso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Outfit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\Outfit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\IDescripcionPrenda.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\IDescripcionPrenda.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\GrupoPermiso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\GrupoPermiso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DetalleOutfit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\DetalleOutfit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DecoradorTemporada.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\DecoradorTemporada.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DecoradorOcasion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\DecoradorOcasion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DecoradorPrenda.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\DecoradorPrenda.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\ESTRUCTURA.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ESTRUCTURA.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\DAL\\DAL_Prenda.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:DAL\\DAL_Prenda.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\Usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Componente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\Componente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Categoria.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\Categoria.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\AuditoriaSesion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BE\\AuditoriaSesion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BD\\WardrobeFlowDB.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}|CodeFrame",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:BD\\WardrobeFlowDB.sql||{CC5D8DF0-88F4-4BB2-9DBB-B48CEE65C30A}|CodeFrame"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,11 +118,322 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "WardrobeFlowDB.sql ",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BD\\WardrobeFlowDB.sql",
+              "RelativeDocumentMoniker": "BD\\WardrobeFlowDB.sql",
+              "ToolTip": "WardrobeFlowDB.sql ",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002897|",
+              "WhenOpened": "2026-04-13T02:36:39.054Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "DAL_Conexion.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\DAL\\DAL_Conexion.cs",
+              "RelativeDocumentMoniker": "DAL\\DAL_Conexion.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\DAL\\DAL_Conexion.cs",
+              "RelativeToolTip": "DAL\\DAL_Conexion.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-13T02:27:44.353Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "DAL_AuditoriaSesion.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\DAL_AuditoriaSesion.cs",
+              "RelativeDocumentMoniker": "Seguridad\\DAL_AuditoriaSesion.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\DAL_AuditoriaSesion.cs",
+              "RelativeToolTip": "Seguridad\\DAL_AuditoriaSesion.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-13T02:27:34.968Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "BLL_Permiso.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\BLL_Permiso.cs",
+              "RelativeDocumentMoniker": "Seguridad\\BLL_Permiso.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\BLL_Permiso.cs",
+              "RelativeToolTip": "Seguridad\\BLL_Permiso.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-13T02:27:34.145Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "BLL_AuditoriaSesion.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\BLL_AuditoriaSesion.cs",
+              "RelativeDocumentMoniker": "Seguridad\\BLL_AuditoriaSesion.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\BLL_AuditoriaSesion.cs",
+              "RelativeToolTip": "Seguridad\\BLL_AuditoriaSesion.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-13T02:27:33.343Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "App.config",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\App.config",
+              "RelativeDocumentMoniker": "GUI\\App.config",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\App.config",
+              "RelativeToolTip": "GUI\\App.config",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2026-04-13T02:27:25.354Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Inicio.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\Inicio.cs",
+              "RelativeDocumentMoniker": "GUI\\Inicio.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\Inicio.cs",
+              "RelativeToolTip": "GUI\\Inicio.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-13T02:27:23.713Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "DAL_Permiso.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\DAL_Permiso.cs",
+              "RelativeDocumentMoniker": "Seguridad\\DAL_Permiso.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\DAL_Permiso.cs",
+              "RelativeToolTip": "Seguridad\\DAL_Permiso.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-10T14:06:45.256Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "InicioDeSesion.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\InicioDeSesion.cs",
+              "RelativeDocumentMoniker": "GUI\\InicioDeSesion.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\InicioDeSesion.cs",
+              "RelativeToolTip": "GUI\\InicioDeSesion.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-13T02:27:27.833Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Persona.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Persona.cs",
+              "RelativeDocumentMoniker": "BE\\Persona.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Persona.cs",
+              "RelativeToolTip": "BE\\Persona.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-13T02:27:20.039Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Permiso.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Permiso.cs",
+              "RelativeDocumentMoniker": "BE\\Permiso.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Permiso.cs",
+              "RelativeToolTip": "BE\\Permiso.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-13T02:27:19.193Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Outfit.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Outfit.cs",
+              "RelativeDocumentMoniker": "BE\\Outfit.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Outfit.cs",
+              "RelativeToolTip": "BE\\Outfit.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-13T02:27:18.071Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "GrupoPermiso.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\GrupoPermiso.cs",
+              "RelativeDocumentMoniker": "BE\\GrupoPermiso.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\GrupoPermiso.cs",
+              "RelativeToolTip": "BE\\GrupoPermiso.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-13T02:27:15.083Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "DecoradorTemporada.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DecoradorTemporada.cs",
+              "RelativeDocumentMoniker": "BE\\DecoradorTemporada.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DecoradorTemporada.cs",
+              "RelativeToolTip": "BE\\DecoradorTemporada.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-13T02:27:13.265Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "ESTRUCTURA.md",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\ESTRUCTURA.md",
+              "RelativeDocumentMoniker": "ESTRUCTURA.md",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\ESTRUCTURA.md",
+              "RelativeToolTip": "ESTRUCTURA.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-04-10T14:13:33.124Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "Usuario.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Usuario.cs",
+              "RelativeDocumentMoniker": "BE\\Usuario.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Usuario.cs",
+              "RelativeToolTip": "BE\\Usuario.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-10T14:06:40.651Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "PrendaDescripcionBase.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\PrendaDescripcionBase.cs",
+              "RelativeDocumentMoniker": "BE\\PrendaDescripcionBase.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\PrendaDescripcionBase.cs",
+              "RelativeToolTip": "BE\\PrendaDescripcionBase.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-10T14:06:39.833Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Prenda.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Prenda.cs",
+              "RelativeDocumentMoniker": "BE\\Prenda.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Prenda.cs",
+              "RelativeToolTip": "BE\\Prenda.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-10T14:06:38.731Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "Componente.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Componente.cs",
+              "RelativeDocumentMoniker": "BE\\Componente.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Componente.cs",
+              "RelativeToolTip": "BE\\Componente.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-10T14:06:37.506Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "DecoradorOcasion.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DecoradorOcasion.cs",
+              "RelativeDocumentMoniker": "BE\\DecoradorOcasion.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DecoradorOcasion.cs",
+              "RelativeToolTip": "BE\\DecoradorOcasion.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-10T14:06:36.465Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "IDescripcionPrenda.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\IDescripcionPrenda.cs",
+              "RelativeDocumentMoniker": "BE\\IDescripcionPrenda.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\IDescripcionPrenda.cs",
+              "RelativeToolTip": "BE\\IDescripcionPrenda.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-10T14:06:32.666Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "DetalleOutfit.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DetalleOutfit.cs",
+              "RelativeDocumentMoniker": "BE\\DetalleOutfit.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DetalleOutfit.cs",
+              "RelativeToolTip": "BE\\DetalleOutfit.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-10T14:06:34.012Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "DAL_Prenda.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\DAL\\DAL_Prenda.cs",
+              "RelativeDocumentMoniker": "DAL\\DAL_Prenda.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\DAL\\DAL_Prenda.cs",
+              "RelativeToolTip": "DAL\\DAL_Prenda.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-10T14:06:50.507Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "DecoradorPrenda.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DecoradorPrenda.cs",
+              "RelativeDocumentMoniker": "BE\\DecoradorPrenda.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DecoradorPrenda.cs",
+              "RelativeToolTip": "BE\\DecoradorPrenda.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-10T14:06:35.117Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "Categoria.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Categoria.cs",
+              "RelativeDocumentMoniker": "BE\\Categoria.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Categoria.cs",
+              "RelativeToolTip": "BE\\Categoria.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-10T14:06:31.165Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "AuditoriaSesion.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\AuditoriaSesion.cs",
+              "RelativeDocumentMoniker": "BE\\AuditoriaSesion.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\AuditoriaSesion.cs",
+              "RelativeToolTip": "BE\\AuditoriaSesion.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-10T14:06:28.621Z"
             }
           ]
         }

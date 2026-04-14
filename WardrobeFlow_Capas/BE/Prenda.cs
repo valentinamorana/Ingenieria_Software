@@ -2,30 +2,35 @@ using System;
 
 namespace BE
 {
-    public class Prenda
+    // Entidad que representa una prenda del guardarropa.
+    // Extiende Entity para tener Id unico automatico.
+    public class Prenda : Entity
     {
-        #region Atributos
-        private int idPrenda;
-        private string nombre;
-        private string color;
-        private string talla;
-        private string temporada;
-        private int idCategoria;
-        private Categoria oCategoria;
-        private bool estado;
-        private DateTime fechaRegistro;
-        #endregion
+        // Nombre de la prenda (ej: "Remera azul manga corta")
+        public string Nombre { get; set; }
 
-        #region Propiedades
-        public int IdPrenda { get { return idPrenda; } set { idPrenda = value; } }
-        public string Nombre { get { return nombre; } set { nombre = value; } }
-        public string Color { get { return color; } set { color = value; } }
-        public string Talla { get { return talla; } set { talla = value; } }
-        public string Temporada { get { return temporada; } set { temporada = value; } }
-        public int IdCategoria { get { return idCategoria; } set { idCategoria = value; } }
-        public Categoria OCategoria { get { return oCategoria; } set { oCategoria = value; } }
-        public bool Estado { get { return estado; } set { estado = value; } }
-        public DateTime FechaRegistro { get { return fechaRegistro; } set { fechaRegistro = value; } }
-        #endregion
+        // Color de la prenda
+        public string Color { get; set; }
+
+        // Talla (ej: S, M, L, XL)
+        public string Talla { get; set; }
+
+        // Temporada a la que pertenece (Verano, Invierno, etc.)
+        public string Temporada { get; set; }
+
+        // Categoria a la que pertenece esta prenda
+        public Categoria OCategoria { get; set; }
+
+        // Estado activo o inactivo
+        public bool Estado { get; set; } = true;
+
+        // Fecha en que se registro la prenda en el sistema
+        public DateTime FechaRegistro { get; set; } = DateTime.Now;
+
+        // Para mostrar en DataGridView y CheckedListBox
+        public override string ToString()
+        {
+            return Nombre;
+        }
     }
 }
