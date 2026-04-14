@@ -18,3 +18,5 @@ C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\obj\Debug\net472\GUI.csproj.Up2Date
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\obj\Debug\net472\GUI.exe
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\obj\Debug\net472\GUI.pdb
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\obj\Debug\net472\GUI.frmGestorOutfits.resources
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\obj\Debug\net472\GUI.csproj.GenerateResource.cache

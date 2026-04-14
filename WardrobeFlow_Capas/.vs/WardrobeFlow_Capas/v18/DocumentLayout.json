@@ -3,6 +3,18 @@
   "WorkspaceRootPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|c:\\users\\valen\\documents\\ingenieria de software\\ingenieria_software\\wardrobeflow_capas\\gui\\frmmdiprincipal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|solutionrelative:gui\\frmmdiprincipal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\gui\\frmlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|solutionrelative:gui\\frmlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\gui\\frmgestorusuarios.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|solutionrelative:gui\\frmgestorusuarios.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|c:\\users\\valen\\documents\\ingenieria de software\\ingenieria_software\\wardrobeflow_capas\\gui\\frmgestorcategorias.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|solutionrelative:gui\\frmgestorcategorias.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -11,11 +23,11 @@
       "RelativeMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|solutionrelative:gui\\frmgestoroutfits.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|c:\\users\\valen\\documents\\ingenieria de software\\ingenieria_software\\wardrobeflow_capas\\gui\\frmgestoroutfits.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "AbsoluteMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\gui\\frmgestoroutfits.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|solutionrelative:gui\\frmgestoroutfits.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|c:\\users\\valen\\documents\\ingenieria de software\\ingenieria_software\\wardrobeflow_capas\\gui\\frmgestorcategorias.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "AbsoluteMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\gui\\frmgestorcategorias.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{55555555-5555-5555-5555-555555555555}|GUI\\GUI.csproj|solutionrelative:gui\\frmgestorcategorias.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
@@ -126,7 +138,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 13,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -154,31 +166,63 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "frmMdiPrincipal.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmMdiPrincipal.cs",
+              "RelativeDocumentMoniker": "GUI\\frmMdiPrincipal.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmMdiPrincipal.cs [Design]",
+              "RelativeToolTip": "GUI\\frmMdiPrincipal.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-14T23:07:22.867Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "frmLogin.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmLogin.cs",
+              "RelativeDocumentMoniker": "GUI\\frmLogin.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmLogin.cs [Design]",
+              "RelativeToolTip": "GUI\\frmLogin.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-14T23:07:19.883Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "frmGestorUsuarios.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorUsuarios.cs",
+              "RelativeDocumentMoniker": "GUI\\frmGestorUsuarios.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorUsuarios.cs [Design]",
+              "RelativeToolTip": "GUI\\frmGestorUsuarios.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-14T23:07:16.071Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "frmGestorOutfits.cs [Design]",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorOutfits.cs",
               "RelativeDocumentMoniker": "GUI\\frmGestorOutfits.cs",
               "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorOutfits.cs [Design]*",
               "RelativeToolTip": "GUI\\frmGestorOutfits.cs [Design]*",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-14T23:02:11.487Z",
-              "EditorCaption": " [Design]"
+              "WhenOpened": "2026-04-14T23:02:11.487Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
               "Title": "frmGestorCategorias.cs [Design]",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorCategorias.cs",
               "RelativeDocumentMoniker": "GUI\\frmGestorCategorias.cs",
               "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorCategorias.cs [Design]",
               "RelativeToolTip": "GUI\\frmGestorCategorias.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-14T22:58:47.388Z",
-              "EditorCaption": " [Design]"
+              "WhenOpened": "2026-04-14T22:58:47.388Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 11,
               "Title": "ICrud.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\DAL\\ICrud.cs",
               "RelativeDocumentMoniker": "DAL\\ICrud.cs",
@@ -190,7 +234,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 13,
               "Title": "frmGestorUsuarios.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorUsuarios.cs",
               "RelativeDocumentMoniker": "GUI\\frmGestorUsuarios.cs",
@@ -202,7 +246,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 14,
               "Title": "frmGestorPrendas.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorPrendas.cs",
               "RelativeDocumentMoniker": "GUI\\frmGestorPrendas.cs",
@@ -214,7 +258,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 15,
               "Title": "frmGestorPermisos.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorPermisos.cs",
               "RelativeDocumentMoniker": "GUI\\frmGestorPermisos.cs",
@@ -226,33 +270,31 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "frmGestorOutfits.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorOutfits.cs",
               "RelativeDocumentMoniker": "GUI\\frmGestorOutfits.cs",
-              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorOutfits.cs*",
-              "RelativeToolTip": "GUI\\frmGestorOutfits.cs*",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorOutfits.cs",
+              "RelativeToolTip": "GUI\\frmGestorOutfits.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAHgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-14T22:52:18.267Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-14T22:52:18.267Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "frmGestorCategorias.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorCategorias.cs",
               "RelativeDocumentMoniker": "GUI\\frmGestorCategorias.cs",
               "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorCategorias.cs",
               "RelativeToolTip": "GUI\\frmGestorCategorias.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAdAAAAAAAAAA==",
+              "ViewState": "AgIAACwAAAAAAAAAAAAwwAkAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-14T22:52:17.517Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-14T22:52:17.517Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": "frmGestorBitacora.cs [Design]",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorBitacora.cs",
               "RelativeDocumentMoniker": "GUI\\frmGestorBitacora.cs",
@@ -263,7 +305,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 10,
               "Title": "Familia.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Composite\\Familia.cs",
               "RelativeDocumentMoniker": "BE\\Composite\\Familia.cs",
@@ -275,7 +317,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 9,
               "Title": "Patente.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Composite\\Patente.cs",
               "RelativeDocumentMoniker": "BE\\Composite\\Patente.cs",
@@ -287,7 +329,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 8,
               "Title": "PermisoCompuesto.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Composite\\PermisoCompuesto.cs",
               "RelativeDocumentMoniker": "BE\\Composite\\PermisoCompuesto.cs",
@@ -299,7 +341,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 16,
               "Title": "frmGestorBitacora.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\frmGestorBitacora.cs",
               "RelativeDocumentMoniker": "GUI\\frmGestorBitacora.cs",
@@ -311,7 +353,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 12,
               "Title": "Inicio.cs [Design]",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\Inicio.cs",
               "RelativeDocumentMoniker": "GUI\\Inicio.cs",
@@ -322,7 +364,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 17,
               "Title": "App.config",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\App.config",
               "RelativeDocumentMoniker": "GUI\\App.config",
@@ -334,7 +376,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 19,
               "Title": "DAL_Outfit.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\DAL\\DAL_Outfit.cs",
               "RelativeDocumentMoniker": "DAL\\DAL_Outfit.cs",
@@ -346,7 +388,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 20,
               "Title": "DAL_Categoria.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\DAL\\DAL_Categoria.cs",
               "RelativeDocumentMoniker": "DAL\\DAL_Categoria.cs",
@@ -358,7 +400,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 18,
               "Title": "DAL_Prenda.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\DAL\\DAL_Prenda.cs",
               "RelativeDocumentMoniker": "DAL\\DAL_Prenda.cs",
@@ -370,7 +412,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 21,
               "Title": "AuditoriaSesion.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\AuditoriaSesion.cs",
               "RelativeDocumentMoniker": "BE\\AuditoriaSesion.cs",
@@ -382,7 +424,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 22,
               "Title": "Categoria.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Categoria.cs",
               "RelativeDocumentMoniker": "BE\\Categoria.cs",
@@ -394,7 +436,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 23,
               "Title": "Componente.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Componente.cs",
               "RelativeDocumentMoniker": "BE\\Componente.cs",
@@ -406,7 +448,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 24,
               "Title": "Permiso.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\Permiso.cs",
               "RelativeDocumentMoniker": "BE\\Permiso.cs",
@@ -418,7 +460,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 25,
               "Title": "DecoradorOcasion.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DecoradorOcasion.cs",
               "RelativeDocumentMoniker": "BE\\DecoradorOcasion.cs",
@@ -430,7 +472,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 26,
               "Title": "DecoradorTemporada.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\DecoradorTemporada.cs",
               "RelativeDocumentMoniker": "BE\\DecoradorTemporada.cs",
@@ -442,7 +484,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 27,
               "Title": "IDescripcionPrenda.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\IDescripcionPrenda.cs",
               "RelativeDocumentMoniker": "BE\\IDescripcionPrenda.cs",
@@ -454,7 +496,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 30,
               "Title": "Inicio.resx",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\Inicio.resx",
               "RelativeDocumentMoniker": "GUI\\Inicio.resx",
@@ -465,7 +507,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 31,
               "Title": "Inicio.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\Inicio.cs",
               "RelativeDocumentMoniker": "GUI\\Inicio.cs",
@@ -477,7 +519,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 28,
               "Title": "InicioDeSesion.cs [Design]",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\InicioDeSesion.cs",
               "RelativeDocumentMoniker": "GUI\\InicioDeSesion.cs",
@@ -488,7 +530,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 29,
               "Title": "InicioDeSesion.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\GUI\\InicioDeSesion.cs",
               "RelativeDocumentMoniker": "GUI\\InicioDeSesion.cs",
