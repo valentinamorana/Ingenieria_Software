@@ -13,4 +13,13 @@
     <ProjectReference Include="..\BLL\BLL.csproj" />
     <ProjectReference Include="..\Seguridad\Seguridad.csproj" />
   </ItemGroup>
+
+  <!-- Archivos en desuso excluidos del proyecto -->
+  <ItemGroup>
+    <Compile Remove="Inicio.cs" />
+    <Compile Remove="InicioDeSesion.cs" />
+    <EmbeddedResource Remove="Inicio.resx" />
+    <EmbeddedResource Remove="InicioDeSesion.resx" />
+  </ItemGroup>
+
 </Project>

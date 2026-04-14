@@ -15,9 +15,6 @@ C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\bin\Debug\net472\DAL.pdb
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\bin\Debug\net472\BLL.pdb
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\bin\Debug\net472\Seguridad.pdb
-C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\obj\Debug\net472\GUI.Inicio.resources
-C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\obj\Debug\net472\GUI.InicioDeSesion.resources
-C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\obj\Debug\net472\GUI.csproj.GenerateResource.cache
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\obj\Debug\net472\GUI.csproj.Up2Date
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\obj\Debug\net472\GUI.exe
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\GUI\obj\Debug\net472\GUI.pdb
