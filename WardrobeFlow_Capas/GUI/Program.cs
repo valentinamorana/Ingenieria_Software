@@ -3,6 +3,8 @@ using System.Windows.Forms;
 
 namespace GUI
 {
+    // Punto de entrada de la aplicacion WardrobeFlow.
+    // Igual al del proyecto de referencia: inicia el formulario MDI principal.
     static class Program
     {
         [STAThread]
@@ -10,7 +12,8 @@ namespace GUI
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new InicioDeSesion());
+            // Arranca el formulario MDI principal (igual que en el proyecto referencia)
+            Application.Run(new frmMdiPrincipal());
         }
     }
 }

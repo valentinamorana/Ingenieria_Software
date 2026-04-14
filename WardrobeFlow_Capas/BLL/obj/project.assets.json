@@ -1,0 +1,131 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETFramework,Version=v4.7.2": {
+      "BE/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.7.2",
+        "compile": {
+          "bin/placeholder/BE.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/BE.dll": {}
+        }
+      },
+      "DAL/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.7.2",
+        "dependencies": {
+          "BE": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/DAL.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/DAL.dll": {}
+        }
+      },
+      "Seguridad/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.7.2",
+        "dependencies": {
+          "BE": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Seguridad.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Seguridad.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "BE/1.0.0": {
+      "type": "project",
+      "path": "../BE/BE.csproj",
+      "msbuildProject": "../BE/BE.csproj"
+    },
+    "DAL/1.0.0": {
+      "type": "project",
+      "path": "../DAL/DAL.csproj",
+      "msbuildProject": "../DAL/DAL.csproj"
+    },
+    "Seguridad/1.0.0": {
+      "type": "project",
+      "path": "../Seguridad/Seguridad.csproj",
+      "msbuildProject": "../Seguridad/Seguridad.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    ".NETFramework,Version=v4.7.2": [
+      "BE >= 1.0.0",
+      "DAL >= 1.0.0",
+      "Seguridad >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\valen\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BLL\\BLL.csproj",
+      "projectName": "BLL",
+      "projectPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BLL\\BLL.csproj",
+      "packagesPath": "C:\\Users\\valen\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BLL\\obj\\",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\valen\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net472"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net472": {
+          "targetAlias": "net472",
+          "projectReferences": {
+            "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\BE.csproj": {
+              "projectPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\BE.csproj"
+            },
+            "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\DAL\\DAL.csproj": {
+              "projectPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\DAL\\DAL.csproj"
+            },
+            "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\Seguridad.csproj": {
+              "projectPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\Seguridad.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "10.0.200"
+    },
+    "frameworks": {
+      "net472": {
+        "targetAlias": "net472",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201\\RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

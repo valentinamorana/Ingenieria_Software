@@ -1,19 +1,22 @@
 namespace BE
 {
-    public class Categoria
+    // Entidad que representa una categoria de prendas (ej: Camisas, Pantalones).
+    // Extiende Entity para tener Id unico automatico.
+    public class Categoria : Entity
     {
-        #region Atributos
-        private int idCategoria;
-        private string nombre;
-        private string descripcion;
-        private bool estado;
-        #endregion
+        // Nombre de la categoria
+        public string Nombre { get; set; }
 
-        #region Propiedades
-        public int IdCategoria { get { return idCategoria; } set { idCategoria = value; } }
-        public string Nombre { get { return nombre; } set { nombre = value; } }
-        public string Descripcion { get { return descripcion; } set { descripcion = value; } }
-        public bool Estado { get { return estado; } set { estado = value; } }
-        #endregion
+        // Descripcion opcional
+        public string Descripcion { get; set; }
+
+        // Estado activo o inactivo
+        public bool Estado { get; set; } = true;
+
+        // Para mostrar en DataGridView y ComboBox
+        public override string ToString()
+        {
+            return Nombre;
+        }
     }
 }

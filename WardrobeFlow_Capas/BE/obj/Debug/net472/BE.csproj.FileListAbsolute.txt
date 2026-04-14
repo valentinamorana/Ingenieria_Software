@@ -1,0 +1,10 @@
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BE\obj\Debug\net472\BE.csproj.AssemblyReference.cache
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BE\obj\Debug\net472\BE.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BE\obj\Debug\net472\BE.AssemblyInfoInputs.cache
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BE\obj\Debug\net472\BE.AssemblyInfo.cs
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BE\obj\Debug\net472\BE.csproj.CoreCompileInputs.cache
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BE\obj\Debug\net472\BE.sourcelink.json
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BE\bin\Debug\net472\BE.dll
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BE\bin\Debug\net472\BE.pdb
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BE\obj\Debug\net472\BE.dll
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BE\obj\Debug\net472\BE.pdb

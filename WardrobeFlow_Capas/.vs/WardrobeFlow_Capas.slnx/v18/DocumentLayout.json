@@ -145,8 +145,7 @@
               "RelativeToolTip": "DAL\\DAL_Conexion.cs",
               "ViewState": "AgIAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T02:27:44.353Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T02:27:44.353Z"
             },
             {
               "$type": "Document",
@@ -158,8 +157,7 @@
               "RelativeToolTip": "Seguridad\\DAL_AuditoriaSesion.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T02:27:34.968Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T02:27:34.968Z"
             },
             {
               "$type": "Document",
@@ -171,8 +169,7 @@
               "RelativeToolTip": "Seguridad\\BLL_Permiso.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T02:27:34.145Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T02:27:34.145Z"
             },
             {
               "$type": "Document",
@@ -184,8 +181,7 @@
               "RelativeToolTip": "Seguridad\\BLL_AuditoriaSesion.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T02:27:33.343Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T02:27:33.343Z"
             },
             {
               "$type": "Document",
@@ -197,8 +193,7 @@
               "RelativeToolTip": "GUI\\App.config",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
-              "WhenOpened": "2026-04-13T02:27:25.354Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T02:27:25.354Z"
             },
             {
               "$type": "Document",
@@ -210,8 +205,7 @@
               "RelativeToolTip": "GUI\\Inicio.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T02:27:23.713Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T02:27:23.713Z"
             },
             {
               "$type": "Document",
@@ -223,8 +217,7 @@
               "RelativeToolTip": "Seguridad\\DAL_Permiso.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-10T14:06:45.256Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-10T14:06:45.256Z"
             },
             {
               "$type": "Document",
@@ -236,8 +229,7 @@
               "RelativeToolTip": "GUI\\InicioDeSesion.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T02:27:27.833Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T02:27:27.833Z"
             },
             {
               "$type": "Document",
@@ -249,8 +241,7 @@
               "RelativeToolTip": "BE\\Persona.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T02:27:20.039Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T02:27:20.039Z"
             },
             {
               "$type": "Document",
@@ -262,8 +253,7 @@
               "RelativeToolTip": "BE\\Permiso.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T02:27:19.193Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T02:27:19.193Z"
             },
             {
               "$type": "Document",
@@ -275,8 +265,7 @@
               "RelativeToolTip": "BE\\Outfit.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T02:27:18.071Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T02:27:18.071Z"
             },
             {
               "$type": "Document",
@@ -288,8 +277,7 @@
               "RelativeToolTip": "BE\\GrupoPermiso.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T02:27:15.083Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T02:27:15.083Z"
             },
             {
               "$type": "Document",
@@ -301,8 +289,7 @@
               "RelativeToolTip": "BE\\DecoradorTemporada.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T02:27:13.265Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-13T02:27:13.265Z"
             },
             {
               "$type": "Document",
@@ -314,8 +301,7 @@
               "RelativeToolTip": "ESTRUCTURA.md",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2026-04-10T14:13:33.124Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-10T14:13:33.124Z"
             },
             {
               "$type": "Document",
@@ -339,8 +325,7 @@
               "RelativeToolTip": "BE\\PrendaDescripcionBase.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-10T14:06:39.833Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-10T14:06:39.833Z"
             },
             {
               "$type": "Document",
@@ -352,8 +337,7 @@
               "RelativeToolTip": "BE\\Prenda.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-10T14:06:38.731Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-10T14:06:38.731Z"
             },
             {
               "$type": "Document",
@@ -377,8 +361,7 @@
               "RelativeToolTip": "BE\\DecoradorOcasion.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-10T14:06:36.465Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-10T14:06:36.465Z"
             },
             {
               "$type": "Document",
@@ -390,8 +373,7 @@
               "RelativeToolTip": "BE\\IDescripcionPrenda.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-10T14:06:32.666Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-10T14:06:32.666Z"
             },
             {
               "$type": "Document",
@@ -403,8 +385,7 @@
               "RelativeToolTip": "BE\\DetalleOutfit.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-10T14:06:34.012Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-10T14:06:34.012Z"
             },
             {
               "$type": "Document",
@@ -428,8 +409,7 @@
               "RelativeToolTip": "BE\\DecoradorPrenda.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-10T14:06:35.117Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-10T14:06:35.117Z"
             },
             {
               "$type": "Document",

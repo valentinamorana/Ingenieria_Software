@@ -1,11 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Library</OutputType>
     <TargetFramework>net472</TargetFramework>
-    <RootNamespace>BLL</RootNamespace>
     <AssemblyName>BLL</AssemblyName>
+    <RootNamespace>BLL</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\BE\BE.csproj" />
     <ProjectReference Include="..\DAL\DAL.csproj" />
+    <ProjectReference Include="..\Seguridad\Seguridad.csproj" />
   </ItemGroup>
 </Project>

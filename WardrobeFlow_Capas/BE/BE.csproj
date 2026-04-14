@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Library</OutputType>
     <TargetFramework>net472</TargetFramework>
-    <RootNamespace>BE</RootNamespace>
     <AssemblyName>BE</AssemblyName>
+    <RootNamespace>BE</RootNamespace>
   </PropertyGroup>
 </Project>
