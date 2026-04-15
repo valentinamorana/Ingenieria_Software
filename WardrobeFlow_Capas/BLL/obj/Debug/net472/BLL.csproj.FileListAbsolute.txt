@@ -15,3 +15,20 @@ C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BLL\obj\Debug\net472\BLL.csproj.Up2Date
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BLL\obj\Debug\net472\BLL.dll
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BLL\obj\Debug\net472\BLL.pdb
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\bin\Debug\net472\BLL.dll
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\bin\Debug\net472\BLL.pdb
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\bin\Debug\net472\BE.dll
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\bin\Debug\net472\DAL.dll
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\bin\Debug\net472\Seguridad.dll
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\bin\Debug\net472\BE.pdb
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\bin\Debug\net472\DAL.pdb
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\bin\Debug\net472\Seguridad.pdb
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\obj\Debug\net472\BLL.csproj.AssemblyReference.cache
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\obj\Debug\net472\BLL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\obj\Debug\net472\BLL.AssemblyInfoInputs.cache
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\obj\Debug\net472\BLL.AssemblyInfo.cs
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\obj\Debug\net472\BLL.csproj.CoreCompileInputs.cache
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\obj\Debug\net472\BLL.sourcelink.json
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\obj\Debug\net472\BLL.csproj.Up2Date
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\obj\Debug\net472\BLL.dll
+C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BLL\obj\Debug\net472\BLL.pdb

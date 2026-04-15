@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\Seguridad.csproj": {}
+    "C:\\Users\\valen\\Documents\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\Seguridad.csproj": {}
   },
   "projects": {
-    "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\BE.csproj": {
+    "C:\\Users\\valen\\Documents\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\BE.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\BE.csproj",
+        "projectUniqueName": "C:\\Users\\valen\\Documents\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\BE.csproj",
         "projectName": "BE",
-        "projectPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\BE.csproj",
+        "projectPath": "C:\\Users\\valen\\Documents\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\BE.csproj",
         "packagesPath": "C:\\Users\\valen\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\obj\\",
+        "outputPath": "C:\\Users\\valen\\Documents\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -54,14 +54,14 @@
         }
       }
     },
-    "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\Seguridad.csproj": {
+    "C:\\Users\\valen\\Documents\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\Seguridad.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\Seguridad.csproj",
+        "projectUniqueName": "C:\\Users\\valen\\Documents\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\Seguridad.csproj",
         "projectName": "Seguridad",
-        "projectPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\Seguridad.csproj",
+        "projectPath": "C:\\Users\\valen\\Documents\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\Seguridad.csproj",
         "packagesPath": "C:\\Users\\valen\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\obj\\",
+        "outputPath": "C:\\Users\\valen\\Documents\\Ingenieria_Software\\WardrobeFlow_Capas\\Seguridad\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -83,8 +83,8 @@
           "net472": {
             "targetAlias": "net472",
             "projectReferences": {
-              "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\BE.csproj": {
-                "projectPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\BE.csproj"
+              "C:\\Users\\valen\\Documents\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\BE.csproj": {
+                "projectPath": "C:\\Users\\valen\\Documents\\Ingenieria_Software\\WardrobeFlow_Capas\\BE\\BE.csproj"
               }
             }
           }

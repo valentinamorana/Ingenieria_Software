@@ -5,60 +5,59 @@ using BLL;
 
 namespace GUI
 {
-    // Gestor de outfits. Muestra los outfits existentes y sus prendas.
-    // Usa el patron DECORATOR a traves de OutfitBLL.ObtenerResumenOutfit().
+    // Gestor de outfits. Usa el patron DECORATOR en ObtenerResumenOutfit().
     public partial class frmGestorOutfits : Form
     {
-        // BLL de outfits (usa el Decorator internamente)
-        private readonly OutfitBLL    _bllOutfits;
-        // BLL de prendas (necesaria para inicializar OutfitBLL)
-        private readonly PrendaBLL    _bllPrendas;
-        // BLL de categorias (necesaria para inicializar PrendaBLL)
+        private readonly OutfitBLL _bllOutfits;
+        private readonly PrendaBLL _bllPrendas;
         private readonly CategoriaBLL _bllCategorias;
+        private Outfit _outfitEditando = null;
 
-        // Constructor: inicializa BLLs en cadena y carga datos
         public frmGestorOutfits()
         {
             _bllCategorias = new CategoriaBLL();
-            _bllPrendas    = new PrendaBLL(_bllCategorias);
-            _bllOutfits    = new OutfitBLL(_bllPrendas);
+            _bllPrendas = new PrendaBLL(_bllCategorias);
+            _bllOutfits = new OutfitBLL(_bllPrendas);
             InitializeComponent();
-
-            // Cargar ocasiones disponibles
             cboOcasion.Items.AddRange(new object[] { "Casual", "Formal", "Deportivo", "Fiesta", "Trabajo" });
             cboOcasion.SelectedIndex = 0;
-
-            // Cargar temporadas disponibles
-            cboTemporada.Items.AddRange(new object[] { "Verano", "Invierno", "Otono", "Primavera", "Todo el ano" });
+            cboTemporada.Items.AddRange(new object[] { "Verano", "Invierno", "Otoño", "Primavera", "Todo el año" });
             cboTemporada.SelectedIndex = 0;
-
             CargarOutfits();
         }
 
-        // Recarga el grid con todos los outfits
         private void CargarOutfits()
         {
-            dgvOutfits.DataSource   = null;
-            dgvOutfits.DataSource   = _bllOutfits.GetAll();
-            txtResumen.Text         = string.Empty;
+            dgvOutfits.DataSource = null;
+            dgvOutfits.DataSource = _bllOutfits.GetAll();
+            txtResumen.Text = string.Empty;
         }
 
-        // Al seleccionar un outfit, muestra el resumen con el DECORATOR
         private void dgvOutfits_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvOutfits.CurrentRow == null) return;
             var outfit = (Outfit)dgvOutfits.CurrentRow.DataBoundItem;
-
-            txtNombre.Text    = outfit.Nombre;
+            _outfitEditando = outfit;
+            txtNombre.Text = outfit.Nombre;
             txtDescripcion.Text = outfit.Descripcion;
-            cboOcasion.Text   = outfit.Ocasion;
+            cboOcasion.Text = outfit.Ocasion;
             cboTemporada.Text = outfit.Temporada;
-
-            // Mostrar el resumen enriquecido usando el patron DECORATOR
+            // Mostrar resumen con el DECORATOR
             txtResumen.Text = _bllOutfits.ObtenerResumenOutfit(outfit);
         }
 
-        // Guarda un outfit nuevo o actualiza el existente
+        // Carga el outfit seleccionado para edicion explicitamente
+        private void btnEditar_Click(object sender, EventArgs e)
+        {
+            if (_outfitEditando == null)
+            {
+                MessageBox.Show("Seleccione un outfit de la lista para editar.",
+                    "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            txtNombre.Focus();
+        }
+
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtNombre.Text))
@@ -67,41 +66,31 @@ namespace GUI
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
-            Outfit outfit;
-            if (dgvOutfits.CurrentRow != null &&
-                dgvOutfits.CurrentRow.DataBoundItem is Outfit oSel)
-            {
-                outfit = oSel;
-            }
-            else
-            {
-                outfit = new Outfit();
-            }
-
-            outfit.Nombre      = txtNombre.Text.Trim();
+            Outfit outfit = _outfitEditando ?? new Outfit();
+            outfit.Nombre = txtNombre.Text.Trim();
             outfit.Descripcion = txtDescripcion.Text.Trim();
-            outfit.Ocasion     = cboOcasion.Text;
-            outfit.Temporada   = cboTemporada.Text;
-            outfit.Estado      = true;
-
+            outfit.Ocasion = cboOcasion.Text;
+            outfit.Temporada = cboTemporada.Text;
+            outfit.Estado = true;
             _bllOutfits.Save(outfit);
             CargarOutfits();
             LimpiarCampos();
-            MessageBox.Show("Outfit guardado.", "Exito",
+            MessageBox.Show("Outfit guardado correctamente.", "Exito",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        // Elimina el outfit seleccionado
         private void btnEliminar_Click(object sender, EventArgs e)
         {
-            if (dgvOutfits.CurrentRow == null) return;
-            var outfit = (Outfit)dgvOutfits.CurrentRow.DataBoundItem;
-
-            if (MessageBox.Show("Eliminar '" + outfit.Nombre + "'?", "Confirmar",
+            if (_outfitEditando == null)
+            {
+                MessageBox.Show("Seleccione un outfit para eliminar.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (MessageBox.Show("Eliminar '" + _outfitEditando.Nombre + "'?", "Confirmar",
                     MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                _bllOutfits.Delete(outfit);
+                _bllOutfits.Delete(_outfitEditando);
                 CargarOutfits();
                 LimpiarCampos();
             }
@@ -111,9 +100,14 @@ namespace GUI
 
         private void LimpiarCampos()
         {
-            txtNombre.Text      = string.Empty;
+            _outfitEditando = null;
+            dgvOutfits.ClearSelection();
+            txtNombre.Text = string.Empty;
             txtDescripcion.Text = string.Empty;
-            txtResumen.Text     = string.Empty;
+            txtResumen.Text = string.Empty;
+            if (cboOcasion.Items.Count > 0) cboOcasion.SelectedIndex = 0;
+            if (cboTemporada.Items.Count > 0) cboTemporada.SelectedIndex = 0;
+            txtNombre.Focus();
         }
     }
 }

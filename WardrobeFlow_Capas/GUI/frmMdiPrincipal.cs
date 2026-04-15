@@ -7,52 +7,76 @@ using Seguridad;
 namespace GUI
 {
     // Formulario MDI principal de WardrobeFlow.
-    // Basado en frmMdiPrincipal del proyecto de referencia.
-    // Usa SessionManagerSL (Singleton) para control de sesion y Sesion como helper estatico.
+    // Usa SessionManagerSL (Singleton) para control de sesion.
     public partial class frmMdiPrincipal : Form
     {
-        // BLL de usuarios para el logout
         private readonly UsuarioBLL _bllUsuarios;
 
-        // Constructor: inicializa componentes y valida el estado inicial del formulario
         public frmMdiPrincipal()
         {
             InitializeComponent();
             _bllUsuarios = new UsuarioBLL();
+
+            // Color de fondo del area MDI (lavanda suave)
+            foreach (Control c in this.Controls)
+            {
+                if (c is MdiClient mdiClient)
+                {
+                    mdiClient.BackColor = System.Drawing.Color.FromArgb(235, 228, 242);
+                    break;
+                }
+            }
+
+            pnlBienvenida.BringToFront();
+            CentrarPanel();
+            this.Resize += (s, e) => CentrarPanel();
+            this.MdiChildActivate += (s, e) => ActualizarPanelBienvenida();
             ValidarForm();
         }
 
-        // Actualiza el estado del menu segun si hay sesion activa y segun permisos.
-        // Delega la verificacion de sesion a SessionManagerSL y la de roles al patron Composite.
+        // Centra pnlBienvenida en el area MDI visible
+        private void CentrarPanel()
+        {
+            int mdiTop = menuStrip.Height;
+            int mdiBottom = this.ClientSize.Height - statusStrip.Height;
+            int mdiH = mdiBottom - mdiTop;
+            pnlBienvenida.Left = (this.ClientSize.Width - pnlBienvenida.Width) / 2;
+            pnlBienvenida.Top = mdiTop + (mdiH - pnlBienvenida.Height) / 2;
+        }
+
+        // Oculta o muestra el panel de bienvenida segun si hay formularios hijos abiertos
+        private void ActualizarPanelBienvenida()
+        {
+            bool hayHijos = this.MdiChildren.Length > 0;
+            pnlBienvenida.Visible = !hayHijos && !SessionManagerSL.Instancia.TieneSesionActiva();
+        }
+
+        // Actualiza el estado del menu segun sesion activa y permisos (patron Composite)
         public void ValidarForm()
         {
             bool haySession = SessionManagerSL.Instancia.TieneSesionActiva();
 
-            // Habilitar/deshabilitar items de sesion segun si hay usuario logueado
-            this.itemLogin.Enabled   = !haySession;
-            this.itemLogout.Enabled  = haySession;
+            pnlBienvenida.Visible = !haySession && this.MdiChildren.Length == 0;
+            this.itemLogin.Enabled = !haySession;
+            this.itemLogout.Enabled = haySession;
             this.mnuGestores.Enabled = haySession;
 
-            // Mostrar el nombre y rol del usuario activo en la barra de estado
             if (haySession)
             {
                 var usr = SessionManagerSL.Instancia.ObtenerUsuarioActual();
                 this.toolStripSesion.Text = usr.NombreCompleto + " [" + usr.Rol + "]";
             }
             else
-                this.toolStripSesion.Text = "[ Sesion no iniciada ]";
+                this.toolStripSesion.Text = "[ Sesi\u00f3n no iniciada ]";
 
-            // Habilitar cada gestor segun el permiso correspondiente (patron Composite)
             this.mnuGestorCategorias.Enabled = SessionManagerSL.Instancia.IsInRole(TipoPermiso.GestorCategorias);
-            this.mnuGestorPrendas.Enabled    = SessionManagerSL.Instancia.IsInRole(TipoPermiso.GestorPrendas);
-            this.mnuGestorOutfits.Enabled    = SessionManagerSL.Instancia.IsInRole(TipoPermiso.GestorOutfits);
-            this.mnuGestorUsuarios.Enabled   = SessionManagerSL.Instancia.IsInRole(TipoPermiso.GestorUsuarios);
-            this.mnuGestorPermisos.Enabled   = SessionManagerSL.Instancia.IsInRole(TipoPermiso.GestorPermisos);
-            // Bitacora: solo administradores (GestorUsuarios implica acceso admin)
-            this.mnuGestorBitacora.Enabled   = SessionManagerSL.Instancia.IsInRole(TipoPermiso.GestorUsuarios);
+            this.mnuGestorPrendas.Enabled = SessionManagerSL.Instancia.IsInRole(TipoPermiso.GestorPrendas);
+            this.mnuGestorOutfits.Enabled = SessionManagerSL.Instancia.IsInRole(TipoPermiso.GestorOutfits);
+            this.mnuGestorUsuarios.Enabled = SessionManagerSL.Instancia.IsInRole(TipoPermiso.GestorUsuarios);
+            this.mnuGestorPermisos.Enabled = SessionManagerSL.Instancia.IsInRole(TipoPermiso.GestorPermisos);
+            this.mnuGestorBitacora.Enabled = SessionManagerSL.Instancia.IsInRole(TipoPermiso.GestorUsuarios);
         }
 
-        // Abre el formulario de login como hijo MDI
         private void itemLogin_Click(object sender, EventArgs e)
         {
             frmLogin frm = new frmLogin();
@@ -60,10 +84,9 @@ namespace GUI
             frm.Show();
         }
 
-        // Cierra la sesion activa tras confirmacion del usuario
         private void itemLogout_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Esta seguro de cerrar la sesion?", "Confirmar",
+            if (MessageBox.Show("\u00bfEst\u00e1 seguro de cerrar la sesi\u00f3n?", "Confirmar",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 _bllUsuarios.Logout();
@@ -71,7 +94,6 @@ namespace GUI
             }
         }
 
-        // Abre el gestor de categorias como hijo MDI
         private void mnuGestorCategorias_Click(object sender, EventArgs e)
         {
             var frm = new frmGestorCategorias();
@@ -79,7 +101,6 @@ namespace GUI
             frm.Show();
         }
 
-        // Abre el gestor de prendas como hijo MDI
         private void mnuGestorPrendas_Click(object sender, EventArgs e)
         {
             var frm = new frmGestorPrendas();
@@ -87,7 +108,6 @@ namespace GUI
             frm.Show();
         }
 
-        // Abre el gestor de outfits como hijo MDI
         private void mnuGestorOutfits_Click(object sender, EventArgs e)
         {
             var frm = new frmGestorOutfits();
@@ -95,7 +115,6 @@ namespace GUI
             frm.Show();
         }
 
-        // Abre el gestor de usuarios como hijo MDI
         private void mnuGestorUsuarios_Click(object sender, EventArgs e)
         {
             var frm = new frmGestorUsuarios();
@@ -103,7 +122,6 @@ namespace GUI
             frm.Show();
         }
 
-        // Abre el gestor de permisos como hijo MDI
         private void mnuGestorPermisos_Click(object sender, EventArgs e)
         {
             var frm = new frmGestorPermisos();
@@ -111,7 +129,6 @@ namespace GUI
             frm.Show();
         }
 
-        // Abre la bitacora de eventos del sistema como hijo MDI
         private void mnuGestorBitacora_Click(object sender, EventArgs e)
         {
             var frm = new frmGestorBitacora();

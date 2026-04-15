@@ -1,6 +1,6 @@
 is_global = true
 build_property.RootNamespace = BE
-build_property.ProjectDir = C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow_Capas\BE\
+build_property.ProjectDir = C:\Users\valen\Documents\Ingenieria_Software\WardrobeFlow_Capas\BE\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.CsWinRTUseWindowsUIXamlProjections = false

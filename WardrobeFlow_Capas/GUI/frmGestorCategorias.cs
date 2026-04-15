@@ -5,14 +5,11 @@ using BLL;
 
 namespace GUI
 {
-    // Gestor de categorias de prendas.
-    // Permite ver, agregar, editar y eliminar categorias.
     public partial class frmGestorCategorias : Form
     {
-        // BLL de categorias 
         private readonly CategoriaBLL _bllCategorias;
+        private Categoria _categoriaEditando = null;
 
-        // Constructor: carga la lista de categorias al iniciar
         public frmGestorCategorias()
         {
             _bllCategorias = new CategoriaBLL();
@@ -20,23 +17,33 @@ namespace GUI
             CargarCategorias();
         }
 
-        // Recarga el DataGridView con todas las categorias activas
         private void CargarCategorias()
         {
             dgvCategorias.DataSource = null;
             dgvCategorias.DataSource = _bllCategorias.GetAll();
         }
 
-        // Cuando se selecciona una fila en el grid, carga los datos en los campos
         private void dgvCategorias_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvCategorias.CurrentRow == null) return;
             var cat = (Categoria)dgvCategorias.CurrentRow.DataBoundItem;
-            txtNombre.Text      = cat.Nombre;
+            _categoriaEditando = cat;
+            txtNombre.Text = cat.Nombre;
             txtDescripcion.Text = cat.Descripcion;
         }
 
-        // Guarda una nueva categoria o actualiza la existente
+        // Carga la categoria seleccionada para edicion explicitamente
+        private void btnEditar_Click(object sender, EventArgs e)
+        {
+            if (_categoriaEditando == null)
+            {
+                MessageBox.Show("Seleccione una categoria de la lista para editar.",
+                    "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            txtNombre.Focus();
+        }
+
         private void btnGuardar_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtNombre.Text))
@@ -45,59 +52,43 @@ namespace GUI
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
-            Categoria cat;
-            // Si hay una fila seleccionada, editar esa categoria
-            if (dgvCategorias.CurrentRow != null &&
-                dgvCategorias.CurrentRow.DataBoundItem is Categoria catSel)
-            {
-                cat = catSel;
-            }
-            else
-            {
-                // Nueva categoria
-                cat = new Categoria();
-            }
-
-            cat.Nombre      = txtNombre.Text.Trim();
+            Categoria cat = _categoriaEditando ?? new Categoria();
+            cat.Nombre = txtNombre.Text.Trim();
             cat.Descripcion = txtDescripcion.Text.Trim();
-            cat.Estado      = true;
-
-            // Save: si es nueva la agrega, si ya existe la actualiza (por referencia)
+            cat.Estado = true;
             _bllCategorias.Save(cat);
-
             CargarCategorias();
             LimpiarCampos();
             MessageBox.Show("Categoria guardada correctamente.", "Exito",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        // Elimina la categoria seleccionada
         private void btnEliminar_Click(object sender, EventArgs e)
         {
-            if (dgvCategorias.CurrentRow == null) return;
-            var cat = (Categoria)dgvCategorias.CurrentRow.DataBoundItem;
-
-            if (MessageBox.Show("Eliminar la categoria '" + cat.Nombre + "'?", "Confirmar",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (_categoriaEditando == null)
             {
-                _bllCategorias.Delete(cat);
+                MessageBox.Show("Seleccione una categoria para eliminar.", "Aviso",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (MessageBox.Show("Eliminar la categoria '" + _categoriaEditando.Nombre + "'?",
+                    "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                _bllCategorias.Delete(_categoriaEditando);
                 CargarCategorias();
                 LimpiarCampos();
             }
         }
 
-        // Limpia los campos del formulario
-        private void btnNuevo_Click(object sender, EventArgs e)
-        {
-            LimpiarCampos();
-        }
+        private void btnNuevo_Click(object sender, EventArgs e) { LimpiarCampos(); }
 
-        // Auxiliar: vacia los campos de texto
         private void LimpiarCampos()
         {
-            txtNombre.Text      = string.Empty;
+            _categoriaEditando = null;
+            dgvCategorias.ClearSelection();
+            txtNombre.Text = string.Empty;
             txtDescripcion.Text = string.Empty;
+            txtNombre.Focus();
         }
     }
 }
