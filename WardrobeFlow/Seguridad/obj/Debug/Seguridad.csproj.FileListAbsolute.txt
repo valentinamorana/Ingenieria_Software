@@ -1,0 +1,9 @@
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\Seguridad\bin\Debug\Seguridad.dll
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\Seguridad\bin\Debug\Seguridad.pdb
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\Seguridad\bin\Debug\BE.dll
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\Seguridad\bin\Debug\BE.pdb
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\Seguridad\obj\Debug\Seguridad.csproj.AssemblyReference.cache
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\Seguridad\obj\Debug\Seguridad.csproj.CoreCompileInputs.cache
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\Seguridad\obj\Debug\Seguridad.csproj.Up2Date
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\Seguridad\obj\Debug\Seguridad.dll
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\Seguridad\obj\Debug\Seguridad.pdb
