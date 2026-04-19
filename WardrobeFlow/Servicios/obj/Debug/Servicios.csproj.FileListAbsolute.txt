@@ -11,3 +11,16 @@ C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\Servicios\ob
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\Servicios\obj\Debug\Servicios.csproj.Up2Date
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\Servicios\obj\Debug\Servicios.dll
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\Servicios\obj\Debug\Servicios.pdb
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\Servicios\bin\Debug\Servicios.dll
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\Servicios\bin\Debug\Servicios.pdb
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\Servicios\bin\Debug\BE.dll
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\Servicios\bin\Debug\DAL.dll
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\Servicios\bin\Debug\Seguridad.dll
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\Servicios\bin\Debug\BE.pdb
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\Servicios\bin\Debug\DAL.pdb
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\Servicios\bin\Debug\Seguridad.pdb
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\Servicios\obj\Debug\Servicios.csproj.AssemblyReference.cache
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\Servicios\obj\Debug\Servicios.csproj.CoreCompileInputs.cache
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\Servicios\obj\Debug\Servicios.csproj.Up2Date
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\Servicios\obj\Debug\Servicios.dll
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\Servicios\obj\Debug\Servicios.pdb

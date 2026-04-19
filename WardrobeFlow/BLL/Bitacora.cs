@@ -30,19 +30,23 @@ namespace BLL
         }
 
         /// <summary>
-        /// Busca registros de bitácora aplicando filtros combinados.
-        /// Todos los parámetros son opcionales (null o vacíos = sin filtro).
-        /// Cumple con el requisito de "búsquedas por datos almacenados de manera combinada".
+        /// Devuelve los registros de los últimos <paramref name="dias"/> días.
+        /// Valida que el número sea positivo antes de delegar a la DAL.
         /// </summary>
-        /// <param name="desde">Fecha de inicio del rango (null = sin límite inferior).</param>
-        /// <param name="hasta">Fecha de fin del rango (null = sin límite superior).</param>
-        /// <param name="usuario">ID de usuario a filtrar (0 = todos los usuarios).</param>
-        /// <param name="actividad">Texto parcial de actividad a buscar (vacío = todas).</param>
-        /// <param name="criticidad">Nivel de criticidad a filtrar (0 = todos los niveles).</param>
-        /// <returns>DataTable con los registros que cumplen los filtros indicados.</returns>
-        public DataTable BuscarPorFiltros(DateTime? desde, DateTime? hasta, int usuario, string actividad, int criticidad)
+        /// <param name="dias">Cantidad de días a consultar (mínimo 1).</param>
+        public DataTable ObtenerUltimosNDias(int dias)
         {
-            return bitacoraDAL.BuscarPorFiltros(desde, hasta, usuario, actividad, criticidad);
+            if (dias < 1) dias = 1;
+            return bitacoraDAL.ObtenerUltimosNDias(dias);
+        }
+
+        /// <summary>
+        /// Búsqueda combinada: fecha, usuario, actividad y criticidad.
+        /// Cumple T06a: búsquedas por datos almacenados de manera combinada.
+        /// </summary>
+        public DataTable BuscarPorFiltros(DateTime? desde, DateTime? hasta, int idUsuario, string actividad, int criticidad)
+        {
+            return bitacoraDAL.BuscarPorFiltros(desde, hasta, idUsuario, actividad, criticidad);
         }
     }
 }

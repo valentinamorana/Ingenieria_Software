@@ -113,6 +113,37 @@ namespace BLL
         }
 
         /// <summary>
+        /// Resetea la contraseña de un usuario existente.
+        /// Solo puede ejecutarlo un usuario con Perfil "Administrador" (master admin).
+        /// La nueva contraseña se hashea con PBKDF2 antes de persistirse — nunca se guarda en texto plano.
+        /// </summary>
+        /// <param name="formulario">Formulario origen para registro en bitácora.</param>
+        /// <param name="idUsuario">ID del usuario cuya contraseña se va a resetear.</param>
+        /// <param name="nuevaClave">Nueva contraseña en texto plano (será hasheada aquí).</param>
+        /// <exception cref="Exception">Si no hay sesión activa, si el usuario activo no es Administrador,
+        /// o si la nueva clave es demasiado corta.</exception>
+        public void ResetearClave(Form formulario, int idUsuario, string nuevaClave)
+        {
+            // Solo un Administrador puede resetear contraseñas
+            if (!SessionManager.IsLoggedIn)
+                throw new Exception("No hay sesión activa.");
+
+            string perfil = SessionManager.GetInstance.Usuario.Perfil ?? "";
+            if (!perfil.Equals("Administrador", StringComparison.OrdinalIgnoreCase))
+                throw new Exception("Solo un Administrador puede resetear contraseñas.");
+
+            if (string.IsNullOrWhiteSpace(nuevaClave) || nuevaClave.Length < 6)
+                throw new Exception("La nueva contraseña debe tener al menos 6 caracteres.");
+
+            // Hashear con PBKDF2 antes de enviar a la DAL
+            string claveHasheada = Encriptador.Hash(nuevaClave);
+            usuarioDAL.ResetearClave(idUsuario, claveHasheada);
+
+            // Auditar el evento (criticidad Media — es una acción sensible)
+            bitacora.Registrar(formulario, "Reset Contraseña", BE.Criticidad.Media);
+        }
+
+        /// <summary>
         /// Retorna el usuario actualmente en sesión, obtenido del SessionManager (Singleton).
         /// Usa IsLoggedIn antes de GetInstance para evitar la excepción que lanza
         /// GetInstance cuando no hay sesión (comportamiento del patrón del profesor).

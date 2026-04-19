@@ -28,10 +28,8 @@ namespace Servicios
             // pero el Logout se registra ANTES de destruirla — ambos casos son válidos.
             if (!Seguridad.SessionManager.IsLoggedIn) return;
 
-            // Acceder a la sesión activa via GetInstance (propiedad, no método — patrón profesor)
             var sesion = Seguridad.SessionManager.GetInstance;
 
-            // Construir el objeto de entidad Bitácora con todos los datos requeridos
             BE.Bitacora registro = new BE.Bitacora
             {
                 Fecha      = DateTime.Now,
@@ -44,7 +42,6 @@ namespace Servicios
                              $"[Criticidad: {criticidad}] a las {DateTime.Now:HH:mm:ss}."
             };
 
-            // Persistir el registro en la base de datos a través de la capa DAL
             bitacoraDAL.Registrar(registro);
         }
     }

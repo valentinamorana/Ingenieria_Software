@@ -4,3 +4,9 @@ C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\BE\obj\Debug
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\BE\obj\Debug\BE.csproj.CoreCompileInputs.cache
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\BE\obj\Debug\BE.dll
 C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\BE\obj\Debug\BE.pdb
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\BE\bin\Debug\BE.dll
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\BE\bin\Debug\BE.pdb
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\BE\obj\Debug\BE.csproj.AssemblyReference.cache
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\BE\obj\Debug\BE.csproj.CoreCompileInputs.cache
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\BE\obj\Debug\BE.dll
+C:\Users\valen\Documents\INGENIERIA DE SOFTWARE\Ingenieria_Software\WardrobeFlow\BE\obj\Debug\BE.pdb
