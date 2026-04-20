@@ -29,7 +29,7 @@ namespace GUI
         private DataGridView dgvUsuarios;
         private TextBox txtUsername;
         private TextBox txtContraseña;
-        private TextBox txtPerfil;
+        private ComboBox cmbPerfil;
         private Button btnAgregar;
         private Button btnRefrescar;
         private Button btnResetearClave;
@@ -87,7 +87,18 @@ namespace GUI
             };
 
             var lblPerfil = new Label { Text = "Perfil (rol):", Left = 12, Top = 150, Width = 200 };
-            txtPerfil = new TextBox { Left = 12, Top = 168, Width = 210 };
+            cmbPerfil = new ComboBox
+            {
+                Left          = 12, Top = 168, Width = 210,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            cmbPerfil.Items.AddRange(new object[]
+            {
+                "Administrador",
+                "OperadorLogistico",
+                "Supervisor"
+            });
+            cmbPerfil.SelectedIndex = 1; // OperadorLogistico por defecto
 
             btnAgregar = new Button
             {
@@ -136,7 +147,7 @@ namespace GUI
 
             btnResetearClave = new Button
             {
-                Text      = "🔑 Resetear Contraseña",
+                Text      = "Resetear Contrasena",
                 Left      = 12,  Top    = 366,
                 Width     = 210, Height = 34,
                 BackColor = Color.FromArgb(180, 100, 30),
@@ -159,7 +170,7 @@ namespace GUI
             panelAlta.Controls.AddRange(new Control[]
             {
                 lblTitulo, lblUser, txtUsername, lblPass, txtContraseña,
-                lblPerfil, txtPerfil, btnAgregar, btnRefrescar,
+                lblPerfil, cmbPerfil, btnAgregar, btnRefrescar,
                 separador, lblResetTitulo, lblResetInfo, btnResetearClave,
                 lblMensaje
             });
@@ -252,15 +263,22 @@ namespace GUI
                 return;
             }
 
+            if (cmbPerfil.SelectedIndex < 0)
+            {
+                MostrarError("Seleccioná un perfil/rol.");
+                return;
+            }
+
             try
             {
-                usuarioBLL.Alta(txtUsername.Text.Trim(), txtContraseña.Text);
+                string perfil = cmbPerfil.SelectedItem.ToString();
+                usuarioBLL.Alta(txtUsername.Text.Trim(), txtContraseña.Text, perfil);
 
                 lblMensaje.ForeColor = Color.DarkGreen;
-                lblMensaje.Text      = $"✓ Usuario '{txtUsername.Text}' creado correctamente.";
+                lblMensaje.Text      = $"Usuario '{txtUsername.Text}' [{perfil}] creado.";
                 txtUsername.Clear();
                 txtContraseña.Clear();
-                txtPerfil.Clear();
+                cmbPerfil.SelectedIndex = 1;
 
                 CargarUsuarios();
             }
@@ -284,8 +302,18 @@ namespace GUI
             int             idUsuario = Convert.ToInt32(fila.Cells["ID"].Value);
             string          username  = fila.Cells["Username"].Value?.ToString() ?? "";
 
+            // Confirmación previa — acción irreversible
+            var confirmar = MessageBox.Show(
+                $"¿Está seguro que desea resetear la contraseña de '{username}'?\n\nEsta acción no se puede deshacer.",
+                "Confirmar Reset",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);   // "No" es el botón por defecto
+
+            if (confirmar != DialogResult.Yes) return;
+
             // Abrir diálogo para ingresar la nueva contraseña
-           /* using (var dialog = new ResetClaveDialog(username))
+            using (var dialog = new ResetClaveDialog(username))
             {
                 if (dialog.ShowDialog(this) != DialogResult.OK) return;
 
@@ -294,13 +322,13 @@ namespace GUI
                     usuarioBLL.ResetearClave(this, idUsuario, dialog.NuevaClave);
 
                     lblMensaje.ForeColor = Color.DarkGreen;
-                    lblMensaje.Text      = $"✓ Contraseña de '{username}' reseteada correctamente.";
+                    lblMensaje.Text      = $"Contrasena de '{username}' reseteada correctamente.";
                 }
                 catch (Exception ex)
                 {
                     MostrarError(ex.Message);
                 }
-            }*/
+            }
         }
 
         /// <summary>Muestra un mensaje de error en el label de feedback.</summary>

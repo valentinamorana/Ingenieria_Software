@@ -1,4 +1,4 @@
-﻿using Seguridad;
+using Seguridad;
 using Servicios;
 using System;
 using System.Windows.Forms;
@@ -7,66 +7,57 @@ namespace BLL
 {
     /// <summary>
     /// Capa de Lógica de Negocio — Gestión de Usuarios.
-    /// Implementa todas las reglas de negocio relacionadas con autenticación,
-    /// gestión de sesión y administración de usuarios del sistema.
     ///
     /// RESPONSABILIDADES:
-    ///   - Validar credenciales de Login usando hash seguro (PBKDF2)
+    ///   - Validar credenciales de Login usando PBKDF2-SHA256
+    ///   - Cargar permisos del rol tras autenticación exitosa
     ///   - Establecer y destruir la sesión via SessionManager (Singleton)
-    ///   - Registrar eventos de login/logout en la Bitácora
-    ///   - Crear nuevos usuarios con contraseñas hasheadas
+    ///   - Registrar eventos en Bitácora
+    ///   - Crear nuevos usuarios con contraseñas hasheadas y rol asignado
     ///
     /// FLUJO DE LOGIN:
-    ///   1. Validar que usuario y contraseña no estén vacíos
+    ///   1. Validar campos no vacíos
     ///   2. Buscar usuario en BD (DAL)
-    ///   3. Verificar contraseña con PBKDF2 (Encriptador)
-    ///   4. Si es válido: establecer sesión (SessionManager) + log bitácora
-    ///   5. Retornar resultado al formulario GUI
-    ///
-    /// PATRÓN SINGLETON: usa SessionManager.GetInstance() para gestión de sesión,
-    /// garantizando un único estado de sesión en toda la aplicación.
+    ///   3. Verificar contraseña con PBKDF2-SHA256 (Encriptador)
+    ///   4. Cargar permisos del rol desde RolPermiso (DAL.Permiso)
+    ///   5. Establecer sesión con usuario + permisos (SessionManager)
+    ///   6. Registrar en bitácora
     /// </summary>
     public class Usuario
     {
-        // Dependencias de capas inferiores: DAL para persistencia, Servicios para auditoría
-        private readonly DAL.Usuario usuarioDAL    = new DAL.Usuario();
+        private readonly DAL.Usuario    usuarioDAL  = new DAL.Usuario();
+        private readonly DAL.Permiso    permisoDAL  = new DAL.Permiso();
         private readonly Servicios.Bitacora bitacora = new Servicios.Bitacora();
 
         /// <summary>
-        /// Autentica un usuario contra la base de datos y establece la sesión si es válido.
-        /// Implementa el proceso completo de login: validación → consulta → verificación → sesión → auditoría.
+        /// Autentica un usuario y establece la sesión con sus permisos cargados.
         /// </summary>
-        /// <param name="formulario">Formulario de Login (usado como referencia de módulo en bitácora).</param>
-        /// <param name="username">Nombre de usuario ingresado en el formulario.</param>
-        /// <param name="contraseña">Contraseña en texto plano ingresada por el usuario.</param>
-        /// <returns>true si las credenciales son correctas y la sesión fue establecida; false si son inválidas.</returns>
-        /// <exception cref="Exception">Si alguno de los campos está vacío o vacío de espacios.</exception>
+        /// <param name="formulario">Formulario de Login (módulo para bitácora).</param>
+        /// <param name="username">Nombre de usuario ingresado.</param>
+        /// <param name="contraseña">Contraseña en texto plano.</param>
+        /// <returns>true si las credenciales son válidas; false si no coinciden.</returns>
         public bool Login(Form formulario, string username, string contraseña)
         {
-            // Validación de entrada: ambos campos son obligatorios
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(contraseña))
-            {
                 throw new Exception("Usuario y contraseña son obligatorios.");
-            }
 
-            // Buscar el usuario en la BD por su nombre de usuario
+            // 1. Buscar usuario en BD
             BE.Usuario usuario = usuarioDAL.ObtenerPorUsername(username);
-
-            // Si no existe el usuario, retornar false sin dar pistas sobre cuál campo falló
-            // (evita ataques de enumeración de usuarios)
             if (usuario == null) return false;
 
-            // Verificar la contraseña usando PBKDF2: extrae el salt del hash almacenado,
-            // rehashea la contraseña ingresada y compara byte a byte
+            // 2. Verificar contraseña con PBKDF2-SHA256
             bool esValido = Encriptador.VerificarContraseña(contraseña, usuario.Contraseña);
 
             if (esValido)
             {
-                // Crear la sesión via método estático Login() — patrón del profesor.
-                // Login() crea la instancia Singleton internamente (no GetInstance).
+                // 3. Cargar permisos del rol ANTES de crear la sesión,
+                //    para que el SessionManager almacene el usuario ya enriquecido
+                usuario.Permisos = permisoDAL.ObtenerPorRol(usuario.Perfil);
+
+                // 4. Crear la sesión — patrón Singleton del profesor
                 SessionManager.Login(usuario);
 
-                // Registrar el evento de inicio de sesión en la bitácora de auditoría
+                // 5. Registrar login en bitácora
                 bitacora.Registrar(formulario, "Inicio Sesion", BE.Criticidad.None);
             }
 
@@ -74,57 +65,40 @@ namespace BLL
         }
 
         /// <summary>
-        /// Cierra la sesión del usuario activo: registra el evento, cierra la conexión BD
-        /// y limpia el estado del SessionManager.
-        /// Llamado desde Menu.cs al seleccionar "Cerrar Sesión".
+        /// Cierra la sesión: registra en bitácora, cierra conexión BD y limpia SessionManager.
         /// </summary>
-        /// <param name="formulario">Formulario del Menú principal (referencia de módulo en bitácora).</param>
         public void Logout(Form formulario)
         {
-            // Primero registrar el cierre de sesión ANTES de destruir el SessionManager,
-            // ya que Registrar() necesita el usuario activo para el log
+            // Registrar ANTES de destruir la sesión (Registrar necesita el usuario activo)
             bitacora.Registrar(formulario, "Cierre Sesion", BE.Criticidad.None);
-
-            // Cerrar la conexión a la BD
             usuarioDAL.Logout();
-
-            // Destruir la sesión via método estático Logout() — patrón del profesor.
-            // Después de esto, SessionManager.GetInstance lanza excepción (correcto).
             SessionManager.Logout();
         }
 
         /// <summary>
-        /// Crea un nuevo usuario en el sistema con su contraseña debidamente hasheada.
-        /// La contraseña se hashea con PBKDF2 antes de enviarse a la capa DAL,
-        /// garantizando que NUNCA se almacene en texto plano en la BD.
+        /// Crea un nuevo usuario con su rol y contraseña hasheada.
+        /// Solo un Administrador puede ejecutar esta acción.
         /// </summary>
-        /// <param name="username">Nombre de usuario único para el nuevo registro.</param>
-        /// <param name="contraseña">Contraseña en texto plano que será hasheada antes de guardarse.</param>
-        public void Alta(string username, string contraseña)
+        /// <param name="username">Nombre de usuario único.</param>
+        /// <param name="contraseña">Contraseña en texto plano (será hasheada).</param>
+        /// <param name="perfil">Rol del empleado: "Administrador", "OperadorLogistico" o "Supervisor".</param>
+        public void Alta(string username, string contraseña, string perfil)
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(contraseña))
-                throw new Exception("El nombre de usuario y contraseña son obligatorios.");
+                throw new Exception("Usuario y contraseña son obligatorios.");
 
-            // Hashear la contraseña con PBKDF2 antes de enviarla a la DAL
-            string contraseñaHasheada = Encriptador.Hash(contraseña);
+            if (string.IsNullOrWhiteSpace(perfil))
+                throw new Exception("El perfil/rol es obligatorio.");
 
-            // Persistir el nuevo usuario con la contraseña hasheada
-            usuarioDAL.Alta(username, contraseñaHasheada);
+            string claveHasheada = Encriptador.Hash(contraseña);
+            usuarioDAL.Alta(username, claveHasheada, perfil);
         }
 
         /// <summary>
-        /// Resetea la contraseña de un usuario existente.
-        /// Solo puede ejecutarlo un usuario con Perfil "Administrador" (master admin).
-        /// La nueva contraseña se hashea con PBKDF2 antes de persistirse — nunca se guarda en texto plano.
+        /// Resetea la contraseña de un usuario. Solo Administrador puede hacerlo.
         /// </summary>
-        /// <param name="formulario">Formulario origen para registro en bitácora.</param>
-        /// <param name="idUsuario">ID del usuario cuya contraseña se va a resetear.</param>
-        /// <param name="nuevaClave">Nueva contraseña en texto plano (será hasheada aquí).</param>
-        /// <exception cref="Exception">Si no hay sesión activa, si el usuario activo no es Administrador,
-        /// o si la nueva clave es demasiado corta.</exception>
         public void ResetearClave(Form formulario, int idUsuario, string nuevaClave)
         {
-            // Solo un Administrador puede resetear contraseñas
             if (!SessionManager.IsLoggedIn)
                 throw new Exception("No hay sesión activa.");
 
@@ -135,35 +109,37 @@ namespace BLL
             if (string.IsNullOrWhiteSpace(nuevaClave) || nuevaClave.Length < 6)
                 throw new Exception("La nueva contraseña debe tener al menos 6 caracteres.");
 
-            // Hashear con PBKDF2 antes de enviar a la DAL
             string claveHasheada = Encriptador.Hash(nuevaClave);
             usuarioDAL.ResetearClave(idUsuario, claveHasheada);
-
-            // Auditar el evento (criticidad Media — es una acción sensible)
-            bitacora.Registrar(formulario, "Reset Contraseña", BE.Criticidad.Media);
+            bitacora.Registrar(formulario, "Reset Contrasena", BE.Criticidad.Media);
         }
 
         /// <summary>
-        /// Retorna el usuario actualmente en sesión, obtenido del SessionManager (Singleton).
-        /// Usa IsLoggedIn antes de GetInstance para evitar la excepción que lanza
-        /// GetInstance cuando no hay sesión (comportamiento del patrón del profesor).
+        /// Retorna el usuario en sesión (con sus permisos) desde el SessionManager.
         /// </summary>
-        /// <returns>Entidad BE.Usuario activa, o null si no hay sesión.</returns>
         public BE.Usuario ObtenerUsuarioActivo()
         {
-            // Verificar con IsLoggedIn antes de GetInstance para no lanzar excepción
             if (!SessionManager.IsLoggedIn) return null;
             return SessionManager.GetInstance.Usuario;
         }
 
         /// <summary>
-        /// Obtiene la lista completa de usuarios del sistema para mostrar en el formulario
-        /// de Gestión de Usuarios. Las contraseñas NO se incluyen en el resultado.
+        /// Lista todos los usuarios del sistema (sin contraseñas).
         /// </summary>
-        /// <returns>Lista de entidades BE.Usuario (sin contraseñas).</returns>
         public System.Collections.Generic.List<BE.Usuario> ObtenerTodos()
         {
             return usuarioDAL.ObtenerTodos();
+        }
+
+        /// <summary>
+        /// Verifica si un username existe en la base de datos.
+        /// Usado por el formulario "Olvidé mi contraseña" para confirmar el usuario
+        /// antes de mostrar las instrucciones para contactar al administrador.
+        /// </summary>
+        public bool ExisteUsername(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username)) return false;
+            return usuarioDAL.ObtenerPorUsername(username) != null;
         }
     }
 }

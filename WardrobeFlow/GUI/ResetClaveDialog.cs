@@ -17,7 +17,7 @@ namespace GUI
     ///           usuarioBLL.ResetearClave(this, idUsuario, dialog.NuevaClave);
     ///   }
     /// </summary>
-    public class ResetClaveDialog : Form
+    public partial class ResetClaveDialog : Form
     {
         // ── Controles ─────────────────────────────────────────────────────────
         private TextBox txtNuevaClave;
@@ -37,6 +37,8 @@ namespace GUI
         /// <param name="username">Nombre del usuario cuya contraseña se va a resetear.</param>
         public ResetClaveDialog(string username)
         {
+            InitializeComponent();
+
             // ── Propiedades del formulario ────────────────────────────────────
             this.Text            = "Resetear Contraseña";
             this.ClientSize      = new Size(340, 260);

@@ -16,17 +16,21 @@ namespace DAL
         private readonly Acceso acceso = Acceso.GetInstance();
 
         /// <summary>
-        /// Inserta un nuevo usuario con contraseña ya hasheada (PBKDF2).
+        /// Inserta un nuevo usuario con contraseña hasheada y rol asignado.
+        /// IdPersona es NULL para usuarios empleados (Persona es para clientes).
         /// </summary>
-        public void Alta(string username, string clave)
+        public void Alta(string username, string clave, string perfil)
         {
             SqlParameter[] parametros = new SqlParameter[]
             {
                 new SqlParameter("@username", username),
-                new SqlParameter("@clave",    clave)
+                new SqlParameter("@clave",    clave),
+                new SqlParameter("@perfil",   perfil),
+                new SqlParameter("@rol",      perfil)  // Rol = Perfil para empleados
             };
             acceso.Escribir(
-                "INSERT INTO Usuario (Username, Clave, Estado) VALUES (@username, @clave, 1)",
+                "INSERT INTO Usuario (Username, Clave, Rol, Estado, Perfil) " +
+                "VALUES (@username, @clave, @rol, 1, @perfil)",
                 parametros);
         }
 

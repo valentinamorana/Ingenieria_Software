@@ -52,6 +52,30 @@
     <Compile Include="Bitacora.Designer.cs">
       <DependentUpon>Bitacora.cs</DependentUpon>
     </Compile>
+    <Compile Include="Categorias.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OlvideContrasenaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OlvideContrasenaForm.Designer.cs">
+      <DependentUpon>OlvideContrasenaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Categorias.Designer.cs">
+      <DependentUpon>Categorias.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Outfits.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Outfits.Designer.cs">
+      <DependentUpon>Outfits.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Prendas.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Prendas.Designer.cs">
+      <DependentUpon>Prendas.cs</DependentUpon>
+    </Compile>
     <Compile Include="Login.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -66,6 +90,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResetClaveDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ResetClaveDialog.Designer.cs">
+      <DependentUpon>ResetClaveDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Usuarios.cs">
       <SubType>Form</SubType>
     </Compile>

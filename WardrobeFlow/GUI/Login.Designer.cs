@@ -23,6 +23,7 @@ namespace GUI
             this.btnIngresar = new System.Windows.Forms.Button();
             this.btnSalir = new System.Windows.Forms.Button();
             this.lblError = new System.Windows.Forms.Label();
+            this.lnkOlvidaste = new System.Windows.Forms.LinkLabel();
             this.pnlCard = new System.Windows.Forms.Panel();
             this.lblTitle = new System.Windows.Forms.Label();
             this.lblSubtitulo = new System.Windows.Forms.Label();
@@ -97,7 +98,7 @@ namespace GUI
             this.btnIngresar.Click += new System.EventHandler(this.btnIngresar_Click);
             // 
             // btnSalir
-            // 
+            //
             this.btnSalir.BackColor = System.Drawing.Color.White;
             this.btnSalir.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnSalir.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
@@ -105,14 +106,27 @@ namespace GUI
             this.btnSalir.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSalir.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.btnSalir.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(130)))), ((int)(((byte)(130)))), ((int)(((byte)(130)))));
-            this.btnSalir.Location = new System.Drawing.Point(98, 211);
+            this.btnSalir.Location = new System.Drawing.Point(98, 240);
             this.btnSalir.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnSalir.Name = "btnSalir";
             this.btnSalir.Size = new System.Drawing.Size(90, 24);
-            this.btnSalir.TabIndex = 6;
+            this.btnSalir.TabIndex = 7;
             this.btnSalir.Text = "SALIR";
             this.btnSalir.UseVisualStyleBackColor = false;
             this.btnSalir.Click += new System.EventHandler(this.btnSalir_Click);
+            //
+            // lnkOlvidaste
+            //
+            this.lnkOlvidaste.BackColor = System.Drawing.Color.White;
+            this.lnkOlvidaste.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.lnkOlvidaste.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(60)))), ((int)(((byte)(160)))));
+            this.lnkOlvidaste.Location = new System.Drawing.Point(22, 213);
+            this.lnkOlvidaste.Name = "lnkOlvidaste";
+            this.lnkOlvidaste.Size = new System.Drawing.Size(240, 18);
+            this.lnkOlvidaste.TabIndex = 6;
+            this.lnkOlvidaste.Text = "Olvide mi contrasena";
+            this.lnkOlvidaste.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lnkOlvidaste.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkOlvidaste_LinkClicked);
             // 
             // lblError
             // 
@@ -135,11 +149,12 @@ namespace GUI
             this.pnlCard.Controls.Add(this.txtContraseña);
             this.pnlCard.Controls.Add(this.lblError);
             this.pnlCard.Controls.Add(this.btnIngresar);
+            this.pnlCard.Controls.Add(this.lnkOlvidaste);
             this.pnlCard.Controls.Add(this.btnSalir);
             this.pnlCard.Location = new System.Drawing.Point(30, 118);
             this.pnlCard.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.pnlCard.Name = "pnlCard";
-            this.pnlCard.Size = new System.Drawing.Size(285, 252);
+            this.pnlCard.Size = new System.Drawing.Size(285, 278);
             this.pnlCard.TabIndex = 13;
             // 
             // lblTitle
@@ -182,7 +197,7 @@ namespace GUI
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DarkSlateBlue;
-            this.ClientSize = new System.Drawing.Size(345, 406);
+            this.ClientSize = new System.Drawing.Size(345, 430);
             this.Controls.Add(this.lblAccent);
             this.Controls.Add(this.lblTitle);
             this.Controls.Add(this.lblSubtitulo);
@@ -204,16 +219,17 @@ namespace GUI
 
         #endregion
 
-        private System.Windows.Forms.TextBox  txtUsuario;
-        private System.Windows.Forms.TextBox  txtContraseña;
-        private System.Windows.Forms.Label    lblUsuario;
-        private System.Windows.Forms.Label    lblContraseña;
-        private System.Windows.Forms.Button   btnIngresar;
-        private System.Windows.Forms.Button   btnSalir;
-        private System.Windows.Forms.Label    lblError;
-        private System.Windows.Forms.Panel    pnlCard;
-        private System.Windows.Forms.Label    lblTitle;
-        private System.Windows.Forms.Label    lblSubtitulo;
-        private System.Windows.Forms.Label    lblAccent;
+        private System.Windows.Forms.TextBox     txtUsuario;
+        private System.Windows.Forms.TextBox     txtContraseña;
+        private System.Windows.Forms.Label       lblUsuario;
+        private System.Windows.Forms.Label       lblContraseña;
+        private System.Windows.Forms.Button      btnIngresar;
+        private System.Windows.Forms.Button      btnSalir;
+        private System.Windows.Forms.Label       lblError;
+        private System.Windows.Forms.LinkLabel   lnkOlvidaste;
+        private System.Windows.Forms.Panel       pnlCard;
+        private System.Windows.Forms.Label       lblTitle;
+        private System.Windows.Forms.Label       lblSubtitulo;
+        private System.Windows.Forms.Label       lblAccent;
     }
 }

@@ -71,5 +71,18 @@ namespace GUI
         {
             Application.Exit();
         }
+
+        /// <summary>
+        /// Abre el formulario de recuperación de contraseña.
+        /// Permite al usuario ingresar su username para que el administrador
+        /// pueda resetear su clave desde el módulo de Usuarios.
+        /// </summary>
+        private void lnkOlvidaste_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            using (var form = new OlvideContrasenaForm())
+            {
+                form.ShowDialog(this);
+            }
+        }
     }
 }

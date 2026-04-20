@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace GUI
@@ -6,52 +7,86 @@ namespace GUI
     /// <summary>
     /// Capa de Presentación — Formulario Menú Principal (MDI Container).
     ///
-    /// Es la ventana principal de la aplicación, implementada como contenedor MDI
-    /// (Multiple Document Interface). Los formularios hijos (Bitácora, Usuarios)
-    /// se abren dentro de esta ventana.
+    /// Al iniciarse, construye el menú dinámicamente según los permisos
+    /// del usuario logueado (cargados desde RolPermiso en el Login):
     ///
-    /// ESTRUCTURA DEL MENÚ:
-    ///   - Perfil → Cerrar Sesión
-    ///   - Administrar → Usuarios
-    ///   - Bitácora (acceso directo)
+    ///   Administrador     → Perfil | Inventario (Prendas, Outfits, Categorias) | Administrar (Usuarios) | Bitácora
+    ///   Supervisor        → Perfil | Bitácora
+    ///   OperadorLogistico → Perfil | Inventario (Prendas, Outfits, Categorias)
     ///
-    /// NOTAS MDI:
-    ///   - IsMdiContainer = true (configurado en Designer)
-    ///   - Formularios hijo se asignan con hijo.MdiParent = this
-    ///   - Al cerrar sesión se reinicia la aplicación (Application.Restart)
-    ///     para limpiar toda la memoria de estado
+    /// Los permisos se leen de BE.Usuario.Permisos via BLL.ObtenerUsuarioActivo().
+    /// La GUI nunca accede directamente a Seguridad ni a DAL.
     /// </summary>
     public partial class Menu : Form
     {
-        /// <summary>
-        /// Constructor: inicializa el formulario MDI con el menú de navegación.
-        /// </summary>
         public Menu()
         {
             InitializeComponent();
 
-            // Conectar el evento Click del ítem "Usuarios" del menú (estaba sin handler)
-            this.usuariosToolStripMenuItem.Click += new EventHandler(usuariosToolStripMenuItem_Click);
-
-            // Mostrar el nombre del usuario logueado en el título de la ventana.
-            // Se obtiene via BLL para respetar la arquitectura (GUI no referencia Seguridad directamente).
+            // Obtener usuario activo via BLL (GUI nunca toca SessionManager directamente)
             BLL.Usuario bll = new BLL.Usuario();
             BE.Usuario usuarioActivo = bll.ObtenerUsuarioActivo();
+
             if (usuarioActivo != null)
             {
-                this.Text = "Sistema IS  —  Usuario: " + usuarioActivo.Username +
+                this.Text = "WardrobeFlow  —  " + usuarioActivo.Username +
                             (usuarioActivo.Perfil != null ? "  [" + usuarioActivo.Perfil + "]" : "");
             }
+
+            // Construir menú dinámico según permisos del rol
+            AplicarPermisos(usuarioActivo?.Permisos);
         }
 
         /// <summary>
-        /// Cierra la sesión del usuario activo y reinicia la aplicación.
-        /// El reinicio garantiza que toda la memoria de estado quede limpia
-        /// (SessionManager, conexiones, formularios abiertos, etc.).
+        /// Muestra u oculta los ítems del menú según los permisos del usuario.
+        ///
+        /// Mapeo NombreMenu → ToolStripMenuItem:
+        ///   mnuPrendas    → prendasToolStripMenuItem    (bajo inventarioToolStripMenuItem)
+        ///   mnuOutfits    → outfitsToolStripMenuItem     (bajo inventarioToolStripMenuItem)
+        ///   mnuCategorias → categoriasToolStripMenuItem  (bajo inventarioToolStripMenuItem)
+        ///   mnuUsuarios   → gestionToolStripMenuItem (padre) + usuariosToolStripMenuItem
+        ///   mnuAuditoria  → bitacoraToolStripMenuItem
+        /// </summary>
+        private void AplicarPermisos(List<BE.Permiso> permisos)
+        {
+            // Sin permisos: ocultar todo excepto Perfil/Cerrar Sesión
+            if (permisos == null || permisos.Count == 0)
+            {
+                inventarioToolStripMenuItem.Visible = false;
+                gestionToolStripMenuItem.Visible    = false;
+                bitacoraToolStripMenuItem.Visible   = false;
+                return;
+            }
+
+            // HashSet para búsqueda O(1) por NombreMenu
+            var nombresMenu = new HashSet<string>();
+            foreach (var p in permisos)
+                nombresMenu.Add(p.NombreMenu);
+
+            // Inventario → OperadorLogistico y Administrador
+            bool tienePrendas    = nombresMenu.Contains("mnuPrendas");
+            bool tieneOutfits    = nombresMenu.Contains("mnuOutfits");
+            bool tieneCategorias = nombresMenu.Contains("mnuCategorias");
+
+            prendasToolStripMenuItem.Visible    = tienePrendas;
+            outfitsToolStripMenuItem.Visible    = tieneOutfits;
+            categoriasToolStripMenuItem.Visible = tieneCategorias;
+
+            // El menú padre Inventario se muestra si tiene al menos un subítem visible
+            inventarioToolStripMenuItem.Visible = tienePrendas || tieneOutfits || tieneCategorias;
+
+            // Administrar (Usuarios) → solo Administrador
+            gestionToolStripMenuItem.Visible = nombresMenu.Contains("mnuUsuarios");
+
+            // Bitácora → Administrador y Supervisor
+            bitacoraToolStripMenuItem.Visible = nombresMenu.Contains("mnuAuditoria");
+        }
+
+        /// <summary>
+        /// Cierra la sesión y reinicia la aplicación para volver al Login con estado limpio.
         /// </summary>
         private void cerrarSesionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Confirmar cierre de sesión
             var resultado = MessageBox.Show(
                 "¿Está seguro que desea cerrar la sesión?",
                 "Cerrar Sesión",
@@ -60,57 +95,69 @@ namespace GUI
 
             if (resultado == DialogResult.Yes)
             {
-                // Registrar el logout en bitácora y limpiar la sesión
-                BLL.Usuario usuarioBLL = new BLL.Usuario();
-                usuarioBLL.Logout(this);
-
-                // Reiniciar la aplicación para volver al Login con estado limpio
+                new BLL.Usuario().Logout(this);
                 Application.Restart();
             }
         }
 
         /// <summary>
-        /// Abre el formulario de Bitácora como hijo MDI dentro del menú principal.
-        /// Si ya existe una instancia abierta, la trae al frente en lugar de crear otra.
+        /// Abre Bitácora como hijo MDI. Accesible para Administrador y Supervisor.
         /// </summary>
         private void bitacoraToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Verificar si ya hay una instancia de Bitácora abierta para evitar duplicados
             foreach (Form hijo in this.MdiChildren)
             {
-                if (hijo is Bitacora)
-                {
-                    hijo.BringToFront();
-                    return;
-                }
+                if (hijo is Bitacora) { hijo.BringToFront(); return; }
             }
-
-            // Crear y mostrar el formulario hijo de Bitácora
-            Bitacora frmBitacora = new Bitacora();
-            frmBitacora.MdiParent = this;
-            frmBitacora.Show();
+            new Bitacora { MdiParent = this }.Show();
         }
 
         /// <summary>
-        /// Abre el formulario de Gestión de Usuarios como hijo MDI.
-        /// Solo debería ser accesible para usuarios con perfil Administrador.
+        /// Abre Gestión de Usuarios como hijo MDI. Accesible solo para Administrador.
         /// </summary>
         private void usuariosToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Verificar si ya hay una instancia de Usuarios abierta para evitar duplicados
             foreach (Form hijo in this.MdiChildren)
             {
-                if (hijo is Usuarios)
-                {
-                    hijo.BringToFront();
-                    return;
-                }
+                if (hijo is Usuarios) { hijo.BringToFront(); return; }
             }
+            new Usuarios { MdiParent = this }.Show();
+        }
 
-            // Crear y mostrar el formulario hijo de Gestión de Usuarios
-            Usuarios frmUsuarios = new Usuarios();
-            frmUsuarios.MdiParent = this;
-            frmUsuarios.Show();
+        /// <summary>
+        /// Abre el módulo de Prendas como hijo MDI.
+        /// </summary>
+        private void prendasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Form hijo in this.MdiChildren)
+            {
+                if (hijo is Prendas) { hijo.BringToFront(); return; }
+            }
+            new Prendas { MdiParent = this }.Show();
+        }
+
+        /// <summary>
+        /// Abre el módulo de Outfits como hijo MDI.
+        /// </summary>
+        private void outfitsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Form hijo in this.MdiChildren)
+            {
+                if (hijo is Outfits) { hijo.BringToFront(); return; }
+            }
+            new Outfits { MdiParent = this }.Show();
+        }
+
+        /// <summary>
+        /// Abre el módulo de Categorías como hijo MDI.
+        /// </summary>
+        private void categoriasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Form hijo in this.MdiChildren)
+            {
+                if (hijo is Categorias) { hijo.BringToFront(); return; }
+            }
+            new Categorias { MdiParent = this }.Show();
         }
     }
 }
