@@ -7,11 +7,11 @@
       "RelativeMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|solutionrelative:gui\\login.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|c:\\users\\valen\\documents\\ingenieria de software\\ingenieria_software\\wardrobeflow\\gui\\olvidecontrasenaform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\gui\\olvidecontrasenaform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|solutionrelative:gui\\olvidecontrasenaform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|c:\\users\\valen\\documents\\ingenieria de software\\ingenieria_software\\wardrobeflow\\gui\\resetclavedialog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\gui\\resetclavedialog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|solutionrelative:gui\\resetclavedialog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
@@ -79,8 +79,7 @@
               "RelativeToolTip": "GUI\\OlvideContrasenaForm.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-20T02:16:46.302Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-20T02:16:46.302Z"
             },
             {
               "$type": "Document",
@@ -92,8 +91,7 @@
               "RelativeToolTip": "GUI\\ResetClaveDialog.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-20T02:09:24.857Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-20T02:09:24.857Z"
             },
             {
               "$type": "Document",
@@ -104,8 +102,7 @@
               "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\ResetClaveDialog.cs [Design]",
               "RelativeToolTip": "GUI\\ResetClaveDialog.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-20T00:34:56.687Z",
-              "EditorCaption": " [Design]"
+              "WhenOpened": "2026-04-20T00:34:56.687Z"
             },
             {
               "$type": "Document",
