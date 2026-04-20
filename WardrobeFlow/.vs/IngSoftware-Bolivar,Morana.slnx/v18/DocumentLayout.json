@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|c:\\users\\valen\\documents\\ingenieria de software\\ingenieria_software\\wardrobeflow\\gui\\login.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|solutionrelative:gui\\login.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|c:\\users\\valen\\documents\\ingenieria de software\\ingenieria_software\\wardrobeflow\\gui\\olvidecontrasenaform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|solutionrelative:gui\\olvidecontrasenaform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\gui\\olvidecontrasenaform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|solutionrelative:gui\\olvidecontrasenaform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\gui\\login.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|solutionrelative:gui\\login.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\gui\\resetclavedialog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
@@ -30,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -58,28 +58,28 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Login.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\Login.cs",
               "RelativeDocumentMoniker": "GUI\\Login.cs",
               "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\Login.cs",
               "RelativeToolTip": "GUI\\Login.cs",
-              "ViewState": "AgIAADoAAAAAAAAAAAASwFEAAAAyAAAAAAAAAA==",
+              "ViewState": "AgIAADoAAAAAAAAAAAASwFEAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-20T02:17:11.029Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-20T02:17:11.029Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "OlvideContrasenaForm.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\OlvideContrasenaForm.cs",
               "RelativeDocumentMoniker": "GUI\\OlvideContrasenaForm.cs",
               "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\OlvideContrasenaForm.cs",
               "RelativeToolTip": "GUI\\OlvideContrasenaForm.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAfAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-20T02:16:46.302Z"
+              "WhenOpened": "2026-04-20T02:16:46.302Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",

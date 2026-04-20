@@ -9,6 +9,7 @@
     <RootNamespace>GUI</RootNamespace>
     <AssemblyName>GUI</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <LangVersion>8.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -48,6 +49,60 @@
   <ItemGroup>
     <Compile Include="Bitacora.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Clientes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Clientes.Designer.cs">
+      <DependentUpon>Clientes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ClienteForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ClienteForm.Designer.cs">
+      <DependentUpon>ClienteForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Planes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Planes.Designer.cs">
+      <DependentUpon>Planes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PrendaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PrendaForm.Designer.cs">
+      <DependentUpon>PrendaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CambioEstadoDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CambioEstadoDialog.Designer.cs">
+      <DependentUpon>CambioEstadoDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NuevoPedidoForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NuevoPedidoForm.Designer.cs">
+      <DependentUpon>NuevoPedidoForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PedidosVenta.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PedidosVenta.Designer.cs">
+      <DependentUpon>PedidosVenta.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PedidosRealizados.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PedidosRealizados.Designer.cs">
+      <DependentUpon>PedidosRealizados.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NotificacionDespachoForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NotificacionDespachoForm.Designer.cs">
+      <DependentUpon>NotificacionDespachoForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Bitacora.Designer.cs">
       <DependentUpon>Bitacora.cs</DependentUpon>
@@ -145,6 +200,10 @@
     <ProjectReference Include="..\BLL\BLL.csproj">
       <Project>{4a9b520a-b2fe-4e78-9989-1c7fa5746dd9}</Project>
       <Name>BLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{759e1c38-e8ec-45a2-a367-0ea9cf9dabad}</Project>
+      <Name>DAL</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

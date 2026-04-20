@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using DAL;
 
 namespace GUI
 {
@@ -159,12 +160,28 @@ namespace GUI
                     return;
                 }
 
-                // Usuario encontrado — indicar que contacte al admin
+                // Usuario encontrado — registrar en bitácora (criticidad 5) e indicar al empleado
+                try
+                {
+                    var dal = new DAL.Bitacora();
+                    dal.Registrar(new BE.Bitacora
+                    {
+                        Fecha      = DateTime.Now,
+                        IdUsuario  = 0,
+                        Modulo     = "Recuperar Contrasena",
+                        Actividad  = "Solicitud Recuperacion Clave",
+                        Criticidad = BE.Criticidad.RecuperacionClave,
+                        Detalle    = $"Solicitud de recuperacion de clave para '{username}' " +
+                                     $"a las {DateTime.Now:HH:mm:ss}."
+                    });
+                }
+                catch { }
+
                 lblMensaje.ForeColor = Color.FromArgb(30, 120, 60);
                 lblMensaje.Text =
                     $"Usuario '{username}' encontrado.\n" +
-                    "Contactá al administrador del sistema para que\n" +
-                    "resetee tu contraseña desde Administrar → Usuarios.";
+                    "Contacta al administrador para que resetee\n" +
+                    "tu contrasena desde Administrar -> Usuarios.";
 
                 btnEnviar.Enabled = false;
             }
