@@ -84,13 +84,13 @@ namespace BLL
                 int intentos = usuario.IntentosFallidos + 1;  // valor actualizado localmente
 
                 // Registrar intento fallido en bitácora
-                RegistrarIntentoFallidoInterno(formulario.Text, username, intentos);
+                RegistrarIntentoFallidoInterno(formulario.Text, username, intentos, usuario.Id);
 
                 // Si alcanzó el límite → bloquear cuenta en BD
                 if (intentos >= MaxIntentosFallidos)
                 {
                     usuarioDAL.Bloquear(usuario.Id);
-                    RegistrarBloqueo(formulario.Text, username);
+                    RegistrarBloqueo(formulario.Text, username, usuario.Id);
 
                     throw new Exception(
                         $"La cuenta '{username}' ha sido bloqueada tras {MaxIntentosFallidos} " +
@@ -161,6 +161,10 @@ namespace BLL
         /// Desbloquea la cuenta de un usuario. Solo Administrador puede hacerlo.
         /// También resetea el contador IntentosFallidos en BD.
         /// </summary>
+        /// <summary>
+        /// Desbloquea la cuenta de un usuario. Solo Administrador puede hacerlo.
+        /// También resetea el contador IntentosFallidos en BD.
+        /// </summary>
         public void Desbloquear(Form formulario, int idUsuario, string usernameObjetivo)
         {
             if (!SessionManager.IsLoggedIn)
@@ -202,43 +206,45 @@ namespace BLL
         }
 
         // ── Helpers privados de bitácora de seguridad ─────────────────────────
-        // Registran directamente en DAL porque no hay sesión activa al momento del
-        // intento fallido — Servicios.Bitacora requiere sesión activa para registrar.
+        // FIX: ahora reciben idUsuario (int?) para que aparezca en la columna
+        // "usuario" de la bitácora incluso antes de que haya sesión activa.
 
-        private void RegistrarIntentoFallidoInterno(string modulo, string username, int numeroIntento)
+        private void RegistrarIntentoFallidoInterno(string modulo, string username,
+                                                     int numeroIntento, int? idUsuario = null)
         {
             try
             {
                 new DAL.Bitacora().Registrar(new BE.Bitacora
                 {
                     Fecha      = DateTime.Now,
-                    IdUsuario  = null,
+                    IdUsuario  = idUsuario,          // FIX: ahora incluye el ID del usuario
                     Modulo     = modulo ?? "Login",
                     Actividad  = "Intento Fallido Login",
                     Criticidad = BE.Criticidad.IntentosLogin,
                     IP         = Servicios.Bitacora.ObtenerIPLocal(),
                     Detalle    = $"Intento fallido #{numeroIntento}/{MaxIntentosFallidos} " +
-                                 $"para '{username}' a las {DateTime.Now:HH:mm:ss}."
+                                 $"para '{username}' (ID: {idUsuario?.ToString() ?? "?"}) " +
+                                 $"a las {DateTime.Now:HH:mm:ss}."
                 });
             }
             catch { /* No interrumpir el flujo de login por error de bitácora */ }
         }
 
-        private void RegistrarBloqueo(string modulo, string username)
+        private void RegistrarBloqueo(string modulo, string username, int? idUsuario = null)
         {
             try
             {
                 new DAL.Bitacora().Registrar(new BE.Bitacora
                 {
                     Fecha      = DateTime.Now,
-                    IdUsuario  = null,
+                    IdUsuario  = idUsuario,          // FIX: incluye el ID del usuario
                     Modulo     = modulo ?? "Login",
                     Actividad  = "Bloqueo de Cuenta",
                     Criticidad = BE.Criticidad.BloqueosCuenta,
                     IP         = Servicios.Bitacora.ObtenerIPLocal(),
-                    Detalle    = $"Cuenta '{username}' bloqueada automáticamente tras " +
-                                 $"{MaxIntentosFallidos} intentos fallidos consecutivos " +
-                                 $"a las {DateTime.Now:HH:mm:ss}."
+                    Detalle    = $"Cuenta '{username}' (ID: {idUsuario?.ToString() ?? "?"}) " +
+                                 $"bloqueada automáticamente tras {MaxIntentosFallidos} " +
+                                 $"intentos fallidos consecutivos a las {DateTime.Now:HH:mm:ss}."
                 });
             }
             catch { }

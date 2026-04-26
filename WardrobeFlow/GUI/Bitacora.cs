@@ -309,11 +309,11 @@ namespace GUI
             };
             panelFiltros.Controls.Add(btnNegLimpiar);
 
-            // Botón exportar PDF — derecha del panel
+            // Botón exportar PDF — derecha del panel (después de ID Cliente que termina en 792)
             var btnExportNegocio = new Button
             {
                 Text      = "📄 Exportar PDF",
-                Left      = 726, Top = 9, Width = 130, Height = 66,
+                Left      = 808, Top = 9, Width = 130, Height = 66,
                 BackColor = Color.FromArgb(70, 100, 160), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font      = new Font("Segoe UI", 9f)

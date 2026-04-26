@@ -103,7 +103,8 @@ namespace GUI
                 tieneClientes || tienePlanes || tienePedidosVenta || tienePedidosReal;
 
             // ── Administrar (Usuarios) ────────────────────────────────────────
-            gestionToolStripMenuItem.Visible = nombresMenu.Contains("mnuUsuarios");
+            // Menú deshabilitado: la gestión de usuarios se maneja internamente.
+            gestionToolStripMenuItem.Visible = false;
 
             // ── Bitácora ──────────────────────────────────────────────────────
             bitacoraToolStripMenuItem.Visible = nombresMenu.Contains("mnuAuditoria");
