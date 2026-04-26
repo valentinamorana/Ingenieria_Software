@@ -104,4 +104,7 @@ namespace BLL
                 throw new Exception("El DNI del cliente es obligatorio.");
 
             if (cliente.DNI.Length < 7 || cliente.DNI.Length > 8)
-                throw new Exception("El DNI debe
+                throw new Exception("El DNI debe tener entre 7 y 8 dígitos.");
+        }
+    }
+}

@@ -209,4 +209,34 @@ namespace BLL
             if (!ok)
                 throw new Exception(
                     $"No se puede des-cancelar el Pedido #{pedido.IdPedido}.\n" +
-                    "Una o má
+                                        "Una o más prendas del pedido ya no están disponibles.");
+
+            bitacora.Registrar(formulario.Text,
+                $"Des-cancelar Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente}",
+                BE.Criticidad.Media);
+
+            bitacoraNeg.Registrar(
+                BE.TipoEventoNegocio.Venta,
+                $"Pedido #{pedido.IdPedido} des-cancelado — Cliente: {pedido.NombreCliente}",
+                idPedido:  pedido.IdPedido,
+                idCliente: pedido.IdCliente);
+        }
+
+        // ── Helper privado ────────────────────────────────────────────────
+
+        /// <summary>
+        /// Resuelve el IdEmpleado del usuario en sesión.
+        /// Lanza excepción si el usuario no tiene Empleado vinculado.
+        /// </summary>
+        private int ResolverEmpleadoActivo()
+        {
+            var usuario  = Seguridad.SessionManager.GetInstance.Usuario;
+            var empleado = new DAL.Empleado().ObtenerPorUsuario(usuario.Id);
+            if (empleado == null)
+                throw new Exception(
+                    $"El usuario '{usuario.Username}' no tiene un Empleado vinculado.\n" +
+                    "Pedíle al Administrador que configure el vínculo.");
+            return empleado.IdEmpleado;
+        }
+    }
+}

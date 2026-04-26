@@ -24,14 +24,15 @@ namespace DAL
                 new SqlParameter("@modulo",     registro.Modulo),
                 new SqlParameter("@actividad",  registro.Actividad),
                 new SqlParameter("@detalle",    registro.Detalle),
-                new SqlParameter("@criticidad", (int)registro.Criticidad)
+                new SqlParameter("@criticidad", (int)registro.Criticidad),
+                new SqlParameter("@ip",         (object)registro.IP ?? DBNull.Value)
             };
 
             try
             {
                 acceso.Escribir(
-                    "INSERT INTO Bitacora (fecha, usuario, modulo, actividad, detalle, criticidad) " +
-                    "VALUES (@fecha, @usuario, @modulo, @actividad, @detalle, @criticidad)",
+                    "INSERT INTO Bitacora (fecha, usuario, modulo, actividad, detalle, criticidad, ip) " +
+                    "VALUES (@fecha, @usuario, @modulo, @actividad, @detalle, @criticidad, @ip)",
                     parametros);
             }
             catch (Exception ex)
@@ -46,7 +47,7 @@ namespace DAL
             try
             {
                 return acceso.Leer(
-                    "SELECT Id, fecha, usuario, modulo, actividad, detalle, criticidad " +
+                    "SELECT Id, fecha, usuario, modulo, actividad, detalle, criticidad, ip " +
                     "FROM Bitacora ORDER BY fecha DESC",
                     null);
             }
@@ -73,7 +74,7 @@ namespace DAL
             try
             {
                 return acceso.Leer(
-                    "SELECT Id, fecha, usuario, modulo, actividad, detalle, criticidad " +
+                    "SELECT Id, fecha, usuario, modulo, actividad, detalle, criticidad, ip " +
                     "FROM Bitacora WHERE fecha >= @desde ORDER BY fecha DESC",
                     parametros);
             }
@@ -90,7 +91,7 @@ namespace DAL
         /// </summary>
         public DataTable BuscarPorFiltros(DateTime? desde, DateTime? hasta, int idUsuario, string actividad, int criticidad)
         {
-            string consulta = "SELECT Id, fecha, usuario, modulo, actividad, detalle, criticidad " +
+            string consulta = "SELECT Id, fecha, usuario, modulo, actividad, detalle, criticidad, ip " +
                               "FROM Bitacora WHERE 1=1";
             var parametros = new System.Collections.Generic.List<SqlParameter>();
 

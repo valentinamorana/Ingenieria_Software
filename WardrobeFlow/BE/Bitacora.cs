@@ -37,5 +37,8 @@ namespace BE
 
         /// <summary>Nivel de importancia: None=0, Baja=1, Media=2, Alta=3.</summary>
         public Criticidad Criticidad { get; set; }
+
+        /// <summary>Dirección IP del equipo desde donde se originó la acción.</summary>
+        public string IP { get; set; }
     }
 }

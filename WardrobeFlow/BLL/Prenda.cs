@@ -142,4 +142,10 @@ namespace BLL
             if (actual == BE.EstadoPrenda.Baja)
                 throw new Exception("Una prenda dada de baja no puede cambiar de estado.");
 
-     
+            if (actual == BE.EstadoPrenda.EnUso)
+                throw new Exception(
+                    "No se puede cambiar manualmente el estado de una prenda en uso.\n" +
+                    "El estado se actualiza autom\u00e1ticamente al procesar pedidos.");
+        }
+    }
+}

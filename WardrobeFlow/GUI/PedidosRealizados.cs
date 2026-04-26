@@ -228,8 +228,7 @@ namespace GUI
             this.Controls.Add(panelTop);
         }
 
-        // ── Carga y filtrado ──────────────────────────────────────────────────
-
+        // ── Carga y filtrado ─────────────────────────────────────────────────
         private void CargarPedidos()
         {
             try
