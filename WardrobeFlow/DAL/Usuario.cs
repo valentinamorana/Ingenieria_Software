@@ -10,12 +10,13 @@ namespace DAL
     /// Opera sobre la tabla [Usuario] de WardrobeFlowDB.
     ///
     /// Columnas de la tabla:
-    ///   IdUsuario  int PK     → alias "Id" en consultas
-    ///   Username   varchar    → nombre de acceso único
-    ///   Clave      varchar    → hash PBKDF2-SHA256 (alias "Contraseña")
-    ///   Rol        varchar    → rol técnico
-    ///   Perfil     varchar    → nombre visible
-    ///   Estado     bit        → 1=activo, 0=bloqueado (T02: bloqueo tras 3 intentos)
+    ///   IdUsuario         int PK     → alias "Id" en consultas
+    ///   Username          varchar    → nombre de acceso único
+    ///   Clave             varchar    → hash PBKDF2-SHA256 (alias "Contraseña")
+    ///   Rol               varchar    → rol técnico
+    ///   Perfil            varchar    → nombre visible
+    ///   Estado            bit        → 1=activo, 0=bloqueado (T02)
+    ///   IntentosFallidos  int        → contador persistente de intentos fallidos
     /// </summary>
     public class Usuario
     {
@@ -23,7 +24,7 @@ namespace DAL
 
         /// <summary>
         /// Inserta un nuevo usuario con contraseña hasheada y rol asignado.
-        /// Estado=1 (activo) por defecto al crear.
+        /// Estado=1 (activo) e IntentosFallidos=0 por defecto al crear.
         /// </summary>
         public void Alta(string username, string clave, string perfil)
         {
@@ -32,23 +33,20 @@ namespace DAL
                 new SqlParameter("@username", username),
                 new SqlParameter("@clave",    clave),
                 new SqlParameter("@perfil",   perfil),
-                new SqlParameter("@rol",      perfil)  // Rol = Perfil para empleados
+                new SqlParameter("@rol",      perfil)
             };
             acceso.Escribir(
-                "INSERT INTO Usuario (Username, Clave, Rol, Estado, Perfil) " +
-                "VALUES (@username, @clave, @rol, 1, @perfil)",
+                "INSERT INTO Usuario (Username, Clave, Rol, Estado, Perfil, IntentosFallidos) " +
+                "VALUES (@username, @clave, @rol, 1, @perfil, 0)",
                 parametros);
         }
 
-        /// <summary>Cierra la conexión a la BD (se llama al hacer Logout).</summary>
-        public void Logout()
-        {
-            acceso.CerrarConexion();
-        }
+        /// <summary>No-op — conservado por compatibilidad. La conexión ahora es por operación.</summary>
+        public void Logout() { /* no-op */ }
 
         /// <summary>
         /// Busca un usuario por Username para el proceso de Login.
-        /// Incluye Estado para detectar cuentas bloqueadas (T02).
+        /// Incluye Estado e IntentosFallidos para el control de bloqueo (T02).
         /// </summary>
         public BE.Usuario ObtenerPorUsername(string username)
         {
@@ -60,7 +58,8 @@ namespace DAL
             try
             {
                 DataTable tabla = acceso.Leer(
-                    "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, Estado " +
+                    "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
+                    "       Estado, IntentosFallidos " +
                     "FROM Usuario WHERE Username = @Username",
                     parametros);
 
@@ -69,13 +68,14 @@ namespace DAL
                 DataRow row = tabla.Rows[0];
                 return new BE.Usuario
                 {
-                    Id         = Convert.ToInt32(row["Id"]),
-                    Username   = row["Username"].ToString(),
-                    Contraseña = row["Contraseña"].ToString(),
-                    Rol        = row["Rol"]    != DBNull.Value ? row["Rol"].ToString()    : null,
-                    Perfil     = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
-                    // Estado=0 → bloqueado; Estado=1 → activo
-                    Bloqueado  = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0
+                    Id               = Convert.ToInt32(row["Id"]),
+                    Username         = row["Username"].ToString(),
+                    Contraseña       = row["Contraseña"].ToString(),
+                    Rol              = row["Rol"]    != DBNull.Value ? row["Rol"].ToString()    : null,
+                    Perfil           = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
+                    Bloqueado        = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
+                    IntentosFallidos = row["IntentosFallidos"] != DBNull.Value
+                                          ? Convert.ToInt32(row["IntentosFallidos"]) : 0
                 };
             }
             catch (Exception ex)
@@ -87,7 +87,6 @@ namespace DAL
         /// <summary>
         /// Bloquea la cuenta de un usuario (Estado=0).
         /// Se llama tras superar el máximo de intentos fallidos (T02).
-        /// Solo un Administrador puede revertirlo con Desbloquear().
         /// </summary>
         public void Bloquear(int idUsuario)
         {
@@ -101,7 +100,7 @@ namespace DAL
         }
 
         /// <summary>
-        /// Desbloquea la cuenta de un usuario (Estado=1).
+        /// Desbloquea la cuenta de un usuario (Estado=1) y resetea el contador de intentos.
         /// Solo puede ejecutarlo un Administrador desde la GUI de Usuarios.
         /// </summary>
         public void Desbloquear(int idUsuario)
@@ -111,20 +110,64 @@ namespace DAL
                 new SqlParameter("@idUsuario", idUsuario)
             };
             acceso.Escribir(
-                "UPDATE Usuario SET Estado = 1 WHERE IdUsuario = @idUsuario",
+                "UPDATE Usuario SET Estado = 1, IntentosFallidos = 0 WHERE IdUsuario = @idUsuario",
                 parametros);
         }
 
         /// <summary>
+        /// Incrementa en 1 el contador de intentos fallidos para el username dado.
+        /// El contador persiste en BD: sobrevive reinicios de la aplicación.
+        /// </summary>
+        public void IncrementarIntentosFallidos(string username)
+        {
+            SqlParameter[] parametros = new SqlParameter[]
+            {
+                new SqlParameter("@username", username)
+            };
+            try
+            {
+                acceso.Escribir(
+                    "UPDATE Usuario SET IntentosFallidos = ISNULL(IntentosFallidos, 0) + 1 " +
+                    "WHERE Username = @username",
+                    parametros);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DAL.Usuario.IncrementarIntentosFallidos] {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Resetea a 0 el contador de intentos fallidos para el username dado.
+        /// Se llama tras un login exitoso.
+        /// </summary>
+        public void ResetearIntentosFallidos(string username)
+        {
+            SqlParameter[] parametros = new SqlParameter[]
+            {
+                new SqlParameter("@username", username)
+            };
+            try
+            {
+                acceso.Escribir(
+                    "UPDATE Usuario SET IntentosFallidos = 0 WHERE Username = @username",
+                    parametros);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DAL.Usuario.ResetearIntentosFallidos] {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// Actualiza la contraseña de un usuario existente (ya hasheada por la BLL).
-        /// Llamado únicamente desde BLL.Usuario.ResetearClave().
         /// </summary>
         public void ResetearClave(int idUsuario, string claveHasheada)
         {
             SqlParameter[] parametros = new SqlParameter[]
             {
-                new SqlParameter("@clave",      claveHasheada),
-                new SqlParameter("@idUsuario",  idUsuario)
+                new SqlParameter("@clave",     claveHasheada),
+                new SqlParameter("@idUsuario", idUsuario)
             };
             acceso.Escribir(
                 "UPDATE Usuario SET Clave = @clave WHERE IdUsuario = @idUsuario",
@@ -132,8 +175,8 @@ namespace DAL
         }
 
         /// <summary>
-        /// Lista todos los usuarios del sistema (sin contraseña por seguridad).
-        /// Incluye Estado para mostrar cuentas bloqueadas en la GUI.
+        /// Lista todos los usuarios del sistema (sin contraseña).
+        /// Incluye Estado e IntentosFallidos para la vista de administración.
         /// </summary>
         public List<BE.Usuario> ObtenerTodos()
         {
@@ -141,7 +184,7 @@ namespace DAL
             try
             {
                 DataTable tabla = acceso.Leer(
-                    "SELECT IdUsuario AS Id, Username, Perfil, Estado " +
+                    "SELECT IdUsuario AS Id, Username, Perfil, Estado, IntentosFallidos " +
                     "FROM Usuario ORDER BY Username",
                     null);
 
@@ -149,10 +192,12 @@ namespace DAL
                 {
                     lista.Add(new BE.Usuario
                     {
-                        Id        = Convert.ToInt32(row["Id"]),
-                        Username  = row["Username"].ToString(),
-                        Perfil    = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
-                        Bloqueado = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0
+                        Id               = Convert.ToInt32(row["Id"]),
+                        Username         = row["Username"].ToString(),
+                        Perfil           = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
+                        Bloqueado        = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
+                        IntentosFallidos = row["IntentosFallidos"] != DBNull.Value
+                                              ? Convert.ToInt32(row["IntentosFallidos"]) : 0
                     });
                 }
             }

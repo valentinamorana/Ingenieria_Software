@@ -51,5 +51,12 @@ namespace BE
         /// Un Administrador puede desbloquearla desde Administrar → Usuarios.
         /// </summary>
         public bool Bloqueado { get; set; }
+
+        /// <summary>
+        /// Cantidad de intentos de login fallidos consecutivos sin éxito.
+        /// Persiste en BD — se incrementa con cada intento fallido y se resetea
+        /// al ingresar correctamente o cuando un Administrador desbloquea la cuenta.
+        /// </summary>
+        public int IntentosFallidos { get; set; }
     }
 }

@@ -31,17 +31,14 @@ namespace GUI
             // Si la conexión falla, VerificarConexionDAL() muestra un error y llama Environment.Exit(1)
             BLL.Configuracion.VerificarConexionDAL();
 
-            // Mostrar el Login como diálogo modal: la aplicación espera hasta que se cierre
-            Login frmLogin = new Login();
-            if (frmLogin.ShowDialog() == DialogResult.OK)
+            // Mostrar el Login como diálogo modal.
+            // El using garantiza que el form sea Disposed al terminar, liberando sus recursos.
+            using (var frmLogin = new Login())
             {
-                // Login exitoso → SessionManager tiene el usuario activo → abrir Menú MDI
-                Application.Run(new Menu());
-            }
-            else
-            {
-                // El usuario canceló o cerró el Login sin autenticarse → cerrar aplicación
-                Application.Exit();
+                if (frmLogin.ShowDialog() == DialogResult.OK)
+                    Application.Run(new Menu());
+                else
+                    Application.Exit();
             }
         }
     }

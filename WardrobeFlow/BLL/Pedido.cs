@@ -96,7 +96,7 @@ namespace BLL
 
             int idNuevo = dalPedido.Alta(pedido);
 
-            bitacora.Registrar(formulario,
+            bitacora.Registrar(formulario.Text,
                 $"Nuevo Pedido #{idNuevo} — Cliente: {cliente.NombreCompleto} — " +
                 $"{prendas.Count} prenda(s) — Plan: {plan.Nombre}",
                 BE.Criticidad.Media);
@@ -127,7 +127,7 @@ namespace BLL
 
             dalPedido.Despachar(pedido.IdPedido);
 
-            bitacora.Registrar(formulario,
+            bitacora.Registrar(formulario.Text,
                 $"Despachar Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente} — " +
                 $"{pedido.CantidadPrendas} prenda(s)",
                 BE.Criticidad.Media);
@@ -153,7 +153,7 @@ namespace BLL
 
             dalPedido.MarcarEntregado(pedido.IdPedido);
 
-            bitacora.Registrar(formulario,
+            bitacora.Registrar(formulario.Text,
                 $"Entrega Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente}",
                 BE.Criticidad.Baja);
 
@@ -182,7 +182,7 @@ namespace BLL
 
             dalPedido.Cancelar(pedido.IdPedido, motivo.Trim());
 
-            bitacora.Registrar(formulario,
+            bitacora.Registrar(formulario.Text,
                 $"Cancelar Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente} — Motivo: {motivo}",
                 BE.Criticidad.Media);
 
@@ -209,40 +209,4 @@ namespace BLL
             if (!ok)
                 throw new Exception(
                     $"No se puede des-cancelar el Pedido #{pedido.IdPedido}.\n" +
-                    "Una o más prendas del pedido ya no están disponibles\n" +
-                    "(fueron asignadas a otro pedido o cambiaron de estado).");
-
-            bitacora.Registrar(formulario,
-                $"Des-cancelar Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente}",
-                BE.Criticidad.Media);
-
-            bitacoraNeg.Registrar(
-                BE.TipoEventoNegocio.Venta,
-                $"Pedido #{pedido.IdPedido} des-cancelado — regresó a Pendiente — Cliente: {pedido.NombreCliente}",
-                idPedido:  pedido.IdPedido,
-                idCliente: pedido.IdCliente);
-        }
-
-        // ── Helpers privados ──────────────────────────────────────────────────
-
-        /// <summary>
-        /// Busca el Empleado vinculado al usuario activo en la sesión.
-        /// Lanza excepción si el usuario no tiene empleado asociado.
-        /// </summary>
-        private int ResolverEmpleadoActivo()
-        {
-            if (!Seguridad.SessionManager.IsLoggedIn)
-                throw new Exception("No hay sesión activa.");
-
-            int idUsuario = Seguridad.SessionManager.GetInstance.Usuario.Id;
-            var empleado  = dalEmpleado.ObtenerPorUsuario(idUsuario);
-
-            if (empleado == null)
-                throw new Exception(
-                    "El usuario activo no tiene un Empleado vinculado en el sistema.\n" +
-                    "Contactá al Administrador para vincular tu usuario a un empleado.");
-
-            return empleado.IdEmpleado;
-        }
-    }
-}
+                    "Una o má

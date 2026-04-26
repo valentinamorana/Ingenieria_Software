@@ -41,7 +41,7 @@ namespace BLL
             int idNuevo = dalCliente.Alta(cliente);
             cliente.IdCliente = idNuevo;
 
-            bitacora.Registrar(formulario, $"Alta Cliente: {cliente.NombreCompleto} (DNI {cliente.DNI})", BE.Criticidad.Baja);
+            bitacora.Registrar(formulario.Text, $"Alta Cliente: {cliente.NombreCompleto} (DNI {cliente.DNI})", BE.Criticidad.Baja);
             bitacoraNeg.Registrar(BE.TipoEventoNegocio.AltaCliente,
                 $"Nuevo cliente: {cliente.NombreCompleto} — DNI {cliente.DNI} — Plan: {cliente.NombrePlan ?? "Sin plan"}",
                 idCliente: cliente.IdCliente);
@@ -62,7 +62,7 @@ namespace BLL
                 throw new Exception($"El DNI {cliente.DNI} ya está registrado para otro cliente.");
 
             dalCliente.Modificar(cliente);
-            bitacora.Registrar(formulario, $"Modificar Cliente ID {cliente.IdCliente}: {cliente.NombreCompleto}", BE.Criticidad.Baja);
+            bitacora.Registrar(formulario.Text, $"Modificar Cliente ID {cliente.IdCliente}: {cliente.NombreCompleto}", BE.Criticidad.Baja);
             bitacoraNeg.Registrar(BE.TipoEventoNegocio.ModificacionCliente,
                 $"Modificación cliente: {cliente.NombreCompleto} — DNI {cliente.DNI}",
                 idCliente: cliente.IdCliente);
@@ -81,7 +81,7 @@ namespace BLL
                     "Primero devuelva las prendas.");
 
             dalCliente.Baja(cliente.IdCliente);
-            bitacora.Registrar(formulario, $"Baja Cliente ID {cliente.IdCliente}: {cliente.NombreCompleto}", BE.Criticidad.Media);
+            bitacora.Registrar(formulario.Text, $"Baja Cliente ID {cliente.IdCliente}: {cliente.NombreCompleto}", BE.Criticidad.Media);
             bitacoraNeg.Registrar(BE.TipoEventoNegocio.BajaCliente,
                 $"Baja cliente: {cliente.NombreCompleto} — DNI {cliente.DNI}",
                 idCliente: cliente.IdCliente);
@@ -104,10 +104,4 @@ namespace BLL
                 throw new Exception("El DNI del cliente es obligatorio.");
 
             if (cliente.DNI.Length < 7 || cliente.DNI.Length > 8)
-                throw new Exception("El DNI debe tener entre 7 y 8 dígitos.");
-
-            if (!string.IsNullOrEmpty(cliente.Email) && !cliente.Email.Contains("@"))
-                throw new Exception("El formato del email no es válido.");
-        }
-    }
-}
+                throw new Exception("El DNI debe
