@@ -1,0 +1,14 @@
+Administrador: maneja todo el sistema. Crea usuarios, asigna roles, resetea contraseñas y tiene acceso total.
+admin - admin123
+
+Vendedor: gestiona clientes y ventas. Registra clientes, asigna planes, elige prendas y crea pedidos o compras.
+vendedor - vendedor123
+
+Supervisor: controla y audita. Revisa bitácoras, valida incidencias y puede modificar planes, pero no opera directamente.
+supervisor - supervisor123
+
+Operador de Inventario: solo despacha pedidos. Ve pedidos listos, los verifica y notifica al cliente. No accede a stock ni clientes.
+operador - operador123
+
+Controlador de Stock: maneja las prendas. Controla devoluciones, registra incidencias y administra el stock.
+stock - stock123 
