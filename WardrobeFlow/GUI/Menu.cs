@@ -78,19 +78,15 @@ namespace GUI
                 nombresMenu.Add(p.NombreMenu);
 
             // ── Inventario ────────────────────────────────────────────────────
-            bool tienePrendas    = nombresMenu.Contains("mnuPrendas");
-            bool tieneOutfits    = nombresMenu.Contains("mnuOutfits");
-            bool tieneCategorias = nombresMenu.Contains("mnuCategorias");
-            bool tieneStock      = nombresMenu.Contains("mnuStock");
-            // Nota: stockToolStripMenuItem se agregará al Designer cuando se implemente el módulo.
-            // Por ahora la visibilidad del padre ya cubre su presencia futura.
+            bool tienePrendas = nombresMenu.Contains("mnuPrendas");
+            bool tieneStock   = nombresMenu.Contains("mnuStock");
 
+            // Outfits y Categorías eliminados de la interfaz (módulos no implementados)
             prendasToolStripMenuItem.Visible    = tienePrendas;
-            outfitsToolStripMenuItem.Visible    = tieneOutfits;
-            categoriasToolStripMenuItem.Visible = tieneCategorias;
+            outfitsToolStripMenuItem.Visible    = false;
+            categoriasToolStripMenuItem.Visible = false;
 
-            inventarioToolStripMenuItem.Visible =
-                tienePrendas || tieneOutfits || tieneCategorias || tieneStock;
+            inventarioToolStripMenuItem.Visible = tienePrendas || tieneStock;
 
             // ── Ventas ────────────────────────────────────────────────────────
             bool tieneClientes     = nombresMenu.Contains("mnuClientes");

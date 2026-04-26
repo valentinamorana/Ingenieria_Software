@@ -28,6 +28,9 @@ namespace BE
         /// <summary>Cantidad de prendas actualmente en uso por este cliente.</summary>
         public int              StockUtilizado { get; set; }
 
+        /// <summary>Límite de prendas del plan (cargado por JOIN, no persiste).</summary>
+        public int              LimitePrendas  { get; set; }
+
         /// <summary>Nombre completo para mostrar en grillas.</summary>
         public string NombreCompleto => $"{Nombre} {Apellido}";
     }

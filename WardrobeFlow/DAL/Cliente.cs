@@ -14,7 +14,7 @@ namespace DAL
     {
         private readonly Acceso acceso = Acceso.GetInstance();
 
-        /// <summary>Devuelve todos los clientes con el nombre de su plan (JOIN).</summary>
+        /// <summary>Devuelve todos los clientes activos con el nombre de su plan (JOIN).</summary>
         public List<BE.Cliente> ObtenerTodos()
         {
             var lista = new List<BE.Cliente>();
@@ -24,10 +24,12 @@ namespace DAL
                     "SELECT c.IdCliente, c.Nombre, c.Apellido, c.DNI, c.Email, " +
                     "       c.MetodoPago, c.IdPlan, c.FechaAlta, " +
                     "       p.Nombre AS NombrePlan, " +
+                    "       ISNULL(p.LimitePrendas, 0) AS LimitePrendas, " +
                     "       (SELECT COUNT(*) FROM Prenda pr WHERE pr.IdClienteActual = c.IdCliente " +
                     "        AND pr.Estado = 1) AS StockUtilizado " +
                     "FROM Cliente c " +
                     "LEFT JOIN PlanSuscripcion p ON p.IdPlan = c.IdPlan " +
+                    "WHERE c.Activo = 1 " +
                     "ORDER BY c.Apellido, c.Nombre",
                     null);
 
@@ -51,11 +53,12 @@ namespace DAL
                     "SELECT c.IdCliente, c.Nombre, c.Apellido, c.DNI, c.Email, " +
                     "       c.MetodoPago, c.IdPlan, c.FechaAlta, " +
                     "       p.Nombre AS NombrePlan, " +
+                    "       ISNULL(p.LimitePrendas, 0) AS LimitePrendas, " +
                     "       (SELECT COUNT(*) FROM Prenda pr WHERE pr.IdClienteActual = c.IdCliente " +
                     "        AND pr.Estado = 1) AS StockUtilizado " +
                     "FROM Cliente c " +
                     "LEFT JOIN PlanSuscripcion p ON p.IdPlan = c.IdPlan " +
-                    "WHERE c.IdCliente = @IdCliente",
+                    "WHERE c.IdCliente = @IdCliente AND c.Activo = 1",
                     p);
 
                 if (tabla == null || tabla.Rows.Count == 0) return null;
@@ -67,12 +70,12 @@ namespace DAL
             }
         }
 
-        /// <summary>Verifica si ya existe un cliente con ese DNI.</summary>
+        /// <summary>Verifica si ya existe un cliente activo con ese DNI.</summary>
         public bool ExisteDNI(string dni)
         {
             SqlParameter[] p = { new SqlParameter("@DNI", dni) };
             DataTable tabla = acceso.Leer(
-                "SELECT IdCliente FROM Cliente WHERE DNI = @DNI", p);
+                "SELECT IdCliente FROM Cliente WHERE DNI = @DNI AND Activo = 1", p);
             return tabla != null && tabla.Rows.Count > 0;
         }
 
@@ -121,11 +124,16 @@ namespace DAL
                 p);
         }
 
-        /// <summary>Elimina un cliente (solo si no tiene prendas en uso ni pedidos activos).</summary>
+        /// <summary>
+        /// Baja lógica de un cliente (soft delete — Activo=0).
+        /// No elimina el registro físicamente para preservar la integridad referencial
+        /// con Pedido y BitacoraNegocio.
+        /// </summary>
         public void Baja(int idCliente)
         {
             SqlParameter[] p = { new SqlParameter("@IdCliente", idCliente) };
-            acceso.Escribir("DELETE FROM Cliente WHERE IdCliente=@IdCliente", p);
+            acceso.Escribir(
+                "UPDATE Cliente SET Activo = 0 WHERE IdCliente = @IdCliente", p);
         }
 
         // ── Mapeo privado ────────────────────────────────────────────────────
@@ -142,6 +150,9 @@ namespace DAL
                 MetodoPago     = row["MetodoPago"].ToString(),
                 IdPlan         = row["IdPlan"] != DBNull.Value ? (int?)Convert.ToInt32(row["IdPlan"]) : null,
                 NombrePlan     = row["NombrePlan"] != DBNull.Value ? row["NombrePlan"].ToString() : null,
+                LimitePrendas  = row.Table.Columns.Contains("LimitePrendas")
+                                    ? Convert.ToInt32(row["LimitePrendas"])
+                                    : 0,
                 FechaAlta      = Convert.ToDateTime(row["FechaAlta"]),
                 StockUtilizado = Convert.ToInt32(row["StockUtilizado"])
             };

@@ -25,6 +25,7 @@ namespace DAL
                 DataTable tabla = acceso.Leer(
                     "SELECT ped.IdPedido, ped.IdCliente, ped.IdEmpleado, ped.Estado, " +
                     "       ped.FechaPedido, ped.FechaDespacho, ped.FechaEntrega, " +
+                    "       ped.MotivoCancelacion, " +
                     "       cli.Nombre + ' ' + cli.Apellido AS NombreCliente, " +
                     "       emp.Nombre + ' ' + emp.Apellido AS NombreEmpleado " +
                     "FROM Pedido ped " +
@@ -43,7 +44,7 @@ namespace DAL
             return lista;
         }
 
-        /// <summary>Devuelve los pedidos pendientes (para el OperadorDeInventario).</summary>
+        /// <summary>Devuelve los pedidos pendientes (para el módulo de Despacho).</summary>
         public List<BE.Pedido> ObtenerPendientes()
         {
             var lista = new List<BE.Pedido>();
@@ -52,6 +53,7 @@ namespace DAL
                 DataTable tabla = acceso.Leer(
                     "SELECT ped.IdPedido, ped.IdCliente, ped.IdEmpleado, ped.Estado, " +
                     "       ped.FechaPedido, ped.FechaDespacho, ped.FechaEntrega, " +
+                    "       ped.MotivoCancelacion, " +
                     "       cli.Nombre + ' ' + cli.Apellido AS NombreCliente, " +
                     "       emp.Nombre + ' ' + emp.Apellido AS NombreEmpleado " +
                     "FROM Pedido ped " +
@@ -80,6 +82,7 @@ namespace DAL
                 DataTable tabla = acceso.Leer(
                     "SELECT ped.IdPedido, ped.IdCliente, ped.IdEmpleado, ped.Estado, " +
                     "       ped.FechaPedido, ped.FechaDespacho, ped.FechaEntrega, " +
+                    "       ped.MotivoCancelacion, " +
                     "       cli.Nombre + ' ' + cli.Apellido AS NombreCliente, " +
                     "       emp.Nombre + ' ' + emp.Apellido AS NombreEmpleado " +
                     "FROM Pedido ped " +
@@ -183,20 +186,65 @@ namespace DAL
         }
 
         /// <summary>
-        /// Cancela un pedido y libera las prendas (vuelven a Disponible).
+        /// Cancela un pedido, guarda el motivo y libera las prendas (vuelven a Disponible).
         /// Solo aplica si el pedido está en estado Pendiente.
         /// </summary>
-        public void Cancelar(int idPedido)
+        public void Cancelar(int idPedido, string motivo)
         {
+            SqlParameter[] p =
+            {
+                new SqlParameter("@IdPedido", idPedido),
+                new SqlParameter("@Motivo",   (object)motivo ?? DBNull.Value)
+            };
             acceso.Escribir(
-                "UPDATE Pedido SET Estado=3 WHERE IdPedido=@IdPedido",   // Cancelado
-                new SqlParameter[] { new SqlParameter("@IdPedido", idPedido) });
+                "UPDATE Pedido SET Estado=3, MotivoCancelacion=@Motivo " +
+                "WHERE IdPedido=@IdPedido",
+                p);
 
-            // Liberar prendas del pedido
+            // Liberar prendas del pedido → Disponible
             acceso.Escribir(
                 "UPDATE Prenda SET Estado=0, IdClienteActual=NULL " +
                 "WHERE IdPrenda IN (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
                 new SqlParameter[] { new SqlParameter("@IdPedido", idPedido) });
+        }
+
+        /// <summary>
+        /// Des-cancela un pedido cancelado y vuelve a marcar sus prendas como EnUso.
+        /// Solo es posible si TODAS las prendas del pedido siguen Disponibles.
+        /// Devuelve false si alguna prenda ya fue asignada a otro cliente.
+        /// </summary>
+        public bool DesCancelar(int idPedido, int idCliente)
+        {
+            // Verificar que todas las prendas del pedido estén disponibles (Estado=0)
+            SqlParameter[] checkP = { new SqlParameter("@IdPedido", idPedido) };
+            DataTable chk = acceso.Leer(
+                "SELECT COUNT(*) AS Ocupadas " +
+                "FROM PedidoPrenda pp " +
+                "INNER JOIN Prenda pr ON pr.IdPrenda = pp.IdPrenda " +
+                "WHERE pp.IdPedido = @IdPedido AND pr.Estado <> 0",
+                checkP);
+
+            if (chk == null || Convert.ToInt32(chk.Rows[0]["Ocupadas"]) > 0)
+                return false;   // Hay prendas que ya no están disponibles
+
+            // Reactivar pedido
+            acceso.Escribir(
+                "UPDATE Pedido SET Estado=0, MotivoCancelacion=NULL " +
+                "WHERE IdPedido=@IdPedido",
+                new SqlParameter[] { new SqlParameter("@IdPedido", idPedido) });
+
+            // Volver a marcar las prendas como EnUso
+            SqlParameter[] pp =
+            {
+                new SqlParameter("@IdCliente", idCliente),
+                new SqlParameter("@IdPedido",  idPedido)
+            };
+            acceso.Escribir(
+                "UPDATE Prenda SET Estado=1, IdClienteActual=@IdCliente " +
+                "WHERE IdPrenda IN (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
+                pp);
+
+            return true;
         }
 
         // ── Helpers privados ─────────────────────────────────────────────────
@@ -237,15 +285,17 @@ namespace DAL
         {
             return new BE.Pedido
             {
-                IdPedido       = Convert.ToInt32(row["IdPedido"]),
-                IdCliente      = Convert.ToInt32(row["IdCliente"]),
-                IdEmpleado     = Convert.ToInt32(row["IdEmpleado"]),
-                Estado         = (BE.EstadoPedido)Convert.ToInt32(row["Estado"]),
-                FechaPedido    = Convert.ToDateTime(row["FechaPedido"]),
-                FechaDespacho  = row["FechaDespacho"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(row["FechaDespacho"]) : null,
-                FechaEntrega   = row["FechaEntrega"]  != DBNull.Value ? (DateTime?)Convert.ToDateTime(row["FechaEntrega"])  : null,
-                NombreCliente  = row["NombreCliente"].ToString(),
-                NombreEmpleado = row["NombreEmpleado"].ToString()
+                IdPedido           = Convert.ToInt32(row["IdPedido"]),
+                IdCliente          = Convert.ToInt32(row["IdCliente"]),
+                IdEmpleado         = Convert.ToInt32(row["IdEmpleado"]),
+                Estado             = (BE.EstadoPedido)Convert.ToInt32(row["Estado"]),
+                FechaPedido        = Convert.ToDateTime(row["FechaPedido"]),
+                FechaDespacho      = row["FechaDespacho"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(row["FechaDespacho"]) : null,
+                FechaEntrega       = row["FechaEntrega"]  != DBNull.Value ? (DateTime?)Convert.ToDateTime(row["FechaEntrega"])  : null,
+                MotivoCancelacion  = row.Table.Columns.Contains("MotivoCancelacion") && row["MotivoCancelacion"] != DBNull.Value
+                                        ? row["MotivoCancelacion"].ToString() : null,
+                NombreCliente      = row["NombreCliente"].ToString(),
+                NombreEmpleado     = row["NombreEmpleado"].ToString()
             };
         }
     }

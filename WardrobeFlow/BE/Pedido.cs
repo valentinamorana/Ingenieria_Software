@@ -28,6 +28,9 @@ namespace BE
         /// <summary>Fecha de entrega al cliente. Null si aún no entregado.</summary>
         public DateTime?    FechaEntrega  { get; set; }
 
+        /// <summary>Motivo de cancelación. Null si no fue cancelado.</summary>
+        public string       MotivoCancelacion { get; set; }
+
         // ── Campos cargados por JOIN (no persisten) ─────────────────────────
 
         /// <summary>Nombre completo del cliente (JOIN con Cliente).</summary>

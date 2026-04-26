@@ -41,8 +41,8 @@ namespace GUI
         {
             InitializeComponent();
             this.Text        = "Planes de Suscripción";
-            this.ClientSize  = new Size(820, 500);
-            this.MinimumSize = new Size(700, 420);
+            this.ClientSize  = new Size(860, 540);
+            this.MinimumSize = new Size(760, 500);
 
             ConstruirInterfaz();
             this.Load += (s, e) => CargarPlanes();
@@ -53,7 +53,7 @@ namespace GUI
             // ── Panel derecho: formulario ─────────────────────────────────────
             Panel panelForm = new Panel
             {
-                Dock = DockStyle.Right, Width = 260,
+                Dock = DockStyle.Right, Width = 280,
                 Padding = new Padding(12),
                 BackColor = Color.FromArgb(245, 245, 250)
             };
@@ -64,28 +64,28 @@ namespace GUI
                 Left = 12, Top = 12, Width = 230
             };
 
-            var lblNombre = new Label { Text = "Nombre del plan *", Left = 12, Top = 50, Width = 230 };
-            txtNombre = new TextBox { Left = 12, Top = 68, Width = 230 };
+            var lblNombre = new Label { Text = "Nombre del plan *", Left = 12, Top = 50, Width = 250 };
+            txtNombre = new TextBox { Left = 12, Top = 70, Width = 250 };
 
-            var lblLimite = new Label { Text = "Límite de prendas *", Left = 12, Top = 100, Width = 230 };
+            var lblLimite = new Label { Text = "Límite de prendas *", Left = 12, Top = 106, Width = 250 };
             nudLimite = new NumericUpDown
             {
-                Left = 12, Top = 118, Width = 110,
+                Left = 12, Top = 126, Width = 120,
                 Minimum = 1, Maximum = 50, Value = 3
             };
 
-            var lblPrecio = new Label { Text = "Precio mensual ($) *", Left = 12, Top = 150, Width = 230 };
+            var lblPrecio = new Label { Text = "Precio mensual ($) *", Left = 12, Top = 162, Width = 250 };
             nudPrecio = new NumericUpDown
             {
-                Left = 12, Top = 168, Width = 150,
+                Left = 12, Top = 182, Width = 160,
                 Minimum = 0, Maximum = 999999, DecimalPlaces = 2,
                 Value = 0
             };
 
             btnGuardar = new Button
             {
-                Text = "Guardar Plan", Left = 12, Top = 210,
-                Width = 230, Height = 34,
+                Text = "Guardar Plan", Left = 12, Top = 226,
+                Width = 250, Height = 36,
                 BackColor = Color.SteelBlue, ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
@@ -94,22 +94,22 @@ namespace GUI
 
             btnNuevo = new Button
             {
-                Text = "Limpiar / Nuevo", Left = 12, Top = 252,
-                Width = 230, Height = 28,
+                Text = "Limpiar / Nuevo", Left = 12, Top = 270,
+                Width = 250, Height = 30,
                 FlatStyle = FlatStyle.Flat
             };
             btnNuevo.Click += (s, e) => LimpiarFormulario();
 
             var separador = new Label
             {
-                Left = 12, Top = 292, Width = 230, Height = 1,
+                Left = 12, Top = 314, Width = 250, Height = 1,
                 BackColor = Color.Silver
             };
 
             btnDesactivar = new Button
             {
-                Text = "Desactivar Plan Seleccionado", Left = 12, Top = 302,
-                Width = 230, Height = 34,
+                Text = "Desactivar Plan Seleccionado", Left = 12, Top = 324,
+                Width = 250, Height = 36,
                 BackColor = Color.FromArgb(160, 80, 30), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat, Enabled = false
             };
@@ -118,15 +118,17 @@ namespace GUI
 
             lblMensaje = new Label
             {
-                Left = 12, Top = 346, Width = 230, Height = 80,
+                Left = 12, Top = 372, Width = 250, Height = 90,
                 Font = new Font("Segoe UI", 8.5f)
             };
 
             panelForm.Controls.AddRange(new Control[]
             {
                 lblFormTitulo, lblNombre, txtNombre,
-                lblLimite, nudLimite, lblPrecio, nudPrecio,
-                btnGuardar, btnNuevo, separador, btnDesactivar, lblMensaje
+                lblLimite, nudLimite,
+                lblPrecio, nudPrecio,
+                btnGuardar, btnNuevo,
+                separador, btnDesactivar, lblMensaje
             });
 
             // ── DataGridView ──────────────────────────────────────────────────

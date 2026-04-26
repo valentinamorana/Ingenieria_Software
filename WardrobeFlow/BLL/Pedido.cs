@@ -167,25 +167,58 @@ namespace BLL
         // ── Cancelación ───────────────────────────────────────────────────────
 
         /// <summary>
-        /// Cancela un pedido pendiente y libera las prendas a estado Disponible.
+        /// Cancela un pedido pendiente, guarda el motivo y libera las prendas a Disponible.
         /// Solo se puede cancelar si el estado es Pendiente.
         /// </summary>
-        public void Cancelar(Form formulario, BE.Pedido pedido)
+        public void Cancelar(Form formulario, BE.Pedido pedido, string motivo)
         {
             if (pedido.Estado != BE.EstadoPedido.Pendiente)
                 throw new Exception(
                     $"Solo se pueden cancelar pedidos en estado Pendiente.\n" +
                     $"Este pedido está '{pedido.Estado}'.");
 
-            dalPedido.Cancelar(pedido.IdPedido);
+            if (string.IsNullOrWhiteSpace(motivo))
+                throw new Exception("Es obligatorio ingresar un motivo de cancelación.");
+
+            dalPedido.Cancelar(pedido.IdPedido, motivo.Trim());
 
             bitacora.Registrar(formulario,
-                $"Cancelar Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente}",
+                $"Cancelar Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente} — Motivo: {motivo}",
                 BE.Criticidad.Media);
 
             bitacoraNeg.Registrar(
                 BE.TipoEventoNegocio.Cancelacion,
-                $"Pedido #{pedido.IdPedido} cancelado — Cliente: {pedido.NombreCliente}",
+                $"Pedido #{pedido.IdPedido} cancelado — Cliente: {pedido.NombreCliente} — Motivo: {motivo}",
+                idPedido:  pedido.IdPedido,
+                idCliente: pedido.IdCliente);
+        }
+
+        /// <summary>
+        /// Revierte la cancelación de un pedido, volviendo a Pendiente y re-asignando prendas.
+        /// Solo posible si todas las prendas del pedido siguen Disponibles.
+        /// </summary>
+        public void DesCancelar(Form formulario, BE.Pedido pedido)
+        {
+            if (pedido.Estado != BE.EstadoPedido.Cancelado)
+                throw new Exception(
+                    $"Solo se pueden des-cancelar pedidos Cancelados.\n" +
+                    $"Este pedido está '{pedido.Estado}'.");
+
+            bool ok = dalPedido.DesCancelar(pedido.IdPedido, pedido.IdCliente);
+
+            if (!ok)
+                throw new Exception(
+                    $"No se puede des-cancelar el Pedido #{pedido.IdPedido}.\n" +
+                    "Una o más prendas del pedido ya no están disponibles\n" +
+                    "(fueron asignadas a otro pedido o cambiaron de estado).");
+
+            bitacora.Registrar(formulario,
+                $"Des-cancelar Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente}",
+                BE.Criticidad.Media);
+
+            bitacoraNeg.Registrar(
+                BE.TipoEventoNegocio.Venta,
+                $"Pedido #{pedido.IdPedido} des-cancelado — regresó a Pendiente — Cliente: {pedido.NombreCliente}",
                 idPedido:  pedido.IdPedido,
                 idCliente: pedido.IdCliente);
         }

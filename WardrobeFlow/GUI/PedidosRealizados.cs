@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace GUI
@@ -26,23 +27,24 @@ namespace GUI
         // ── Controles ─────────────────────────────────────────────────────────
         private DataGridView dgvPedidos;
         private DataGridView dgvDetalle;
-        private ComboBox     cmbFiltroEstado;
-        private Button       btnDespachar;
-        private Button       btnEntregado;
-        private Button       btnVerNotificacion;
-        private Button       btnRefrescar;
-        private Label        lblMensaje;
-        private Label        lblConteo;
-        private Label        lblDetalleTitulo;
+        private ComboBox      cmbFiltroEstado;
+        private NumericUpDown nudDiasFiltro;
+        private Button        btnDespachar;
+        private Button        btnEntregado;
+        private Button        btnVerNotificacion;
+        private Button        btnRefrescar;
+        private Label         lblMensaje;
+        private Label         lblConteo;
+        private Label         lblDetalleTitulo;
 
         private List<BE.Pedido> _pedidos = new List<BE.Pedido>();
 
         public PedidosRealizados()
         {
             InitializeComponent();
-            this.Text        = "Pedidos Realizados";
-            this.ClientSize  = new Size(1020, 620);
-            this.MinimumSize = new Size(860, 500);
+            this.Text        = "Despacho de Pedidos";
+            this.ClientSize  = new Size(1060, 660);
+            this.MinimumSize = new Size(880, 520);
 
             ConstruirInterfaz();
             this.Load += (s, e) => CargarPedidos();
@@ -50,23 +52,24 @@ namespace GUI
 
         private void ConstruirInterfaz()
         {
-            // ── Panel superior ────────────────────────────────────────────────
+            // ── Panel superior (2 filas: filtros + acciones) ──────────────────
             Panel panelTop = new Panel
             {
-                Dock = DockStyle.Top, Height = 56,
+                Dock = DockStyle.Top, Height = 90,
                 BackColor = Color.FromArgb(225, 235, 245),
-                Padding = new Padding(8, 8, 8, 4)
+                Padding = new Padding(8, 6, 8, 4)
             };
 
+            // Fila 1: Filtros
             panelTop.Controls.Add(new Label
             {
-                Text = "Estado:", Left = 8, Top = 18, Width = 50,
+                Text = "Estado:", Left = 8, Top = 10, Width = 50,
                 TextAlign = System.Drawing.ContentAlignment.MiddleLeft
             });
 
             cmbFiltroEstado = new ComboBox
             {
-                Left = 60, Top = 15, Width = 140,
+                Left = 60, Top = 8, Width = 140,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
             cmbFiltroEstado.Items.AddRange(new object[]
@@ -75,9 +78,38 @@ namespace GUI
             cmbFiltroEstado.SelectedIndexChanged += (s, e) => AplicarFiltro();
             panelTop.Controls.Add(cmbFiltroEstado);
 
+            panelTop.Controls.Add(new Label
+            {
+                Text = "Últimos:", Left = 212, Top = 10, Width = 56,
+                TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+            });
+
+            nudDiasFiltro = new NumericUpDown
+            {
+                Left = 270, Top = 8, Width = 60,
+                Minimum = 0, Maximum = 365, Value = 0
+            };
+            nudDiasFiltro.ValueChanged += (s, e) => AplicarFiltro();
+            panelTop.Controls.Add(nudDiasFiltro);
+
+            panelTop.Controls.Add(new Label
+            {
+                Text = "días (0 = todos)", Left = 334, Top = 10, Width = 120,
+                ForeColor = Color.DimGray, Font = new Font("Segoe UI", 8f)
+            });
+
+            lblConteo = new Label
+            {
+                Left = 460, Top = 10, Width = 380,
+                ForeColor = Color.DimGray, Font = new Font("Segoe UI", 8.5f),
+                TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+            };
+            panelTop.Controls.Add(lblConteo);
+
+            // Fila 2: Acciones
             btnDespachar = new Button
             {
-                Text = "📦 Despachar", Left = 214, Top = 13,
+                Text = "📦 Despachar", Left = 8, Top = 50,
                 Width = 130, Height = 28,
                 BackColor = Color.FromArgb(30, 110, 180), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat, Enabled = false
@@ -88,7 +120,7 @@ namespace GUI
 
             btnEntregado = new Button
             {
-                Text = "✓ Marcar Entregado", Left = 352, Top = 13,
+                Text = "✓ Marcar Entregado", Left = 146, Top = 50,
                 Width = 160, Height = 28,
                 BackColor = Color.FromArgb(40, 140, 60), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat, Enabled = false
@@ -99,7 +131,7 @@ namespace GUI
 
             btnVerNotificacion = new Button
             {
-                Text = "✉ Ver Notificación", Left = 520, Top = 13,
+                Text = "✉ Ver Notificación", Left = 314, Top = 50,
                 Width = 150, Height = 28,
                 FlatStyle = FlatStyle.Flat, Enabled = false
             };
@@ -108,18 +140,11 @@ namespace GUI
 
             btnRefrescar = new Button
             {
-                Text = "↻", Left = 678, Top = 13,
+                Text = "↻", Left = 472, Top = 50,
                 Width = 32, Height = 28, FlatStyle = FlatStyle.Flat
             };
             btnRefrescar.Click += (s, e) => CargarPedidos();
             panelTop.Controls.Add(btnRefrescar);
-
-            lblConteo = new Label
-            {
-                Left = 718, Top = 18, Width = 260,
-                ForeColor = Color.DimGray, Font = new Font("Segoe UI", 8.5f)
-            };
-            panelTop.Controls.Add(lblConteo);
 
             // ── Panel inferior: detalle prendas ───────────────────────────────
             Panel panelDetalle = new Panel
@@ -178,7 +203,12 @@ namespace GUI
                 BorderStyle = BorderStyle.None,
                 AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(246, 248, 255)
+                    BackColor = Color.FromArgb(255, 248, 252)
+                },
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    SelectionBackColor = Color.FromArgb(255, 182, 193),
+                    SelectionForeColor = Color.Black
                 }
             };
             dgvPedidos.SelectionChanged += DgvPedidos_SelectionChanged;
@@ -207,17 +237,27 @@ namespace GUI
 
         private void AplicarFiltro()
         {
-            int idx = cmbFiltroEstado.SelectedIndex;
+            int estadoIdx = cmbFiltroEstado.SelectedIndex;
+            int dias      = (int)nudDiasFiltro.Value;
+            DateTime? corte = dias > 0 ? (DateTime?)DateTime.Now.AddDays(-dias) : null;
 
             var lista = _pedidos.FindAll(p =>
-                idx == 0 ||
-                (idx == 1 && p.Estado == BE.EstadoPedido.Pendiente)  ||
-                (idx == 2 && p.Estado == BE.EstadoPedido.Despachado) ||
-                (idx == 3 && p.Estado == BE.EstadoPedido.Entregado)  ||
-                (idx == 4 && p.Estado == BE.EstadoPedido.Cancelado));
+            {
+                bool pasaEstado =
+                    estadoIdx == 0 ||
+                    (estadoIdx == 1 && p.Estado == BE.EstadoPedido.Pendiente)  ||
+                    (estadoIdx == 2 && p.Estado == BE.EstadoPedido.Despachado) ||
+                    (estadoIdx == 3 && p.Estado == BE.EstadoPedido.Entregado)  ||
+                    (estadoIdx == 4 && p.Estado == BE.EstadoPedido.Cancelado);
+
+                bool pasaDias = corte == null || p.FechaPedido >= corte;
+
+                return pasaEstado && pasaDias;
+            });
 
             var tabla = new DataTable();
             tabla.Columns.Add("ID",        typeof(int));
+            tabla.Columns.Add("Urgencia",  typeof(string));
             tabla.Columns.Add("Fecha",     typeof(string));
             tabla.Columns.Add("Cliente",   typeof(string));
             tabla.Columns.Add("Vendedor",  typeof(string));
@@ -230,6 +270,7 @@ namespace GUI
             {
                 tabla.Rows.Add(
                     p.IdPedido,
+                    ComputarUrgencia(p),
                     p.FechaPedido.ToString("dd/MM/yyyy HH:mm"),
                     p.NombreCliente,
                     p.NombreEmpleado,
@@ -244,16 +285,59 @@ namespace GUI
 
             if (dgvPedidos.Columns.Contains("ID"))
                 dgvPedidos.Columns["ID"].Width = 44;
+            if (dgvPedidos.Columns.Contains("Urgencia"))
+                dgvPedidos.Columns["Urgencia"].Width = 80;
 
-            lblConteo.Text = $"Mostrando {lista.Count} de {_pedidos.Count}";
+            lblConteo.Text = $"Mostrando {lista.Count} de {_pedidos.Count}  |  " +
+                             $"🔴 Urgentes: {lista.Count(p => ComputarUrgencia(p).StartsWith("🔴"))}  " +
+                             $"🟡 Normales: {lista.Count(p => ComputarUrgencia(p).StartsWith("🟡"))}";
             LimpiarDetalle();
+        }
+
+        /// <summary>
+        /// Calcula el nivel de urgencia según el tiempo transcurrido desde la fecha del pedido.
+        /// 🔴 Urgente: Pendiente > 3 días o Despachado > 5 días
+        /// 🟡 Normal:  1–3 días pendiente
+        /// 🟢 Reciente: menos de 1 día
+        /// </summary>
+        private string ComputarUrgencia(BE.Pedido p)
+        {
+            if (p.Estado == BE.EstadoPedido.Entregado || p.Estado == BE.EstadoPedido.Cancelado)
+                return "—";
+
+            double dias = (DateTime.Now - p.FechaPedido).TotalDays;
+
+            if (p.Estado == BE.EstadoPedido.Pendiente)
+            {
+                if (dias > 3) return "🔴 Urgente";
+                if (dias > 1) return "🟡 Normal";
+                return "🟢 Reciente";
+            }
+            if (p.Estado == BE.EstadoPedido.Despachado)
+            {
+                double diasDespacho = p.FechaDespacho.HasValue
+                    ? (DateTime.Now - p.FechaDespacho.Value).TotalDays : dias;
+                if (diasDespacho > 5) return "🔴 Urgente";
+                if (diasDespacho > 2) return "🟡 Normal";
+                return "🟢 Reciente";
+            }
+            return "—";
         }
 
         private void ColorearFilas()
         {
             foreach (DataGridViewRow row in dgvPedidos.Rows)
             {
-                string estado = row.Cells["Estado"].Value?.ToString() ?? "";
+                string estado    = row.Cells["Estado"].Value?.ToString()   ?? "";
+                string urgencia  = row.Cells["Urgencia"].Value?.ToString() ?? "";
+
+                // Color de fondo por urgencia (solo pedidos activos)
+                if (urgencia.StartsWith("🔴"))
+                    row.DefaultCellStyle.BackColor = Color.FromArgb(255, 225, 225);
+                else if (urgencia.StartsWith("🟡"))
+                    row.DefaultCellStyle.BackColor = Color.FromArgb(255, 250, 210);
+
+                // Color de texto por estado
                 row.DefaultCellStyle.ForeColor = estado switch
                 {
                     "Pendiente"  => Color.FromArgb(160, 100, 0),

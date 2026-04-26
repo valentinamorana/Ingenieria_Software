@@ -12,37 +12,36 @@ namespace GUI
     ///   Tab 1 — Sistema    : eventos de seguridad (login, logout, resets, intentos fallidos)
     ///   Tab 2 — Negocio    : eventos de negocio (ventas, despachos, stock, clientes)
     ///
+    /// Filtro de fecha unificado: sólo "Últimos N días" (0 = sin filtro de fecha).
+    /// Criticidad: "Todas" + valores reales 1-6, sin "None (0)".
+    ///
     /// Accesible para Administrador (mnuAuditoria) y Supervisor (mnuAuditoria).
     /// </summary>
     public partial class Bitacora : Form
     {
-        private readonly BLL.Bitacora        bllSistema  = new BLL.Bitacora();
-        private readonly BLL.BitacoraNegocio bllNegocio  = new BLL.BitacoraNegocio();
+        private readonly BLL.Bitacora        bllSistema = new BLL.Bitacora();
+        private readonly BLL.BitacoraNegocio bllNegocio = new BLL.BitacoraNegocio();
 
         // ── Controles compartidos ─────────────────────────────────────────────
         private TabControl tabControl;
 
         // ── Tab Sistema ───────────────────────────────────────────────────────
-        private DataGridView dgvSistema;
+        private DataGridView  dgvSistema;
         private NumericUpDown nudDias;
-        private Button       btnUltimosDias;
-        private DateTimePicker dtpDesde, dtpHasta;
-        private CheckBox     chkFiltrarFecha;
-        private TextBox      txtUsuario, txtActividad;
-        private ComboBox     cmbCriticidad;
-        private Button       btnBuscar, btnLimpiar;
-        private Label        lblResultadosSistema;
+        private Button        btnUltimosDias;
+        private TextBox       txtUsuario, txtActividad;
+        private ComboBox      cmbCriticidad;
+        private Button        btnBuscar, btnLimpiar;
+        private Label         lblResultadosSistema;
 
         // ── Tab Negocio ───────────────────────────────────────────────────────
         private DataGridView  dgvNegocio;
-        private DateTimePicker dtpNegDesde, dtpNegHasta;
-        private CheckBox      chkNegFecha;
+        private NumericUpDown nudNegDias;
+        private Button        btnNegUltimosDias;
         private ComboBox      cmbTipoEvento;
         private TextBox       txtNegPedido, txtNegCliente;
         private Button        btnNegBuscar, btnNegLimpiar;
         private Label         lblResultadosNegocio;
-        private NumericUpDown nudNegDias;
-        private Button        btnNegUltimosDias;
 
         public Bitacora()
         {
@@ -62,10 +61,8 @@ namespace GUI
         private void ConstruirInterfaz()
         {
             tabControl = new TabControl { Dock = DockStyle.Fill };
-
             tabControl.TabPages.Add(ConstruirTabSistema());
             tabControl.TabPages.Add(ConstruirTabNegocio());
-
             this.Controls.Add(tabControl);
         }
 
@@ -77,78 +74,68 @@ namespace GUI
         {
             var tab = new TabPage("🔐  Bitácora del Sistema");
 
-            // ── Panel de filtros ──────────────────────────────────────────────
+            // ── Panel de filtros (2 filas) ─────────────────────────────────────
             Panel panelFiltros = new Panel
             {
-                Dock = DockStyle.Top, Height = 120,
+                Dock      = DockStyle.Top,
+                Height    = 90,
                 BackColor = Color.FromArgb(240, 240, 240),
-                Padding = new Padding(8)
+                Padding   = new Padding(8)
             };
 
-            // Acceso rápido
+            // ── Fila 1: días + usuario ─────────────────────────────────────────
             panelFiltros.Controls.Add(new Label
-                { Text = "Acceso rápido:", Left = 10, Top = 10, Width = 100,
-                  Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold) });
-            panelFiltros.Controls.Add(new Label { Text = "Últimos", Left = 10, Top = 38, Width = 55 });
+                { Text = "Últimos", Left = 10, Top = 14, Width = 55 });
 
             nudDias = new NumericUpDown
-                { Left = 68, Top = 34, Width = 55, Minimum = 1, Maximum = 365, Value = 7 };
+                { Left = 68, Top = 10, Width = 55, Minimum = 0, Maximum = 365, Value = 7 };
             panelFiltros.Controls.Add(nudDias);
-            panelFiltros.Controls.Add(new Label { Text = "días", Left = 128, Top = 38, Width = 35 });
+
+            panelFiltros.Controls.Add(new Label
+                { Text = "días  (0 = todos)", Left = 128, Top = 14, Width = 110 });
 
             btnUltimosDias = new Button
             {
-                Text = "Ver", Left = 166, Top = 33, Width = 55, Height = 26,
-                BackColor = Color.SteelBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat
+                Text      = "Ver",
+                Left      = 242, Top = 9, Width = 50, Height = 26,
+                BackColor = Color.SteelBlue, ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
             };
             btnUltimosDias.FlatAppearance.BorderSize = 0;
             btnUltimosDias.Click += (s, e) =>
             {
-                var dt = bllSistema.ObtenerUltimosNDias((int)nudDias.Value);
-                MostrarEnGrilla(dgvSistema, lblResultadosSistema, dt, $"últimos {(int)nudDias.Value} días");
+                DataTable dt;
+                int dias = (int)nudDias.Value;
+                if (dias == 0)
+                    dt = bllSistema.ObtenerTodos();
+                else
+                    dt = bllSistema.ObtenerUltimosNDias(dias);
+                MostrarEnGrilla(dgvSistema, lblResultadosSistema, dt,
+                    dias > 0 ? $"últimos {dias} días" : "todos los registros");
             };
             panelFiltros.Controls.Add(btnUltimosDias);
 
             panelFiltros.Controls.Add(new Label
-                { Text = "│", Left = 235, Top = 10, Width = 15, Height = 80,
-                  TextAlign = System.Drawing.ContentAlignment.MiddleCenter, ForeColor = Color.Gray });
-
-            // Filtros combinados
-            chkFiltrarFecha = new CheckBox { Text = "Filtrar por fecha", Left = 255, Top = 10, Width = 130 };
-            chkFiltrarFecha.CheckedChanged += (s, e) =>
-            {
-                dtpDesde.Enabled = chkFiltrarFecha.Checked;
-                dtpHasta.Enabled = chkFiltrarFecha.Checked;
-            };
-            panelFiltros.Controls.Add(chkFiltrarFecha);
-
-            panelFiltros.Controls.Add(new Label { Text = "Desde:", Left = 255, Top = 38, Width = 50 });
-            dtpDesde = new DateTimePicker { Left = 307, Top = 34, Width = 130, Format = DateTimePickerFormat.Short, Enabled = false };
-            panelFiltros.Controls.Add(dtpDesde);
-
-            panelFiltros.Controls.Add(new Label { Text = "Hasta:", Left = 448, Top = 38, Width = 45 });
-            dtpHasta = new DateTimePicker { Left = 496, Top = 34, Width = 130, Format = DateTimePickerFormat.Short, Enabled = false };
-            panelFiltros.Controls.Add(dtpHasta);
-
-            panelFiltros.Controls.Add(new Label { Text = "Usuario ID:", Left = 638, Top = 38, Width = 75 });
-            txtUsuario = new TextBox { Left = 716, Top = 35, Width = 55, Text = "0" };
+                { Text = "Usuario ID:", Left = 312, Top = 14, Width = 75 });
+            txtUsuario = new TextBox { Left = 390, Top = 10, Width = 55, Text = "0" };
             panelFiltros.Controls.Add(txtUsuario);
 
-            panelFiltros.Controls.Add(new Label { Text = "Actividad:", Left = 255, Top = 80, Width = 70 });
-            txtActividad = new TextBox { Left = 327, Top = 77, Width = 200 };
+            // ── Fila 2: actividad + criticidad + botones ───────────────────────
+            panelFiltros.Controls.Add(new Label
+                { Text = "Actividad:", Left = 10, Top = 54, Width = 70 });
+            txtActividad = new TextBox { Left = 82, Top = 50, Width = 200 };
             panelFiltros.Controls.Add(txtActividad);
 
-            panelFiltros.Controls.Add(new Label { Text = "Criticidad:", Left = 540, Top = 80, Width = 70 });
+            panelFiltros.Controls.Add(new Label
+                { Text = "Criticidad:", Left = 296, Top = 54, Width = 70 });
             cmbCriticidad = new ComboBox
             {
-                Left = 612, Top = 77, Width = 120, DropDownStyle = ComboBoxStyle.DropDownList
+                Left = 368, Top = 50, Width = 170, DropDownStyle = ComboBoxStyle.DropDownList
             };
-            // Items: "Todas" (índice 0 → sentinel -1 al buscar),
-            //        luego los 7 valores del enum Criticidad (índice N → valor N-1)
+            // Índice 0 → -1 (todas), índice N → valor real N (1‥6)
             cmbCriticidad.Items.AddRange(new object[]
             {
                 "Todas",
-                "None (0)",
                 "Baja (1)",
                 "Media (2)",
                 "Alta (3)",
@@ -161,28 +148,31 @@ namespace GUI
 
             btnBuscar = new Button
             {
-                Text = "Buscar", Left = 745, Top = 75, Width = 80,
-                BackColor = Color.SteelBlue, ForeColor = Color.White, FlatStyle = FlatStyle.Flat
+                Text      = "Buscar",
+                Left      = 548, Top = 48, Width = 80,
+                BackColor = Color.SteelBlue, ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
             };
             btnBuscar.FlatAppearance.BorderSize = 0;
             btnBuscar.Click += BtnBuscarSistema_Click;
             panelFiltros.Controls.Add(btnBuscar);
 
-            btnLimpiar = new Button { Text = "Limpiar", Left = 833, Top = 75, Width = 80 };
+            btnLimpiar = new Button
+                { Text = "Limpiar", Left = 636, Top = 48, Width = 80 };
             btnLimpiar.Click += (s, e) =>
             {
-                chkFiltrarFecha.Checked = false; txtUsuario.Text = "0";
-                txtActividad.Clear(); cmbCriticidad.SelectedIndex = 0; nudDias.Value = 7;
+                txtUsuario.Text = "0";
+                txtActividad.Clear();
+                cmbCriticidad.SelectedIndex = 0;
+                nudDias.Value = 7;
                 CargarSistema();
             };
             panelFiltros.Controls.Add(btnLimpiar);
 
-            // Grilla
+            // ── Grilla ─────────────────────────────────────────────────────────
             dgvSistema = CrearDgv();
-            // Colorear filas por criticidad cada vez que cambia el DataSource
             dgvSistema.DataBindingComplete += (s, e) => ColorearPorCriticidad(dgvSistema);
 
-            // Barra de resultados con stats de criticidad (2 líneas)
             lblResultadosSistema = new Label
             {
                 Dock      = DockStyle.Bottom,
@@ -209,31 +199,46 @@ namespace GUI
 
             Panel panelFiltros = new Panel
             {
-                Dock = DockStyle.Top, Height = 114,
+                Dock      = DockStyle.Top,
+                Height    = 90,
                 BackColor = Color.FromArgb(238, 245, 238),
-                Padding = new Padding(8)
+                Padding   = new Padding(8)
             };
 
-            chkNegFecha = new CheckBox { Text = "Filtrar por fecha", Left = 8, Top = 10, Width = 130 };
-            chkNegFecha.CheckedChanged += (s, e) =>
+            // ── Fila 1: días + tipo + IDs ──────────────────────────────────────
+            panelFiltros.Controls.Add(new Label
+                { Text = "Últimos", Left = 8, Top = 14, Width = 55 });
+
+            nudNegDias = new NumericUpDown
+                { Left = 66, Top = 10, Width = 55, Minimum = 0, Maximum = 365, Value = 7 };
+            panelFiltros.Controls.Add(nudNegDias);
+
+            panelFiltros.Controls.Add(new Label
+                { Text = "días  (0 = todos)", Left = 126, Top = 14, Width = 110 });
+
+            btnNegUltimosDias = new Button
             {
-                dtpNegDesde.Enabled = chkNegFecha.Checked;
-                dtpNegHasta.Enabled = chkNegFecha.Checked;
+                Text      = "Ver",
+                Left      = 240, Top = 9, Width = 50, Height = 26,
+                BackColor = Color.FromArgb(60, 140, 60), ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
             };
-            panelFiltros.Controls.Add(chkNegFecha);
+            btnNegUltimosDias.FlatAppearance.BorderSize = 0;
+            btnNegUltimosDias.Click += (s, e) =>
+            {
+                int dias = (int)nudNegDias.Value;
+                DateTime? desde = dias > 0 ? DateTime.Now.AddDays(-dias) : (DateTime?)null;
+                var dt = bllNegocio.BuscarPorFiltros(desde, null, null, null, null);
+                MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt,
+                    dias > 0 ? $"últimos {dias} días" : "todos los registros");
+            };
+            panelFiltros.Controls.Add(btnNegUltimosDias);
 
-            panelFiltros.Controls.Add(new Label { Text = "Desde:", Left = 8, Top = 40, Width = 50 });
-            dtpNegDesde = new DateTimePicker { Left = 60, Top = 37, Width = 120, Format = DateTimePickerFormat.Short, Enabled = false };
-            panelFiltros.Controls.Add(dtpNegDesde);
-
-            panelFiltros.Controls.Add(new Label { Text = "Hasta:", Left = 190, Top = 40, Width = 45 });
-            dtpNegHasta = new DateTimePicker { Left = 238, Top = 37, Width = 120, Format = DateTimePickerFormat.Short, Enabled = false };
-            panelFiltros.Controls.Add(dtpNegHasta);
-
-            panelFiltros.Controls.Add(new Label { Text = "Tipo:", Left = 370, Top = 12, Width = 40 });
+            panelFiltros.Controls.Add(new Label
+                { Text = "Tipo:", Left = 304, Top = 14, Width = 40 });
             cmbTipoEvento = new ComboBox
             {
-                Left = 412, Top = 9, Width = 160, DropDownStyle = ComboBoxStyle.DropDownList
+                Left = 346, Top = 9, Width = 160, DropDownStyle = ComboBoxStyle.DropDownList
             };
             cmbTipoEvento.Items.AddRange(new object[]
             {
@@ -245,78 +250,48 @@ namespace GUI
             cmbTipoEvento.SelectedIndex = 0;
             panelFiltros.Controls.Add(cmbTipoEvento);
 
-            panelFiltros.Controls.Add(new Label { Text = "ID Pedido:", Left = 370, Top = 42, Width = 70 });
-            txtNegPedido = new TextBox { Left = 442, Top = 39, Width = 60, Text = "0" };
+            panelFiltros.Controls.Add(new Label
+                { Text = "ID Pedido:", Left = 518, Top = 14, Width = 70 });
+            txtNegPedido = new TextBox { Left = 590, Top = 10, Width = 60, Text = "0" };
             panelFiltros.Controls.Add(txtNegPedido);
 
-            panelFiltros.Controls.Add(new Label { Text = "ID Cliente:", Left = 514, Top = 42, Width = 70 });
-            txtNegCliente = new TextBox { Left = 586, Top = 39, Width = 60, Text = "0" };
+            panelFiltros.Controls.Add(new Label
+                { Text = "ID Cliente:", Left = 660, Top = 14, Width = 70 });
+            txtNegCliente = new TextBox { Left = 732, Top = 10, Width = 60, Text = "0" };
             panelFiltros.Controls.Add(txtNegCliente);
 
+            // ── Fila 2: botones ────────────────────────────────────────────────
             btnNegBuscar = new Button
             {
-                Text = "Buscar", Left = 660, Top = 9, Width = 80, Height = 28,
-                BackColor = Color.FromArgb(60, 140, 60), ForeColor = Color.White, FlatStyle = FlatStyle.Flat
+                Text      = "Buscar",
+                Left      = 8, Top = 50, Width = 80, Height = 28,
+                BackColor = Color.FromArgb(60, 140, 60), ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
             };
             btnNegBuscar.FlatAppearance.BorderSize = 0;
             btnNegBuscar.Click += BtnBuscarNegocio_Click;
             panelFiltros.Controls.Add(btnNegBuscar);
 
-            btnNegLimpiar = new Button { Text = "Limpiar", Left = 748, Top = 9, Width = 80, Height = 28 };
+            btnNegLimpiar = new Button
+                { Text = "Limpiar", Left = 96, Top = 50, Width = 80, Height = 28 };
             btnNegLimpiar.Click += (s, e) =>
             {
-                chkNegFecha.Checked    = false;
                 cmbTipoEvento.SelectedIndex = 0;
-                txtNegPedido.Text      = "0";
-                txtNegCliente.Text     = "0";
-                nudNegDias.Value       = 7;
+                txtNegPedido.Text  = "0";
+                txtNegCliente.Text = "0";
+                nudNegDias.Value   = 7;
                 CargarNegocio();
             };
             panelFiltros.Controls.Add(btnNegLimpiar);
-
-            // ── Fila 3: acceso rápido por días ────────────────────────────────
-            var separadorNeg = new Label
-            {
-                Left = 8, Top = 78, Width = 840, Height = 1,
-                BackColor = Color.FromArgb(180, 210, 180)
-            };
-            panelFiltros.Controls.Add(separadorNeg);
-
-            panelFiltros.Controls.Add(new Label
-            {
-                Text = "Acceso rápido — Últimos",
-                Left = 8, Top = 88, Width = 145,
-                Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold)
-            });
-
-            nudNegDias = new NumericUpDown
-                { Left = 155, Top = 84, Width = 55, Minimum = 1, Maximum = 365, Value = 7 };
-            panelFiltros.Controls.Add(nudNegDias);
-            panelFiltros.Controls.Add(new Label { Text = "días", Left = 215, Top = 88, Width = 35 });
-
-            btnNegUltimosDias = new Button
-            {
-                Text = "Ver", Left = 254, Top = 83, Width = 55, Height = 26,
-                BackColor = Color.FromArgb(60, 140, 60), ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
-            btnNegUltimosDias.FlatAppearance.BorderSize = 0;
-            btnNegUltimosDias.Click += (s, e) =>
-            {
-                var desde = DateTime.Now.AddDays(-(int)nudNegDias.Value);
-                var dt    = bllNegocio.BuscarPorFiltros(desde, null, null, null, null);
-                MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt,
-                    $"últimos {(int)nudNegDias.Value} días");
-            };
-            panelFiltros.Controls.Add(btnNegUltimosDias);
 
             dgvNegocio = CrearDgv();
 
             lblResultadosNegocio = new Label
             {
-                Dock = DockStyle.Bottom, Height = 24,
+                Dock      = DockStyle.Bottom,
+                Height    = 24,
                 TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
-                Padding = new Padding(4, 0, 0, 0),
+                Padding   = new Padding(4, 0, 0, 0),
                 BackColor = Color.FromArgb(220, 235, 220)
             };
 
@@ -354,14 +329,16 @@ namespace GUI
         {
             try
             {
-                DateTime? desde    = chkFiltrarFecha.Checked ? dtpDesde.Value  : (DateTime?)null;
-                DateTime? hasta    = chkFiltrarFecha.Checked ? dtpHasta.Value  : (DateTime?)null;
-                int uid            = int.TryParse(txtUsuario.Text, out int u) ? u : 0;
-                string actividad   = txtActividad.Text.Trim();
-                // SelectedIndex 0 = "Todas" → -1 (sin filtro), 1 = None=0, 2 = Baja=1, etc.
-                int criticidad     = cmbCriticidad.SelectedIndex - 1;
+                int dias     = (int)nudDias.Value;
+                DateTime? desde = dias > 0 ? DateTime.Now.AddDays(-dias) : (DateTime?)null;
+                int uid      = int.TryParse(txtUsuario.Text, out int u) ? u : 0;
+                string activ = txtActividad.Text.Trim();
 
-                var dt = bllSistema.BuscarPorFiltros(desde, hasta, uid, actividad, criticidad);
+                // índice 0 → -1 (todas), índice 1 → 1, …, índice 6 → 6
+                int[] criticidadMap = { -1, 1, 2, 3, 4, 5, 6 };
+                int criticidad = criticidadMap[cmbCriticidad.SelectedIndex];
+
+                var dt = bllSistema.BuscarPorFiltros(desde, null, uid, activ, criticidad);
                 MostrarEnGrilla(dgvSistema, lblResultadosSistema, dt);
             }
             catch (Exception ex) { MostrarError(ex.Message); }
@@ -371,13 +348,15 @@ namespace GUI
         {
             try
             {
-                DateTime? desde   = chkNegFecha.Checked ? dtpNegDesde.Value : (DateTime?)null;
-                DateTime? hasta   = chkNegFecha.Checked ? dtpNegHasta.Value : (DateTime?)null;
-                string tipo       = cmbTipoEvento.SelectedIndex == 0 ? null : cmbTipoEvento.SelectedItem.ToString();
-                int? idPedido     = int.TryParse(txtNegPedido.Text, out int p) && p > 0 ? (int?)p : null;
-                int? idCliente    = int.TryParse(txtNegCliente.Text, out int c) && c > 0 ? (int?)c : null;
+                int dias      = (int)nudNegDias.Value;
+                DateTime? desde = dias > 0 ? DateTime.Now.AddDays(-dias) : (DateTime?)null;
+                string tipo   = cmbTipoEvento.SelectedIndex == 0
+                                    ? null
+                                    : cmbTipoEvento.SelectedItem.ToString();
+                int? idPedido  = int.TryParse(txtNegPedido.Text,  out int p) && p > 0 ? (int?)p : null;
+                int? idCliente = int.TryParse(txtNegCliente.Text, out int c) && c > 0 ? (int?)c : null;
 
-                var dt = bllNegocio.BuscarPorFiltros(desde, hasta, tipo, idCliente, idPedido);
+                var dt = bllNegocio.BuscarPorFiltros(desde, null, tipo, idCliente, idPedido);
                 MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt);
             }
             catch (Exception ex) { MostrarError(ex.Message); }
@@ -389,18 +368,23 @@ namespace GUI
         {
             return new DataGridView
             {
-                Dock = DockStyle.Fill,
-                ReadOnly = true,
-                AllowUserToAddRows = false,
+                Dock                  = DockStyle.Fill,
+                ReadOnly              = true,
+                AllowUserToAddRows    = false,
                 AllowUserToDeleteRows = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                BackgroundColor = Color.White,
-                RowHeadersVisible = false,
-                BorderStyle = BorderStyle.None,
+                SelectionMode         = DataGridViewSelectionMode.FullRowSelect,
+                AutoSizeColumnsMode   = DataGridViewAutoSizeColumnsMode.Fill,
+                BackgroundColor       = Color.White,
+                RowHeadersVisible     = false,
+                BorderStyle           = BorderStyle.None,
                 AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
                 {
                     BackColor = Color.FromArgb(248, 248, 255)
+                },
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    SelectionBackColor = Color.FromArgb(255, 182, 193),
+                    SelectionForeColor = Color.Black
                 }
             };
         }
@@ -412,7 +396,6 @@ namespace GUI
             string linea1 = $"  {datos.Rows.Count} registro(s)";
             if (!string.IsNullOrEmpty(contexto)) linea1 += $"  —  {contexto}";
 
-            // Para el tab Sistema: mostrar breakdown de criticidad en segunda línea
             if (dgv == dgvSistema && datos.Columns.Contains("criticidad"))
             {
                 lbl.Height = 44;
@@ -426,8 +409,7 @@ namespace GUI
         }
 
         /// <summary>
-        /// Computa un resumen de registros por nivel de criticidad para mostrar
-        /// en la barra de estado del tab Sistema (valor agregado T06a).
+        /// Computa un resumen de registros por nivel de criticidad para la barra de estado.
         /// </summary>
         private string ComputarEstadisticasCriticidad(DataTable datos)
         {
@@ -451,7 +433,6 @@ namespace GUI
 
         /// <summary>
         /// Colorea las filas del tab Sistema según el nivel de criticidad del registro.
-        /// Llamado automáticamente en DataBindingComplete del dgvSistema.
         /// </summary>
         private void ColorearPorCriticidad(DataGridView dgv)
         {
@@ -465,20 +446,13 @@ namespace GUI
                 Color back, fore;
                 switch (crit)
                 {
-                    case 0:  // None — gris claro
-                        back = Color.FromArgb(245, 245, 245); fore = Color.Gray;             break;
-                    case 1:  // Baja — verde suave
-                        back = Color.FromArgb(220, 255, 220); fore = Color.DarkGreen;        break;
-                    case 2:  // Media — amarillo
-                        back = Color.FromArgb(255, 255, 200); fore = Color.DarkGoldenrod;    break;
-                    case 3:  // Alta — naranja
-                        back = Color.FromArgb(255, 220, 170); fore = Color.DarkOrange;       break;
-                    case 4:  // IntentosLogin — rojo suave
-                        back = Color.FromArgb(255, 205, 205); fore = Color.DarkRed;          break;
-                    case 5:  // RecuperacionClave — azul claro
-                        back = Color.FromArgb(210, 225, 255); fore = Color.DarkBlue;         break;
-                    case 6:  // BloqueosCuenta — rojo fuerte
-                        back = Color.FromArgb(200, 0, 20);    fore = Color.White;            break;
+                    case 0:  back = Color.FromArgb(245, 245, 245); fore = Color.Gray;           break;
+                    case 1:  back = Color.FromArgb(220, 255, 220); fore = Color.DarkGreen;      break;
+                    case 2:  back = Color.FromArgb(255, 255, 200); fore = Color.DarkGoldenrod;  break;
+                    case 3:  back = Color.FromArgb(255, 220, 170); fore = Color.DarkOrange;     break;
+                    case 4:  back = Color.FromArgb(255, 205, 205); fore = Color.DarkRed;        break;
+                    case 5:  back = Color.FromArgb(210, 225, 255); fore = Color.DarkBlue;       break;
+                    case 6:  back = Color.FromArgb(200, 0,   20);  fore = Color.White;          break;
                     default: continue;
                 }
                 fila.DefaultCellStyle.BackColor = back;

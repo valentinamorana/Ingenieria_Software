@@ -26,6 +26,7 @@ namespace GUI
         private DataGridView dgvDetallePrendas;
         private Button       btnNuevoPedido;
         private Button       btnCancelar;
+        private Button       btnDesCancelar;
         private Button       btnRefrescar;
         private Label        lblMensaje;
         private Label        lblConteo;
@@ -66,29 +67,39 @@ namespace GUI
 
             btnCancelar = new Button
             {
-                Text = "✕ Cancelar Pedido", Left = 156, Top = 11,
-                Width = 140, Height = 28,
+                Text = "✕ Cancelar", Left = 156, Top = 11,
+                Width = 110, Height = 28,
                 BackColor = Color.FromArgb(200, 60, 60), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat, Enabled = false
             };
             btnCancelar.FlatAppearance.BorderSize = 0;
             btnCancelar.Click += BtnCancelarPedido_Click;
 
+            btnDesCancelar = new Button
+            {
+                Text = "↩ Des-cancelar", Left = 274, Top = 11,
+                Width = 130, Height = 28,
+                BackColor = Color.FromArgb(100, 80, 160), ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat, Enabled = false
+            };
+            btnDesCancelar.FlatAppearance.BorderSize = 0;
+            btnDesCancelar.Click += BtnDesCancelarPedido_Click;
+
             btnRefrescar = new Button
             {
-                Text = "↻", Left = 304, Top = 11,
+                Text = "↻", Left = 412, Top = 11,
                 Width = 32, Height = 28, FlatStyle = FlatStyle.Flat
             };
             btnRefrescar.Click += (s, e) => CargarPedidos();
 
             lblConteo = new Label
             {
-                Left = 344, Top = 16, Width = 300,
+                Left = 452, Top = 16, Width = 300,
                 ForeColor = Color.DimGray, Font = new Font("Segoe UI", 8.5f)
             };
 
             panelTop.Controls.AddRange(new Control[]
-                { btnNuevoPedido, btnCancelar, btnRefrescar, lblConteo });
+                { btnNuevoPedido, btnCancelar, btnDesCancelar, btnRefrescar, lblConteo });
 
             // ── Panel inferior: detalle de prendas del pedido seleccionado ─────
             Panel panelDetalle = new Panel
@@ -147,7 +158,12 @@ namespace GUI
                 BorderStyle = BorderStyle.None,
                 AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(248, 248, 255)
+                    BackColor = Color.FromArgb(255, 248, 252)
+                },
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    SelectionBackColor = Color.FromArgb(255, 182, 193),
+                    SelectionForeColor = Color.Black
                 }
             };
             dgvPedidos.SelectionChanged += DgvPedidos_SelectionChanged;
@@ -174,6 +190,7 @@ namespace GUI
                 tabla.Columns.Add("Estado",     typeof(string));
                 tabla.Columns.Add("Despacho",   typeof(string));
                 tabla.Columns.Add("Entrega",    typeof(string));
+                tabla.Columns.Add("Motivo",     typeof(string));
 
                 foreach (var p in _pedidos)
                 {
@@ -185,7 +202,8 @@ namespace GUI
                         p.CantidadPrendas,
                         EstadoLabel(p.Estado),
                         p.FechaDespacho.HasValue ? p.FechaDespacho.Value.ToString("dd/MM/yyyy") : "—",
-                        p.FechaEntrega.HasValue  ? p.FechaEntrega.Value.ToString("dd/MM/yyyy")  : "—");
+                        p.FechaEntrega.HasValue  ? p.FechaEntrega.Value.ToString("dd/MM/yyyy")  : "—",
+                        p.MotivoCancelacion ?? "");
                 }
 
                 dgvPedidos.DataSource = tabla;
@@ -227,18 +245,26 @@ namespace GUI
             bool hay = dgvPedidos.SelectedRows.Count > 0;
             dgvDetallePrendas.DataSource = null;
 
-            if (!hay) { btnCancelar.Enabled = false; return; }
+            if (!hay)
+            {
+                btnCancelar.Enabled    = false;
+                btnDesCancelar.Enabled = false;
+                return;
+            }
 
             var pedido = ObtenerPedidoSeleccionado();
             if (pedido == null) return;
 
-            btnCancelar.Enabled = pedido.Estado == BE.EstadoPedido.Pendiente;
+            btnCancelar.Enabled    = pedido.Estado == BE.EstadoPedido.Pendiente;
+            btnDesCancelar.Enabled = pedido.Estado == BE.EstadoPedido.Cancelado;
 
             // Cargar detalle de prendas del pedido seleccionado
             CargarDetallePrendas(pedido.IdPedido);
 
             lblDetalleTitulo.Text =
-                $"Pedido #{pedido.IdPedido} — {pedido.NombreCliente} — {pedido.Estado}";
+                $"Pedido #{pedido.IdPedido} — {pedido.NombreCliente} — {EstadoLabel(pedido.Estado)}" +
+                (!string.IsNullOrEmpty(pedido.MotivoCancelacion)
+                    ? $"  |  Motivo: {pedido.MotivoCancelacion}" : "");
         }
 
         private void CargarDetallePrendas(int idPedido)
@@ -282,9 +308,20 @@ namespace GUI
             var pedido = ObtenerPedidoSeleccionado();
             if (pedido == null) return;
 
+            // Pedir motivo de cancelación con un dialog inline
+            string motivo = PedirTexto(
+                $"Motivo de cancelación del Pedido #{pedido.IdPedido} ({pedido.NombreCliente}):",
+                "Motivo de Cancelación");
+
+            if (string.IsNullOrWhiteSpace(motivo))
+            {
+                MostrarError("La cancelación requiere un motivo.");
+                return;
+            }
+
             var confirmar = MessageBox.Show(
                 $"¿Cancelar el Pedido #{pedido.IdPedido} de {pedido.NombreCliente}?\n\n" +
-                "Las prendas volverán a estado Disponible.",
+                $"Motivo: {motivo}\n\nLas prendas volverán a estado Disponible.",
                 "Confirmar Cancelación",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning,
@@ -294,8 +331,36 @@ namespace GUI
 
             try
             {
-                pedidoBLL.Cancelar(this, pedido);
+                pedidoBLL.Cancelar(this, pedido, motivo);
                 MostrarOk($"Pedido #{pedido.IdPedido} cancelado. Prendas liberadas.");
+                CargarPedidos();
+            }
+            catch (Exception ex)
+            {
+                MostrarError(ex.Message);
+            }
+        }
+
+        private void BtnDesCancelarPedido_Click(object sender, EventArgs e)
+        {
+            var pedido = ObtenerPedidoSeleccionado();
+            if (pedido == null) return;
+
+            var confirmar = MessageBox.Show(
+                $"¿Des-cancelar el Pedido #{pedido.IdPedido} de {pedido.NombreCliente}?\n\n" +
+                "Se verificará que las prendas originales estén disponibles\n" +
+                "y el pedido volverá a estado Pendiente.",
+                "Confirmar Des-cancelación",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button1);
+
+            if (confirmar != DialogResult.Yes) return;
+
+            try
+            {
+                pedidoBLL.DesCancelar(this, pedido);
+                MostrarOk($"Pedido #{pedido.IdPedido} reactivado — volvió a Pendiente.");
                 CargarPedidos();
             }
             catch (Exception ex)
@@ -323,6 +388,61 @@ namespace GUI
                 case BE.EstadoPedido.Cancelado:  return "Cancelado";
                 default: return estado.ToString();
             }
+        }
+
+        /// <summary>
+        /// Muestra un dialog simple para pedir texto al usuario.
+        /// Devuelve null si cancela o deja vacío.
+        /// </summary>
+        private string PedirTexto(string prompt, string titulo)
+        {
+            string resultado = null;
+            using (var dlg = new Form())
+            {
+                dlg.Text            = titulo;
+                dlg.ClientSize      = new Size(420, 130);
+                dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
+                dlg.MaximizeBox     = false;
+                dlg.MinimizeBox     = false;
+                dlg.StartPosition   = FormStartPosition.CenterParent;
+
+                dlg.Controls.Add(new Label
+                {
+                    Text = prompt, Left = 12, Top = 12,
+                    Width = 396, Height = 36,
+                    Font = new Font("Segoe UI", 9f)
+                });
+
+                var txt = new TextBox { Left = 12, Top = 52, Width = 396 };
+                dlg.Controls.Add(txt);
+
+                var btnOk = new Button
+                {
+                    Text = "Aceptar", Left = 220, Top = 84,
+                    Width = 90, Height = 30,
+                    DialogResult = DialogResult.OK,
+                    BackColor = Color.SteelBlue, ForeColor = Color.White,
+                    FlatStyle = FlatStyle.Flat
+                };
+                btnOk.FlatAppearance.BorderSize = 0;
+
+                var btnCancel = new Button
+                {
+                    Text = "Cancelar", Left = 318, Top = 84,
+                    Width = 90, Height = 30,
+                    DialogResult = DialogResult.Cancel,
+                    FlatStyle = FlatStyle.Flat
+                };
+
+                dlg.Controls.Add(btnOk);
+                dlg.Controls.Add(btnCancel);
+                dlg.AcceptButton = btnOk;
+                dlg.CancelButton = btnCancel;
+
+                if (dlg.ShowDialog(this) == DialogResult.OK)
+                    resultado = txt.Text.Trim();
+            }
+            return resultado;
         }
 
         private void MostrarOk(string msg)

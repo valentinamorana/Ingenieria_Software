@@ -158,7 +158,12 @@ namespace GUI
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(248, 248, 255)
+                    BackColor = Color.FromArgb(255, 248, 252)
+                },
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    SelectionBackColor = Color.FromArgb(255, 182, 193),
+                    SelectionForeColor = Color.Black
                 }
             };
 
@@ -184,8 +189,8 @@ namespace GUI
 
             lblResumen = new Label
             {
-                Left = 10, Top = 374, Width = 500, Height = 40,
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                Left = 10, Top = 374, Width = 660, Height = 44,
+                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
                 ForeColor = Color.FromArgb(40, 80, 140)
             };
             panelPaso2.Controls.Add(lblResumen);
@@ -193,7 +198,7 @@ namespace GUI
             btnVolver = new Button
             {
                 Text = "← Volver",
-                Left = 10, Top = 420, Width = 110, Height = 34,
+                Left = 10, Top = 426, Width = 110, Height = 34,
                 FlatStyle = FlatStyle.Flat
             };
             btnVolver.Click += (s, e) => MostrarPaso(1);
@@ -202,7 +207,7 @@ namespace GUI
             btnConfirmar = new Button
             {
                 Text = "✓ Confirmar Pedido",
-                Left = 130, Top = 420, Width = 180, Height = 34,
+                Left = 130, Top = 426, Width = 190, Height = 34,
                 BackColor = Color.FromArgb(60, 140, 60), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat, Enabled = false
             };
@@ -330,19 +335,52 @@ namespace GUI
         {
             int seleccionadas = ContarSeleccionadas();
             int enUso         = _clienteSel?.StockUtilizado ?? 0;
+            int limite        = _clienteSel?.LimitePrendas  ?? 0;
             int total         = enUso + seleccionadas;
+            int disponibles   = Math.Max(0, limite - enUso); // cuántas puede agregar
 
-            string limite = _clienteSel?.IdPlan.HasValue == true ? "—" : "—";
+            string linea1 = $"Seleccionadas: {seleccionadas}  |  Ya en uso: {enUso}  |  Total: {total}";
+            string linea2 = "";
 
-            // Intentar obtener límite del plan
-            lblResumen.Text = $"Seleccionadas: {seleccionadas}  |  Ya en uso: {enUso}  |  Total: {total}";
+            if (limite > 0)
+            {
+                if (total > limite)
+                {
+                    linea2 = $"✗ El plan '{_clienteSel?.NombrePlan}' permite {limite} prenda(s). " +
+                             $"Estás superando el límite por {total - limite}.";
+                    lblResumen.ForeColor  = Color.DarkRed;
+                    btnConfirmar.Enabled  = false;
+                }
+                else if (seleccionadas == 0)
+                {
+                    linea2 = $"Podés agregar hasta {disponibles} prenda(s) (plan {_clienteSel?.NombrePlan}).";
+                    lblResumen.ForeColor  = Color.DimGray;
+                    btnConfirmar.Enabled  = false;
+                }
+                else if (seleccionadas < disponibles)
+                {
+                    linea2 = $"ℹ El plan '{_clienteSel?.NombrePlan}' permite {limite}. " +
+                             $"Estás eligiendo {seleccionadas} de {disponibles} posibles — podés agregar más.";
+                    lblResumen.ForeColor  = Color.FromArgb(140, 100, 0);
+                    btnConfirmar.Enabled  = true;
+                }
+                else
+                {
+                    // seleccionadas == disponibles (límite exacto)
+                    linea2 = $"✓ Alcanzás el máximo del plan '{_clienteSel?.NombrePlan}' ({limite} prendas).";
+                    lblResumen.ForeColor  = Color.DarkGreen;
+                    btnConfirmar.Enabled  = true;
+                }
+            }
+            else
+            {
+                btnConfirmar.Enabled = seleccionadas > 0;
+                lblResumen.ForeColor = Color.FromArgb(40, 80, 140);
+            }
 
-            btnConfirmar.Enabled = seleccionadas > 0;
-
-            // Colorear aviso si hay muchas seleccionadas
-            lblResumen.ForeColor = seleccionadas > 0
-                ? Color.FromArgb(40, 80, 140)
-                : Color.DimGray;
+            lblResumen.Text = string.IsNullOrEmpty(linea2)
+                ? linea1
+                : linea1 + "\r\n" + linea2;
         }
 
         private int ContarSeleccionadas()
