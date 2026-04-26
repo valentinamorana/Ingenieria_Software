@@ -1,54 +1,46 @@
 -- ============================================================
 -- WardrobeFlowDB — Parche: rellenar columna usuario en Bitácora
--- para registros de login fallido y bloqueo creados antes del fix.
+-- para registros de login fallido y bloqueo con usuario = NULL.
 --
--- PROBLEMA: antes del fix en BLL/Usuario.cs, los eventos
---   "Intento Fallido Login" y "Bloqueo de Cuenta" se grababan
---   con usuario = NULL aunque el usuario existía en la BD.
---
--- SOLUCIÓN: extraer el username del campo detalle y
---   hacer JOIN con Usuario para recuperar el IdUsuario correcto.
---
--- FORMATOS conocidos en detalle:
---   Intento fallido: "Intento fallido #X/3 para 'USERNAME' (ID: ?) a las ..."
---   Bloqueo        : "Cuenta 'USERNAME' (ID: ?) bloqueada automáticamente ..."
---
--- CONDICIÓN de seguridad: solo toca filas donde usuario IS NULL
---   y el detalle contiene '(ID: ?)' (marca del bug, no del fix).
+-- FORMATOS reales en la BD:
+--   Intento fallido : "Intento fallido #X/3 para 'USERNAME' a las HH:MM:SS."
+--   Bloqueo         : "Cuenta 'USERNAME' bloqueada automaticamente tras ..."
 -- ============================================================
 
 USE WardrobeFlowDB;
 GO
 
--- ── Vista previa: filas que se van a actualizar ───────────────
+-- ── Vista previa ──────────────────────────────────────────────
+-- Ejecutá este SELECT primero para verificar que el JOIN resuelve bien.
 SELECT
     b.Id,
-    b.fecha,
     b.actividad,
     b.detalle,
     b.usuario AS usuario_actual,
-    u.IdUsuario AS usuario_nuevo
+    u.IdUsuario AS usuario_nuevo,
+    u.Username  AS username_encontrado
 FROM Bitacora b
 JOIN Usuario u ON u.Username =
     CASE
         WHEN b.actividad = 'Intento Fallido Login' THEN
+            -- Extrae entre "para '" y "' a las"
             SUBSTRING(
                 b.detalle,
                 CHARINDEX('para ''', b.detalle) + 6,
-                CHARINDEX(''' (ID:', b.detalle)
+                CHARINDEX(''' a las', b.detalle)
                     - CHARINDEX('para ''', b.detalle) - 6
             )
         WHEN b.actividad = 'Bloqueo de Cuenta' THEN
+            -- Extrae entre "Cuenta '" y "' bloqueada"
             SUBSTRING(
                 b.detalle,
                 CHARINDEX('Cuenta ''', b.detalle) + 8,
-                CHARINDEX(''' (ID:', b.detalle)
+                CHARINDEX(''' bloqueada', b.detalle)
                     - CHARINDEX('Cuenta ''', b.detalle) - 8
             )
     END
-WHERE b.usuario IS NULL
-  AND b.actividad IN ('Intento Fallido Login', 'Bloqueo de Cuenta')
-  AND b.detalle LIKE '%(ID: ?)%';   -- solo los del bug, no los del fix
+WHERE b.usuario  IS NULL
+  AND b.actividad IN ('Intento Fallido Login', 'Bloqueo de Cuenta');
 GO
 
 -- ── UPDATE: Intento Fallido Login ─────────────────────────────
@@ -59,12 +51,11 @@ JOIN   Usuario  u ON u.Username =
     SUBSTRING(
         b.detalle,
         CHARINDEX('para ''', b.detalle) + 6,
-        CHARINDEX(''' (ID:', b.detalle)
+        CHARINDEX(''' a las', b.detalle)
             - CHARINDEX('para ''', b.detalle) - 6
     )
-WHERE  b.usuario   IS NULL
-  AND  b.actividad  = 'Intento Fallido Login'
-  AND  b.detalle   LIKE '%(ID: ?)%';
+WHERE  b.usuario  IS NULL
+  AND  b.actividad = 'Intento Fallido Login';
 
 PRINT CONCAT(@@ROWCOUNT, ' fila(s) actualizadas — Intento Fallido Login');
 GO
@@ -77,18 +68,17 @@ JOIN   Usuario  u ON u.Username =
     SUBSTRING(
         b.detalle,
         CHARINDEX('Cuenta ''', b.detalle) + 8,
-        CHARINDEX(''' (ID:', b.detalle)
+        CHARINDEX(''' bloqueada', b.detalle)
             - CHARINDEX('Cuenta ''', b.detalle) - 8
     )
-WHERE  b.usuario   IS NULL
-  AND  b.actividad  = 'Bloqueo de Cuenta'
-  AND  b.detalle   LIKE '%(ID: ?)%';
+WHERE  b.usuario  IS NULL
+  AND  b.actividad = 'Bloqueo de Cuenta';
 
 PRINT CONCAT(@@ROWCOUNT, ' fila(s) actualizadas — Bloqueo de Cuenta');
 GO
 
 -- ── Verificación final ────────────────────────────────────────
-SELECT 'Quedan sin usuario' AS descripcion,
+SELECT 'Quedan NULL en actividades de login' AS check_resultado,
        COUNT(*) AS total
 FROM   Bitacora
 WHERE  usuario   IS NULL

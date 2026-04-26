@@ -105,6 +105,10 @@ namespace BLL
 
             if (cliente.DNI.Length < 7 || cliente.DNI.Length > 8)
                 throw new Exception("El DNI debe tener entre 7 y 8 dígitos.");
+
+            foreach (char c in cliente.DNI)
+                if (!char.IsDigit(c))
+                    throw new Exception("El DNI solo puede contener números.");
         }
     }
 }
