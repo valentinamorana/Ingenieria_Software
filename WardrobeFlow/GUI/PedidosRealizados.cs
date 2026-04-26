@@ -111,7 +111,7 @@ namespace GUI
             {
                 Text = "📦 Despachar", Left = 8, Top = 50,
                 Width = 130, Height = 28,
-                BackColor = Color.FromArgb(30, 110, 180), ForeColor = Color.White,
+                BackColor = Color.FromArgb(210, 100, 135), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat, Enabled = false
             };
             btnDespachar.FlatAppearance.BorderSize = 0;
@@ -173,7 +173,16 @@ namespace GUI
                 RowHeadersVisible = false,
                 BorderStyle = BorderStyle.None,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
+                {
+                    BackColor = Color.FromArgb(255, 248, 252)
+                },
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    SelectionBackColor = Color.FromArgb(255, 182, 193),
+                    SelectionForeColor = Color.Black
+                }
             };
 
             panelDetalle.Controls.Add(dgvDetalle);

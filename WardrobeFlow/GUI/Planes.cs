@@ -86,7 +86,7 @@ namespace GUI
             {
                 Text = "Guardar Plan", Left = 12, Top = 226,
                 Width = 250, Height = 36,
-                BackColor = Color.SteelBlue, ForeColor = Color.White,
+                BackColor = Color.FromArgb(210, 100, 135), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
             btnGuardar.FlatAppearance.BorderSize = 0;
@@ -145,7 +145,12 @@ namespace GUI
                 BorderStyle                     = BorderStyle.None,
                 AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(248, 248, 255)
+                    BackColor = Color.FromArgb(255, 248, 252)
+                },
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    SelectionBackColor = Color.FromArgb(255, 182, 193),
+                    SelectionForeColor = Color.Black
                 }
             };
             dgvPlanes.SelectionChanged     += DgvPlanes_SelectionChanged;

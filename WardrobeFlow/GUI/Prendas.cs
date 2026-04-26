@@ -102,7 +102,7 @@ namespace GUI
             {
                 Text = "+ Nueva Prenda", Left = 470, Top = 13,
                 Width = 130, Height = 28,
-                BackColor = Color.SteelBlue, ForeColor = Color.White,
+                BackColor = Color.FromArgb(210, 100, 135), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat, Visible = _tieneStock
             };
             btnNueva.FlatAppearance.BorderSize = 0;
@@ -193,7 +193,12 @@ namespace GUI
                 BorderStyle                     = BorderStyle.None,
                 AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(248, 248, 255)
+                    BackColor = Color.FromArgb(255, 248, 252)
+                },
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    SelectionBackColor = Color.FromArgb(255, 182, 193),
+                    SelectionForeColor = Color.Black
                 }
             };
             dgvPrendas.SelectionChanged += DgvPrendas_SelectionChanged;

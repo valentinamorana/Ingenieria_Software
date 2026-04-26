@@ -110,7 +110,7 @@ namespace GUI
                 Text      = "Agregar Usuario",
                 Left      = 12,  Top    = 210,
                 Width     = 210, Height = 34,
-                BackColor = Color.SteelBlue,
+                BackColor = Color.FromArgb(210, 100, 135),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
@@ -232,7 +232,12 @@ namespace GUI
                 BorderStyle                     = BorderStyle.None,
                 AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(248, 248, 255)
+                    BackColor = Color.FromArgb(255, 248, 252)
+                },
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    SelectionBackColor = Color.FromArgb(255, 182, 193),
+                    SelectionForeColor = Color.Black
                 }
             };
 

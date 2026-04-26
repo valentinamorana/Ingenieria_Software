@@ -98,7 +98,7 @@ namespace GUI
             {
                 Text      = "Ver",
                 Left      = 242, Top = 9, Width = 50, Height = 26,
-                BackColor = Color.SteelBlue, ForeColor = Color.White,
+                BackColor = Color.FromArgb(210, 100, 135), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
             btnUltimosDias.FlatAppearance.BorderSize = 0;
@@ -150,7 +150,7 @@ namespace GUI
             {
                 Text      = "Buscar",
                 Left      = 548, Top = 48, Width = 80,
-                BackColor = Color.SteelBlue, ForeColor = Color.White,
+                BackColor = Color.FromArgb(210, 100, 135), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
             btnBuscar.FlatAppearance.BorderSize = 0;
@@ -220,7 +220,7 @@ namespace GUI
             {
                 Text      = "Ver",
                 Left      = 240, Top = 9, Width = 50, Height = 26,
-                BackColor = Color.FromArgb(60, 140, 60), ForeColor = Color.White,
+                BackColor = Color.FromArgb(210, 100, 135), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
             btnNegUltimosDias.FlatAppearance.BorderSize = 0;
@@ -265,7 +265,7 @@ namespace GUI
             {
                 Text      = "Buscar",
                 Left      = 8, Top = 50, Width = 80, Height = 28,
-                BackColor = Color.FromArgb(60, 140, 60), ForeColor = Color.White,
+                BackColor = Color.FromArgb(210, 100, 135), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
             btnNegBuscar.FlatAppearance.BorderSize = 0;

@@ -128,7 +128,16 @@ namespace GUI
                 RowHeadersVisible = false,
                 BorderStyle = BorderStyle.None,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
+                {
+                    BackColor = Color.FromArgb(255, 248, 252)
+                },
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    SelectionBackColor = Color.FromArgb(255, 182, 193),
+                    SelectionForeColor = Color.Black
+                }
             };
 
             panelDetalle.Controls.Add(dgvDetallePrendas);

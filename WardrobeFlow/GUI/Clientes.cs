@@ -68,7 +68,7 @@ namespace GUI
             {
                 Text = "+ Nuevo Cliente", Left = 300, Top = 11,
                 Width = 130, Height = 28,
-                BackColor = Color.SteelBlue, ForeColor = Color.White,
+                BackColor = Color.FromArgb(210, 100, 135), ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
             btnNuevo.FlatAppearance.BorderSize = 0;
@@ -125,7 +125,12 @@ namespace GUI
                 BorderStyle                     = BorderStyle.None,
                 AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
                 {
-                    BackColor = Color.FromArgb(248, 248, 255)
+                    BackColor = Color.FromArgb(255, 248, 252)
+                },
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    SelectionBackColor = Color.FromArgb(255, 182, 193),
+                    SelectionForeColor = Color.Black
                 }
             };
             dgvClientes.SelectionChanged += (s, e) =>
