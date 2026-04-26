@@ -26,10 +26,17 @@ namespace BE
         public string Contraseña { get; set; }
 
         /// <summary>
-        /// Perfil/rol del empleado. Determina qué permisos tiene en el sistema.
-        /// Valores válidos: "Administrador", "OperadorLogistico", "Supervisor".
+        /// Perfil visible del empleado (nombre para mostrar en pantalla).
+        /// Ej: "Operador de Logistica", "Administrador".
         /// </summary>
         public string Perfil { get; set; }
+
+        /// <summary>
+        /// Rol técnico del empleado. Se usa para buscar permisos en RolPermiso.
+        /// Ej: "OperadorDeInventario", "Administrador".
+        /// Puede diferir de Perfil cuando el nombre visible fue personalizado.
+        /// </summary>
+        public string Rol { get; set; }
 
         /// <summary>
         /// Lista de permisos habilitados para este usuario según su rol.
@@ -37,5 +44,12 @@ namespace BE
         /// Usada por el menú MDI para construir la navegación dinámicamente.
         /// </summary>
         public List<Permiso> Permisos { get; set; } = new List<Permiso>();
+
+        /// <summary>
+        /// Indica si la cuenta está bloqueada por exceder el máximo de intentos fallidos.
+        /// Mapeado desde Estado en BD: Estado=0 → Bloqueado=true, Estado=1 → Bloqueado=false.
+        /// Un Administrador puede desbloquearla desde Administrar → Usuarios.
+        /// </summary>
+        public bool Bloqueado { get; set; }
     }
 }

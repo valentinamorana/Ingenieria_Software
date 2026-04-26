@@ -8,8 +8,14 @@ namespace DAL
     /// <summary>
     /// Capa de Acceso a Datos — Usuario.
     /// Opera sobre la tabla [Usuario] de WardrobeFlowDB.
-    /// Nota: la PK en la BD es IdUsuario — se selecciona con alias "Id" para
-    /// coincidir con la propiedad BE.Usuario.Id sin renombrar la columna en la BD.
+    ///
+    /// Columnas de la tabla:
+    ///   IdUsuario  int PK     → alias "Id" en consultas
+    ///   Username   varchar    → nombre de acceso único
+    ///   Clave      varchar    → hash PBKDF2-SHA256 (alias "Contraseña")
+    ///   Rol        varchar    → rol técnico
+    ///   Perfil     varchar    → nombre visible
+    ///   Estado     bit        → 1=activo, 0=bloqueado (T02: bloqueo tras 3 intentos)
     /// </summary>
     public class Usuario
     {
@@ -17,7 +23,7 @@ namespace DAL
 
         /// <summary>
         /// Inserta un nuevo usuario con contraseña hasheada y rol asignado.
-        /// IdPersona es NULL para usuarios empleados (Persona es para clientes).
+        /// Estado=1 (activo) por defecto al crear.
         /// </summary>
         public void Alta(string username, string clave, string perfil)
         {
@@ -42,7 +48,7 @@ namespace DAL
 
         /// <summary>
         /// Busca un usuario por Username para el proceso de Login.
-        /// Usa alias "Id" sobre IdUsuario para mapear a BE.Usuario.Id.
+        /// Incluye Estado para detectar cuentas bloqueadas (T02).
         /// </summary>
         public BE.Usuario ObtenerPorUsername(string username)
         {
@@ -54,7 +60,7 @@ namespace DAL
             try
             {
                 DataTable tabla = acceso.Leer(
-                    "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Perfil " +
+                    "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, Estado " +
                     "FROM Usuario WHERE Username = @Username",
                     parametros);
 
@@ -65,14 +71,48 @@ namespace DAL
                 {
                     Id         = Convert.ToInt32(row["Id"]),
                     Username   = row["Username"].ToString(),
-                    Contraseña = row["Contraseña"].ToString(),   // alias Clave → Contraseña
-                    Perfil     = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null
+                    Contraseña = row["Contraseña"].ToString(),
+                    Rol        = row["Rol"]    != DBNull.Value ? row["Rol"].ToString()    : null,
+                    Perfil     = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
+                    // Estado=0 → bloqueado; Estado=1 → activo
+                    Bloqueado  = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0
                 };
             }
             catch (Exception ex)
             {
                 throw new Exception("Error al obtener el usuario desde la base de datos.", ex);
             }
+        }
+
+        /// <summary>
+        /// Bloquea la cuenta de un usuario (Estado=0).
+        /// Se llama tras superar el máximo de intentos fallidos (T02).
+        /// Solo un Administrador puede revertirlo con Desbloquear().
+        /// </summary>
+        public void Bloquear(int idUsuario)
+        {
+            SqlParameter[] parametros = new SqlParameter[]
+            {
+                new SqlParameter("@idUsuario", idUsuario)
+            };
+            acceso.Escribir(
+                "UPDATE Usuario SET Estado = 0 WHERE IdUsuario = @idUsuario",
+                parametros);
+        }
+
+        /// <summary>
+        /// Desbloquea la cuenta de un usuario (Estado=1).
+        /// Solo puede ejecutarlo un Administrador desde la GUI de Usuarios.
+        /// </summary>
+        public void Desbloquear(int idUsuario)
+        {
+            SqlParameter[] parametros = new SqlParameter[]
+            {
+                new SqlParameter("@idUsuario", idUsuario)
+            };
+            acceso.Escribir(
+                "UPDATE Usuario SET Estado = 1 WHERE IdUsuario = @idUsuario",
+                parametros);
         }
 
         /// <summary>
@@ -93,6 +133,7 @@ namespace DAL
 
         /// <summary>
         /// Lista todos los usuarios del sistema (sin contraseña por seguridad).
+        /// Incluye Estado para mostrar cuentas bloqueadas en la GUI.
         /// </summary>
         public List<BE.Usuario> ObtenerTodos()
         {
@@ -100,16 +141,18 @@ namespace DAL
             try
             {
                 DataTable tabla = acceso.Leer(
-                    "SELECT IdUsuario AS Id, Username, Perfil FROM Usuario ORDER BY Username",
+                    "SELECT IdUsuario AS Id, Username, Perfil, Estado " +
+                    "FROM Usuario ORDER BY Username",
                     null);
 
                 foreach (DataRow row in tabla.Rows)
                 {
                     lista.Add(new BE.Usuario
                     {
-                        Id       = Convert.ToInt32(row["Id"]),
-                        Username = row["Username"].ToString(),
-                        Perfil   = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null
+                        Id        = Convert.ToInt32(row["Id"]),
+                        Username  = row["Username"].ToString(),
+                        Perfil    = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
+                        Bloqueado = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0
                     });
                 }
             }

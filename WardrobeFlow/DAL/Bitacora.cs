@@ -114,7 +114,9 @@ namespace DAL
                 consulta += " AND actividad LIKE @actividad";
                 parametros.Add(new SqlParameter("@actividad", $"%{actividad}%"));
             }
-            if (criticidad > 0)
+            // criticidad == -1 significa "Todas" (sin filtro de criticidad)
+            // criticidad >= 0 filtra por valor exacto del enum (incluye None=0)
+            if (criticidad >= 0)
             {
                 consulta += " AND criticidad = @criticidad";
                 parametros.Add(new SqlParameter("@criticidad", criticidad));

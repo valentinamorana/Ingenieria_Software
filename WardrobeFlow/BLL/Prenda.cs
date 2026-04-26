@@ -81,6 +81,9 @@ namespace BLL
             bitacora.Registrar(formulario,
                 $"Modificar Prenda ID {prenda.IdPrenda}: {prenda.Nombre}",
                 BE.Criticidad.Baja);
+            bitacoraNeg.Registrar(BE.TipoEventoNegocio.ModificacionPrenda,
+                $"Modificación prenda: '{prenda.Nombre}' (ID {prenda.IdPrenda}) — Talle {prenda.Talle}, {prenda.Color}",
+                idPrenda: prenda.IdPrenda);
         }
 
         /// <summary>

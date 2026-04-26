@@ -34,13 +34,15 @@ namespace GUI
         private Label        lblResultadosSistema;
 
         // ── Tab Negocio ───────────────────────────────────────────────────────
-        private DataGridView dgvNegocio;
+        private DataGridView  dgvNegocio;
         private DateTimePicker dtpNegDesde, dtpNegHasta;
-        private CheckBox     chkNegFecha;
-        private ComboBox     cmbTipoEvento;
-        private TextBox      txtNegPedido, txtNegCliente;
-        private Button       btnNegBuscar, btnNegLimpiar;
-        private Label        lblResultadosNegocio;
+        private CheckBox      chkNegFecha;
+        private ComboBox      cmbTipoEvento;
+        private TextBox       txtNegPedido, txtNegCliente;
+        private Button        btnNegBuscar, btnNegLimpiar;
+        private Label         lblResultadosNegocio;
+        private NumericUpDown nudNegDias;
+        private Button        btnNegUltimosDias;
 
         public Bitacora()
         {
@@ -141,7 +143,19 @@ namespace GUI
             {
                 Left = 612, Top = 77, Width = 120, DropDownStyle = ComboBoxStyle.DropDownList
             };
-            cmbCriticidad.Items.AddRange(new object[] { "Todas", "None", "Baja", "Media", "Alta" });
+            // Items: "Todas" (índice 0 → sentinel -1 al buscar),
+            //        luego los 7 valores del enum Criticidad (índice N → valor N-1)
+            cmbCriticidad.Items.AddRange(new object[]
+            {
+                "Todas",
+                "None (0)",
+                "Baja (1)",
+                "Media (2)",
+                "Alta (3)",
+                "Intentos Login (4)",
+                "Recuperacion Clave (5)",
+                "Bloqueos Cuenta (6)"
+            });
             cmbCriticidad.SelectedIndex = 0;
             panelFiltros.Controls.Add(cmbCriticidad);
 
@@ -165,13 +179,18 @@ namespace GUI
 
             // Grilla
             dgvSistema = CrearDgv();
+            // Colorear filas por criticidad cada vez que cambia el DataSource
+            dgvSistema.DataBindingComplete += (s, e) => ColorearPorCriticidad(dgvSistema);
 
+            // Barra de resultados con stats de criticidad (2 líneas)
             lblResultadosSistema = new Label
             {
-                Dock = DockStyle.Bottom, Height = 24,
+                Dock      = DockStyle.Bottom,
+                Height    = 44,
                 TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
-                Padding = new Padding(4, 0, 0, 0),
-                BackColor = Color.FromArgb(230, 230, 230)
+                Padding   = new Padding(6, 2, 0, 2),
+                BackColor = Color.FromArgb(230, 230, 240),
+                Font      = new Font("Segoe UI", 8.5f)
             };
 
             tab.Controls.Add(dgvSistema);
@@ -190,7 +209,7 @@ namespace GUI
 
             Panel panelFiltros = new Panel
             {
-                Dock = DockStyle.Top, Height = 80,
+                Dock = DockStyle.Top, Height = 114,
                 BackColor = Color.FromArgb(238, 245, 238),
                 Padding = new Padding(8)
             };
@@ -218,8 +237,10 @@ namespace GUI
             };
             cmbTipoEvento.Items.AddRange(new object[]
             {
-                "Todos", "Venta", "Cancelacion", "Despacho", "Entrega",
-                "AltaPrenda", "CambioEstadoPrenda", "AltaCliente", "BajaCliente"
+                "Todos",
+                "Venta", "Cancelacion", "Despacho", "Entrega",
+                "AltaPrenda", "ModificacionPrenda", "CambioEstadoPrenda",
+                "AltaCliente", "ModificacionCliente", "BajaCliente"
             });
             cmbTipoEvento.SelectedIndex = 0;
             panelFiltros.Controls.Add(cmbTipoEvento);
@@ -244,11 +265,50 @@ namespace GUI
             btnNegLimpiar = new Button { Text = "Limpiar", Left = 748, Top = 9, Width = 80, Height = 28 };
             btnNegLimpiar.Click += (s, e) =>
             {
-                chkNegFecha.Checked = false; cmbTipoEvento.SelectedIndex = 0;
-                txtNegPedido.Text = "0"; txtNegCliente.Text = "0";
+                chkNegFecha.Checked    = false;
+                cmbTipoEvento.SelectedIndex = 0;
+                txtNegPedido.Text      = "0";
+                txtNegCliente.Text     = "0";
+                nudNegDias.Value       = 7;
                 CargarNegocio();
             };
             panelFiltros.Controls.Add(btnNegLimpiar);
+
+            // ── Fila 3: acceso rápido por días ────────────────────────────────
+            var separadorNeg = new Label
+            {
+                Left = 8, Top = 78, Width = 840, Height = 1,
+                BackColor = Color.FromArgb(180, 210, 180)
+            };
+            panelFiltros.Controls.Add(separadorNeg);
+
+            panelFiltros.Controls.Add(new Label
+            {
+                Text = "Acceso rápido — Últimos",
+                Left = 8, Top = 88, Width = 145,
+                Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold)
+            });
+
+            nudNegDias = new NumericUpDown
+                { Left = 155, Top = 84, Width = 55, Minimum = 1, Maximum = 365, Value = 7 };
+            panelFiltros.Controls.Add(nudNegDias);
+            panelFiltros.Controls.Add(new Label { Text = "días", Left = 215, Top = 88, Width = 35 });
+
+            btnNegUltimosDias = new Button
+            {
+                Text = "Ver", Left = 254, Top = 83, Width = 55, Height = 26,
+                BackColor = Color.FromArgb(60, 140, 60), ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnNegUltimosDias.FlatAppearance.BorderSize = 0;
+            btnNegUltimosDias.Click += (s, e) =>
+            {
+                var desde = DateTime.Now.AddDays(-(int)nudNegDias.Value);
+                var dt    = bllNegocio.BuscarPorFiltros(desde, null, null, null, null);
+                MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt,
+                    $"últimos {(int)nudNegDias.Value} días");
+            };
+            panelFiltros.Controls.Add(btnNegUltimosDias);
 
             dgvNegocio = CrearDgv();
 
@@ -298,7 +358,8 @@ namespace GUI
                 DateTime? hasta    = chkFiltrarFecha.Checked ? dtpHasta.Value  : (DateTime?)null;
                 int uid            = int.TryParse(txtUsuario.Text, out int u) ? u : 0;
                 string actividad   = txtActividad.Text.Trim();
-                int criticidad     = cmbCriticidad.SelectedIndex;
+                // SelectedIndex 0 = "Todas" → -1 (sin filtro), 1 = None=0, 2 = Baja=1, etc.
+                int criticidad     = cmbCriticidad.SelectedIndex - 1;
 
                 var dt = bllSistema.BuscarPorFiltros(desde, hasta, uid, actividad, criticidad);
                 MostrarEnGrilla(dgvSistema, lblResultadosSistema, dt);
@@ -347,9 +408,82 @@ namespace GUI
         private void MostrarEnGrilla(DataGridView dgv, Label lbl, DataTable datos, string contexto = null)
         {
             dgv.DataSource = datos;
-            string texto = $"  {datos.Rows.Count} registro(s)";
-            if (!string.IsNullOrEmpty(contexto)) texto += $"  —  {contexto}";
-            lbl.Text = texto;
+
+            string linea1 = $"  {datos.Rows.Count} registro(s)";
+            if (!string.IsNullOrEmpty(contexto)) linea1 += $"  —  {contexto}";
+
+            // Para el tab Sistema: mostrar breakdown de criticidad en segunda línea
+            if (dgv == dgvSistema && datos.Columns.Contains("criticidad"))
+            {
+                lbl.Height = 44;
+                lbl.Text   = linea1 + "\r\n  " + ComputarEstadisticasCriticidad(datos);
+            }
+            else
+            {
+                lbl.Height = 24;
+                lbl.Text   = linea1;
+            }
+        }
+
+        /// <summary>
+        /// Computa un resumen de registros por nivel de criticidad para mostrar
+        /// en la barra de estado del tab Sistema (valor agregado T06a).
+        /// </summary>
+        private string ComputarEstadisticasCriticidad(DataTable datos)
+        {
+            var conteos = new int[7];
+            foreach (DataRow row in datos.Rows)
+            {
+                if (int.TryParse(row["criticidad"]?.ToString(), out int c) && c >= 0 && c < 7)
+                    conteos[c]++;
+            }
+
+            string[] etiquetas = { "None", "Baja", "Media", "Alta", "Int.Login", "Recup.Clave", "Bloqueos" };
+            var partes = new System.Collections.Generic.List<string>();
+            for (int i = 0; i < 7; i++)
+                if (conteos[i] > 0)
+                    partes.Add($"{etiquetas[i]}: {conteos[i]}");
+
+            return partes.Count > 0
+                ? string.Join("   |   ", partes)
+                : "Sin datos de criticidad";
+        }
+
+        /// <summary>
+        /// Colorea las filas del tab Sistema según el nivel de criticidad del registro.
+        /// Llamado automáticamente en DataBindingComplete del dgvSistema.
+        /// </summary>
+        private void ColorearPorCriticidad(DataGridView dgv)
+        {
+            if (!dgv.Columns.Contains("criticidad")) return;
+
+            foreach (DataGridViewRow fila in dgv.Rows)
+            {
+                if (fila.IsNewRow) continue;
+                if (!int.TryParse(fila.Cells["criticidad"].Value?.ToString(), out int crit)) continue;
+
+                Color back, fore;
+                switch (crit)
+                {
+                    case 0:  // None — gris claro
+                        back = Color.FromArgb(245, 245, 245); fore = Color.Gray;             break;
+                    case 1:  // Baja — verde suave
+                        back = Color.FromArgb(220, 255, 220); fore = Color.DarkGreen;        break;
+                    case 2:  // Media — amarillo
+                        back = Color.FromArgb(255, 255, 200); fore = Color.DarkGoldenrod;    break;
+                    case 3:  // Alta — naranja
+                        back = Color.FromArgb(255, 220, 170); fore = Color.DarkOrange;       break;
+                    case 4:  // IntentosLogin — rojo suave
+                        back = Color.FromArgb(255, 205, 205); fore = Color.DarkRed;          break;
+                    case 5:  // RecuperacionClave — azul claro
+                        back = Color.FromArgb(210, 225, 255); fore = Color.DarkBlue;         break;
+                    case 6:  // BloqueosCuenta — rojo fuerte
+                        back = Color.FromArgb(200, 0, 20);    fore = Color.White;            break;
+                    default: continue;
+                }
+                fila.DefaultCellStyle.BackColor = back;
+                fila.DefaultCellStyle.ForeColor = fore;
+            }
         }
 
         private void MostrarError(string msg)

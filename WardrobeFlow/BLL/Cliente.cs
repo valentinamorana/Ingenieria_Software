@@ -63,6 +63,9 @@ namespace BLL
 
             dalCliente.Modificar(cliente);
             bitacora.Registrar(formulario, $"Modificar Cliente ID {cliente.IdCliente}: {cliente.NombreCompleto}", BE.Criticidad.Baja);
+            bitacoraNeg.Registrar(BE.TipoEventoNegocio.ModificacionCliente,
+                $"Modificación cliente: {cliente.NombreCompleto} — DNI {cliente.DNI}",
+                idCliente: cliente.IdCliente);
         }
 
         /// <summary>

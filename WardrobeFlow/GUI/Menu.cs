@@ -8,14 +8,18 @@ namespace GUI
     /// Capa de Presentación — Formulario Menú Principal (MDI Container).
     ///
     /// Al iniciarse, construye el menú dinámicamente según los permisos
-    /// del usuario logueado (cargados desde RolPermiso en el Login):
+    /// del usuario logueado (cargados desde RolPermiso en el Login).
     ///
-    ///   Administrador        → Perfil | Administrar (Usuarios) | Bitácora
-    ///   Supervisor           → Perfil | Bitácora
-    ///   OperadorLogistico    → Perfil | Inventario (Prendas, Outfits, Categorias)
-    ///   Vendedor             → Perfil | Ventas (Clientes, Planes, Pedidos de Venta)
-    ///   ControladorDeStock   → Perfil | Inventario (Prendas, Stock)
-    ///   OperadorDeInventario → Perfil | Ventas (Pedidos Realizados)
+    /// Roles del sistema (documento G04 — WardrobeFlow_Iteracion1.docx):
+    ///
+    ///   Administrador     → TODO: Inventario | Ventas | Administrar | Bitácora
+    ///   Supervisor        → Bitácora
+    ///   OperadorLogistico → Inventario (Prendas, Outfits, Categorias, Pedidos Realizados)
+    ///
+    /// Roles adicionales (implementación, no están en G04):
+    ///   Vendedor             → Ventas (Clientes, Planes, Pedidos de Venta)
+    ///   ControladorDeStock   → Inventario (Prendas, Stock)
+    ///   OperadorDeInventario → Ventas (Pedidos Realizados)
     ///
     /// Los permisos se leen de BE.Usuario.Permisos via BLL.ObtenerUsuarioActivo().
     /// La GUI nunca accede directamente a Seguridad ni a DAL.
@@ -42,17 +46,21 @@ namespace GUI
 
         /// <summary>
         /// Muestra u oculta los ítems del menú según los permisos del usuario.
+        /// La lógica es completamente basada en permisos (NombreMenu), no en roles.
         ///
         /// Mapeo NombreMenu → ToolStripMenuItem:
         ///   mnuPrendas            → prendasToolStripMenuItem       (bajo Inventario)
         ///   mnuOutfits            → outfitsToolStripMenuItem        (bajo Inventario)
         ///   mnuCategorias         → categoriasToolStripMenuItem     (bajo Inventario)
-        ///   mnuStock              → (futuro: stockToolStripMenuItem bajo Inventario)
+        ///   mnuStock              → stockToolStripMenuItem          (bajo Inventario — pendiente en Designer)
         ///   mnuClientes           → clientesToolStripMenuItem       (bajo Ventas)
         ///   mnuPlanSuscripciones  → planesToolStripMenuItem         (bajo Ventas)
         ///   mnuPedidosVenta       → pedidosVentaToolStripMenuItem   (bajo Ventas)
-        ///   mnuUsuarios           → gestionToolStripMenuItem + usuariosToolStripMenuItem
+        ///   mnuPedidosRealizados  → pedidosRealizadosToolStripMenuItem (bajo Ventas)
+        ///   mnuUsuarios           → gestionToolStripMenuItem        (bajo Administrar)
         ///   mnuAuditoria          → bitacoraToolStripMenuItem
+        ///
+        /// Administrador tiene los 10 permisos → ve todo el menú.
         /// </summary>
         private void AplicarPermisos(List<BE.Permiso> permisos)
         {
@@ -73,12 +81,16 @@ namespace GUI
             bool tienePrendas    = nombresMenu.Contains("mnuPrendas");
             bool tieneOutfits    = nombresMenu.Contains("mnuOutfits");
             bool tieneCategorias = nombresMenu.Contains("mnuCategorias");
+            bool tieneStock      = nombresMenu.Contains("mnuStock");
+            // Nota: stockToolStripMenuItem se agregará al Designer cuando se implemente el módulo.
+            // Por ahora la visibilidad del padre ya cubre su presencia futura.
 
             prendasToolStripMenuItem.Visible    = tienePrendas;
             outfitsToolStripMenuItem.Visible    = tieneOutfits;
             categoriasToolStripMenuItem.Visible = tieneCategorias;
 
-            inventarioToolStripMenuItem.Visible = tienePrendas || tieneOutfits || tieneCategorias;
+            inventarioToolStripMenuItem.Visible =
+                tienePrendas || tieneOutfits || tieneCategorias || tieneStock;
 
             // ── Ventas ────────────────────────────────────────────────────────
             bool tieneClientes     = nombresMenu.Contains("mnuClientes");

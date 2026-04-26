@@ -33,6 +33,7 @@ namespace GUI
         private Button btnAgregar;
         private Button btnRefrescar;
         private Button btnResetearClave;
+        private Button btnDesbloquear;
         private Label lblMensaje;
 
         /// <summary>
@@ -42,8 +43,8 @@ namespace GUI
         {
             InitializeComponent();
             this.Text        = "Gestión de Usuarios";
-            this.ClientSize  = new Size(820, 540);
-            this.MinimumSize = new Size(720, 460);
+            this.ClientSize  = new Size(860, 660);
+            this.MinimumSize = new Size(760, 580);
 
             ConstruirInterfaz();
 
@@ -92,11 +93,15 @@ namespace GUI
                 Left          = 12, Top = 168, Width = 210,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
+            // Roles del documento G04 (primeros 3) + roles adicionales de implementación
             cmbPerfil.Items.AddRange(new object[]
             {
-                "Administrador",
-                "OperadorLogistico",
-                "Supervisor"
+                "Administrador",       // G04: acceso completo
+                "OperadorLogistico",   // G04: catálogo, stock, logística
+                "Supervisor",          // G04: auditoría y reportes
+                "Vendedor",            // adicional: gestión de ventas
+                "ControladorDeStock",  // adicional: inventario de stock
+                "OperadorDeInventario" // adicional: pedidos realizados
             });
             cmbPerfil.SelectedIndex = 1; // OperadorLogistico por defecto
 
@@ -158,10 +163,47 @@ namespace GUI
             btnResetearClave.FlatAppearance.BorderSize = 0;
             btnResetearClave.Click += BtnResetearClave_Click;
 
+            // ── Sección: Desbloquear Cuenta ───────────────────────────────────
+            var separador2 = new Label
+            {
+                Left      = 12,  Top    = 408,
+                Width     = 210, Height = 1,
+                BackColor = Color.Silver
+            };
+
+            var lblDesbloquearTitulo = new Label
+            {
+                Text = "Desbloquear Cuenta",
+                Font = new Font("Segoe UI", 10, FontStyle.Bold),
+                Left = 12, Top = 418, Width = 210
+            };
+
+            var lblDesbloquearInfo = new Label
+            {
+                Text      = "Seleccioná un usuario\nbloqueado y presioná:",
+                Left      = 12, Top    = 441,
+                Width     = 210, Height = 36,
+                ForeColor = Color.DimGray,
+                Font      = new Font("Segoe UI", 8.5f)
+            };
+
+            btnDesbloquear = new Button
+            {
+                Text      = "Desbloquear Cuenta",
+                Left      = 12,  Top    = 482,
+                Width     = 210, Height = 34,
+                BackColor = Color.FromArgb(30, 130, 76),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Enabled   = false   // se habilita solo cuando el usuario seleccionado está bloqueado
+            };
+            btnDesbloquear.FlatAppearance.BorderSize = 0;
+            btnDesbloquear.Click += BtnDesbloquear_Click;
+
             // Mensaje de éxito o error
             lblMensaje = new Label
             {
-                Left      = 12,  Top    = 410,
+                Left      = 12,  Top    = 526,
                 Width     = 210, Height = 80,
                 ForeColor = Color.DarkGreen,
                 Font      = new Font("Segoe UI", 8.5f)
@@ -172,6 +214,7 @@ namespace GUI
                 lblTitulo, lblUser, txtUsername, lblPass, txtContraseña,
                 lblPerfil, cmbPerfil, btnAgregar, btnRefrescar,
                 separador, lblResetTitulo, lblResetInfo, btnResetearClave,
+                separador2, lblDesbloquearTitulo, lblDesbloquearInfo, btnDesbloquear,
                 lblMensaje
             });
 
@@ -193,10 +236,22 @@ namespace GUI
                 }
             };
 
-            // Habilitar el botón Resetear solo cuando hay selección en la grilla
+            // Habilitar botones según la fila seleccionada
             dgvUsuarios.SelectionChanged += (s, e) =>
             {
-                btnResetearClave.Enabled = dgvUsuarios.SelectedRows.Count > 0;
+                bool haySeleccion = dgvUsuarios.SelectedRows.Count > 0;
+                btnResetearClave.Enabled = haySeleccion;
+
+                // Desbloquear solo se habilita si el usuario seleccionado está bloqueado
+                if (haySeleccion)
+                {
+                    var estadoCell = dgvUsuarios.SelectedRows[0].Cells["Estado"];
+                    btnDesbloquear.Enabled = estadoCell?.Value?.ToString() == "BLOQUEADA";
+                }
+                else
+                {
+                    btnDesbloquear.Enabled = false;
+                }
             };
 
             // Label de título de la grilla
@@ -230,13 +285,26 @@ namespace GUI
                 tabla.Columns.Add("ID",       typeof(int));
                 tabla.Columns.Add("Username", typeof(string));
                 tabla.Columns.Add("Perfil",   typeof(string));
+                tabla.Columns.Add("Estado",   typeof(string));
 
                 foreach (var u in usuarios)
-                    tabla.Rows.Add(u.Id, u.Username, u.Perfil ?? "—");
+                    tabla.Rows.Add(u.Id, u.Username, u.Perfil ?? "—",
+                        u.Bloqueado ? "BLOQUEADA" : "Activo");
 
                 dgvUsuarios.DataSource = tabla;
-                lblMensaje.ForeColor   = Color.DarkGreen;
-                lblMensaje.Text        = $"{usuarios.Count} usuario(s) registrado(s).";
+
+                // Colorear filas bloqueadas en rojo claro para resaltar visualmente (T02)
+                foreach (DataGridViewRow fila in dgvUsuarios.Rows)
+                {
+                    if (fila.Cells["Estado"].Value?.ToString() == "BLOQUEADA")
+                    {
+                        fila.DefaultCellStyle.BackColor = Color.FromArgb(255, 220, 220);
+                        fila.DefaultCellStyle.ForeColor = Color.DarkRed;
+                    }
+                }
+
+                lblMensaje.ForeColor = Color.DarkGreen;
+                lblMensaje.Text      = $"{usuarios.Count} usuario(s) registrado(s).";
             }
             catch (Exception ex)
             {
@@ -272,7 +340,7 @@ namespace GUI
             try
             {
                 string perfil = cmbPerfil.SelectedItem.ToString();
-                usuarioBLL.Alta(txtUsername.Text.Trim(), txtContraseña.Text, perfil);
+                usuarioBLL.Alta(this, txtUsername.Text.Trim(), txtContraseña.Text, perfil);
 
                 lblMensaje.ForeColor = Color.DarkGreen;
                 lblMensaje.Text      = $"Usuario '{txtUsername.Text}' [{perfil}] creado.";
@@ -328,6 +396,43 @@ namespace GUI
                 {
                     MostrarError(ex.Message);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Evento del botón Desbloquear Cuenta.
+        /// Solo habilitado cuando la fila seleccionada corresponde a un usuario bloqueado.
+        /// Delega a BLL.Usuario.Desbloquear() que verifica permisos y registra en bitácora.
+        /// </summary>
+        private void BtnDesbloquear_Click(object sender, EventArgs e)
+        {
+            if (dgvUsuarios.SelectedRows.Count == 0) return;
+
+            DataGridViewRow fila      = dgvUsuarios.SelectedRows[0];
+            int             idUsuario = Convert.ToInt32(fila.Cells["ID"].Value);
+            string          username  = fila.Cells["Username"].Value?.ToString() ?? "";
+
+            var confirmar = MessageBox.Show(
+                $"¿Desea desbloquear la cuenta de '{username}'?\n\nEl usuario podrá volver a iniciar sesión.",
+                "Confirmar Desbloqueo",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button1);
+
+            if (confirmar != DialogResult.Yes) return;
+
+            try
+            {
+                usuarioBLL.Desbloquear(this, idUsuario, username);
+
+                lblMensaje.ForeColor = Color.DarkGreen;
+                lblMensaje.Text      = $"Cuenta de '{username}' desbloqueada.";
+
+                CargarUsuarios();   // refrescar grilla para reflejar nuevo estado
+            }
+            catch (Exception ex)
+            {
+                MostrarError(ex.Message);
             }
         }
 

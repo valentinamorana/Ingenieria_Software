@@ -51,19 +51,14 @@ namespace GUI
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
-                else
-                {
-                    // Registrar intento fallido en bitácora (criticidad 4)
-                    usuarioBLL.RegistrarIntentoFallido(this, txtUsuario.Text);
-
-                    lblError.Text = "Usuario o contraseña incorrectos.";
-                    txtContraseña.Clear();
-                    txtContraseña.Focus();
-                }
+                // No hay else: credenciales inválidas y bloqueos son manejados
+                // por excepciones en BLL.Usuario.Login() → caen al catch de abajo
             }
             catch (Exception ex)
             {
                 lblError.Text = ex.Message;
+                txtContraseña.Clear();
+                txtContraseña.Focus();
             }
         }
 
