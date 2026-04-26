@@ -1,0 +1,38 @@
+Brand / Principal
+Rosa primario → rgb(210; 100; 135)
+Rosa login → rgb(242; 124; 153)
+Rosa oscuro login fondo → rgb(176; 62; 96)
+Purpura login → rgb(64; 0; 64)
+
+Fondos
+Fondo MDI → rgb(240; 240; 245)
+Panel filtros → rgb(230; 230; 240)
+Panel lateral → rgb(245; 245; 250)
+Fila alterna grilla → rgb(255; 248; 252)
+Seleccion grilla → rgb(255; 182; 193)
+
+Botones
+Peligro/Baja → rgb(200; 60; 60)
+Confirmar/Verde → rgb(60; 140; 60)
+Desbloquear → rgb(30; 130; 76)
+Estado → rgb(100; 140; 80)
+Exportar PDF → rgb(70; 100; 160)
+Historial → rgb(100; 80; 160)
+Reset clave → rgb(180; 100; 30)
+
+Estados pedidos/prendas
+En Uso / Despachado → rgb(30; 100; 170)
+En Limpieza / Pendiente → rgb(160; 100; 0)
+Entregado → rgb(30; 130; 30)
+Baja / Cancelado → rgb(160; 50; 50)
+Fila cancelada (fondo) → rgb(255; 225; 225)
+Fila pendiente (fondo) → rgb(255; 250; 210)
+
+Bitacora — criticidad
+None (0) → rgb(245; 245; 245)
+Baja (1) → rgb(220; 255; 220)
+Media (2) → rgb(255; 255; 200)
+Alta (3) → rgb(255; 220; 170)
+Intentos login (4) → rgb(255; 205; 205)
+Recuperacion clave (5) → rgb(210; 225; 255)
+Bloqueo cuenta (6) → rgb(200; 0; 20)

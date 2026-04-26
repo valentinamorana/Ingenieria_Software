@@ -1,0 +1,146 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.section{margin-bottom:1.5rem}
+.section-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:.5px solid var(--color-border-tertiary)}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.swatch{border-radius:8px;overflow:hidden;border:.5px solid rgba(0,0,0,.08);width:120px}
+.swatch-color{height:52px}
+.swatch-info{padding:6px 8px;background:#fff}
+.swatch-name{font-size:11px;font-weight:500;color:#222;line-height:1.3}
+.swatch-hex{font-size:10px;color:#888;font-family:monospace;margin-top:1px}
+.swatch-use{font-size:10px;color:#aaa;margin-top:2px;line-height:1.3}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bitacora-row{display:flex;align-items:center;gap:10px;padding:5px 8px;border-radius:6px;border:.5px solid rgba(0,0,0,.06);margin-bottom:4px}
+.bit-dot{width:14px;height:14px;border-radius:3px;flex-shrink:0}
+.bit-label{font-size:12px;font-weight:500}
+.bit-sub{font-size:11px;color:#888;margin-left:auto;font-family:monospace}
+</style>
+<div style="padding:1rem 0">
+
+<div class="section">
+<div class="section-label">Principal — brand</div>
+<div class="swatches">
+  <div class="swatch">
+    <div class="swatch-color" style="background:#D26487"></div>
+    <div class="swatch-info"><div class="swatch-name">Rosa primario</div><div class="swatch-hex">#D26487</div><div class="swatch-use">Botones accion, menu strip</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#F27299"></div>
+    <div class="swatch-info"><div class="swatch-name">Rosa login</div><div class="swatch-hex">#F27299</div><div class="swatch-use">Boton ingresar, accent login</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#B03E60"></div>
+    <div class="swatch-info"><div class="swatch-name">Rosa oscuro</div><div class="swatch-hex">#B03E60</div><div class="swatch-use">Fondo pantalla login</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#400040"></div>
+    <div class="swatch-info"><div class="swatch-name">Purpura login</div><div class="swatch-hex">#400040</div><div class="swatch-use">Franja accent login</div></div>
+  </div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-label">Fondos y superficies</div>
+<div class="swatches">
+  <div class="swatch">
+    <div class="swatch-color" style="background:#F0F0F5;border-bottom:.5px solid #ddd"></div>
+    <div class="swatch-info"><div class="swatch-name">Fondo MDI</div><div class="swatch-hex">#F0F0F5</div><div class="swatch-use">Ventana principal</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#E6E6F0;border-bottom:.5px solid #ddd"></div>
+    <div class="swatch-info"><div class="swatch-name">Panel filtros</div><div class="swatch-hex">#E6E6F0</div><div class="swatch-use">Barras de busqueda</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#F5F5FA;border-bottom:.5px solid #ddd"></div>
+    <div class="swatch-info"><div class="swatch-name">Panel lateral</div><div class="swatch-hex">#F5F5FA</div><div class="swatch-use">Paneles secundarios</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#FFF8FC;border-bottom:.5px solid #ddd"></div>
+    <div class="swatch-info"><div class="swatch-name">Fila alterna grilla</div><div class="swatch-hex">#FFF8FC</div><div class="swatch-use">Filas pares en DataGridView</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#FFB6C1"></div>
+    <div class="swatch-info"><div class="swatch-name">Seleccion grilla</div><div class="swatch-hex">#FFB6C1</div><div class="swatch-use">Fila seleccionada</div></div>
+  </div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-label">Botones de accion</div>
+<div class="swatches">
+  <div class="swatch">
+    <div class="swatch-color" style="background:#C83C3C"></div>
+    <div class="swatch-info"><div class="swatch-name">Peligro</div><div class="swatch-hex">#C83C3C</div><div class="swatch-use">Dar de Baja, Cancelar</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#3C8C3C"></div>
+    <div class="swatch-info"><div class="swatch-name">Confirmar</div><div class="swatch-hex">#3C8C3C</div><div class="swatch-use">Nuevo Pedido, Despachar</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#1E824C"></div>
+    <div class="swatch-info"><div class="swatch-name">Desbloquear</div><div class="swatch-hex">#1E824C</div><div class="swatch-use">Desbloquear cuenta</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#648C50"></div>
+    <div class="swatch-info"><div class="swatch-name">Estado</div><div class="swatch-hex">#648C50</div><div class="swatch-use">Boton cambio estado</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#4664A0"></div>
+    <div class="swatch-info"><div class="swatch-name">Exportar PDF</div><div class="swatch-hex">#4664A0</div><div class="swatch-use">Boton exportar bitacora</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#6450A0"></div>
+    <div class="swatch-info"><div class="swatch-name">Historial</div><div class="swatch-hex">#6450A0</div><div class="swatch-use">Ver historial pedidos</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#B4641E"></div>
+    <div class="swatch-info"><div class="swatch-name">Reset clave</div><div class="swatch-hex">#B4641E</div><div class="swatch-use">Resetear contrasena</div></div>
+  </div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-label">Estados de pedidos y prendas</div>
+<div class="swatches">
+  <div class="swatch">
+    <div class="swatch-color" style="background:#1E64AA"></div>
+    <div class="swatch-info"><div class="swatch-name">En Uso / Despachado</div><div class="swatch-hex">#1E64AA</div><div class="swatch-use">Texto estado en grilla</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#A06400"></div>
+    <div class="swatch-info"><div class="swatch-name">En Limpieza / Pendiente</div><div class="swatch-hex">#A06400</div><div class="swatch-use">Texto estado en grilla</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#1E821E"></div>
+    <div class="swatch-info"><div class="swatch-name">Entregado</div><div class="swatch-hex">#1E821E</div><div class="swatch-use">Texto estado en grilla</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#A03232"></div>
+    <div class="swatch-info"><div class="swatch-name">Baja / Cancelado</div><div class="swatch-hex">#A03232</div><div class="swatch-use">Texto estado en grilla</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#FFDCDC;border-bottom:.5px solid #ddd"></div>
+    <div class="swatch-info"><div class="swatch-name">Fila cancelada</div><div class="swatch-hex">#FFE1E1</div><div class="swatch-use">Fondo fila cancelada</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#FFFAD2;border-bottom:.5px solid #ddd"></div>
+    <div class="swatch-info"><div class="swatch-name">Fila pendiente</div><div class="swatch-hex">#FFFAD2</div><div class="swatch-use">Fondo fila pendiente</div></div>
+  </div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-label">Bitacora — criticidad (fondo de fila)</div>
+<div style="max-width:420px">
+  <div class="bitacora-row" style="background:#F5F5F5"><div class="bit-dot" style="background:#CACACA"></div><div class="bit-label" style="color:#666">None</div><div class="bit-sub">#F5F5F5 · crit 0</div></div>
+  <div class="bitacora-row" style="background:#DCFFDC"><div class="bit-dot" style="background:#4CAF50"></div><div class="bit-label" style="color:#1B6B1B">Baja</div><div class="bit-sub">#DCFFDC · crit 1</div></div>
+  <div class="bitacora-row" style="background:#FFFFC8"><div class="bit-dot" style="background:#B8A000"></div><div class="bit-label" style="color:#7A6800">Media</div><div class="bit-sub">#FFFFC8 · crit 2</div></div>
+  <div class="bitacora-row" style="background:#FFDCAA"><div class="bit-dot" style="background:#E07000"></div><div class="bit-label" style="color:#7A3C00">Alta</div><div class="bit-sub">#FFDCAA · crit 3</div></div>
+  <div class="bitacora-row" style="background:#FFCDCD"><div class="bit-dot" style="background:#C83232"></div><div class="bit-label" style="color:#8B1A1A">Intentos login</div><div class="bit-sub">#FFCDCD · crit 4</div></div>
+  <div class="bitacora-row" style="background:#D2E1FF"><div class="bit-dot" style="background:#3C64A0"></div><div class="bit-label" style="color:#1A3278">Recuperacion clave</div><div class="bit-sub">#D2E1FF · crit 5</div></div>
+  <div class="bitacora-row" style="background:#C80014"><div class="bit-dot" style="background:#800010"></div><div class="bit-label" style="color:#fff">Bloqueo cuenta</div><div class="bit-sub" style="color:rgba(255,255,255,.6)">#C80014 · crit 6</div></div>
+</div>
+</div>
+
+</div>
