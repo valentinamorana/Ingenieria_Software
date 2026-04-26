@@ -57,6 +57,14 @@ namespace BLL
             dalPlan.Desactivar(idPlan);
         }
 
+        /// <summary>
+        /// Reactiva un plan previamente desactivado.
+        /// </summary>
+        public void Activar(int idPlan)
+        {
+            dalPlan.Activar(idPlan);
+        }
+
         // ── Validaciones ─────────────────────────────────────────────────────
 
         private void Validar(BE.PlanSuscripcion plan)

@@ -116,6 +116,14 @@ namespace DAL
                 "UPDATE PlanSuscripcion SET Estado=0 WHERE IdPlan=@IdPlan", p);
         }
 
+        /// <summary>Reactiva un plan previamente desactivado.</summary>
+        public void Activar(int idPlan)
+        {
+            SqlParameter[] p = { new SqlParameter("@IdPlan", idPlan) };
+            acceso.Escribir(
+                "UPDATE PlanSuscripcion SET Estado=1 WHERE IdPlan=@IdPlan", p);
+        }
+
         // ── Mapeo privado ────────────────────────────────────────────────────
 
         private BE.PlanSuscripcion Mapear(DataRow row)

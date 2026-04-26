@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.Windows.Forms;
 
 namespace GUI
@@ -14,6 +16,7 @@ namespace GUI
     ///
     /// Filtro de fecha unificado: sólo "Últimos N días" (0 = sin filtro de fecha).
     /// Criticidad: "Todas" + valores reales 1-6, sin "None (0)".
+    /// Exportación PDF: vía PrintPreviewDialog (imprimir → "Microsoft Print to PDF").
     ///
     /// Accesible para Administrador (mnuAuditoria) y Supervisor (mnuAuditoria).
     /// </summary>
@@ -42,6 +45,15 @@ namespace GUI
         private TextBox       txtNegPedido, txtNegCliente;
         private Button        btnNegBuscar, btnNegLimpiar;
         private Label         lblResultadosNegocio;
+
+        // ── Estado para impresión paginada ────────────────────────────────────
+        private DataTable   _tablaImpresion;
+        private string      _tituloImpresion;
+        private int         _paginaActual;
+        private int         _filaImpresion;
+        private Font        _fuenteHeader;
+        private Font        _fuenteCelda;
+        private Font        _fuenteTitulo;
 
         public Bitacora()
         {
@@ -120,7 +132,7 @@ namespace GUI
             txtUsuario = new TextBox { Left = 390, Top = 10, Width = 55, Text = "0" };
             panelFiltros.Controls.Add(txtUsuario);
 
-            // ── Fila 2: actividad + criticidad + botones ───────────────────────
+            // ── Fila 2: actividad + criticidad + botones + exportar ────────────
             panelFiltros.Controls.Add(new Label
                 { Text = "Actividad:", Left = 10, Top = 54, Width = 70 });
             txtActividad = new TextBox { Left = 82, Top = 50, Width = 200 };
@@ -132,7 +144,6 @@ namespace GUI
             {
                 Left = 368, Top = 50, Width = 170, DropDownStyle = ComboBoxStyle.DropDownList
             };
-            // Índice 0 → -1 (todas), índice N → valor real N (1‥6)
             cmbCriticidad.Items.AddRange(new object[]
             {
                 "Todas",
@@ -168,6 +179,20 @@ namespace GUI
                 CargarSistema();
             };
             panelFiltros.Controls.Add(btnLimpiar);
+
+            // Botón exportar PDF — derecha del panel
+            var btnExportSistema = new Button
+            {
+                Text      = "📄 Exportar PDF",
+                Left      = 726, Top = 9, Width = 130, Height = 66,
+                BackColor = Color.FromArgb(70, 100, 160), ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font      = new Font("Segoe UI", 9f)
+            };
+            btnExportSistema.FlatAppearance.BorderSize = 0;
+            btnExportSistema.Click += (s, e) =>
+                ExportarPdf(dgvSistema, "Bitácora del Sistema — WardrobeFlow");
+            panelFiltros.Controls.Add(btnExportSistema);
 
             // ── Grilla ─────────────────────────────────────────────────────────
             dgvSistema = CrearDgv();
@@ -260,7 +285,7 @@ namespace GUI
             txtNegCliente = new TextBox { Left = 732, Top = 10, Width = 60, Text = "0" };
             panelFiltros.Controls.Add(txtNegCliente);
 
-            // ── Fila 2: botones ────────────────────────────────────────────────
+            // ── Fila 2: botones + exportar ─────────────────────────────────────
             btnNegBuscar = new Button
             {
                 Text      = "Buscar",
@@ -283,6 +308,20 @@ namespace GUI
                 CargarNegocio();
             };
             panelFiltros.Controls.Add(btnNegLimpiar);
+
+            // Botón exportar PDF — derecha del panel
+            var btnExportNegocio = new Button
+            {
+                Text      = "📄 Exportar PDF",
+                Left      = 726, Top = 9, Width = 130, Height = 66,
+                BackColor = Color.FromArgb(70, 100, 160), ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font      = new Font("Segoe UI", 9f)
+            };
+            btnExportNegocio.FlatAppearance.BorderSize = 0;
+            btnExportNegocio.Click += (s, e) =>
+                ExportarPdf(dgvNegocio, "Bitácora de Negocio — WardrobeFlow");
+            panelFiltros.Controls.Add(btnExportNegocio);
 
             dgvNegocio = CrearDgv();
 
@@ -329,12 +368,11 @@ namespace GUI
         {
             try
             {
-                int dias     = (int)nudDias.Value;
+                int dias        = (int)nudDias.Value;
                 DateTime? desde = dias > 0 ? DateTime.Now.AddDays(-dias) : (DateTime?)null;
-                int uid      = int.TryParse(txtUsuario.Text, out int u) ? u : 0;
-                string activ = txtActividad.Text.Trim();
+                int uid         = int.TryParse(txtUsuario.Text, out int u) ? u : 0;
+                string activ    = txtActividad.Text.Trim();
 
-                // índice 0 → -1 (todas), índice 1 → 1, …, índice 6 → 6
                 int[] criticidadMap = { -1, 1, 2, 3, 4, 5, 6 };
                 int criticidad = criticidadMap[cmbCriticidad.SelectedIndex];
 
@@ -348,18 +386,166 @@ namespace GUI
         {
             try
             {
-                int dias      = (int)nudNegDias.Value;
+                int dias        = (int)nudNegDias.Value;
                 DateTime? desde = dias > 0 ? DateTime.Now.AddDays(-dias) : (DateTime?)null;
-                string tipo   = cmbTipoEvento.SelectedIndex == 0
+                string tipo     = cmbTipoEvento.SelectedIndex == 0
                                     ? null
                                     : cmbTipoEvento.SelectedItem.ToString();
-                int? idPedido  = int.TryParse(txtNegPedido.Text,  out int p) && p > 0 ? (int?)p : null;
-                int? idCliente = int.TryParse(txtNegCliente.Text, out int c) && c > 0 ? (int?)c : null;
+                int? idPedido   = int.TryParse(txtNegPedido.Text,  out int p) && p > 0 ? (int?)p : null;
+                int? idCliente  = int.TryParse(txtNegCliente.Text, out int c) && c > 0 ? (int?)c : null;
 
                 var dt = bllNegocio.BuscarPorFiltros(desde, null, tipo, idCliente, idPedido);
                 MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt);
             }
             catch (Exception ex) { MostrarError(ex.Message); }
+        }
+
+        // ══════════════════════════════════════════════════════════════════════
+        // EXPORTAR PDF — PrintDocument + PrintPreviewDialog
+        // ══════════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Abre una vista previa de impresión del contenido actual de la grilla.
+        /// Desde ahí el usuario puede imprimir directamente o seleccionar
+        /// "Microsoft Print to PDF" para guardar como archivo PDF.
+        /// </summary>
+        private void ExportarPdf(DataGridView dgv, string titulo)
+        {
+            if (dgv.Rows.Count == 0)
+            {
+                MessageBox.Show("No hay datos para exportar.", "Exportar PDF",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Capturar datos en tabla independiente para la impresión
+            _tablaImpresion  = (DataTable)dgv.DataSource;
+            _tituloImpresion = titulo;
+            _paginaActual    = 1;
+            _filaImpresion   = 0;
+
+            _fuenteTitulo = new Font("Segoe UI", 13, FontStyle.Bold);
+            _fuenteHeader = new Font("Segoe UI", 8,  FontStyle.Bold);
+            _fuenteCelda  = new Font("Segoe UI", 7.5f);
+
+            var doc = new PrintDocument();
+            doc.DefaultPageSettings.Landscape = true;
+            doc.DefaultPageSettings.Margins   = new Margins(40, 40, 40, 40);
+            doc.PrintPage += ImprimirPagina;
+
+            using (var preview = new PrintPreviewDialog())
+            {
+                preview.Document = doc;
+                preview.Width    = 1050;
+                preview.Height   = 780;
+                preview.Text     = $"Vista Previa — {titulo}";
+                preview.ShowDialog(this);
+            }
+        }
+
+        /// <summary>
+        /// Renderiza una página del documento de impresión.
+        /// Dibuja el título, encabezados de columna y filas de datos.
+        /// Continúa en páginas adicionales si los datos no caben en una sola.
+        /// </summary>
+        private void ImprimirPagina(object sender, PrintPageEventArgs e)
+        {
+            Graphics  g      = e.Graphics;
+            Rectangle margen = e.MarginBounds;
+
+            float y          = margen.Top;
+            float xIzq       = margen.Left;
+            float anchoTotal = margen.Width;
+
+            // ── Título (solo en la primera página) ───────────────────────────
+            if (_paginaActual == 1)
+            {
+                g.DrawString(_tituloImpresion, _fuenteTitulo, Brushes.DarkSlateBlue,
+                    xIzq, y);
+                y += _fuenteTitulo.GetHeight(g) + 4;
+
+                g.DrawString(
+                    $"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}   |   " +
+                    $"{_tablaImpresion.Rows.Count} registro(s)",
+                    _fuenteCelda, Brushes.Gray, xIzq, y);
+                y += _fuenteCelda.GetHeight(g) + 8;
+
+                // Línea separadora bajo el título
+                g.DrawLine(Pens.DarkSlateBlue, xIzq, y, xIzq + anchoTotal, y);
+                y += 4;
+            }
+
+            // ── Calcular anchos de columna ────────────────────────────────────
+            int nCols     = _tablaImpresion.Columns.Count;
+            float colAncho = anchoTotal / nCols;
+
+            // ── Encabezados ───────────────────────────────────────────────────
+            float alturaHeader = _fuenteHeader.GetHeight(g) + 6;
+
+            using (var brushHeader = new SolidBrush(Color.FromArgb(60, 60, 120)))
+            using (var brushHeaderBg = new SolidBrush(Color.FromArgb(220, 220, 240)))
+            {
+                g.FillRectangle(brushHeaderBg,
+                    xIzq, y, anchoTotal, alturaHeader);
+
+                for (int col = 0; col < nCols; col++)
+                {
+                    string nombre = _tablaImpresion.Columns[col].ColumnName;
+                    var rect = new RectangleF(
+                        xIzq + col * colAncho + 2, y + 2,
+                        colAncho - 4, alturaHeader - 4);
+                    g.DrawString(nombre, _fuenteHeader, brushHeader, rect,
+                        new StringFormat { Trimming = StringTrimming.EllipsisCharacter });
+                }
+            }
+            y += alturaHeader + 2;
+
+            // ── Filas de datos ────────────────────────────────────────────────
+            float alturaCelda = _fuenteCelda.GetHeight(g) + 5;
+            bool  alternar    = false;
+
+            while (_filaImpresion < _tablaImpresion.Rows.Count)
+            {
+                // Verificar si cabe otra fila en la página
+                if (y + alturaCelda > margen.Bottom - 20) break;
+
+                DataRow fila = _tablaImpresion.Rows[_filaImpresion];
+
+                // Fondo alternado
+                if (alternar)
+                    g.FillRectangle(new SolidBrush(Color.FromArgb(248, 248, 255)),
+                        xIzq, y, anchoTotal, alturaCelda);
+
+                for (int col = 0; col < nCols; col++)
+                {
+                    string valor = fila[col]?.ToString() ?? "";
+                    var rect = new RectangleF(
+                        xIzq + col * colAncho + 2, y + 1,
+                        colAncho - 4, alturaCelda - 2);
+                    g.DrawString(valor, _fuenteCelda, Brushes.Black, rect,
+                        new StringFormat { Trimming = StringTrimming.EllipsisCharacter });
+                }
+
+                // Línea de separación fina
+                g.DrawLine(Pens.LightGray,
+                    xIzq, y + alturaCelda, xIzq + anchoTotal, y + alturaCelda);
+
+                y        += alturaCelda;
+                alternar  = !alternar;
+                _filaImpresion++;
+            }
+
+            // ── Pie de página ─────────────────────────────────────────────────
+            g.DrawLine(Pens.DarkSlateBlue,
+                xIzq, margen.Bottom - 14, xIzq + anchoTotal, margen.Bottom - 14);
+            g.DrawString(
+                $"WardrobeFlow — Página {_paginaActual}",
+                _fuenteCelda, Brushes.Gray,
+                xIzq, margen.Bottom - 12);
+
+            // ¿Hay más filas? Entonces hay más páginas
+            e.HasMorePages = _filaImpresion < _tablaImpresion.Rows.Count;
+            if (e.HasMorePages) _paginaActual++;
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────
@@ -408,9 +594,6 @@ namespace GUI
             }
         }
 
-        /// <summary>
-        /// Computa un resumen de registros por nivel de criticidad para la barra de estado.
-        /// </summary>
         private string ComputarEstadisticasCriticidad(DataTable datos)
         {
             var conteos = new int[7];
@@ -421,7 +604,7 @@ namespace GUI
             }
 
             string[] etiquetas = { "None", "Baja", "Media", "Alta", "Int.Login", "Recup.Clave", "Bloqueos" };
-            var partes = new System.Collections.Generic.List<string>();
+            var partes = new List<string>();
             for (int i = 0; i < 7; i++)
                 if (conteos[i] > 0)
                     partes.Add($"{etiquetas[i]}: {conteos[i]}");
@@ -431,9 +614,6 @@ namespace GUI
                 : "Sin datos de criticidad";
         }
 
-        /// <summary>
-        /// Colorea las filas del tab Sistema según el nivel de criticidad del registro.
-        /// </summary>
         private void ColorearPorCriticidad(DataGridView dgv)
         {
             if (!dgv.Columns.Contains("criticidad")) return;
