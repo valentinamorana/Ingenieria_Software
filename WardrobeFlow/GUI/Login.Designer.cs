@@ -59,7 +59,7 @@ namespace GUI
             // 
             this.lblUsuario.BackColor = System.Drawing.Color.White;
             this.lblUsuario.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.lblUsuario.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(80)))), ((int)(((byte)(80)))));
+            this.lblUsuario.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.lblUsuario.Location = new System.Drawing.Point(22, 28);
             this.lblUsuario.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblUsuario.Name = "lblUsuario";
@@ -71,7 +71,7 @@ namespace GUI
             // 
             this.lblContraseña.BackColor = System.Drawing.Color.White;
             this.lblContraseña.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.lblContraseña.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(80)))), ((int)(((byte)(80)))));
+            this.lblContraseña.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.lblContraseña.Location = new System.Drawing.Point(22, 85);
             this.lblContraseña.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblContraseña.Name = "lblContraseña";
@@ -81,7 +81,7 @@ namespace GUI
             // 
             // btnIngresar
             // 
-            this.btnIngresar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(242)))), ((int)(((byte)(110)))), ((int)(((byte)(153)))));
+            this.btnIngresar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(100)))), ((int)(((byte)(135)))));
             this.btnIngresar.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnIngresar.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(196)))), ((int)(((byte)(160)))), ((int)(((byte)(100)))));
             this.btnIngresar.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(160)))), ((int)(((byte)(120)))), ((int)(((byte)(70)))));
@@ -130,9 +130,10 @@ namespace GUI
             // 
             // lnkOlvidaste
             // 
+            this.lnkOlvidaste.ActiveLinkColor = System.Drawing.Color.DeepPink;
             this.lnkOlvidaste.BackColor = System.Drawing.Color.White;
             this.lnkOlvidaste.Font = new System.Drawing.Font("Segoe UI", 8.5F);
-            this.lnkOlvidaste.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(60)))), ((int)(((byte)(160)))));
+            this.lnkOlvidaste.LinkColor = System.Drawing.Color.Purple;
             this.lnkOlvidaste.Location = new System.Drawing.Point(22, 210);
             this.lnkOlvidaste.Name = "lnkOlvidaste";
             this.lnkOlvidaste.Size = new System.Drawing.Size(240, 18);
@@ -174,7 +175,7 @@ namespace GUI
             // 
             // lblSubtitulo
             // 
-            this.lblSubtitulo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(242)))), ((int)(((byte)(124)))), ((int)(((byte)(153)))));
+            this.lblSubtitulo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(100)))), ((int)(((byte)(135)))));
             this.lblSubtitulo.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSubtitulo.ForeColor = System.Drawing.Color.White;
             this.lblSubtitulo.Location = new System.Drawing.Point(233, 84);
@@ -187,7 +188,7 @@ namespace GUI
             // 
             // lblAccent
             // 
-            this.lblAccent.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
+            this.lblAccent.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(100)))), ((int)(((byte)(135)))));
             this.lblAccent.Location = new System.Drawing.Point(0, -4);
             this.lblAccent.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblAccent.Name = "lblAccent";
@@ -196,7 +197,7 @@ namespace GUI
             // 
             // label1
             // 
-            this.label1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
+            this.label1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(100)))), ((int)(((byte)(135)))));
             this.label1.Location = new System.Drawing.Point(0, 430);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
@@ -207,7 +208,7 @@ namespace GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(176)))), ((int)(((byte)(62)))), ((int)(((byte)(96)))));
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(146)))), ((int)(((byte)(62)))), ((int)(((byte)(96)))));
             this.ClientSize = new System.Drawing.Size(744, 437);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lblAccent);

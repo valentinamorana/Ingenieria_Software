@@ -103,8 +103,9 @@ namespace GUI
                 tieneClientes || tienePlanes || tienePedidosVenta || tienePedidosReal;
 
             // ── Administrar (Usuarios) ────────────────────────────────────────
-            // Menú deshabilitado: la gestión de usuarios se maneja internamente.
-            gestionToolStripMenuItem.Visible = false;
+            bool tieneUsuarios = nombresMenu.Contains("mnuUsuarios");
+            usuariosToolStripMenuItem.Visible = tieneUsuarios;
+            gestionToolStripMenuItem.Visible  = tieneUsuarios;
 
             // ── Bitácora ──────────────────────────────────────────────────────
             bitacoraToolStripMenuItem.Visible = nombresMenu.Contains("mnuAuditoria");
@@ -166,26 +167,22 @@ namespace GUI
 
         /// <summary>
         /// Abre el módulo de Outfits como hijo MDI.
+        /// TODO: implementar cuando se cree el formulario Outfits.
         /// </summary>
         private void outfitsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (Form hijo in this.MdiChildren)
-            {
-                if (hijo is Outfits) { hijo.BringToFront(); return; }
-            }
-            new Outfits { MdiParent = this }.Show();
+            MessageBox.Show("El módulo de Outfits aún no está disponible.",
+                "Próximamente", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>
         /// Abre el módulo de Categorías como hijo MDI.
+        /// TODO: implementar cuando se cree el formulario Categorias.
         /// </summary>
         private void categoriasToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (Form hijo in this.MdiChildren)
-            {
-                if (hijo is Categorias) { hijo.BringToFront(); return; }
-            }
-            new Categorias { MdiParent = this }.Show();
+            MessageBox.Show("El módulo de Categorías aún no está disponible.",
+                "Próximamente", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>

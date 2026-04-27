@@ -26,200 +26,30 @@ namespace GUI
         private readonly BLL.Pedido   pedidoBLL  = new BLL.Pedido();
 
         // ── Estado interno ────────────────────────────────────────────────────
-        private List<BE.Cliente> _clientes  = new List<BE.Cliente>();
+        private List<BE.Cliente> _clientes    = new List<BE.Cliente>();
         private List<BE.Prenda>  _disponibles = new List<BE.Prenda>();
         private BE.Cliente       _clienteSel  = null;
-
-        // ── Controles ─────────────────────────────────────────────────────────
-        // Paso 1
-        private Panel        panelPaso1;
-        private ComboBox     cmbCliente;
-        private Label        lblInfoPlan;
-        private Button       btnSiguiente;
-
-        // Paso 2
-        private Panel        panelPaso2;
-        private DataGridView dgvPrendas;
-        private Label        lblResumen;
-        private Button       btnConfirmar;
-        private Button       btnVolver;
-
-        // Compartidos
-        private Label        lblPaso;
-        private Label        lblMensaje;
 
         public NuevoPedidoForm()
         {
             InitializeComponent();
-            this.Text            = "Nuevo Pedido de Venta";
-            this.ClientSize      = new Size(700, 520);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox     = false;
-            this.MinimizeBox     = false;
-            this.StartPosition   = FormStartPosition.CenterParent;
-
-            ConstruirInterfaz();
-            this.Load += (s, e) => CargarDatosIniciales();
+            this.Load += new EventHandler(NuevoPedidoForm_Load);
         }
 
-        private void ConstruirInterfaz()
+        private void NuevoPedidoForm_Load(object sender, EventArgs e)
         {
-            // ── Header ────────────────────────────────────────────────────────
-            var panelHeader = new Panel
-            {
-                Dock = DockStyle.Top, Height = 40,
-                BackColor = Color.FromArgb(60, 100, 160)
-            };
-            lblPaso = new Label
-            {
-                Text = "Paso 1 de 2 — Seleccionar Cliente",
-                Dock = DockStyle.Fill,
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 11, FontStyle.Bold),
-                Padding = new Padding(12, 8, 0, 0)
-            };
-            panelHeader.Controls.Add(lblPaso);
+            CargarDatosIniciales();
+        }
 
-            // ── Status bar ────────────────────────────────────────────────────
-            var panelStatus = new Panel
-            {
-                Dock = DockStyle.Bottom, Height = 26,
-                BackColor = Color.FromArgb(230, 230, 240),
-                Padding = new Padding(8, 4, 8, 4)
-            };
-            lblMensaje = new Label { Dock = DockStyle.Fill, Font = new Font("Segoe UI", 8.5f) };
-            panelStatus.Controls.Add(lblMensaje);
+        private void BtnVolver_Click(object sender, EventArgs e)
+        {
+            MostrarPaso(1);
+        }
 
-            // ── PASO 1: Seleccionar cliente ───────────────────────────────────
-            panelPaso1 = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20) };
-
-            panelPaso1.Controls.Add(new Label
-            {
-                Text = "Seleccioná el cliente para este pedido:",
-                Left = 20, Top = 20, Width = 600,
-                Font = new Font("Segoe UI", 10)
-            });
-
-            cmbCliente = new ComboBox
-            {
-                Left = 20, Top = 50, Width = 500,
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Font = new Font("Segoe UI", 10)
-            };
-            cmbCliente.SelectedIndexChanged += CmbCliente_SelectedIndexChanged;
-            panelPaso1.Controls.Add(cmbCliente);
-
-            lblInfoPlan = new Label
-            {
-                Left = 20, Top = 90, Width = 620, Height = 120,
-                Font = new Font("Segoe UI", 9.5f),
-                ForeColor = Color.FromArgb(40, 80, 140),
-                BorderStyle = BorderStyle.FixedSingle,
-                BackColor = Color.FromArgb(240, 246, 255),
-                Padding = new Padding(10),
-                Visible = false
-            };
-            panelPaso1.Controls.Add(lblInfoPlan);
-
-            btnSiguiente = new Button
-            {
-                Text = "Siguiente →",
-                Left = 20, Top = 240,
-                Width = 160, Height = 36,
-                BackColor = Color.SteelBlue, ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat, Enabled = false,
-                Font = new Font("Segoe UI", 10)
-            };
-            btnSiguiente.FlatAppearance.BorderSize = 0;
-            btnSiguiente.Click += BtnSiguiente_Click;
-            panelPaso1.Controls.Add(btnSiguiente);
-
-            // ── PASO 2: Seleccionar prendas ───────────────────────────────────
-            panelPaso2 = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10), Visible = false };
-
-            var lblInstruccion = new Label
-            {
-                Text = "Seleccioná las prendas para incluir en el pedido (checkbox):",
-                Left = 10, Top = 4, Width = 660,
-                Font = new Font("Segoe UI", 9.5f)
-            };
-            panelPaso2.Controls.Add(lblInstruccion);
-
-            dgvPrendas = new DataGridView
-            {
-                Left = 10, Top = 26, Width = 660, Height = 340,
-                ReadOnly = false,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                BackgroundColor = Color.White,
-                RowHeadersVisible = false,
-                BorderStyle = BorderStyle.FixedSingle,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
-                {
-                    BackColor = Color.FromArgb(255, 248, 252)
-                },
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    SelectionBackColor = Color.FromArgb(255, 182, 193),
-                    SelectionForeColor = Color.Black
-                }
-            };
-
-            // Columna checkbox
-            var colCheck = new DataGridViewCheckBoxColumn
-            {
-                Name = "Sel", HeaderText = "", Width = 32,
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.None
-            };
-            var colId       = new DataGridViewTextBoxColumn { Name = "ID",       HeaderText = "ID",        ReadOnly = true, Width = 40, AutoSizeMode = DataGridViewAutoSizeColumnMode.None };
-            var colNombre   = new DataGridViewTextBoxColumn { Name = "Nombre",   HeaderText = "Nombre",    ReadOnly = true };
-            var colCateg    = new DataGridViewTextBoxColumn { Name = "Categoria",HeaderText = "Categoría", ReadOnly = true };
-            var colTalle    = new DataGridViewTextBoxColumn { Name = "Talle",    HeaderText = "Talle",     ReadOnly = true, Width = 60,  AutoSizeMode = DataGridViewAutoSizeColumnMode.None };
-            var colColor    = new DataGridViewTextBoxColumn { Name = "Color",    HeaderText = "Color",     ReadOnly = true, Width = 90,  AutoSizeMode = DataGridViewAutoSizeColumnMode.None };
-
-            dgvPrendas.Columns.AddRange(colCheck, colId, colNombre, colCateg, colTalle, colColor);
-            dgvPrendas.CellValueChanged      += DgvPrendas_CellValueChanged;
-            dgvPrendas.CurrentCellDirtyStateChanged += (s, e) =>
-            {
-                if (dgvPrendas.IsCurrentCellDirty) dgvPrendas.CommitEdit(DataGridViewDataErrorContexts.Commit);
-            };
-            panelPaso2.Controls.Add(dgvPrendas);
-
-            lblResumen = new Label
-            {
-                Left = 10, Top = 374, Width = 660, Height = 44,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(40, 80, 140)
-            };
-            panelPaso2.Controls.Add(lblResumen);
-
-            btnVolver = new Button
-            {
-                Text = "← Volver",
-                Left = 10, Top = 426, Width = 110, Height = 34,
-                FlatStyle = FlatStyle.Flat
-            };
-            btnVolver.Click += (s, e) => MostrarPaso(1);
-            panelPaso2.Controls.Add(btnVolver);
-
-            btnConfirmar = new Button
-            {
-                Text = "✓ Confirmar Pedido",
-                Left = 130, Top = 426, Width = 190, Height = 34,
-                BackColor = Color.FromArgb(60, 140, 60), ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat, Enabled = false
-            };
-            btnConfirmar.FlatAppearance.BorderSize = 0;
-            btnConfirmar.Click += BtnConfirmar_Click;
-            panelPaso2.Controls.Add(btnConfirmar);
-
-            // Agregar paneles al form
-            this.Controls.Add(panelPaso2);
-            this.Controls.Add(panelPaso1);
-            this.Controls.Add(panelStatus);
-            this.Controls.Add(panelHeader);
+        private void DgvPrendas_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dgvPrendas.IsCurrentCellDirty)
+                dgvPrendas.CommitEdit(DataGridViewDataErrorContexts.Commit);
         }
 
         // ── Carga de datos ────────────────────────────────────────────────────

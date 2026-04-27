@@ -107,23 +107,11 @@
     <Compile Include="Bitacora.Designer.cs">
       <DependentUpon>Bitacora.cs</DependentUpon>
     </Compile>
-    <Compile Include="Categorias.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="OlvideContrasenaForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="OlvideContrasenaForm.Designer.cs">
       <DependentUpon>OlvideContrasenaForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Categorias.Designer.cs">
-      <DependentUpon>Categorias.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Outfits.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Outfits.Designer.cs">
-      <DependentUpon>Outfits.cs</DependentUpon>
     </Compile>
     <Compile Include="Prendas.cs">
       <SubType>Form</SubType>
@@ -160,11 +148,38 @@
     <EmbeddedResource Include="Bitacora.resx">
       <DependentUpon>Bitacora.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="CambioEstadoDialog.resx">
+      <DependentUpon>CambioEstadoDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ClienteForm.resx">
+      <DependentUpon>ClienteForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Login.resx">
       <DependentUpon>Login.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Menu.resx">
       <DependentUpon>Menu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NotificacionDespachoForm.resx">
+      <DependentUpon>NotificacionDespachoForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NuevoPedidoForm.resx">
+      <DependentUpon>NuevoPedidoForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OlvideContrasenaForm.resx">
+      <DependentUpon>OlvideContrasenaForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PedidosRealizados.resx">
+      <DependentUpon>PedidosRealizados.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PedidosVenta.resx">
+      <DependentUpon>PedidosVenta.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Planes.resx">
+      <DependentUpon>Planes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PrendaForm.resx">
+      <DependentUpon>PrendaForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

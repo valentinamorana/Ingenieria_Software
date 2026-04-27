@@ -24,211 +24,35 @@ namespace GUI
     {
         private readonly BLL.Pedido pedidoBLL = new BLL.Pedido();
 
-        // ── Controles ─────────────────────────────────────────────────────────
-        private DataGridView dgvPedidos;
-        private DataGridView dgvDetalle;
-        private ComboBox      cmbFiltroEstado;
-        private NumericUpDown nudDiasFiltro;
-        private Button        btnDespachar;
-        private Button        btnEntregado;
-        private Button        btnVerNotificacion;
-        private Button        btnRefrescar;
-        private Label         lblMensaje;
-        private Label         lblConteo;
-        private Label         lblDetalleTitulo;
-
         private List<BE.Pedido> _pedidos = new List<BE.Pedido>();
 
         public PedidosRealizados()
         {
             InitializeComponent();
-            this.Text        = "Despacho de Pedidos";
-            this.ClientSize  = new Size(1060, 660);
-            this.MinimumSize = new Size(880, 520);
-
-            ConstruirInterfaz();
-            this.Load += (s, e) => CargarPedidos();
+            this.Load += new EventHandler(PedidosRealizados_Load);
         }
 
-        private void ConstruirInterfaz()
+        private void PedidosRealizados_Load(object sender, EventArgs e)
         {
-            // ── Panel superior (2 filas: filtros + acciones) ──────────────────
-            Panel panelTop = new Panel
-            {
-                Dock = DockStyle.Top, Height = 90,
-                BackColor = Color.FromArgb(225, 235, 245),
-                Padding = new Padding(8, 6, 8, 4)
-            };
-
-            // Fila 1: Filtros
-            panelTop.Controls.Add(new Label
-            {
-                Text = "Estado:", Left = 8, Top = 10, Width = 50,
-                TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-            });
-
-            cmbFiltroEstado = new ComboBox
-            {
-                Left = 60, Top = 8, Width = 140,
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            cmbFiltroEstado.Items.AddRange(new object[]
-                { "Todos", "Pendiente", "Despachado", "Entregado", "Cancelado" });
-            cmbFiltroEstado.SelectedIndex = 0;
-            cmbFiltroEstado.SelectedIndexChanged += (s, e) => AplicarFiltro();
-            panelTop.Controls.Add(cmbFiltroEstado);
-
-            panelTop.Controls.Add(new Label
-            {
-                Text = "Últimos:", Left = 212, Top = 10, Width = 56,
-                TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-            });
-
-            nudDiasFiltro = new NumericUpDown
-            {
-                Left = 270, Top = 8, Width = 60,
-                Minimum = 0, Maximum = 365, Value = 0
-            };
-            nudDiasFiltro.ValueChanged += (s, e) => AplicarFiltro();
-            panelTop.Controls.Add(nudDiasFiltro);
-
-            panelTop.Controls.Add(new Label
-            {
-                Text = "días (0 = todos)", Left = 334, Top = 10, Width = 120,
-                ForeColor = Color.DimGray, Font = new Font("Segoe UI", 8f)
-            });
-
-            lblConteo = new Label
-            {
-                Left = 460, Top = 10, Width = 380,
-                ForeColor = Color.DimGray, Font = new Font("Segoe UI", 8.5f),
-                TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-            };
-            panelTop.Controls.Add(lblConteo);
-
-            // Fila 2: Acciones
-            btnDespachar = new Button
-            {
-                Text = "📦 Despachar", Left = 8, Top = 50,
-                Width = 130, Height = 28,
-                BackColor = Color.FromArgb(210, 100, 135), ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat, Enabled = false
-            };
-            btnDespachar.FlatAppearance.BorderSize = 0;
-            btnDespachar.Click += BtnDespachar_Click;
-            panelTop.Controls.Add(btnDespachar);
-
-            btnEntregado = new Button
-            {
-                Text = "✓ Marcar Entregado", Left = 146, Top = 50,
-                Width = 160, Height = 28,
-                BackColor = Color.FromArgb(40, 140, 60), ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat, Enabled = false
-            };
-            btnEntregado.FlatAppearance.BorderSize = 0;
-            btnEntregado.Click += BtnEntregado_Click;
-            panelTop.Controls.Add(btnEntregado);
-
-            btnVerNotificacion = new Button
-            {
-                Text = "✉ Ver Notificación", Left = 314, Top = 50,
-                Width = 150, Height = 28,
-                FlatStyle = FlatStyle.Flat, Enabled = false
-            };
-            btnVerNotificacion.Click += BtnVerNotificacion_Click;
-            panelTop.Controls.Add(btnVerNotificacion);
-
-            btnRefrescar = new Button
-            {
-                Text = "↻", Left = 472, Top = 50,
-                Width = 32, Height = 28, FlatStyle = FlatStyle.Flat
-            };
-            btnRefrescar.Click += (s, e) => CargarPedidos();
-            panelTop.Controls.Add(btnRefrescar);
-
-            // ── Panel inferior: detalle prendas ───────────────────────────────
-            Panel panelDetalle = new Panel
-            {
-                Dock = DockStyle.Bottom, Height = 190,
-                BackColor = Color.FromArgb(248, 248, 252),
-                Padding = new Padding(8)
-            };
-
-            lblDetalleTitulo = new Label
-            {
-                Text = "Detalle del pedido seleccionado",
-                Dock = DockStyle.Top, Height = 22,
-                Font = new Font("Segoe UI", 9, FontStyle.Bold),
-                Padding = new Padding(4, 2, 0, 0),
-                BackColor = Color.FromArgb(210, 220, 235)
-            };
-
-            dgvDetalle = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                ReadOnly = true,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                BackgroundColor = Color.White,
-                RowHeadersVisible = false,
-                BorderStyle = BorderStyle.None,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
-                {
-                    BackColor = Color.FromArgb(255, 248, 252)
-                },
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    SelectionBackColor = Color.FromArgb(255, 182, 193),
-                    SelectionForeColor = Color.Black
-                }
-            };
-
-            panelDetalle.Controls.Add(dgvDetalle);
-            panelDetalle.Controls.Add(lblDetalleTitulo);
-
-            // ── Status bar ────────────────────────────────────────────────────
-            Panel panelStatus = new Panel
-            {
-                Dock = DockStyle.Bottom, Height = 26,
-                BackColor = Color.FromArgb(225, 235, 245),
-                Padding = new Padding(8, 4, 8, 4)
-            };
-            lblMensaje = new Label { Dock = DockStyle.Fill, Font = new Font("Segoe UI", 8.5f) };
-            panelStatus.Controls.Add(lblMensaje);
-
-            // ── DataGridView principal ────────────────────────────────────────
-            dgvPedidos = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                ReadOnly = true,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                BackgroundColor = Color.White,
-                RowHeadersVisible = false,
-                BorderStyle = BorderStyle.None,
-                AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
-                {
-                    BackColor = Color.FromArgb(255, 248, 252)
-                },
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    SelectionBackColor = Color.FromArgb(255, 182, 193),
-                    SelectionForeColor = Color.Black
-                }
-            };
-            dgvPedidos.SelectionChanged += DgvPedidos_SelectionChanged;
-
-            this.Controls.Add(dgvPedidos);
-            this.Controls.Add(panelDetalle);
-            this.Controls.Add(panelStatus);
-            this.Controls.Add(panelTop);
+            CargarPedidos();
         }
 
-        // Carga y filtrado 
+        private void CmbFiltroEstado_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            AplicarFiltro();
+        }
+
+        private void NudDiasFiltro_ValueChanged(object sender, EventArgs e)
+        {
+            AplicarFiltro();
+        }
+
+        private void BtnRefrescar_Click(object sender, EventArgs e)
+        {
+            CargarPedidos();
+        }
+
+        // Carga y filtrado
         private void CargarPedidos()
         {
             try

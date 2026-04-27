@@ -25,255 +25,45 @@ namespace GUI
         // BLL de usuarios para operaciones de negocio
         private readonly BLL.Usuario usuarioBLL = new BLL.Usuario();
 
-        // ── Controles del formulario ──────────────────────────────────────────
-        private DataGridView dgvUsuarios;
-        private TextBox txtUsername;
-        private TextBox txtContraseña;
-        private ComboBox cmbPerfil;
-        private Button btnAgregar;
-        private Button btnRefrescar;
-        private Button btnResetearClave;
-        private Button btnDesbloquear;
-        private Label lblMensaje;
-
         /// <summary>
         /// Constructor: inicializa el formulario y construye la interfaz de gestión de usuarios.
         /// </summary>
         public Usuarios()
         {
             InitializeComponent();
-            this.Text        = "Gestión de Usuarios";
-            this.ClientSize  = new Size(860, 660);
-            this.MinimumSize = new Size(760, 580);
-
-            ConstruirInterfaz();
-
-            // Cargar lista de usuarios al abrir el formulario
-            this.Load += (s, e) => CargarUsuarios();
+            this.Load += new EventHandler(Usuarios_Load);
         }
 
-        /// <summary>
-        /// Construye la interfaz del formulario programáticamente.
-        /// Panel lateral derecho para operaciones, grilla central para la lista.
-        /// </summary>
-        private void ConstruirInterfaz()
+        // ── Eventos del Designer ──────────────────────────────────────────────
+
+        private void Usuarios_Load(object sender, EventArgs e)
         {
-            // ── Panel lateral derecho ─────────────────────────────────────────
-            Panel panelAlta = new Panel
-            {
-                Dock      = DockStyle.Right,
-                Width     = 240,
-                Padding   = new Padding(12),
-                BackColor = Color.FromArgb(245, 245, 250)
-            };
-
-            // ── Sección: Nuevo Usuario ────────────────────────────────────────
-            var lblTitulo = new Label
-            {
-                Text = "Nuevo Usuario",
-                Font = new Font("Segoe UI", 11, FontStyle.Bold),
-                Left = 12, Top = 12, Width = 210
-            };
-
-            var lblUser = new Label { Text = "Nombre de usuario:", Left = 12, Top = 50, Width = 200 };
-            txtUsername = new TextBox { Left = 12, Top = 68, Width = 210 };
-
-            var lblPass = new Label { Text = "Contraseña:", Left = 12, Top = 100, Width = 200 };
-            txtContraseña = new TextBox
-            {
-                Left         = 12,
-                Top          = 118,
-                Width        = 210,
-                PasswordChar = '●'
-            };
-
-            var lblPerfil = new Label { Text = "Perfil (rol):", Left = 12, Top = 150, Width = 200 };
-            cmbPerfil = new ComboBox
-            {
-                Left          = 12, Top = 168, Width = 210,
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            // Roles según Funcionalidades.docx (nombres con espacios, tal como están en la BD)
-            cmbPerfil.Items.AddRange(new object[]
-            {
-                "Administrador",
-                "Supervisor",
-                "Vendedor",
-                "Controlador de Stock",
-                "Operador de Inventario"
-            });
-            cmbPerfil.SelectedIndex = 2; // Vendedor por defecto
-
-            btnAgregar = new Button
-            {
-                Text      = "Agregar Usuario",
-                Left      = 12,  Top    = 210,
-                Width     = 210, Height = 34,
-                BackColor = Color.FromArgb(210, 100, 135),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
-            btnAgregar.FlatAppearance.BorderSize = 0;
-            btnAgregar.Click += BtnAgregar_Click;
-
-            btnRefrescar = new Button
-            {
-                Text   = "↻ Refrescar Lista",
-                Left   = 12,  Top    = 253,
-                Width  = 210, Height = 28
-            };
-            btnRefrescar.Click += (s, e) => CargarUsuarios();
-
-            // ── Separador visual ──────────────────────────────────────────────
-            var separador = new Label
-            {
-                Left      = 12,  Top    = 292,
-                Width     = 210, Height = 1,
-                BackColor = Color.Silver
-            };
-
-            // ── Sección: Resetear Contraseña ──────────────────────────────────
-            var lblResetTitulo = new Label
-            {
-                Text = "Resetear Contraseña",
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                Left = 12, Top = 302, Width = 210
-            };
-
-            var lblResetInfo = new Label
-            {
-                Text      = "Seleccioná un usuario\nen la lista y presioná:",
-                Left      = 12, Top    = 325,
-                Width     = 210, Height = 36,
-                ForeColor = Color.DimGray,
-                Font      = new Font("Segoe UI", 8.5f)
-            };
-
-            btnResetearClave = new Button
-            {
-                Text      = "Resetear Contrasena",
-                Left      = 12,  Top    = 366,
-                Width     = 210, Height = 34,
-                BackColor = Color.FromArgb(180, 100, 30),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Enabled   = false   // se habilita cuando hay una fila seleccionada
-            };
-            btnResetearClave.FlatAppearance.BorderSize = 0;
-            btnResetearClave.Click += BtnResetearClave_Click;
-
-            // ── Sección: Desbloquear Cuenta ───────────────────────────────────
-            var separador2 = new Label
-            {
-                Left      = 12,  Top    = 408,
-                Width     = 210, Height = 1,
-                BackColor = Color.Silver
-            };
-
-            var lblDesbloquearTitulo = new Label
-            {
-                Text = "Desbloquear Cuenta",
-                Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                Left = 12, Top = 418, Width = 210
-            };
-
-            var lblDesbloquearInfo = new Label
-            {
-                Text      = "Seleccioná un usuario\nbloqueado y presioná:",
-                Left      = 12, Top    = 441,
-                Width     = 210, Height = 36,
-                ForeColor = Color.DimGray,
-                Font      = new Font("Segoe UI", 8.5f)
-            };
-
-            btnDesbloquear = new Button
-            {
-                Text      = "Desbloquear Cuenta",
-                Left      = 12,  Top    = 482,
-                Width     = 210, Height = 34,
-                BackColor = Color.FromArgb(30, 130, 76),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Enabled   = false   // se habilita solo cuando el usuario seleccionado está bloqueado
-            };
-            btnDesbloquear.FlatAppearance.BorderSize = 0;
-            btnDesbloquear.Click += BtnDesbloquear_Click;
-
-            // Mensaje de éxito o error
-            lblMensaje = new Label
-            {
-                Left      = 12,  Top    = 526,
-                Width     = 210, Height = 80,
-                ForeColor = Color.DarkGreen,
-                Font      = new Font("Segoe UI", 8.5f)
-            };
-
-            panelAlta.Controls.AddRange(new Control[]
-            {
-                lblTitulo, lblUser, txtUsername, lblPass, txtContraseña,
-                lblPerfil, cmbPerfil, btnAgregar, btnRefrescar,
-                separador, lblResetTitulo, lblResetInfo, btnResetearClave,
-                separador2, lblDesbloquearTitulo, lblDesbloquearInfo, btnDesbloquear,
-                lblMensaje
-            });
-
-            // ── DataGridView — lista de usuarios ──────────────────────────────
-            dgvUsuarios = new DataGridView
-            {
-                Dock                            = DockStyle.Fill,
-                ReadOnly                        = true,
-                AllowUserToAddRows              = false,
-                AllowUserToDeleteRows           = false,
-                SelectionMode                   = DataGridViewSelectionMode.FullRowSelect,
-                AutoSizeColumnsMode             = DataGridViewAutoSizeColumnsMode.Fill,
-                BackgroundColor                 = Color.White,
-                RowHeadersVisible               = false,
-                BorderStyle                     = BorderStyle.None,
-                AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
-                {
-                    BackColor = Color.FromArgb(255, 248, 252)
-                },
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    SelectionBackColor = Color.FromArgb(255, 182, 193),
-                    SelectionForeColor = Color.Black
-                }
-            };
-
-            // Habilitar botones según la fila seleccionada
-            dgvUsuarios.SelectionChanged += (s, e) =>
-            {
-                bool haySeleccion = dgvUsuarios.SelectedRows.Count > 0;
-                btnResetearClave.Enabled = haySeleccion;
-
-                // Desbloquear solo se habilita si el usuario seleccionado está bloqueado
-                if (haySeleccion)
-                {
-                    var estadoCell = dgvUsuarios.SelectedRows[0].Cells["Estado"];
-                    btnDesbloquear.Enabled = estadoCell?.Value?.ToString() == "BLOQUEADA";
-                }
-                else
-                {
-                    btnDesbloquear.Enabled = false;
-                }
-            };
-
-            // Label de título de la grilla
-            var lblListaTitulo = new Label
-            {
-                Text      = "Usuarios registrados en el sistema",
-                Dock      = DockStyle.Top,
-                Height    = 28,
-                Font      = new Font("Segoe UI", 9, FontStyle.Bold),
-                Padding   = new Padding(6, 6, 0, 0),
-                BackColor = Color.FromArgb(230, 230, 240)
-            };
-
-            // Agregar controles al formulario
-            this.Controls.Add(dgvUsuarios);
-            this.Controls.Add(lblListaTitulo);
-            this.Controls.Add(panelAlta);
+            CargarUsuarios();
         }
+
+        private void BtnRefrescar_Click(object sender, EventArgs e)
+        {
+            CargarUsuarios();
+        }
+
+        private void DgvUsuarios_SelectionChanged(object sender, EventArgs e)
+        {
+            bool haySeleccion = dgvUsuarios.SelectedRows.Count > 0;
+            btnResetearClave.Enabled = haySeleccion;
+
+            // Desbloquear solo se habilita si el usuario seleccionado está bloqueado
+            if (haySeleccion)
+            {
+                var estadoCell = dgvUsuarios.SelectedRows[0].Cells["Estado"];
+                btnDesbloquear.Enabled = estadoCell?.Value?.ToString() == "BLOQUEADA";
+            }
+            else
+            {
+                btnDesbloquear.Enabled = false;
+            }
+        }
+
+        // ── Carga ─────────────────────────────────────────────────────────────
 
         /// <summary>
         /// Carga la lista de usuarios desde la BLL → DAL y la muestra en la grilla.
@@ -316,14 +106,7 @@ namespace GUI
             }
         }
 
-        /// <summary>
-        /// Evento del botón Agregar: valida, crea el usuario a través de BLL
-        /// (que hashea la contraseña) y refresca la lista.
-        /// </summary>
-        // ─────────────────────────────────────────────────────────────────────
-        // FIX #2: username debe ser numérico (DNI de 7-8 dígitos)
-        // FIX #3: OperadorLogistico eliminado del combo de roles
-        // ─────────────────────────────────────────────────────────────────────
+        // ── Eventos de botones ────────────────────────────────────────────────
 
         /// <summary>
         /// Crea un nuevo usuario tras validar que el username sea numérico (DNI)
@@ -342,7 +125,7 @@ namespace GUI
                 return;
             }
 
-            // FIX #2: el username debe ser numérico (representa el DNI del empleado)
+            // El username debe ser numérico (representa el DNI del empleado)
             foreach (char c in username)
             {
                 if (!char.IsDigit(c))
@@ -464,7 +247,7 @@ namespace GUI
             }
         }
 
-        // ── Helpers de mensajes ───────────────────────────────────────────────
+        // ── Helpers ───────────────────────────────────────────────────────────
 
         private void MostrarError(string msg)
         {
@@ -487,7 +270,7 @@ namespace GUI
             using (Form dlg = new Form())
             {
                 dlg.Text            = titulo;
-                dlg.ClientSize      = new Size(360, 130);
+                dlg.ClientSize      = new System.Drawing.Size(360, 130);
                 dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
                 dlg.StartPosition  = FormStartPosition.CenterParent;
                 dlg.MaximizeBox    = false;

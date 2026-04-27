@@ -31,186 +31,50 @@ namespace GUI
         // Determina si el usuario puede cambiar estados (ControladorDeStock)
         private readonly bool _tieneStock;
 
-        // ── Controles ─────────────────────────────────────────────────────────
-        private DataGridView dgvPrendas;
-        private TextBox      txtFiltro;
-        private ComboBox     cmbEstadoFiltro;
-        private Button       btnNueva;
-        private Button       btnEditar;
-        private Button       btnCambiarEstado;
-        private Button       btnRefrescar;
-        private Label        lblMensaje;
-        private Label        lblConteo;
-        private Panel        panelDetalle;
-        private Label        lblDetalleContenido;
-
         private List<BE.Prenda> _prendas = new List<BE.Prenda>();
 
         public Prendas()
         {
             InitializeComponent();
-            this.Text        = "Catálogo de Prendas";
-            this.ClientSize  = new Size(1000, 580);
-            this.MinimumSize = new Size(820, 460);
 
             // Verificar si el usuario activo tiene permiso de stock
             var bllUsuario = new BLL.Usuario();
             var usuario    = bllUsuario.ObtenerUsuarioActivo();
             _tieneStock = usuario?.Permisos?.Exists(p => p.NombreMenu == "mnuStock") == true;
 
-            ConstruirInterfaz();
-            this.Load += (s, e) => CargarPrendas();
+            // Ocultar botones de acción si el usuario no tiene permiso de stock
+            btnNueva.Visible        = _tieneStock;
+            btnEditar.Visible       = _tieneStock;
+            btnCambiarEstado.Visible = _tieneStock;
+
+            this.Load += new EventHandler(Prendas_Load);
         }
 
-        private void ConstruirInterfaz()
+        // ── Eventos del Designer ──────────────────────────────────────────────
+
+        private void Prendas_Load(object sender, EventArgs e)
         {
-            // ── Panel superior: filtros y acciones ────────────────────────────
-            Panel panelTop = new Panel
-            {
-                Dock = DockStyle.Top, Height = 56,
-                Padding = new Padding(8, 8, 8, 4),
-                BackColor = Color.FromArgb(230, 230, 240)
-            };
+            CargarPrendas();
+        }
 
-            panelTop.Controls.Add(new Label
-            {
-                Text = "Estado:", Left = 8, Top = 18, Width = 48,
-                TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-            });
+        private void CmbEstadoFiltro_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            AplicarFiltro();
+        }
 
-            cmbEstadoFiltro = new ComboBox
-            {
-                Left = 58, Top = 15, Width = 130,
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            cmbEstadoFiltro.Items.AddRange(new object[]
-                { "Todos", "Disponible", "En Uso", "En Limpieza", "Baja" });
-            cmbEstadoFiltro.SelectedIndex = 0;
-            cmbEstadoFiltro.SelectedIndexChanged += (s, e) => AplicarFiltro();
-            panelTop.Controls.Add(cmbEstadoFiltro);
+        private void TxtFiltro_TextChanged(object sender, EventArgs e)
+        {
+            AplicarFiltro();
+        }
 
-            panelTop.Controls.Add(new Label
-            {
-                Text = "Buscar:", Left = 200, Top = 18, Width = 50,
-                TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-            });
-            txtFiltro = new TextBox { Left = 252, Top = 15, Width = 200 };
-            txtFiltro.TextChanged += (s, e) => AplicarFiltro();
-            panelTop.Controls.Add(txtFiltro);
+        private void BtnRefrescar_Click(object sender, EventArgs e)
+        {
+            CargarPrendas();
+        }
 
-            btnNueva = new Button
-            {
-                Text = "+ Nueva Prenda", Left = 470, Top = 13,
-                Width = 130, Height = 28,
-                BackColor = Color.FromArgb(210, 100, 135), ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat, Visible = _tieneStock
-            };
-            btnNueva.FlatAppearance.BorderSize = 0;
-            btnNueva.Click += BtnNueva_Click;
-            panelTop.Controls.Add(btnNueva);
-
-            btnEditar = new Button
-            {
-                Text = "✎ Editar", Left = 610, Top = 13,
-                Width = 80, Height = 28,
-                FlatStyle = FlatStyle.Flat, Enabled = false,
-                Visible = _tieneStock
-            };
-            btnEditar.Click += BtnEditar_Click;
-            panelTop.Controls.Add(btnEditar);
-
-            btnCambiarEstado = new Button
-            {
-                Text = "⇄ Estado", Left = 698, Top = 13,
-                Width = 90, Height = 28,
-                BackColor = Color.FromArgb(100, 140, 80), ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat, Enabled = false,
-                Visible = _tieneStock
-            };
-            btnCambiarEstado.FlatAppearance.BorderSize = 0;
-            btnCambiarEstado.Click += BtnCambiarEstado_Click;
-            panelTop.Controls.Add(btnCambiarEstado);
-
-            btnRefrescar = new Button
-            {
-                Text = "↻", Left = 796, Top = 13,
-                Width = 32, Height = 28, FlatStyle = FlatStyle.Flat
-            };
-            btnRefrescar.Click += (s, e) => CargarPrendas();
-            panelTop.Controls.Add(btnRefrescar);
-
-            lblConteo = new Label
-            {
-                Left = 836, Top = 18, Width = 200,
-                ForeColor = Color.DimGray, Font = new Font("Segoe UI", 8.5f)
-            };
-            panelTop.Controls.Add(lblConteo);
-
-            // ── Panel inferior: detalle del cliente en uso ────────────────────
-            panelDetalle = new Panel
-            {
-                Dock = DockStyle.Bottom, Height = 70,
-                BackColor = Color.FromArgb(255, 252, 235),
-                Padding = new Padding(10, 6, 10, 6),
-                Visible = false
-            };
-            var lblDetalleTitulo = new Label
-            {
-                Text = "Cliente en uso:",
-                Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
-                Left = 10, Top = 8, Width = 120
-            };
-            lblDetalleContenido = new Label
-            {
-                Left = 130, Top = 8, Width = 800, Height = 50,
-                Font = new Font("Segoe UI", 8.5f),
-                ForeColor = Color.FromArgb(100, 60, 0)
-            };
-            panelDetalle.Controls.Add(lblDetalleTitulo);
-            panelDetalle.Controls.Add(lblDetalleContenido);
-
-            // ── Status bar ────────────────────────────────────────────────────
-            Panel panelStatus = new Panel
-            {
-                Dock = DockStyle.Bottom, Height = 26,
-                BackColor = Color.FromArgb(230, 230, 240),
-                Padding = new Padding(8, 4, 8, 4)
-            };
-            lblMensaje = new Label { Dock = DockStyle.Fill, Font = new Font("Segoe UI", 8.5f) };
-            panelStatus.Controls.Add(lblMensaje);
-
-            // ── DataGridView ──────────────────────────────────────────────────
-            dgvPrendas = new DataGridView
-            {
-                Dock                            = DockStyle.Fill,
-                ReadOnly                        = true,
-                AllowUserToAddRows              = false,
-                AllowUserToDeleteRows           = false,
-                SelectionMode                   = DataGridViewSelectionMode.FullRowSelect,
-                AutoSizeColumnsMode             = DataGridViewAutoSizeColumnsMode.Fill,
-                BackgroundColor                 = Color.White,
-                RowHeadersVisible               = false,
-                BorderStyle                     = BorderStyle.None,
-                AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
-                {
-                    BackColor = Color.FromArgb(255, 248, 252)
-                },
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    SelectionBackColor = Color.FromArgb(255, 182, 193),
-                    SelectionForeColor = Color.Black
-                }
-            };
-            dgvPrendas.SelectionChanged += DgvPrendas_SelectionChanged;
-            dgvPrendas.CellDoubleClick  += (s, e) =>
-            {
-                if (_tieneStock) BtnEditar_Click(s, e);
-            };
-
-            this.Controls.Add(dgvPrendas);
-            this.Controls.Add(panelDetalle);
-            this.Controls.Add(panelStatus);
-            this.Controls.Add(panelTop);
+        private void DgvPrendas_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (_tieneStock) BtnEditar_Click(sender, e);
         }
 
         // ── Carga y filtrado ──────────────────────────────────────────────────
@@ -309,7 +173,7 @@ namespace GUI
             bool hay = dgvPrendas.SelectedRows.Count > 0;
             if (_tieneStock)
             {
-                btnEditar.Enabled       = hay;
+                btnEditar.Enabled        = hay;
                 btnCambiarEstado.Enabled = hay;
             }
 

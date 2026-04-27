@@ -21,166 +21,22 @@ namespace GUI
     {
         private readonly BLL.Pedido pedidoBLL = new BLL.Pedido();
 
-        // ── Controles ─────────────────────────────────────────────────────────
-        private DataGridView dgvPedidos;
-        private DataGridView dgvDetallePrendas;
-        private Button       btnNuevoPedido;
-        private Button       btnCancelar;
-        private Button       btnDesCancelar;
-        private Button       btnRefrescar;
-        private Label        lblMensaje;
-        private Label        lblConteo;
-        private Label        lblDetalleTitulo;
-
         private List<BE.Pedido> _pedidos = new List<BE.Pedido>();
 
         public PedidosVenta()
         {
             InitializeComponent();
-            this.Text        = "Pedidos de Venta";
-            this.ClientSize  = new Size(1000, 600);
-            this.MinimumSize = new Size(820, 480);
-
-            ConstruirInterfaz();
-            this.Load += (s, e) => CargarPedidos();
+            this.Load += new EventHandler(PedidosVenta_Load);
         }
 
-        private void ConstruirInterfaz()
+        private void PedidosVenta_Load(object sender, EventArgs e)
         {
-            // ── Panel superior: acciones ───────────────────────────────────────
-            Panel panelTop = new Panel
-            {
-                Dock = DockStyle.Top, Height = 52,
-                BackColor = Color.FromArgb(230, 230, 240),
-                Padding = new Padding(8, 8, 8, 4)
-            };
+            CargarPedidos();
+        }
 
-            btnNuevoPedido = new Button
-            {
-                Text = "+ Nuevo Pedido", Left = 8, Top = 11,
-                Width = 140, Height = 28,
-                BackColor = Color.FromArgb(60, 140, 60), ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
-            btnNuevoPedido.FlatAppearance.BorderSize = 0;
-            btnNuevoPedido.Click += BtnNuevoPedido_Click;
-
-            btnCancelar = new Button
-            {
-                Text = "✕ Cancelar", Left = 156, Top = 11,
-                Width = 110, Height = 28,
-                BackColor = Color.FromArgb(200, 60, 60), ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat, Enabled = false
-            };
-            btnCancelar.FlatAppearance.BorderSize = 0;
-            btnCancelar.Click += BtnCancelarPedido_Click;
-
-            btnDesCancelar = new Button
-            {
-                Text = "↩ Des-cancelar", Left = 274, Top = 11,
-                Width = 130, Height = 28,
-                BackColor = Color.FromArgb(100, 80, 160), ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat, Enabled = false
-            };
-            btnDesCancelar.FlatAppearance.BorderSize = 0;
-            btnDesCancelar.Click += BtnDesCancelarPedido_Click;
-
-            btnRefrescar = new Button
-            {
-                Text = "↻", Left = 412, Top = 11,
-                Width = 32, Height = 28, FlatStyle = FlatStyle.Flat
-            };
-            btnRefrescar.Click += (s, e) => CargarPedidos();
-
-            lblConteo = new Label
-            {
-                Left = 452, Top = 16, Width = 300,
-                ForeColor = Color.DimGray, Font = new Font("Segoe UI", 8.5f)
-            };
-
-            panelTop.Controls.AddRange(new Control[]
-                { btnNuevoPedido, btnCancelar, btnDesCancelar, btnRefrescar, lblConteo });
-
-            // ── Panel inferior: detalle de prendas del pedido seleccionado ─────
-            Panel panelDetalle = new Panel
-            {
-                Dock = DockStyle.Bottom, Height = 180,
-                BackColor = Color.FromArgb(245, 245, 250),
-                Padding = new Padding(8)
-            };
-
-            lblDetalleTitulo = new Label
-            {
-                Text = "Prendas del pedido seleccionado",
-                Dock = DockStyle.Top, Height = 22,
-                Font = new Font("Segoe UI", 9, FontStyle.Bold),
-                Padding = new Padding(4, 2, 0, 0),
-                BackColor = Color.FromArgb(215, 215, 230)
-            };
-
-            dgvDetallePrendas = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                ReadOnly = true,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                BackgroundColor = Color.White,
-                RowHeadersVisible = false,
-                BorderStyle = BorderStyle.None,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
-                {
-                    BackColor = Color.FromArgb(255, 248, 252)
-                },
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    SelectionBackColor = Color.FromArgb(255, 182, 193),
-                    SelectionForeColor = Color.Black
-                }
-            };
-
-            panelDetalle.Controls.Add(dgvDetallePrendas);
-            panelDetalle.Controls.Add(lblDetalleTitulo);
-
-            // ── Status bar ────────────────────────────────────────────────────
-            Panel panelStatus = new Panel
-            {
-                Dock = DockStyle.Bottom, Height = 26,
-                BackColor = Color.FromArgb(230, 230, 240),
-                Padding = new Padding(8, 4, 8, 4)
-            };
-            lblMensaje = new Label { Dock = DockStyle.Fill, Font = new Font("Segoe UI", 8.5f) };
-            panelStatus.Controls.Add(lblMensaje);
-
-            // ── DataGridView de pedidos ───────────────────────────────────────
-            dgvPedidos = new DataGridView
-            {
-                Dock = DockStyle.Fill,
-                ReadOnly = true,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                BackgroundColor = Color.White,
-                RowHeadersVisible = false,
-                BorderStyle = BorderStyle.None,
-                AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
-                {
-                    BackColor = Color.FromArgb(255, 248, 252)
-                },
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    SelectionBackColor = Color.FromArgb(255, 182, 193),
-                    SelectionForeColor = Color.Black
-                }
-            };
-            dgvPedidos.SelectionChanged += DgvPedidos_SelectionChanged;
-
-            this.Controls.Add(dgvPedidos);
-            this.Controls.Add(panelDetalle);
-            this.Controls.Add(panelStatus);
-            this.Controls.Add(panelTop);
+        private void BtnRefrescar_Click(object sender, EventArgs e)
+        {
+            CargarPedidos();
         }
 
         // ── Carga ─────────────────────────────────────────────────────────────

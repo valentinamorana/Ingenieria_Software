@@ -22,142 +22,44 @@ namespace GUI
     {
         private readonly BLL.Cliente clienteBLL = new BLL.Cliente();
 
-        // ── Controles ─────────────────────────────────────────────────────────
-        private DataGridView dgvClientes;
-        private TextBox      txtFiltro;
-        private Button       btnNuevo;
-        private Button       btnEditar;
-        private Button       btnBaja;
-        private Button       btnRefrescar;
-        private Label        lblMensaje;
-        private Label        lblConteo;
-
         // Cache de la lista actual
         private List<BE.Cliente> _clientes = new List<BE.Cliente>();
 
         public Clientes()
         {
             InitializeComponent();
-            this.Text        = "Gestión de Clientes";
-            this.ClientSize  = new Size(920, 560);
-            this.MinimumSize = new Size(780, 460);
-
-            ConstruirInterfaz();
-            this.Load += (s, e) => CargarClientes();
+            this.Load += new EventHandler(Clientes_Load);
         }
 
-        private void ConstruirInterfaz()
+        // ── Eventos de carga ──────────────────────────────────────────────────
+
+        private void Clientes_Load(object sender, EventArgs e)
         {
-            // ── Panel superior: filtro + acciones ─────────────────────────────
-            Panel panelTop = new Panel
-            {
-                Dock = DockStyle.Top, Height = 52,
-                Padding = new Padding(8, 8, 8, 4),
-                BackColor = Color.FromArgb(230, 230, 240)
-            };
+            CargarClientes();
+        }
 
-            var lblFiltro = new Label
-            {
-                Text = "Buscar:", Left = 8, Top = 16,
-                Width = 48, TextAlign = System.Drawing.ContentAlignment.MiddleLeft
-            };
-            txtFiltro = new TextBox { Left = 58, Top = 13, Width = 220 };
-            txtFiltro.TextChanged += (s, e) => AplicarFiltro();
+        // ── Eventos del Designer ──────────────────────────────────────────────
 
-            btnNuevo = new Button
-            {
-                Text = "+ Nuevo Cliente", Left = 300, Top = 11,
-                Width = 130, Height = 28,
-                BackColor = Color.FromArgb(210, 100, 135), ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
-            btnNuevo.FlatAppearance.BorderSize = 0;
-            btnNuevo.Click += BtnNuevo_Click;
+        private void TxtFiltro_TextChanged(object sender, EventArgs e)
+        {
+            AplicarFiltro();
+        }
 
-            btnEditar = new Button
-            {
-                Text = "✎ Editar", Left = 438, Top = 11,
-                Width = 90, Height = 28,
-                FlatStyle = FlatStyle.Flat, Enabled = false
-            };
-            btnEditar.Click += BtnEditar_Click;
+        private void BtnRefrescar_Click(object sender, EventArgs e)
+        {
+            CargarClientes();
+        }
 
-            btnBaja = new Button
-            {
-                Text = "✕ Dar de Baja", Left = 536, Top = 11,
-                Width = 110, Height = 28,
-                BackColor = Color.FromArgb(200, 60, 60), ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat, Enabled = false
-            };
-            btnBaja.FlatAppearance.BorderSize = 0;
-            btnBaja.Click += BtnBaja_Click;
+        private void DgvClientes_SelectionChanged(object sender, EventArgs e)
+        {
+            bool hay = dgvClientes.SelectedRows.Count > 0;
+            btnEditar.Enabled = hay;
+            btnBaja.Enabled   = hay;
+        }
 
-            btnRefrescar = new Button
-            {
-                Text = "↻", Left = 654, Top = 11,
-                Width = 32, Height = 28,
-                FlatStyle = FlatStyle.Flat
-            };
-            btnRefrescar.Click += (s, e) => CargarClientes();
-
-            lblConteo = new Label
-            {
-                Left = 696, Top = 16, Width = 200,
-                ForeColor = Color.DimGray, Font = new Font("Segoe UI", 8.5f)
-            };
-
-            panelTop.Controls.AddRange(new Control[]
-            {
-                lblFiltro, txtFiltro, btnNuevo, btnEditar, btnBaja, btnRefrescar, lblConteo
-            });
-
-            // ── DataGridView ──────────────────────────────────────────────────
-            dgvClientes = new DataGridView
-            {
-                Dock                            = DockStyle.Fill,
-                ReadOnly                        = true,
-                AllowUserToAddRows              = false,
-                AllowUserToDeleteRows           = false,
-                SelectionMode                   = DataGridViewSelectionMode.FullRowSelect,
-                AutoSizeColumnsMode             = DataGridViewAutoSizeColumnsMode.Fill,
-                BackgroundColor                 = Color.White,
-                RowHeadersVisible               = false,
-                BorderStyle                     = BorderStyle.None,
-                AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
-                {
-                    BackColor = Color.FromArgb(255, 248, 252)
-                },
-                DefaultCellStyle = new DataGridViewCellStyle
-                {
-                    SelectionBackColor = Color.FromArgb(255, 182, 193),
-                    SelectionForeColor = Color.Black
-                }
-            };
-            dgvClientes.SelectionChanged += (s, e) =>
-            {
-                bool hay = dgvClientes.SelectedRows.Count > 0;
-                btnEditar.Enabled = hay;
-                btnBaja.Enabled   = hay;
-            };
-            dgvClientes.CellDoubleClick += (s, e) => BtnEditar_Click(s, e);
-
-            // ── Barra de estado inferior ──────────────────────────────────────
-            Panel panelBottom = new Panel
-            {
-                Dock = DockStyle.Bottom, Height = 28,
-                BackColor = Color.FromArgb(230, 230, 240),
-                Padding = new Padding(8, 4, 8, 4)
-            };
-            lblMensaje = new Label
-            {
-                Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 8.5f)
-            };
-            panelBottom.Controls.Add(lblMensaje);
-
-            this.Controls.Add(dgvClientes);
-            this.Controls.Add(panelTop);
-            this.Controls.Add(panelBottom);
+        private void DgvClientes_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            BtnEditar_Click(sender, e);
         }
 
         // ── Carga y filtrado ──────────────────────────────────────────────────

@@ -19,119 +19,14 @@ namespace GUI
     /// </summary>
     public partial class OlvideContrasenaForm : Form
     {
-        private TextBox txtUsername;
-        private Button  btnEnviar;
-        private Button  btnCerrar;
-        private Label   lblMensaje;
-
         public OlvideContrasenaForm()
         {
             InitializeComponent();
+        }
 
-            this.Text            = "Recuperar Contraseña";
-            this.ClientSize      = new Size(380, 300);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.StartPosition   = FormStartPosition.CenterParent;
-            this.MaximizeBox     = false;
-            this.MinimizeBox     = false;
-            this.BackColor       = Color.White;
-
-            // ── Barra de acento superior ──────────────────────────────────────
-            var accent = new Label
-            {
-                BackColor = Color.FromArgb(64, 0, 64),
-                Dock      = DockStyle.Top,
-                Height    = 4
-            };
-
-            // ── Título ────────────────────────────────────────────────────────
-            var lblTitulo = new Label
-            {
-                Text      = "Recuperar Contraseña",
-                Font      = new Font("Segoe UI", 13, FontStyle.Bold),
-                ForeColor = Color.FromArgb(30, 30, 60),
-                Left      = 24, Top    = 22,
-                Width     = 332, Height = 28
-            };
-
-            // ── Descripción ───────────────────────────────────────────────────
-            var lblDesc = new Label
-            {
-                Text      = "Ingresá tu nombre de usuario. Un administrador\npodrá resetear tu contraseña desde el sistema.",
-                Font      = new Font("Segoe UI", 9),
-                ForeColor = Color.DimGray,
-                Left      = 24, Top    = 58,
-                Width     = 332, Height = 40
-            };
-
-            // ── Campo username ────────────────────────────────────────────────
-            var lblUser = new Label
-            {
-                Text      = "Nombre de usuario:",
-                Font      = new Font("Segoe UI", 9, FontStyle.Bold),
-                ForeColor = Color.FromArgb(80, 80, 80),
-                Left      = 24, Top    = 108,
-                Width     = 332, Height = 18
-            };
-
-            txtUsername = new TextBox
-            {
-                Left        = 24,  Top    = 128,
-                Width       = 332, Height = 25,
-                Font        = new Font("Segoe UI", 10),
-                BorderStyle = BorderStyle.FixedSingle,
-                BackColor   = Color.FromArgb(245, 245, 248)
-            };
-
-            // ── Label de resultado (oculto hasta el envío) ────────────────────
-            lblMensaje = new Label
-            {
-                Left      = 24,  Top    = 164,
-                Width     = 332, Height = 52,
-                Font      = new Font("Segoe UI", 8.5f),
-                ForeColor = Color.DarkGreen,
-                Text      = string.Empty
-            };
-
-            // ── Botones ───────────────────────────────────────────────────────
-            btnEnviar = new Button
-            {
-                Text      = "Enviar solicitud",
-                Left      = 24,  Top    = 224,
-                Width     = 160, Height = 34,
-                BackColor = Color.FromArgb(64, 0, 64),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font      = new Font("Segoe UI", 9, FontStyle.Bold),
-                Cursor    = Cursors.Hand
-            };
-            btnEnviar.FlatAppearance.BorderSize = 0;
-            btnEnviar.Click += BtnEnviar_Click;
-
-            btnCerrar = new Button
-            {
-                Text      = "Cerrar",
-                Left      = 196, Top    = 224,
-                Width     = 160, Height = 34,
-                FlatStyle = FlatStyle.Flat,
-                Font      = new Font("Segoe UI", 9),
-                Cursor    = Cursors.Hand,
-                BackColor = Color.FromArgb(240, 240, 240),
-                ForeColor = Color.FromArgb(80, 80, 80)
-            };
-            btnCerrar.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
-            btnCerrar.Click += (s, e) => this.Close();
-
-            this.AcceptButton = btnEnviar;
-            this.CancelButton = btnCerrar;
-
-            this.Controls.AddRange(new Control[]
-            {
-                accent, lblTitulo, lblDesc,
-                lblUser, txtUsername,
-                lblMensaje,
-                btnEnviar, btnCerrar
-            });
+        private void BtnCerrar_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
 
         /// <summary>
