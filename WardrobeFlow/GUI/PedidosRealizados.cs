@@ -197,6 +197,7 @@ namespace GUI
 
             btnDespachar.Enabled        = pedido.Estado == BE.EstadoPedido.Pendiente;
             btnEntregado.Enabled        = pedido.Estado == BE.EstadoPedido.Despachado;
+            btnDevolucion.Enabled       = pedido.Estado == BE.EstadoPedido.Entregado;
             btnVerNotificacion.Enabled  = pedido.Estado == BE.EstadoPedido.Despachado ||
                                           pedido.Estado == BE.EstadoPedido.Entregado;
 
@@ -285,6 +286,40 @@ namespace GUI
             catch (Exception ex) { MostrarError(ex.Message); }
         }
 
+        private void BtnDevolucion_Click(object sender, EventArgs e)
+        {
+            var pedido = ObtenerPedidoSeleccionado();
+            if (pedido == null) return;
+
+            var pedidoCompleto = pedidoBLL.ObtenerPorId(pedido.IdPedido);
+            if (pedidoCompleto == null) return;
+
+            string listaPrendas = string.Join("\n  • ",
+                pedidoCompleto.Prendas.ConvertAll(p => $"{p.Nombre} ({p.Talle} — {p.Color})"));
+
+            var confirmar = MessageBox.Show(
+                $"¿Registrar la devolución del Pedido #{pedido.IdPedido}?\n\n" +
+                $"Cliente: {pedido.NombreCliente}\n\n" +
+                $"Prendas que volverán a EnLimpieza:\n  • {listaPrendas}\n\n" +
+                "Las prendas quedarán en estado 'En Limpieza' hasta ser revisadas\n" +
+                "y marcadas Disponibles por el ControladorDeStock.",
+                "Confirmar Devolución",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question,
+                MessageBoxDefaultButton.Button1);
+
+            if (confirmar != DialogResult.Yes) return;
+
+            try
+            {
+                pedidoBLL.RegistrarDevolucion(this, pedido);
+                MostrarOk($"Devolución del Pedido #{pedido.IdPedido} registrada. " +
+                          $"{pedidoCompleto.CantidadPrendas} prenda(s) pasaron a EnLimpieza.");
+                CargarPedidos();
+            }
+            catch (Exception ex) { MostrarError(ex.Message); }
+        }
+
         private void BtnVerNotificacion_Click(object sender, EventArgs e)
         {
             var pedidoResumen = ObtenerPedidoSeleccionado();
@@ -320,6 +355,7 @@ namespace GUI
         {
             btnDespachar.Enabled       = false;
             btnEntregado.Enabled       = false;
+            btnDevolucion.Enabled      = false;
             btnVerNotificacion.Enabled = false;
         }
 

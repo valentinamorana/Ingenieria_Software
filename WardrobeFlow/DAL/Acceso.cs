@@ -29,7 +29,7 @@ namespace DAL
     public sealed class Acceso
     {
         // ── Singleton ────────────────────────────────────────────────────────
-        private static Acceso _instance;
+        private static volatile Acceso _instance;
         private static readonly object _lock = new object();
 
         // Cadena de conexión leída una sola vez desde App.config al construir el Singleton
@@ -120,6 +120,38 @@ namespace DAL
             {
                 System.Diagnostics.Debug.WriteLine($"[Acceso.VerificarConexion] {ex.Message}");
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Ejecuta un conjunto de operaciones dentro de una transacción SQL atómica.
+        /// Si cualquier operación lanza una excepción, se hace Rollback y se re-lanza.
+        /// Si todas tienen éxito, se hace Commit.
+        ///
+        /// La acción recibe la SqlConnection y el SqlTransaction abiertos, y debe
+        /// usarlos para construir sus SqlCommands (cmd.Transaction = tx).
+        ///
+        /// Uso típico: operaciones que involucran múltiples tablas (ej: Alta de Pedido
+        /// que también actualiza Prenda y escribe en PedidoPrenda).
+        /// </summary>
+        public void EjecutarTransaccion(Action<SqlConnection, SqlTransaction> accion)
+        {
+            using (var conexion = new SqlConnection(_cadenaConexion))
+            {
+                conexion.Open();
+                using (var tx = conexion.BeginTransaction())
+                {
+                    try
+                    {
+                        accion(conexion, tx);
+                        tx.Commit();
+                    }
+                    catch
+                    {
+                        tx.Rollback();
+                        throw;
+                    }
+                }
             }
         }
 

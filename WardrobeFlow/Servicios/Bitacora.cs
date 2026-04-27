@@ -1,17 +1,21 @@
 using BE;
 using System;
+using System.Data;
 using System.Net;
 using System.Net.Sockets;
 
 namespace Servicios
 {
     /// <summary>
-    /// Capa de Servicios — Gestión de Bitácora del Sistema.
+    /// Capa de Servicios — Bitácora del Sistema.
     ///
-    /// Registra automáticamente las actividades del usuario en sesión.
-    /// Recibe el nombre del módulo como string (no como Form) para mantener
-    /// Servicios desacoplado de System.Windows.Forms.
-    /// Captura la IP local del equipo para trazabilidad de auditoría.
+    /// Responsabilidades únicas:
+    ///   - ESCRITURA: Registrar() y RegistrarSinSesion() persisten eventos en BD.
+    ///   - LECTURA:   ObtenerTodos(), ObtenerUltimosNDias(), BuscarPorFiltros()
+    ///                para que la GUI consulte la bitácora sin pasar por BLL.
+    ///
+    /// BLL decide CUÁNDO registrar; Servicios sabe CÓMO persistir y CÓMO consultar.
+    /// No existe BLL.Bitacora: la GUI usa Servicios.Bitacora directamente para queries.
     /// </summary>
     public class Bitacora
     {
@@ -48,6 +52,75 @@ namespace Servicios
 
             bitacoraDAL.Registrar(registro);
         }
+
+        /// <summary>
+        /// Registra un evento de seguridad sin requerir sesión activa.
+        /// Usado para eventos pre-login como intentos fallidos y bloqueos de cuenta.
+        /// A diferencia de <see cref="Registrar"/>, este método no verifica SessionManager.
+        /// </summary>
+        /// <param name="modulo">Nombre del módulo/formulario de origen.</param>
+        /// <param name="actividad">Descripción breve del evento (e.g. "Intento Fallido Login").</param>
+        /// <param name="criticidad">Nivel de criticidad del evento.</param>
+        /// <param name="idUsuario">ID del usuario afectado (puede ser null si se desconoce).</param>
+        /// <param name="detalle">Detalle adicional del evento. Si null, se genera uno automático.</param>
+        public void RegistrarSinSesion(string modulo, string actividad, Criticidad criticidad,
+                                        int? idUsuario = null, string detalle = null)
+        {
+            try
+            {
+                string ip = ObtenerIPLocal();
+                bitacoraDAL.Registrar(new BE.Bitacora
+                {
+                    Fecha      = DateTime.Now,
+                    IdUsuario  = idUsuario,
+                    Modulo     = modulo ?? string.Empty,
+                    Actividad  = actividad,
+                    Criticidad = criticidad,
+                    IP         = ip,
+                    Detalle    = detalle ??
+                                 $"Actividad '{actividad}' en '{modulo}' desde {ip} " +
+                                 $"a las {DateTime.Now:HH:mm:ss}."
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[Servicios.Bitacora.RegistrarSinSesion] Error al registrar: {ex.Message}");
+            }
+        }
+
+        // ── Métodos de consulta (para GUI, sin pasar por BLL) ─────────────────
+
+        /// <summary>
+        /// Devuelve todos los registros de la bitácora, ordenados por fecha descendente.
+        /// </summary>
+        public DataTable ObtenerTodos()
+        {
+            return bitacoraDAL.ObtenerTodos();
+        }
+
+        /// <summary>
+        /// Devuelve los registros de los últimos <paramref name="dias"/> días.
+        /// Normaliza valores menores a 1.
+        /// </summary>
+        public DataTable ObtenerUltimosNDias(int dias)
+        {
+            if (dias < 1) dias = 1;
+            return bitacoraDAL.ObtenerUltimosNDias(dias);
+        }
+
+        /// <summary>
+        /// Búsqueda combinada: rango de fechas, usuario, actividad y criticidad.
+        /// Cualquier parámetro nulo/vacío/-1 se ignora en el filtro.
+        /// </summary>
+        public DataTable BuscarPorFiltros(
+            DateTime? desde, DateTime? hasta,
+            int idUsuario, string actividad, int criticidad)
+        {
+            return bitacoraDAL.BuscarPorFiltros(desde, hasta, idUsuario, actividad, criticidad);
+        }
+
+        // ── Helper de red ─────────────────────────────────────────────────────
 
         /// <summary>
         /// Obtiene la dirección IPv4 local del equipo.

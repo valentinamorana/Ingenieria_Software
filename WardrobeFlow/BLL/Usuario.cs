@@ -209,45 +209,36 @@ namespace BLL
         // FIX: ahora reciben idUsuario (int?) para que aparezca en la columna
         // "usuario" de la bitácora incluso antes de que haya sesión activa.
 
+        /// <summary>
+        /// Registra un intento fallido de login en la bitácora usando Servicios.Bitacora.RegistrarSinSesion,
+        /// manteniendo la separación de capas (no llama DAL directamente).
+        /// </summary>
         private void RegistrarIntentoFallidoInterno(string modulo, string username,
                                                      int numeroIntento, int? idUsuario = null)
         {
-            try
-            {
-                new DAL.Bitacora().Registrar(new BE.Bitacora
-                {
-                    Fecha      = DateTime.Now,
-                    IdUsuario  = idUsuario,          // FIX: ahora incluye el ID del usuario
-                    Modulo     = modulo ?? "Login",
-                    Actividad  = "Intento Fallido Login",
-                    Criticidad = BE.Criticidad.IntentosLogin,
-                    IP         = Servicios.Bitacora.ObtenerIPLocal(),
-                    Detalle    = $"Intento fallido #{numeroIntento}/{MaxIntentosFallidos} " +
-                                 $"para '{username}' (ID: {idUsuario?.ToString() ?? "?"}) " +
-                                 $"a las {DateTime.Now:HH:mm:ss}."
-                });
-            }
-            catch { /* No interrumpir el flujo de login por error de bitácora */ }
+            bitacora.RegistrarSinSesion(
+                modulo:      modulo ?? "Login",
+                actividad:   "Intento Fallido Login",
+                criticidad:  BE.Criticidad.IntentosLogin,
+                idUsuario:   idUsuario,
+                detalle:     $"Intento fallido #{numeroIntento}/{MaxIntentosFallidos} " +
+                             $"para '{username}' (ID: {idUsuario?.ToString() ?? "?"}) " +
+                             $"a las {DateTime.Now:HH:mm:ss}.");
         }
 
+        /// <summary>
+        /// Registra el bloqueo de cuenta en la bitácora usando Servicios.Bitacora.RegistrarSinSesion.
+        /// </summary>
         private void RegistrarBloqueo(string modulo, string username, int? idUsuario = null)
         {
-            try
-            {
-                new DAL.Bitacora().Registrar(new BE.Bitacora
-                {
-                    Fecha      = DateTime.Now,
-                    IdUsuario  = idUsuario,          // FIX: incluye el ID del usuario
-                    Modulo     = modulo ?? "Login",
-                    Actividad  = "Bloqueo de Cuenta",
-                    Criticidad = BE.Criticidad.BloqueosCuenta,
-                    IP         = Servicios.Bitacora.ObtenerIPLocal(),
-                    Detalle    = $"Cuenta '{username}' (ID: {idUsuario?.ToString() ?? "?"}) " +
-                                 $"bloqueada automáticamente tras {MaxIntentosFallidos} " +
-                                 $"intentos fallidos consecutivos a las {DateTime.Now:HH:mm:ss}."
-                });
-            }
-            catch { }
+            bitacora.RegistrarSinSesion(
+                modulo:      modulo ?? "Login",
+                actividad:   "Bloqueo de Cuenta",
+                criticidad:  BE.Criticidad.BloqueosCuenta,
+                idUsuario:   idUsuario,
+                detalle:     $"Cuenta '{username}' (ID: {idUsuario?.ToString() ?? "?"}) " +
+                             $"bloqueada automáticamente tras {MaxIntentosFallidos} " +
+                             $"intentos fallidos consecutivos a las {DateTime.Now:HH:mm:ss}.");
         }
     }
 }

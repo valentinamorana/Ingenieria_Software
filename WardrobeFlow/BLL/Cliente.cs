@@ -8,7 +8,7 @@ namespace BLL
     /// Los clientes son suscriptores del servicio (NO usuarios del sistema).
     /// El Vendedor es el único rol que puede crear y gestionar clientes.
     /// </summary>
-    public class Cliente
+    public class Cliente : Interfaces.IClienteService
     {
         private readonly DAL.Cliente               dalCliente  = new DAL.Cliente();
         private readonly Servicios.Bitacora        bitacora    = new Servicios.Bitacora();
@@ -74,11 +74,12 @@ namespace BLL
         /// </summary>
         public void Baja(System.Windows.Forms.Form formulario, BE.Cliente cliente)
         {
+            // Bloquear baja si el cliente tiene prendas en uso actualmente
             if (cliente.StockUtilizado > 0)
                 throw new Exception(
                     $"No se puede eliminar a {cliente.NombreCompleto}: " +
                     $"tiene {cliente.StockUtilizado} prenda(s) en uso. " +
-                    "Primero devuelva las prendas.");
+                    "Primero registrá la devolución de las prendas.");
 
             dalCliente.Baja(cliente.IdCliente);
             bitacora.Registrar(formulario.Text, $"Baja Cliente ID {cliente.IdCliente}: {cliente.NombreCompleto}", BE.Criticidad.Media);

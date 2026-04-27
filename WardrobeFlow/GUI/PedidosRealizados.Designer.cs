@@ -29,6 +29,7 @@ namespace GUI
             this.btnDespachar = new System.Windows.Forms.Button();
             this.btnEntregado = new System.Windows.Forms.Button();
             this.btnVerNotificacion = new System.Windows.Forms.Button();
+            this.btnDevolucion = new System.Windows.Forms.Button();
             this.btnRefrescar = new System.Windows.Forms.Button();
             this.panelDetalle = new System.Windows.Forms.Panel();
             this.dgvDetalle = new System.Windows.Forms.DataGridView();
@@ -56,6 +57,7 @@ namespace GUI
             this.panelTop.Controls.Add(this.btnDespachar);
             this.panelTop.Controls.Add(this.btnEntregado);
             this.panelTop.Controls.Add(this.btnVerNotificacion);
+            this.panelTop.Controls.Add(this.btnDevolucion);
             this.panelTop.Controls.Add(this.btnRefrescar);
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTop.Location = new System.Drawing.Point(0, 0);
@@ -159,9 +161,9 @@ namespace GUI
             this.btnEntregado.Text = "✓ Marcar Entregado";
             this.btnEntregado.UseVisualStyleBackColor = false;
             this.btnEntregado.Click += new System.EventHandler(this.BtnEntregado_Click);
-            // 
+            //
             // btnVerNotificacion
-            // 
+            //
             this.btnVerNotificacion.Enabled = false;
             this.btnVerNotificacion.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnVerNotificacion.Location = new System.Drawing.Point(314, 50);
@@ -170,11 +172,26 @@ namespace GUI
             this.btnVerNotificacion.TabIndex = 8;
             this.btnVerNotificacion.Text = "✉ Ver Notificación";
             this.btnVerNotificacion.Click += new System.EventHandler(this.BtnVerNotificacion_Click);
-            // 
+            //
+            // btnDevolucion
+            //
+            this.btnDevolucion.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(110)))), ((int)(((byte)(180)))));
+            this.btnDevolucion.Enabled = false;
+            this.btnDevolucion.FlatAppearance.BorderSize = 0;
+            this.btnDevolucion.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDevolucion.ForeColor = System.Drawing.Color.White;
+            this.btnDevolucion.Location = new System.Drawing.Point(472, 50);
+            this.btnDevolucion.Name = "btnDevolucion";
+            this.btnDevolucion.Size = new System.Drawing.Size(160, 28);
+            this.btnDevolucion.TabIndex = 10;
+            this.btnDevolucion.Text = "↩ Registrar Devolución";
+            this.btnDevolucion.UseVisualStyleBackColor = false;
+            this.btnDevolucion.Click += new System.EventHandler(this.BtnDevolucion_Click);
+            //
             // btnRefrescar
-            // 
+            //
             this.btnRefrescar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRefrescar.Location = new System.Drawing.Point(472, 50);
+            this.btnRefrescar.Location = new System.Drawing.Point(640, 50);
             this.btnRefrescar.Name = "btnRefrescar";
             this.btnRefrescar.Size = new System.Drawing.Size(32, 28);
             this.btnRefrescar.TabIndex = 9;
@@ -312,6 +329,7 @@ namespace GUI
         private System.Windows.Forms.Button       btnDespachar;
         private System.Windows.Forms.Button       btnEntregado;
         private System.Windows.Forms.Button       btnVerNotificacion;
+        private System.Windows.Forms.Button       btnDevolucion;
         private System.Windows.Forms.Button       btnRefrescar;
         private System.Windows.Forms.Panel        panelDetalle;
         private System.Windows.Forms.Label        lblDetalleTitulo;

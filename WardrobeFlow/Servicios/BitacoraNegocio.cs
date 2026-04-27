@@ -1,15 +1,18 @@
 using BE;
 using System;
+using System.Data;
 
 namespace Servicios
 {
     /// <summary>
     /// Capa de Servicios — BitacoraNegocio.
-    /// Centraliza el registro de eventos de negocio desde BLL.
-    /// Resuelve automáticamente el IdUsuario desde la sesión activa.
     ///
-    /// Los eventos de negocio se almacenan en la tabla [BitacoraNegocio],
-    /// separada de la tabla [Bitacora] que registra eventos de seguridad del sistema.
+    /// Responsabilidades únicas:
+    ///   - ESCRITURA: Registrar() persiste eventos de negocio en [BitacoraNegocio].
+    ///   - LECTURA:   ObtenerTodos() y BuscarPorFiltros() para consultas desde la GUI.
+    ///
+    /// No existe BLL.BitacoraNegocio: la GUI usa Servicios.BitacoraNegocio directamente.
+    /// Los eventos de negocio están separados de la tabla [Bitacora] (seguridad/sistema).
     /// </summary>
     public class BitacoraNegocio
     {
@@ -49,6 +52,25 @@ namespace Servicios
             {
                 // No interrumpir el flujo de negocio por error de bitácora
             }
+        }
+
+        // ── Métodos de consulta (para GUI, sin pasar por BLL) ─────────────────
+
+        /// <summary>Devuelve todos los eventos de negocio ordenados por fecha descendente.</summary>
+        public DataTable ObtenerTodos()
+        {
+            return dal.ObtenerTodos();
+        }
+
+        /// <summary>
+        /// Búsqueda combinada: rango de fechas, tipo de evento, cliente y pedido.
+        /// Cualquier parámetro nulo/vacío se ignora en el filtro.
+        /// </summary>
+        public DataTable BuscarPorFiltros(
+            DateTime? desde, DateTime? hasta,
+            string tipo, int? idCliente, int? idPedido)
+        {
+            return dal.BuscarPorFiltros(desde, hasta, tipo, idCliente, idPedido);
         }
     }
 }

@@ -29,5 +29,41 @@ namespace BE
             Estado == EstadoPrenda.EnUso && !string.IsNullOrEmpty(NombreCliente)
                 ? $"{Nombre} — en uso ({NombreCliente})"
                 : $"{Nombre} — {Estado}";
+
+        // ── Comportamiento ────────────────────────────────────────────────────
+
+        /// <summary>Indica si la prenda puede ser asignada a un pedido.</summary>
+        public bool EstaDisponible() => Estado == EstadoPrenda.Disponible;
+
+        /// <summary>
+        /// Indica si la transición al nuevo estado está permitida por las reglas de negocio.
+        /// Transiciones válidas desde la UI:
+        ///   Disponible  → EnLimpieza, Baja
+        ///   EnLimpieza  → Disponible, Baja
+        ///   EnUso       → solo el sistema (al cancelar/devolver pedido)
+        ///   Baja        → irreversible
+        /// </summary>
+        public bool TransicionPermitida(EstadoPrenda nuevo)
+        {
+            if (Estado == nuevo)          return true;
+            if (Estado == EstadoPrenda.Baja)  return false;
+            if (Estado == EstadoPrenda.EnUso) return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Devuelve el motivo por el que la transición no está permitida,
+        /// o null si la transición es válida.
+        /// </summary>
+        public string MotivoTransicionNoPermitida(EstadoPrenda nuevo)
+        {
+            if (Estado == nuevo) return null;
+            if (Estado == EstadoPrenda.Baja)
+                return "Una prenda dada de baja no puede cambiar de estado.";
+            if (Estado == EstadoPrenda.EnUso)
+                return "No se puede cambiar manualmente el estado de una prenda en uso.\n" +
+                       "El estado se actualiza automáticamente al procesar pedidos.";
+            return null;
+        }
     }
 }

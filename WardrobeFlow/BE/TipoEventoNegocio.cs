@@ -34,6 +34,12 @@ namespace BE
         ModificacionCliente = 8,
 
         /// <summary>Cliente dado de baja del sistema.</summary>
-        BajaCliente        = 9
+        BajaCliente        = 9,
+
+        /// <summary>Prendas devueltas por el cliente al finalizar el uso (pasan a EnLimpieza).</summary>
+        Devolucion         = 10,
+
+        /// <summary>Pedido cancelado que fue reactivado a estado Pendiente.</summary>
+        Reactivacion       = 11
     }
 }

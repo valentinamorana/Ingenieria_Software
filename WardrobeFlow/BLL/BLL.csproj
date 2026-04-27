@@ -46,6 +46,9 @@
     <Compile Include="BitacoraNegocio.cs" />
     <Compile Include="Cliente.cs" />
     <Compile Include="Configuracion.cs" />
+    <Compile Include="Interfaces\IClienteService.cs" />
+    <Compile Include="Interfaces\IPedidoService.cs" />
+    <Compile Include="Interfaces\IPrendaService.cs" />
     <Compile Include="Pedido.cs" />
     <Compile Include="PlanSuscripcion.cs" />
     <Compile Include="Prenda.cs" />

@@ -220,6 +220,10 @@
       <Project>{759e1c38-e8ec-45a2-a367-0ea9cf9dabad}</Project>
       <Name>DAL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Servicios\Servicios.csproj">
+      <Project>{f41a7a3a-8ac1-4036-9fca-b81ee8812b8e}</Project>
+      <Name>Servicios</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\3106921[1].png" />

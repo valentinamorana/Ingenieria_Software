@@ -13,6 +13,20 @@ namespace DAL
     {
         private readonly Acceso acceso = Acceso.GetInstance();
 
+        // ── Query base reutilizable ───────────────────────────────────────────
+        // Un único punto de verdad para las columnas y JOINs del SELECT de Pedido.
+        // Si cambia el esquema (nueva columna, JOIN extra) se edita aquí y los
+        // tres métodos de lectura quedan actualizados automáticamente.
+        private const string SELECT_BASE =
+            "SELECT ped.IdPedido, ped.IdCliente, ped.IdEmpleado, ped.Estado, " +
+            "       ped.FechaPedido, ped.FechaDespacho, ped.FechaEntrega, " +
+            "       ped.MotivoCancelacion, " +
+            "       cli.Nombre + ' ' + cli.Apellido AS NombreCliente, " +
+            "       emp.Nombre + ' ' + emp.Apellido AS NombreEmpleado " +
+            "FROM Pedido ped " +
+            "INNER JOIN Cliente cli ON cli.IdCliente = ped.IdCliente " +
+            "INNER JOIN Empleado emp ON emp.IdEmpleado = ped.IdEmpleado";
+
         /// <summary>
         /// Devuelve todos los pedidos con nombre de cliente y empleado.
         /// Las prendas de cada pedido NO se cargan aquí — usar ObtenerConPrendas() si es necesario.
@@ -23,15 +37,7 @@ namespace DAL
             try
             {
                 DataTable tabla = acceso.Leer(
-                    "SELECT ped.IdPedido, ped.IdCliente, ped.IdEmpleado, ped.Estado, " +
-                    "       ped.FechaPedido, ped.FechaDespacho, ped.FechaEntrega, " +
-                    "       ped.MotivoCancelacion, " +
-                    "       cli.Nombre + ' ' + cli.Apellido AS NombreCliente, " +
-                    "       emp.Nombre + ' ' + emp.Apellido AS NombreEmpleado " +
-                    "FROM Pedido ped " +
-                    "INNER JOIN Cliente cli ON cli.IdCliente = ped.IdCliente " +
-                    "INNER JOIN Empleado emp ON emp.IdEmpleado = ped.IdEmpleado " +
-                    "ORDER BY ped.FechaPedido DESC",
+                    SELECT_BASE + " ORDER BY ped.FechaPedido DESC",
                     null);
 
                 foreach (DataRow row in tabla.Rows)
@@ -51,16 +57,9 @@ namespace DAL
             try
             {
                 DataTable tabla = acceso.Leer(
-                    "SELECT ped.IdPedido, ped.IdCliente, ped.IdEmpleado, ped.Estado, " +
-                    "       ped.FechaPedido, ped.FechaDespacho, ped.FechaEntrega, " +
-                    "       ped.MotivoCancelacion, " +
-                    "       cli.Nombre + ' ' + cli.Apellido AS NombreCliente, " +
-                    "       emp.Nombre + ' ' + emp.Apellido AS NombreEmpleado " +
-                    "FROM Pedido ped " +
-                    "INNER JOIN Cliente cli ON cli.IdCliente = ped.IdCliente " +
-                    "INNER JOIN Empleado emp ON emp.IdEmpleado = ped.IdEmpleado " +
-                    "WHERE ped.Estado = 0 " +   // EstadoPedido.Pendiente = 0
-                    "ORDER BY ped.FechaPedido",
+                    SELECT_BASE +
+                    " WHERE ped.Estado = 0" +   // EstadoPedido.Pendiente = 0
+                    " ORDER BY ped.FechaPedido",
                     null);
 
                 foreach (DataRow row in tabla.Rows)
@@ -80,15 +79,7 @@ namespace DAL
             try
             {
                 DataTable tabla = acceso.Leer(
-                    "SELECT ped.IdPedido, ped.IdCliente, ped.IdEmpleado, ped.Estado, " +
-                    "       ped.FechaPedido, ped.FechaDespacho, ped.FechaEntrega, " +
-                    "       ped.MotivoCancelacion, " +
-                    "       cli.Nombre + ' ' + cli.Apellido AS NombreCliente, " +
-                    "       emp.Nombre + ' ' + emp.Apellido AS NombreEmpleado " +
-                    "FROM Pedido ped " +
-                    "INNER JOIN Cliente cli ON cli.IdCliente = ped.IdCliente " +
-                    "INNER JOIN Empleado emp ON emp.IdEmpleado = ped.IdEmpleado " +
-                    "WHERE ped.IdPedido = @IdPedido",
+                    SELECT_BASE + " WHERE ped.IdPedido = @IdPedido",
                     p);
 
                 if (tabla == null || tabla.Rows.Count == 0) return null;
@@ -104,55 +95,59 @@ namespace DAL
         }
 
         /// <summary>
-        /// Crea un nuevo pedido con sus prendas en una transacción atómica.
+        /// Crea un nuevo pedido con sus prendas dentro de una transacción SQL atómica.
+        /// Si cualquier escritura falla (INSERT cabecera, INSERT PedidoPrenda, UPDATE Prenda)
+        /// se hace Rollback completo — nunca queda un pedido a medias en la BD.
         /// Devuelve el ID del pedido generado.
         /// </summary>
         public int Alta(BE.Pedido pedido)
         {
-            // Paso 1: insertar cabecera del pedido
-            SqlParameter[] p =
+            int idNuevo = 0;
+
+            acceso.EjecutarTransaccion((conexion, tx) =>
             {
-                new SqlParameter("@IdCliente",  pedido.IdCliente),
-                new SqlParameter("@IdEmpleado", pedido.IdEmpleado),
-                new SqlParameter("@Estado",     (int)pedido.Estado),
-                new SqlParameter("@FechaPedido", pedido.FechaPedido)
-            };
-
-            DataTable tabla = acceso.Leer(
-                "INSERT INTO Pedido (IdCliente, IdEmpleado, Estado, FechaPedido) " +
-                "VALUES (@IdCliente, @IdEmpleado, @Estado, @FechaPedido); " +
-                "SELECT SCOPE_IDENTITY() AS IdNuevo",
-                p);
-
-            if (tabla == null || tabla.Rows.Count == 0)
-                throw new Exception("No se pudo insertar el pedido.");
-
-            int idNuevo = Convert.ToInt32(tabla.Rows[0]["IdNuevo"]);
-
-            // Paso 2: insertar prendas en PedidoPrenda + marcar prendas como EnUso
-            foreach (var prenda in pedido.Prendas)
-            {
-                SqlParameter[] pp =
+                // Paso 1: insertar cabecera del pedido y recuperar el ID generado
+                using (var cmd = new SqlCommand(
+                    "INSERT INTO Pedido (IdCliente, IdEmpleado, Estado, FechaPedido) " +
+                    "VALUES (@IdCliente, @IdEmpleado, @Estado, @FechaPedido); " +
+                    "SELECT SCOPE_IDENTITY() AS IdNuevo",
+                    conexion, tx))
                 {
-                    new SqlParameter("@IdPedido", idNuevo),
-                    new SqlParameter("@IdPrenda", prenda.IdPrenda)
-                };
-                acceso.Escribir(
-                    "INSERT INTO PedidoPrenda (IdPedido, IdPrenda) VALUES (@IdPedido, @IdPrenda)",
-                    pp);
+                    cmd.Parameters.AddWithValue("@IdCliente",   pedido.IdCliente);
+                    cmd.Parameters.AddWithValue("@IdEmpleado",  pedido.IdEmpleado);
+                    cmd.Parameters.AddWithValue("@Estado",      (int)pedido.Estado);
+                    cmd.Parameters.AddWithValue("@FechaPedido", pedido.FechaPedido);
 
-                // Marcar prenda como EnUso (Estado=1) con el cliente del pedido
-                SqlParameter[] pe =
+                    var resultado = cmd.ExecuteScalar();
+                    if (resultado == null || resultado == DBNull.Value)
+                        throw new Exception("No se pudo insertar el pedido en la base de datos.");
+
+                    idNuevo = Convert.ToInt32(resultado);
+                }
+
+                // Paso 2: por cada prenda, insertar en PedidoPrenda y marcarla como EnUso
+                foreach (var prenda in pedido.Prendas)
                 {
-                    new SqlParameter("@Estado",     1),   // EnUso
-                    new SqlParameter("@IdCliente",  pedido.IdCliente),
-                    new SqlParameter("@IdPrenda",   prenda.IdPrenda)
-                };
-                acceso.Escribir(
-                    "UPDATE Prenda SET Estado=@Estado, IdClienteActual=@IdCliente " +
-                    "WHERE IdPrenda=@IdPrenda",
-                    pe);
-            }
+                    using (var cmdPP = new SqlCommand(
+                        "INSERT INTO PedidoPrenda (IdPedido, IdPrenda) VALUES (@IdPedido, @IdPrenda)",
+                        conexion, tx))
+                    {
+                        cmdPP.Parameters.AddWithValue("@IdPedido", idNuevo);
+                        cmdPP.Parameters.AddWithValue("@IdPrenda", prenda.IdPrenda);
+                        cmdPP.ExecuteNonQuery();
+                    }
+
+                    using (var cmdPr = new SqlCommand(
+                        "UPDATE Prenda SET Estado=1, IdClienteActual=@IdCliente " +
+                        "WHERE IdPrenda=@IdPrenda",   // Estado 1 = EnUso
+                        conexion, tx))
+                    {
+                        cmdPr.Parameters.AddWithValue("@IdCliente", pedido.IdCliente);
+                        cmdPr.Parameters.AddWithValue("@IdPrenda",  prenda.IdPrenda);
+                        cmdPr.ExecuteNonQuery();
+                    }
+                }
+            });
 
             return idNuevo;
         }
@@ -183,6 +178,29 @@ namespace DAL
                 "UPDATE Pedido SET Estado=2, FechaEntrega=@FechaEntrega " +
                 "WHERE IdPedido=@IdPedido",   // Estado 2 = Entregado
                 p);
+        }
+
+        /// <summary>
+        /// Registra la devolución de las prendas de un pedido Entregado.
+        /// Las prendas pasan a estado EnLimpieza (2) para revisión antes de volver al stock.
+        /// El IdClienteActual de cada prenda se pone a NULL.
+        /// Operación atómica: si falla alguna prenda, ninguna se actualiza.
+        /// </summary>
+        public void RegistrarDevolucion(int idPedido)
+        {
+            acceso.EjecutarTransaccion((conexion, tx) =>
+            {
+                // Prendas del pedido → EnLimpieza (2), sin cliente asignado
+                using (var cmd = new SqlCommand(
+                    "UPDATE Prenda SET Estado=2, IdClienteActual=NULL " +
+                    "WHERE IdPrenda IN " +
+                    "  (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
+                    conexion, tx))
+                {
+                    cmd.Parameters.AddWithValue("@IdPedido", idPedido);
+                    cmd.ExecuteNonQuery();
+                }
+            });
         }
 
         /// <summary>

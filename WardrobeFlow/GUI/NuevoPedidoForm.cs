@@ -268,7 +268,7 @@ namespace GUI
                 btnConfirmar.Enabled = false;
                 btnConfirmar.Text    = "Procesando...";
 
-                IdPedidoCreado = pedidoBLL.Alta(this, _clienteSel.IdCliente, prendas);
+                IdPedidoCreado = pedidoBLL.CrearPedido(this, _clienteSel.IdCliente, prendas);
 
                 this.DialogResult = DialogResult.OK;
                 this.Close();

@@ -15,5 +15,18 @@ namespace BE
 
         public decimal Precio        { get; set; }
         public bool    Estado        { get; set; } = true;
+
+        // ── Comportamiento ────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Verifica si el plan permite agregar <paramref name="nuevas"/> prendas
+        /// dado que el cliente ya tiene <paramref name="enUso"/> en uso.
+        /// </summary>
+        public bool PermiteAgregarPrendas(int enUso, int nuevas)
+            => (enUso + nuevas) <= LimitePrendas;
+
+        /// <summary>Cantidad de prendas adicionales que el plan aún permite dado el uso actual.</summary>
+        public int LugaresDisponibles(int enUso)
+            => System.Math.Max(0, LimitePrendas - enUso);
     }
 }

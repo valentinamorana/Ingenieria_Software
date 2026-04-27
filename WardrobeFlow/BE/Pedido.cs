@@ -48,5 +48,19 @@ namespace BE
         /// <summary>Resumen para mostrar en grillas.</summary>
         public string Resumen =>
             $"Pedido #{IdPedido} — {NombreCliente ?? $"Cliente {IdCliente}"} — {Estado}";
+
+        // ── Comportamiento ────────────────────────────────────────────────────
+
+        /// <summary>El pedido puede cancelarse solo si está Pendiente.</summary>
+        public bool PuedeCancelarse()   => Estado == EstadoPedido.Pendiente;
+
+        /// <summary>El pedido puede despacharse solo si está Pendiente.</summary>
+        public bool PuedeDespachar()    => Estado == EstadoPedido.Pendiente;
+
+        /// <summary>El pedido puede marcarse como entregado solo si está Despachado.</summary>
+        public bool PuedeEntregarse()   => Estado == EstadoPedido.Despachado;
+
+        /// <summary>El pedido puede des-cancelarse solo si está Cancelado.</summary>
+        public bool PuedeDesCancelarse() => Estado == EstadoPedido.Cancelado;
     }
 }

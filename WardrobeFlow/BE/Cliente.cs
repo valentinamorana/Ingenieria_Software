@@ -33,5 +33,21 @@ namespace BE
 
         /// <summary>Nombre completo para mostrar en grillas.</summary>
         public string NombreCompleto => $"{Nombre} {Apellido}";
+
+        // ── Comportamiento ────────────────────────────────────────────────────
+
+        /// <summary>Indica si el cliente tiene un plan de suscripción asignado.</summary>
+        public bool TienePlan() => IdPlan.HasValue;
+
+        /// <summary>
+        /// Indica si el cliente puede solicitar la cantidad de nuevas prendas indicada
+        /// sin superar el límite de su plan.
+        /// </summary>
+        public bool PuedeSolicitarPrendas(int cantidadNuevas)
+            => TienePlan() && (StockUtilizado + cantidadNuevas) <= LimitePrendas;
+
+        /// <summary>Cantidad de prendas adicionales que el plan aún permite.</summary>
+        public int PrendasDisponiblesEnPlan()
+            => TienePlan() ? Math.Max(0, LimitePrendas - StockUtilizado) : 0;
     }
 }

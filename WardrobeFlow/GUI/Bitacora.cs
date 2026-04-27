@@ -22,8 +22,10 @@ namespace GUI
     /// </summary>
     public partial class Bitacora : Form
     {
-        private readonly BLL.Bitacora        bllSistema = new BLL.Bitacora();
-        private readonly BLL.BitacoraNegocio bllNegocio = new BLL.BitacoraNegocio();
+        // La GUI accede a Servicios directamente para consultas de bitácora.
+        // BLL decide CUÁNDO registrar; Servicios sabe CÓMO persistir Y CÓMO consultar.
+        private readonly Servicios.Bitacora        srvSistema = new Servicios.Bitacora();
+        private readonly Servicios.BitacoraNegocio srvNegocio = new Servicios.BitacoraNegocio();
 
         // ── Estado para impresión paginada ────────────────────────────────────
         private DataTable   _tablaImpresion;
@@ -49,8 +51,8 @@ namespace GUI
         {
             int dias = (int)nudDias.Value;
             DataTable dt = dias == 0
-                ? bllSistema.ObtenerTodos()
-                : bllSistema.ObtenerUltimosNDias(dias);
+                ? srvSistema.ObtenerTodos()
+                : srvSistema.ObtenerUltimosNDias(dias);
             MostrarEnGrilla(dgvSistema, lblResultadosSistema, dt,
                 dias > 0 ? $"últimos {dias} días" : "todos los registros");
         }
@@ -79,7 +81,7 @@ namespace GUI
         {
             int dias = (int)nudNegDias.Value;
             DateTime? desde = dias > 0 ? DateTime.Now.AddDays(-dias) : (DateTime?)null;
-            var dt = bllNegocio.BuscarPorFiltros(desde, null, null, null, null);
+            var dt = srvNegocio.BuscarPorFiltros(desde, null, null, null, null);
             MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt,
                 dias > 0 ? $"últimos {dias} días" : "todos los registros");
         }
@@ -104,7 +106,7 @@ namespace GUI
         {
             try
             {
-                var dt = bllSistema.ObtenerTodos();
+                var dt = srvSistema.ObtenerTodos();
                 MostrarEnGrilla(dgvSistema, lblResultadosSistema, dt);
             }
             catch (Exception ex) { MostrarError(ex.Message); }
@@ -114,7 +116,7 @@ namespace GUI
         {
             try
             {
-                var dt = bllNegocio.ObtenerTodos();
+                var dt = srvNegocio.ObtenerTodos();
                 MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt);
             }
             catch (Exception ex) { MostrarError(ex.Message); }
@@ -134,7 +136,7 @@ namespace GUI
                 int[] criticidadMap = { -1, 1, 2, 3, 4, 5, 6 };
                 int criticidad = criticidadMap[cmbCriticidad.SelectedIndex];
 
-                var dt = bllSistema.BuscarPorFiltros(desde, null, uid, activ, criticidad);
+                var dt = srvSistema.BuscarPorFiltros(desde, null, uid, activ, criticidad);
                 MostrarEnGrilla(dgvSistema, lblResultadosSistema, dt);
             }
             catch (Exception ex) { MostrarError(ex.Message); }
@@ -152,7 +154,7 @@ namespace GUI
                 int? idPedido   = int.TryParse(txtNegPedido.Text,  out int p) && p > 0 ? (int?)p : null;
                 int? idCliente  = int.TryParse(txtNegCliente.Text, out int c) && c > 0 ? (int?)c : null;
 
-                var dt = bllNegocio.BuscarPorFiltros(desde, null, tipo, idCliente, idPedido);
+                var dt = srvNegocio.BuscarPorFiltros(desde, null, tipo, idCliente, idPedido);
                 MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt);
             }
             catch (Exception ex) { MostrarError(ex.Message); }

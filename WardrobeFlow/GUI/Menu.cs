@@ -1,5 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.Windows.Forms;
 
 namespace GUI
@@ -42,6 +46,64 @@ namespace GUI
 
             // Construir menú dinámico según permisos del rol
             AplicarPermisos(usuarioActivo?.Permisos);
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            // Aplicar fondo rosa con monograma WF al área MDI.
+            // Se accede al MdiClient interno y se le asigna un BackgroundImage
+            // generado en código — más confiable que interceptar WM_ERASEBKGND.
+            foreach (Control c in Controls)
+            {
+                if (c.GetType().Name == "MdiClient")
+                {
+                    c.BackColor             = Color.FromArgb(252, 228, 235);
+                    c.BackgroundImage       = GenerarTileWF();
+                    c.BackgroundImageLayout = ImageLayout.Tile;
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Genera un tile 160×148 con el monograma WF en patrón de ladrillos
+        /// (filas alternadas desplazadas medio tile) sobre fondo rosa claro.
+        /// El tile repite perfectamente en ambas direcciones sin cortes visibles.
+        /// </summary>
+        private static Bitmap GenerarTileWF()
+        {
+            const int TW = 80, TH = 74;
+            var bmp = new Bitmap(TW * 2, TH * 2);
+
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.FromArgb(252, 228, 235));
+                g.SmoothingMode     = SmoothingMode.AntiAlias;
+                g.TextRenderingHint = TextRenderingHint.AntiAlias;
+
+                var tinta = Color.FromArgb(40, 180, 70, 100);
+
+                using (var fontW = new Font("Georgia", 22, FontStyle.Bold, GraphicsUnit.Point))
+                using (var fontF = new Font("Georgia", 18, FontStyle.Bold, GraphicsUnit.Point))
+                using (var br    = new SolidBrush(tinta))
+                {
+                    // Fila 0 — sin offset (y = 0)
+                    g.DrawString("W", fontW, br, 0,      0);
+                    g.DrawString("F", fontF, br, 24,     20);
+                    g.DrawString("W", fontW, br, TW,     0);
+                    g.DrawString("F", fontF, br, TW + 24, 20);
+
+                    // Fila 1 — offset medio tile (y = TH)
+                    g.DrawString("W", fontW, br, TW / 2f,       TH);
+                    g.DrawString("F", fontF, br, TW / 2f + 24,  TH + 20);
+                    g.DrawString("W", fontW, br, TW / 2f + TW,  TH);
+                    g.DrawString("F", fontF, br, TW / 2f + TW + 24, TH + 20);
+                }
+            }
+
+            return bmp;
         }
 
         /// <summary>
@@ -233,5 +295,6 @@ namespace GUI
             }
             new PedidosRealizados { MdiParent = this }.Show();
         }
+
     }
 }
