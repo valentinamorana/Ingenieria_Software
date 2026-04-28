@@ -1,0 +1,1099 @@
+========================================================
+  WARDROBEFLOW — DIAGRAMAS UML
+  Formato: PlantUML (compatible Enterprise Architect)
+========================================================
+
+CÓMO IMPORTAR EN ENTERPRISE ARCHITECT:
+  1. Abrir EA → menú "Tools" → "Add-Ins" → "PlantUML Integration"
+     (si no está instalado: Extensions → Manage Add-Ins → instalar PlantUML)
+  2. Crear nuevo diagrama → click derecho → "New Diagram"
+  3. Seleccionar tipo (Sequence / Use Case / Class / ERD)
+  4. Click derecho en el área blanca → "PlantUML" → pegar el bloque @startuml...@enduml correspondiente
+
+  Alternativa sin add-in:
+  Copiar cualquier bloque en https://www.plantuml.com/plantuml/uml
+  para ver el diagrama, y desde ahí exportar imagen o XMI.
+
+========================================================
+  1. DIAGRAMA DE SECUENCIA — LOGIN (éxito + fallo + bloqueo)
+========================================================
+
+@startuml DS_Login
+title Diagrama de Secuencia — Login
+
+skinparam sequenceArrowThickness 1.5
+skinparam backgroundColor #FFF0F3
+skinparam sequenceParticipantBackgroundColor #FCE4EB
+skinparam sequenceParticipantBorderColor #D2638A
+
+actor       "Empleado"          as U
+participant "GUI.Login"         as GL
+participant "BLL.Usuario"       as BU
+participant "DAL.Usuario"       as DU
+participant "Encriptador"       as E
+participant "DAL.Permiso"       as DP
+participant "SessionManager"    as SM
+participant "Servicios.Bitacora" as SB
+participant "DAL.Bitacora"      as DB
+
+U  -> GL : ingresa username + contraseña\npresiona Ingresar / Enter
+
+GL -> BU : Login(form, username, contraseña)
+
+BU -> BU : validar campos no vacíos\n[lanza excepción si vacíos]
+
+BU -> DU : ObtenerPorUsername(username)
+DU --> BU : BE.Usuario (o null)
+
+alt usuario == null
+    BU --> GL : return false
+    GL --> U  : sin mensaje (usuario no existe)
+end
+
+BU -> BU : usuario.Bloqueado ?
+
+alt cuenta bloqueada
+    BU --> GL : throw "Cuenta bloqueada.\nContactar Administrador"
+    GL --> U  : lblError = mensaje
+end
+
+BU -> E : VerificarContraseña(contraseña, usuario.Contraseña)
+note right of E : PBKDF2-SHA256\nExtrae salt → rehashea\n100.000 iteraciones\ncompara byte a byte
+E --> BU : bool esValido
+
+alt esValido == true
+    BU -> DU : ResetearIntentosFallidos(username)
+    BU -> DP : ObtenerPorRol(usuario.Rol)
+    DP --> BU : List<BE.Permiso>
+    BU -> BU : usuario.Permisos = permisos
+    BU -> SM : Login(usuario)
+    note right of SM : Crea instancia Singleton\n_session = new SessionManager()\n_session.Usuario = usuario
+    SM --> BU : ok
+    BU -> SB : Registrar(form.Text, "Inicio Sesion", None)
+    SB -> SM : GetInstance (obtiene usuario en sesión)
+    SB -> DB : Registrar(BE.Bitacora)
+    DB --> SB : ok
+    BU --> GL : return true
+    GL -> GL : DialogResult = OK\nClose()
+    GL --> U  : formulario se cierra\nse abre GUI.Menu
+
+else esValido == false
+    BU -> DU : IncrementarIntentosFallidos(username)
+    BU -> BU : intentos = usuario.IntentosFallidos + 1
+
+    BU -> SB : RegistrarSinSesion("Login",\n"Intento Fallido Login", IntentosLogin,\nidUsuario, detalle)
+    SB -> DB : Registrar(BE.Bitacora) [sin sesión]
+    DB --> SB : ok
+
+    alt intentos >= 3
+        BU -> DU : Bloquear(usuario.Id)
+        BU -> SB : RegistrarSinSesion("Login",\n"Bloqueo de Cuenta", BloqueosCuenta,\nidUsuario, detalle)
+        SB -> DB : Registrar(BE.Bitacora)
+        BU --> GL : throw "Cuenta bloqueada tras 3 intentos"
+        GL --> U  : lblError = mensaje de bloqueo
+    else intentos < 3
+        BU --> GL : throw "Credenciales incorrectas.\nIntentos restantes: N"
+        GL --> U  : lblError = mensaje\ntxtContraseña.Clear()
+    end
+end
+@enduml
+
+
+========================================================
+  2. DIAGRAMA DE SECUENCIA — LOGOUT
+========================================================
+
+@startuml DS_Logout
+title Diagrama de Secuencia — Logout
+
+skinparam sequenceArrowThickness 1.5
+skinparam backgroundColor #FFF0F3
+skinparam sequenceParticipantBackgroundColor #FCE4EB
+skinparam sequenceParticipantBorderColor #D2638A
+
+actor       "Empleado"           as U
+participant "GUI.Menu"           as GM
+participant "BLL.Usuario"        as BU
+participant "Servicios.Bitacora" as SB
+participant "SessionManager"     as SM
+participant "DAL.Usuario"        as DU
+participant "DAL.Bitacora"       as DB
+
+U  -> GM : clic "Perfil" → "Cerrar Sesión"
+GM -> GM : MessageBox.Show\n"¿Está seguro?"
+
+alt usuario confirma Yes
+    GM -> BU : Logout(this)
+
+    BU -> SB : Registrar(form.Text, "Cierre Sesion", None)
+    SB -> SM : GetInstance (lee usuario en sesión)
+    SM --> SB : SessionManager con Usuario
+    SB -> SB : construye BE.Bitacora con\nIP, fecha, detalle
+    SB -> DB : Registrar(BE.Bitacora)
+    DB --> SB : ok
+
+    BU -> DU : Logout() [registra fecha último logout en BD]
+    DU --> BU : ok
+
+    BU -> SM : Logout()
+    note right of SM : _session = null\nGC libera el objeto\nSingleton destruido
+    SM --> BU : ok
+
+    BU --> GM : retorna
+    GM -> GM : Application.Restart()
+    GM --> U  : app reinicia → aparece GUI.Login
+
+else usuario cancela No
+    GM --> U  : cierra el diálogo\npermanece en el sistema
+end
+@enduml
+
+
+========================================================
+  3. DIAGRAMA DE SECUENCIA — BITÁCORA (apertura + filtro)
+========================================================
+
+@startuml DS_Bitacora
+title Diagrama de Secuencia — Bitácora (apertura y filtrado)
+
+skinparam sequenceArrowThickness 1.5
+skinparam backgroundColor #FFF0F3
+skinparam sequenceParticipantBackgroundColor #FCE4EB
+skinparam sequenceParticipantBorderColor #D2638A
+
+actor       "Administrador / Supervisor" as U
+participant "GUI.Menu"                   as GM
+participant "GUI.Bitacora"               as GB
+participant "Servicios.Bitacora"         as SB
+participant "Servicios.BitacoraNegocio"  as SBN
+participant "DAL.Bitacora"               as DB
+participant "DAL.BitacoraNegocio"        as DBN
+
+== Apertura del módulo ==
+
+U  -> GM : clic "Bitácora" en menú
+GM -> GM : verifica que no haya instancia ya abierta
+GM -> GB : new Bitacora { MdiParent = this }.Show()
+GB -> GB : Bitacora_Load()
+
+GB -> SB : ObtenerTodos()
+SB -> DB : ObtenerTodos()\nSELECT * FROM Bitacora ORDER BY fecha DESC
+DB --> SB : DataTable
+SB --> GB : DataTable
+
+GB -> SBN : ObtenerTodos()
+SBN -> DBN : ObtenerTodos()\nSELECT * FROM BitacoraNegocio ORDER BY Fecha DESC
+DBN --> SBN : DataTable
+SBN --> GB : DataTable
+
+GB -> GB : MostrarEnGrilla(dgvSistema, dt)\nMostrarEnGrilla(dgvNegocio, dt)
+GB --> U  : muestra ambas pestañas con datos
+
+== Filtro por últimos N días (pestaña Sistema) ==
+
+U  -> GB : ingresa valor en nudDias\npresiona "Últimos N días"
+GB -> GB : dias = nudDias.Value
+
+alt dias == 0
+    GB -> SB : ObtenerTodos()
+    SB -> DB : ObtenerTodos()
+else dias > 0
+    GB -> SB : ObtenerUltimosNDias(dias)
+    SB -> SB : normaliza: if dias < 1 → dias = 1
+    SB -> DB : ObtenerUltimosNDias(dias)\nWHERE fecha >= NOW() - dias
+end
+
+DB --> SB : DataTable
+SB --> GB : DataTable
+GB -> GB : MostrarEnGrilla(dgvSistema, ...\n"últimos N días")
+GB --> U  : grilla actualizada + lblResultados
+
+== Filtro combinado (búsqueda avanzada) ==
+
+U  -> GB : completa filtros:\nfecha desde/hasta, criticidad, actividad\npresiona "Buscar"
+
+GB -> SB : BuscarPorFiltros(desde, hasta, idUsuario, actividad, criticidad)
+SB -> DB : BuscarPorFiltros(...)\nWHERE 1=1 + cláusulas dinámicas
+DB --> SB : DataTable
+SB --> GB : DataTable
+GB --> U  : grilla filtrada
+
+== Exportar PDF ==
+
+U  -> GB : clic "Exportar PDF"
+GB -> GB : prepara _tablaImpresion\n_tituloImpresion = tab activo
+GB -> GB : PrintPreviewDialog.ShowDialog()
+GB --> U  : previsualizador\nUsuario imprime → "Microsoft Print to PDF"
+@enduml
+
+
+========================================================
+  4. MAPA DE NAVEGACIÓN — TODAS LAS VISTAS
+========================================================
+
+@startuml MapaNavegacion
+title Mapa de Navegación — WardrobeFlow
+
+skinparam backgroundColor #FFF0F3
+skinparam componentBackgroundColor #FCE4EB
+skinparam componentBorderColor #D2638A
+skinparam arrowColor #B04070
+
+[Program.Main] --> [GUI.Login] : arranque
+
+[GUI.Login] --> [GUI.Menu] : DialogResult.OK\n(login exitoso)
+[GUI.Login] --> [GUI.OlvideContrasenaForm] : clic "¿Olvidaste tu clave?"
+[GUI.Login] --> [EXIT] : clic "Salir"
+
+package "GUI.Menu (MDI Container)" {
+
+  package "Menú: Inventario" {
+    [GUI.Prendas]
+    [GUI.PrendaForm]       #LightYellow
+    [GUI.CambioEstadoDialog] #LightYellow
+    note right of [GUI.PrendaForm] : abierto desde\nGUI.Prendas
+  }
+
+  package "Menú: Ventas" {
+    [GUI.Clientes]
+    [GUI.ClienteForm]      #LightYellow
+    [GUI.Planes]
+    [GUI.PedidosVenta]
+    [GUI.NuevoPedidoForm]  #LightYellow
+    [GUI.PedidosRealizados]
+    [GUI.NotificacionDespachoForm] #LightYellow
+    note right of [GUI.ClienteForm]  : abierto desde\nGUI.Clientes
+    note right of [GUI.NuevoPedidoForm] : abierto desde\nGUI.PedidosVenta
+    note right of [GUI.NotificacionDespachoForm] : abierto desde\nGUI.PedidosRealizados
+  }
+
+  package "Menú: Administrar" {
+    [GUI.Usuarios]
+    [GUI.ResetClaveDialog] #LightYellow
+    note right of [GUI.ResetClaveDialog] : abierto desde\nGUI.Usuarios
+  }
+
+  package "Menú: Bitácora" {
+    [GUI.Bitacora]
+  }
+
+  package "Menú: Perfil" {
+    [CerrarSesion] <<action>>
+  }
+}
+
+[GUI.Menu] --> [GUI.Prendas]               : Inventario → Prendas\n[mnuPrendas]
+[GUI.Prendas] --> [GUI.PrendaForm]         : Nueva / Editar
+[GUI.Prendas] --> [GUI.CambioEstadoDialog] : Cambiar Estado
+
+[GUI.Menu] --> [GUI.Clientes]              : Ventas → Clientes\n[mnuClientes]
+[GUI.Clientes] --> [GUI.ClienteForm]       : Nuevo / Editar
+
+[GUI.Menu] --> [GUI.Planes]                : Ventas → Planes\n[mnuPlanSuscripciones]
+
+[GUI.Menu] --> [GUI.PedidosVenta]          : Ventas → Pedidos de Venta\n[mnuPedidosVenta]
+[GUI.PedidosVenta] --> [GUI.NuevoPedidoForm] : Nuevo Pedido
+
+[GUI.Menu] --> [GUI.PedidosRealizados]     : Ventas → Pedidos Realizados\n[mnuPedidosRealizados]
+[GUI.PedidosRealizados] --> [GUI.NotificacionDespachoForm] : Ver Notificación
+
+[GUI.Menu] --> [GUI.Usuarios]              : Administrar → Usuarios\n[mnuUsuarios]
+[GUI.Usuarios] --> [GUI.ResetClaveDialog]  : Resetear Clave
+
+[GUI.Menu] --> [GUI.Bitacora]              : Bitácora\n[mnuAuditoria]
+
+[GUI.Menu] --> [CerrarSesion]              : Perfil → Cerrar Sesión
+[CerrarSesion] --> [GUI.Login]             : Application.Restart()
+
+note bottom of [GUI.Login]
+  Colores:
+  Blanco = form principal MDI
+  Amarillo = form hijo / dialog modal
+end note
+@enduml
+
+
+========================================================
+  5. DIAGRAMA DE CASOS DE USO — LOGIN
+========================================================
+
+@startuml CU_Login
+title Casos de Uso — Login
+
+left to right direction
+skinparam backgroundColor #FFF0F3
+skinparam actorBackgroundColor #FCE4EB
+skinparam usecaseBackgroundColor #FDE8EF
+skinparam usecaseBorderColor #D2638A
+
+actor "Empleado"       as EMP
+actor "Administrador"  as ADM
+actor "Sistema"        as SIS
+
+rectangle "WardrobeFlow — Login" {
+
+  usecase "Iniciar sesión"             as UC1
+  usecase "Ingresar credenciales"      as UC2
+  usecase "Validar contraseña\n(PBKDF2-SHA256)" as UC3
+  usecase "Cargar permisos del rol"    as UC4
+  usecase "Registrar inicio de sesión\nen bitácora" as UC5
+  usecase "Recuperar contraseña"       as UC6
+
+  usecase "Registrar intento fallido\nen bitácora" as UC7
+  usecase "Bloquear cuenta\ntras 3 intentos"       as UC8
+
+  usecase "Desbloquear cuenta"         as UC9
+}
+
+EMP --> UC1
+UC1 .> UC2 : <<include>>
+UC1 .> UC3 : <<include>>
+UC3 .> UC4 : <<extend>>\n[si credenciales OK]
+UC3 .> UC5 : <<extend>>\n[si credenciales OK]
+UC3 .> UC7 : <<extend>>\n[si credenciales incorrectas]
+UC7 .> UC8 : <<extend>>\n[si intentos >= 3]
+
+EMP --> UC6
+
+SIS --> UC7
+SIS --> UC8
+
+ADM --> UC9
+@enduml
+
+
+========================================================
+  6. DIAGRAMA DE CASOS DE USO — LOGOUT
+========================================================
+
+@startuml CU_Logout
+title Casos de Uso — Logout
+
+left to right direction
+skinparam backgroundColor #FFF0F3
+skinparam actorBackgroundColor #FCE4EB
+skinparam usecaseBackgroundColor #FDE8EF
+skinparam usecaseBorderColor #D2638A
+
+actor "Empleado (cualquier rol)" as EMP
+actor "Sistema"                  as SIS
+
+rectangle "WardrobeFlow — Logout" {
+
+  usecase "Cerrar sesión"                      as UC1
+  usecase "Confirmar cierre de sesión"         as UC2
+  usecase "Registrar cierre de sesión\nen bitácora" as UC3
+  usecase "Destruir sesión Singleton"          as UC4
+  usecase "Reiniciar aplicación"               as UC5
+}
+
+EMP --> UC1
+UC1 .> UC2 : <<include>>
+UC2 .> UC3 : <<extend>>\n[si confirma]
+UC2 .> UC4 : <<extend>>\n[si confirma]
+UC4 .> UC5 : <<include>>
+
+SIS --> UC3
+SIS --> UC4
+@enduml
+
+
+========================================================
+  7. DIAGRAMA DE CASOS DE USO — BITÁCORA
+========================================================
+
+@startuml CU_Bitacora
+title Casos de Uso — Bitácora
+
+left to right direction
+skinparam backgroundColor #FFF0F3
+skinparam actorBackgroundColor #FCE4EB
+skinparam usecaseBackgroundColor #FDE8EF
+skinparam usecaseBorderColor #D2638A
+
+actor "Administrador" as ADM
+actor "Supervisor"    as SUP
+actor "Sistema"       as SIS
+
+rectangle "WardrobeFlow — Bitácora" {
+
+  usecase "Ver bitácora del sistema"          as UC1
+  usecase "Ver bitácora de negocio"           as UC2
+  usecase "Filtrar por últimos N días"        as UC3
+  usecase "Filtrar por criticidad"            as UC4
+  usecase "Filtrar por actividad"             as UC5
+  usecase "Búsqueda combinada"                as UC6
+  usecase "Exportar a PDF"                    as UC7
+  usecase "Registrar evento en bitácora"      as UC8
+  usecase "Registrar evento sin sesión\n(intento fallido / bloqueo)" as UC9
+}
+
+ADM --> UC1
+ADM --> UC2
+ADM --> UC3
+ADM --> UC4
+ADM --> UC5
+ADM --> UC6
+ADM --> UC7
+
+SUP --> UC1
+SUP --> UC2
+SUP --> UC3
+SUP --> UC4
+SUP --> UC5
+SUP --> UC6
+SUP --> UC7
+
+SIS --> UC8 : en cada operación\nde BLL
+SIS --> UC9 : en login fallido\ny bloqueo de cuenta
+
+UC3 .> UC1 : <<extend>>
+UC4 .> UC1 : <<extend>>
+UC5 .> UC1 : <<extend>>
+UC6 .> UC1 : <<extend>>
+UC6 .> UC2 : <<extend>>
+@enduml
+
+
+========================================================
+  8. DER PATA DE GALLO — LOGIN / LOGOUT
+     (tablas involucradas en autenticación y sesión)
+========================================================
+
+@startuml ERD_LoginLogout
+title DER — Login / Logout (Pata de Gallo)
+
+skinparam backgroundColor #FFF0F3
+skinparam entityBackgroundColor #FCE4EB
+skinparam entityBorderColor #D2638A
+
+entity "Usuario" as USR {
+  * Id             : int         <<PK>>
+  --
+  * Username       : varchar(50) <<unique>>
+  * Contraseña     : varchar(100)
+  * Perfil         : varchar(50)
+    Rol            : varchar(50)
+  * Estado         : bit
+  * Bloqueado      : bit
+  * IntentosFallidos : int
+    FechaAlta      : datetime
+    UltimoLogout   : datetime
+}
+
+entity "Permiso" as PER {
+  * IdPermiso      : int         <<PK>>
+  --
+  * NombreMenu     : varchar(50)
+    Descripcion    : varchar(100)
+}
+
+entity "RolPermiso" as RP {
+  * IdRol          : varchar(50)  <<PK, FK>>
+  * IdPermiso      : int          <<PK, FK>>
+}
+
+entity "Bitacora" as BIT {
+  * Id             : int          <<PK>>
+  --
+    IdUsuario      : int          <<FK>>
+  * Fecha          : datetime
+  * Modulo         : varchar(100)
+  * Actividad      : varchar(100)
+    Detalle        : varchar(500)
+  * Criticidad     : int
+    IP             : varchar(50)
+}
+
+USR    ||--o{ RP    : "tiene permisos\nsegún su rol"
+PER    ||--o{ RP    : "asignado a\nroles"
+USR    ||--o{ BIT   : "genera\neventos"
+@enduml
+
+
+========================================================
+  9. DER PATA DE GALLO — BITÁCORA
+     (tablas del módulo de auditoría)
+========================================================
+
+@startuml ERD_Bitacora
+title DER — Bitácora (Pata de Gallo)
+
+skinparam backgroundColor #FFF0F3
+skinparam entityBackgroundColor #FCE4EB
+skinparam entityBorderColor #D2638A
+
+entity "Usuario" as USR {
+  * Id             : int          <<PK>>
+  --
+  * Username       : varchar(50)
+  * Perfil         : varchar(50)
+}
+
+entity "Bitacora" as BIT {
+  * Id             : int          <<PK>>
+  --
+    IdUsuario      : int          <<FK, nullable>>
+  * Fecha          : datetime
+  * Modulo         : varchar(100)
+  * Actividad      : varchar(100)
+    Detalle        : varchar(500)
+  * Criticidad     : int
+    IP             : varchar(50)
+}
+
+entity "BitacoraNegocio" as BN {
+  * Id             : int          <<PK>>
+  --
+  * Fecha          : datetime
+  * TipoEvento     : int
+  * Descripcion    : varchar(500)
+    IdPedido       : int          <<FK, nullable>>
+    IdCliente      : int          <<FK, nullable>>
+}
+
+entity "Pedido" as PED {
+  * IdPedido       : int          <<PK>>
+  --
+  * IdCliente      : int          <<FK>>
+  * Estado         : int
+}
+
+entity "Cliente" as CLI {
+  * IdCliente      : int          <<PK>>
+  --
+  * Nombre         : varchar(50)
+  * Apellido       : varchar(50)
+}
+
+USR    ||--o{ BIT  : "origina\n(nullable: pre-login)"
+BN     }o--|| PED  : "referencia\n(nullable)"
+BN     }o--|| CLI  : "referencia\n(nullable)"
+@enduml
+
+
+========================================================
+  10. DIAGRAMA DE CLASES — WARDROBEFLOW COMPLETO
+      (capas BE, DAL, Servicios, Seguridad, BLL, GUI)
+========================================================
+
+@startuml DC_Completo
+title Diagrama de Clases — WardrobeFlow
+
+skinparam backgroundColor #FFF0F3
+skinparam classBackgroundColor #FCE4EB
+skinparam classBorderColor #D2638A
+skinparam arrowColor #B04070
+skinparam packageBackgroundColor #FFF5F7
+
+'========================= ENUMS =========================
+
+enum "EstadoPedido" <<BE>> {
+  Pendiente  = 0
+  Despachado = 1
+  Entregado  = 2
+  Cancelado  = 3
+}
+
+enum "EstadoPrenda" <<BE>> {
+  Disponible  = 0
+  EnUso       = 1
+  EnLimpieza  = 2
+  Baja        = 3
+}
+
+enum "TipoEventoNegocio" <<BE>> {
+  Venta               = 0
+  Cancelacion         = 1
+  Despacho            = 2
+  Entrega             = 3
+  AltaPrenda          = 4
+  ModificacionPrenda  = 5
+  CambioEstadoPrenda  = 6
+  AltaCliente         = 7
+  ModificacionCliente = 8
+  BajaCliente         = 9
+  Devolucion          = 10
+  Reactivacion        = 11
+}
+
+enum "Criticidad" <<BE>> {
+  None             = 0
+  Baja             = 1
+  Media            = 2
+  Alta             = 3
+  RecuperacionClave = 4
+  IntentosLogin    = 5
+  BloqueosCuenta   = 6
+}
+
+'========================= CAPA BE =========================
+
+package "BE" {
+
+  class "BE.Usuario" {
+    + Id              : int
+    + Username        : string
+    + Contraseña      : string
+    + Perfil          : string
+    + Rol             : string
+    + Estado          : bool
+    + Bloqueado       : bool
+    + IntentosFallidos : int
+    + Permisos        : List<Permiso>
+    ..
+    + EstaActivo()    : bool
+  }
+
+  class "BE.Bitacora" {
+    + Id         : int
+    + Fecha      : DateTime
+    + IdUsuario  : int?
+    + Modulo     : string
+    + Actividad  : string
+    + Detalle    : string
+    + Criticidad : Criticidad
+    + IP         : string
+  }
+
+  class "BE.Permiso" {
+    + IdPermiso   : int
+    + NombreMenu  : string
+  }
+
+  class "BE.Pedido" {
+    + IdPedido          : int
+    + IdCliente         : int
+    + IdEmpleado        : int
+    + Estado            : EstadoPedido
+    + FechaPedido       : DateTime
+    + FechaDespacho     : DateTime?
+    + FechaEntrega      : DateTime?
+    + MotivoCancelacion : string
+    + NombreCliente     : string
+    + NombreEmpleado    : string
+    + CantidadPrendas   : int
+    + Prendas           : List<Prenda>
+    ..
+    + PuedeCancelarse()   : bool
+    + PuedeDesCancelarse(): bool
+    + PuedeDespachar()    : bool
+    + PuedeEntregarse()   : bool
+    + TransicionPermitida(desde, hasta) : bool
+  }
+
+  class "BE.Cliente" {
+    + IdCliente      : int
+    + Nombre         : string
+    + Apellido       : string
+    + DNI            : string
+    + IdPlan         : int?
+    + NombrePlan     : string
+    + StockUtilizado : int
+    + FechaAlta      : DateTime
+    ..
+    + NombreCompleto          : string
+    + TienePlan()             : bool
+    + PuedeSolicitarPrendas(n): bool
+    + PrendasDisponiblesEnPlan(): int
+  }
+
+  class "BE.Prenda" {
+    + IdPrenda        : int
+    + Nombre          : string
+    + Descripcion     : string
+    + Talle           : string
+    + Color           : string
+    + Categoria       : string
+    + Estado          : EstadoPrenda
+    + IdClienteActual : int?
+    + FechaAlta       : DateTime
+    ..
+    + EstaDisponible() : bool
+    + EstaEnUso()      : bool
+  }
+
+  class "BE.PlanSuscripcion" {
+    + IdPlan        : int
+    + Nombre        : string
+    + LimitePrendas : int
+    + PrecioMensual : decimal
+  }
+
+  class "BE.BitacoraNegocio" {
+    + Id          : int
+    + Fecha       : DateTime
+    + TipoEvento  : TipoEventoNegocio
+    + Descripcion : string
+    + IdPedido    : int?
+    + IdCliente   : int?
+  }
+}
+
+'========================= CAPA SEGURIDAD =========================
+
+package "Seguridad" {
+
+  class "SessionManager" {
+    - {static} _session    : SessionManager
+    - {static} _lock       : object
+    + Usuario              : BE.Usuario
+    + FechaInicio          : DateTime
+    ..
+    + {static} GetInstance : SessionManager  <<property>>
+    + {static} IsLoggedIn  : bool            <<property>>
+    + {static} Login(usuario : BE.Usuario)   : void
+    + {static} Logout()                      : void
+    - SessionManager()                       <<private constructor>>
+  }
+
+  class "Encriptador" <<static>> {
+    - {static} SaltSize   : int = 16
+    - {static} HashSize   : int = 32
+    - {static} Iterations : int = 100000
+    - {static} _claveAES  : byte[]
+    ..
+    + {static} Hash(contraseña)                           : string
+    + {static} VerificarContraseña(ingresada, almacenada) : bool
+    + {static} Encriptar(texto)                           : string
+    + {static} Desencriptar(cifrado)                      : string
+    + {static} TryDesencriptar(valor)                     : string
+    + {static} GenerarClave()                             : byte[]
+    + {static} ConvertirBase64(data)                      : string
+  }
+}
+
+'========================= CAPA DAL =========================
+
+package "DAL" {
+
+  class "DAL.Acceso" <<sealed>> {
+    - {static} volatile _instance  : Acceso
+    - {static} readonly _lock      : object
+    - readonly _cadenaConexion     : string
+    ..
+    + {static} GetInstance()       : Acceso
+    + Leer(consulta, params)       : DataTable
+    + Escribir(consulta, params)   : int
+    + EjecutarTransaccion(accion)  : void
+    + VerificarConexion()          : bool
+    + CerrarConexion()             : void
+    - Acceso()                     <<private constructor>>
+  }
+
+  class "DAL.Usuario" {
+    - acceso : Acceso
+    ..
+    + ObtenerPorUsername(username)        : BE.Usuario
+    + ObtenerTodos()                      : List<BE.Usuario>
+    + Alta(username, clave, perfil)       : void
+    + ResetearIntentosFallidos(username)  : void
+    + IncrementarIntentosFallidos(username): void
+    + Bloquear(idUsuario)                 : void
+    + Desbloquear(idUsuario)              : void
+    + ResetearClave(idUsuario, clave)     : void
+    + Logout()                            : void
+  }
+
+  class "DAL.Bitacora" {
+    - acceso : Acceso
+    ..
+    + Registrar(registro : BE.Bitacora)   : void
+    + ObtenerTodos()                      : DataTable
+    + ObtenerUltimosNDias(dias)           : DataTable
+    + BuscarPorFiltros(desde, hasta,\n  idUsuario, actividad, criticidad) : DataTable
+  }
+
+  class "DAL.Permiso" {
+    - acceso : Acceso
+    ..
+    + ObtenerPorRol(rol) : List<BE.Permiso>
+  }
+
+  class "DAL.Pedido" {
+    - acceso : Acceso
+    - {static} SELECT_BASE : string
+    ..
+    + ObtenerTodos()           : List<BE.Pedido>
+    + ObtenerPendientes()      : List<BE.Pedido>
+    + ObtenerPorId(id)         : BE.Pedido
+    + Alta(pedido)             : int
+    + Despachar(idPedido)      : void
+    + MarcarEntregado(idPedido): void
+    + RegistrarDevolucion(idPedido) : void
+    + Cancelar(idPedido, motivo)   : void
+    + DesCancelar(idPedido, idCliente) : bool
+    - ObtenerPrendasDePedido(idPedido) : List<BE.Prenda>
+    - MapearCabecera(row)              : BE.Pedido
+  }
+
+  class "DAL.Cliente" {
+    - acceso : Acceso
+    ..
+    + ObtenerTodos()              : List<BE.Cliente>
+    + ObtenerPorId(id)            : BE.Cliente
+    + Alta(cliente)               : int
+    + Modificar(cliente)          : void
+    + Baja(idCliente)             : void
+    + ExisteDNI(dni)              : bool
+  }
+
+  class "DAL.Prenda" {
+    - acceso : Acceso
+    ..
+    + ObtenerTodos()              : List<BE.Prenda>
+    + ObtenerDisponibles()        : List<BE.Prenda>
+    + ObtenerPorId(id)            : BE.Prenda
+    + Alta(prenda)                : void
+    + Modificar(prenda)           : void
+    + CambiarEstado(id, estado)   : void
+  }
+
+  class "DAL.BitacoraNegocio" {
+    - acceso : Acceso
+    ..
+    + Registrar(registro)         : void
+    + ObtenerTodos()              : DataTable
+    + BuscarPorFiltros(desde, hasta, tipoEvento, idPedido, idCliente) : DataTable
+  }
+}
+
+'========================= CAPA SERVICIOS =========================
+
+package "Servicios" {
+
+  class "Servicios.Bitacora" {
+    - bitacoraDAL : DAL.Bitacora
+    ..
+    + Registrar(modulo, actividad, criticidad) : void
+    + RegistrarSinSesion(modulo, actividad,\n  criticidad, idUsuario, detalle) : void
+    + ObtenerTodos()                           : DataTable
+    + ObtenerUltimosNDias(dias)                : DataTable
+    + BuscarPorFiltros(desde, hasta,\n  idUsuario, actividad, criticidad) : DataTable
+    + {static} ObtenerIPLocal()                : string
+  }
+
+  class "Servicios.BitacoraNegocio" {
+    - bitacoraDAL : DAL.BitacoraNegocio
+    ..
+    + Registrar(tipo, descripcion,\n  idPedido, idCliente) : void
+    + ObtenerTodos()              : DataTable
+    + BuscarPorFiltros(desde, hasta, tipoEvento, idPedido, idCliente) : DataTable
+  }
+}
+
+'========================= CAPA BLL =========================
+
+package "BLL" {
+
+  interface "Interfaces.IClienteService" {
+    + ObtenerTodos()       : List<BE.Cliente>
+    + ObtenerPorId(id)     : BE.Cliente
+    + Alta(form, cliente)  : void
+    + Modificar(form, cliente) : void
+    + Baja(form, cliente)  : void
+  }
+
+  interface "Interfaces.IPedidoService" {
+    + ObtenerTodos()         : List<BE.Pedido>
+    + ObtenerPendientes()    : List<BE.Pedido>
+    + ObtenerPorId(id)       : BE.Pedido
+    + CrearPedido(form, idCliente, prendas) : int
+    + Despachar(form, pedido): void
+    + MarcarEntregado(form, pedido)  : void
+    + RegistrarDevolucion(form, pedido) : void
+    + Cancelar(form, pedido, motivo) : void
+    + DesCancelar(form, pedido)      : void
+  }
+
+  interface "Interfaces.IPrendaService" {
+    + ObtenerTodos()         : List<BE.Prenda>
+    + ObtenerDisponibles()   : List<BE.Prenda>
+    + Alta(form, prenda)     : void
+    + Modificar(form, prenda): void
+    + CambiarEstado(form, prenda, estado) : void
+  }
+
+  class "BLL.Usuario" {
+    - usuarioDAL : DAL.Usuario
+    - permisoDAL : DAL.Permiso
+    - bitacora   : Servicios.Bitacora
+    - MaxIntentosFallidos : int = 3
+    ..
+    + Login(form, username, contraseña)        : bool
+    + Logout(form)                             : void
+    + Alta(form, username, contraseña, perfil) : void
+    + ResetearClave(form, idUsuario, nuevaClave): void
+    + Desbloquear(form, idUsuario, username)   : void
+    + ObtenerUsuarioActivo()                   : BE.Usuario
+    + ObtenerTodos()                           : List<BE.Usuario>
+    + ExisteUsername(username)                 : bool
+    - RegistrarIntentoFallidoInterno(...)      : void
+    - RegistrarBloqueo(...)                    : void
+  }
+
+  class "BLL.Cliente" implements "Interfaces.IClienteService" {
+    - dalCliente  : DAL.Cliente
+    - bitacora    : Servicios.Bitacora
+    - bitacoraNeg : Servicios.BitacoraNegocio
+    ..
+    + ObtenerTodos()           : List<BE.Cliente>
+    + ObtenerPorId(id)         : BE.Cliente
+    + Alta(form, cliente)      : void
+    + Modificar(form, cliente) : void
+    + Baja(form, cliente)      : void
+    - Validar(cliente)         : void
+  }
+
+  class "BLL.Pedido" implements "Interfaces.IPedidoService" {
+    - dalPedido   : DAL.Pedido
+    - dalCliente  : DAL.Cliente
+    - dalEmpleado : DAL.Empleado
+    - dalPlan     : DAL.PlanSuscripcion
+    - bitacora    : Servicios.Bitacora
+    - bitacoraNeg : Servicios.BitacoraNegocio
+    ..
+    + ObtenerTodos()        : List<BE.Pedido>
+    + ObtenerPendientes()   : List<BE.Pedido>
+    + ObtenerPorId(id)      : BE.Pedido
+    + CrearPedido(form, idCliente, prendas) : int
+    + Despachar(form, pedido)              : void
+    + MarcarEntregado(form, pedido)        : void
+    + RegistrarDevolucion(form, pedido)    : void
+    + Cancelar(form, pedido, motivo)       : void
+    + DesCancelar(form, pedido)            : void
+    - ValidarParametrosEntrada(prendas)    : void
+    - ObtenerClienteValidado(idCliente)    : BE.Cliente
+    - ObtenerPlanValidado(cliente, n)      : BE.PlanSuscripcion
+    - ValidarDisponibilidadPrendas(prendas): void
+    - PersistirPedido(idCliente, prendas)  : int
+    - LogCrearPedido(...)                  : void
+    - ResolverEmpleadoActivo()             : int
+  }
+
+  class "BLL.Prenda" implements "Interfaces.IPrendaService" {
+    - dalPrenda   : DAL.Prenda
+    - bitacora    : Servicios.Bitacora
+    - bitacoraNeg : Servicios.BitacoraNegocio
+    ..
+    + ObtenerTodos()       : List<BE.Prenda>
+    + ObtenerDisponibles() : List<BE.Prenda>
+    + Alta(form, prenda)   : void
+    + Modificar(form, prenda)               : void
+    + CambiarEstado(form, prenda, estado)   : void
+    - Validar(prenda)                       : void
+  }
+}
+
+'========================= CAPA GUI =========================
+
+package "GUI" {
+
+  class "GUI.Login" {
+    - usuarioBLL : BLL.Usuario
+    ..
+    + Login()
+    - btnIngresar_Click(s, e)     : void
+    - btnSalir_Click(s, e)        : void
+    - lnkOlvidaste_LinkClicked(s, e) : void
+  }
+
+  class "GUI.Menu" {
+    ..
+    + Menu()
+    # OnLoad(e)                   : void
+    - AplicarPermisos(permisos)   : void
+    - GenerarTileWF()             : Bitmap
+    - cerrarSesionToolStripMenuItem_Click(s, e) : void
+    - prendasToolStripMenuItem_Click(s, e)      : void
+    - clientesToolStripMenuItem_Click(s, e)     : void
+    - planesToolStripMenuItem_Click(s, e)       : void
+    - pedidosVentaToolStripMenuItem_Click(s, e) : void
+    - pedidosRealizadosToolStripMenuItem_Click(s, e) : void
+    - usuariosToolStripMenuItem_Click(s, e)     : void
+    - bitacoraToolStripMenuItem_Click(s, e)     : void
+  }
+
+  class "GUI.Bitacora" {
+    - srvSistema : Servicios.Bitacora
+    - srvNegocio : Servicios.BitacoraNegocio
+    ..
+    + Bitacora()
+    - Bitacora_Load(s, e)              : void
+    - CargarSistema()                  : void
+    - CargarNegocio()                  : void
+    - BtnUltimosDias_Click(s, e)       : void
+    - BtnBuscar_Click(s, e)            : void
+    - BtnLimpiar_Click(s, e)           : void
+    - BtnExportarPDF_Click(s, e)       : void
+    - MostrarEnGrilla(dgv, lbl, dt, info) : void
+    - PrintDocument_PrintPage(s, e)    : void
+  }
+
+  class "GUI.Prendas" {
+    - prendaBLL : BLL.Prenda
+    ..
+    + Prendas()
+    - CargarPrendas()              : void
+    - AplicarFiltro()              : void
+    - BtnNueva_Click(s, e)         : void
+    - BtnEditar_Click(s, e)        : void
+    - BtnCambiarEstado_Click(s, e) : void
+    - DgvPrendas_SelectionChanged(s, e) : void
+  }
+
+  class "GUI.PedidosRealizados" {
+    - pedidoBLL : BLL.Pedido
+    ..
+    + PedidosRealizados()
+    - CargarPedidos()              : void
+    - AplicarFiltro()              : void
+    - BtnDespachar_Click(s, e)     : void
+    - BtnEntregado_Click(s, e)     : void
+    - BtnDevolucion_Click(s, e)    : void
+    - BtnVerNotificacion_Click(s, e): void
+    - DgvPedidos_SelectionChanged(s, e) : void
+    - ComputarUrgencia(pedido)     : string
+    - ColorearFilas()              : void
+  }
+}
+
+'========================= RELACIONES =========================
+
+' Seguridad
+"BLL.Usuario"    --> "SessionManager"        : usa
+"BLL.Usuario"    --> "Encriptador"           : verifica/hashea
+"Servicios.Bitacora" --> "SessionManager"    : lee sesión activa
+
+' DAL usa Acceso
+"DAL.Usuario"    --> "DAL.Acceso"            : GetInstance()
+"DAL.Bitacora"   --> "DAL.Acceso"            : GetInstance()
+"DAL.Pedido"     --> "DAL.Acceso"            : GetInstance()
+"DAL.Cliente"    --> "DAL.Acceso"            : GetInstance()
+"DAL.Prenda"     --> "DAL.Acceso"            : GetInstance()
+"DAL.BitacoraNegocio" --> "DAL.Acceso"       : GetInstance()
+
+' Servicios usa DAL
+"Servicios.Bitacora"       --> "DAL.Bitacora"       : delega
+"Servicios.BitacoraNegocio" --> "DAL.BitacoraNegocio" : delega
+
+' BLL usa DAL + Servicios
+"BLL.Usuario"  --> "DAL.Usuario"             : consulta/persiste
+"BLL.Usuario"  --> "DAL.Permiso"             : carga permisos
+"BLL.Usuario"  --> "Servicios.Bitacora"      : registra
+"BLL.Cliente"  --> "DAL.Cliente"             : consulta/persiste
+"BLL.Cliente"  --> "Servicios.Bitacora"      : registra
+"BLL.Cliente"  --> "Servicios.BitacoraNegocio" : registra
+"BLL.Pedido"   --> "DAL.Pedido"              : consulta/persiste
+"BLL.Pedido"   --> "Servicios.Bitacora"      : registra
+"BLL.Pedido"   --> "Servicios.BitacoraNegocio" : registra
+
+' GUI usa BLL
+"GUI.Login"           --> "BLL.Usuario"      : Login()
+"GUI.Menu"            --> "BLL.Usuario"      : ObtenerUsuarioActivo()\nLogout()
+"GUI.Bitacora"        --> "Servicios.Bitacora"       : consultas directas
+"GUI.Bitacora"        --> "Servicios.BitacoraNegocio": consultas directas
+"GUI.Prendas"         --> "BLL.Prenda"       : gestión
+"GUI.PedidosRealizados" --> "BLL.Pedido"     : despacho/entrega/devolución
+
+@enduml

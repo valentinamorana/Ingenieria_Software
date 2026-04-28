@@ -6,7 +6,12 @@ namespace BE
     /// Entidad — Prenda (unidad de stock del catálogo).
     /// Mapea la tabla [Prenda].
     /// </summary>
-    public class Prenda
+    /// <summary>
+    /// Hereda de <see cref="Entidad"/>:
+    ///   - FechaAlta  → fecha de incorporación de la prenda al catálogo (heredada)
+    ///   - GetId()    → retorna IdPrenda (implementación concreta)
+    /// </summary>
+    public class Prenda : Entidad
     {
         public int          IdPrenda        { get; set; }
         public string       Nombre          { get; set; }
@@ -22,7 +27,8 @@ namespace BE
         /// <summary>Nombre del cliente que la tiene (cargado por JOIN, no persiste).</summary>
         public string       NombreCliente   { get; set; }
 
-        public DateTime     FechaAlta       { get; set; }
+        /// <summary>Implementación de Entidad.GetId() → retorna la clave primaria de Prenda.</summary>
+        public override int GetId() => IdPrenda;
 
         /// <summary>Descripción para mostrar en grillas: "Vestido azul – en uso"</summary>
         public string ResumenEstado =>

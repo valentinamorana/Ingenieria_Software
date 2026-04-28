@@ -18,8 +18,15 @@ namespace GUI
     ///
     /// Accesible desde Menú → Ventas → Clientes (permiso mnuClientes).
     /// </summary>
-    public partial class Clientes : Form
+    /// <summary>
+    /// Hereda de <see cref="FormBase"/>:
+    ///   - MostrarOk() y MostrarError() → heredados, no se redeclaran
+    ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
+    /// </summary>
+    public partial class Clientes : FormBase
     {
+        protected override Label MensajeLabel => lblMensaje;
+
         private readonly BLL.Cliente clienteBLL = new BLL.Cliente();
 
         // Cache de la lista actual
@@ -202,16 +209,5 @@ namespace GUI
             return _clientes.Find(c => c.IdCliente == id);
         }
 
-        private void MostrarOk(string msg)
-        {
-            lblMensaje.ForeColor = Color.DarkGreen;
-            lblMensaje.Text      = $"✓ {msg}";
-        }
-
-        private void MostrarError(string msg)
-        {
-            lblMensaje.ForeColor = Color.DarkRed;
-            lblMensaje.Text      = $"✗ {msg}";
-        }
     }
 }

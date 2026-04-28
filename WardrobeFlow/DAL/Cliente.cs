@@ -10,12 +10,16 @@ namespace DAL
     /// Opera sobre la tabla [Cliente] de WardrobeFlowDB.
     /// Los clientes son suscriptores del servicio, NO son usuarios del sistema.
     /// </summary>
-    public class Cliente
+    /// <summary>
+    /// Hereda de <see cref="BaseDAL{T}"/>:
+    ///   - acceso  → Singleton de BD (heredado, no se redeclara)
+    ///   - ObtenerTodos() y ObtenerPorId() → implementados con SQL de Cliente
+    /// </summary>
+    public class Cliente : BaseDAL<BE.Cliente>
     {
-        private readonly Acceso acceso = Acceso.GetInstance();
 
         /// <summary>Devuelve todos los clientes activos con el nombre de su plan (JOIN).</summary>
-        public List<BE.Cliente> ObtenerTodos()
+        public override List<BE.Cliente> ObtenerTodos()
         {
             var lista = new List<BE.Cliente>();
             try
@@ -44,7 +48,7 @@ namespace DAL
         }
 
         /// <summary>Obtiene un cliente por ID con plan y stock actual.</summary>
-        public BE.Cliente ObtenerPorId(int idCliente)
+        public override BE.Cliente ObtenerPorId(int idCliente)
         {
             SqlParameter[] p = { new SqlParameter("@IdCliente", idCliente) };
             try

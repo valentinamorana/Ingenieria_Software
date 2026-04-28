@@ -20,8 +20,15 @@ namespace GUI
     ///   ✓ Se registra la actividad en la bitácora (via BLL)
     ///   ✓ Solo un Administrador puede resetear contraseñas ajenas
     /// </summary>
-    public partial class Usuarios : Form
+    /// <summary>
+    /// Hereda de <see cref="FormBase"/>:
+    ///   - MostrarOk() y MostrarError() → heredados, no se redeclaran
+    ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
+    /// </summary>
+    public partial class Usuarios : FormBase
     {
+        protected override Label MensajeLabel => lblMensaje;
+
         // BLL de usuarios para operaciones de negocio
         private readonly BLL.Usuario usuarioBLL = new BLL.Usuario();
 
@@ -248,18 +255,6 @@ namespace GUI
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────
-
-        private void MostrarError(string msg)
-        {
-            lblMensaje.ForeColor = Color.DarkRed;
-            lblMensaje.Text      = msg;
-        }
-
-        private void MostrarOk(string msg)
-        {
-            lblMensaje.ForeColor = Color.DarkGreen;
-            lblMensaje.Text      = msg;
-        }
 
         /// <summary>
         /// Diálogo de entrada de texto simple — reemplaza Microsoft.VisualBasic.Interaction.InputBox

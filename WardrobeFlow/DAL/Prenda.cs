@@ -9,12 +9,16 @@ namespace DAL
     /// Capa de Acceso a Datos — Prenda.
     /// Opera sobre la tabla [Prenda] de WardrobeFlowDB.
     /// </summary>
-    public class Prenda
+    /// <summary>
+    /// Hereda de <see cref="BaseDAL{T}"/>:
+    ///   - acceso  → Singleton de BD (heredado, no se redeclara)
+    ///   - ObtenerTodos() y ObtenerPorId() → implementados con SQL de Prenda
+    /// </summary>
+    public class Prenda : BaseDAL<BE.Prenda>
     {
-        private readonly Acceso acceso = Acceso.GetInstance();
 
         /// <summary>Devuelve todas las prendas con nombre del cliente si están en uso.</summary>
-        public List<BE.Prenda> ObtenerTodas()
+        public override List<BE.Prenda> ObtenerTodos()
         {
             var lista = new List<BE.Prenda>();
             try
@@ -64,7 +68,7 @@ namespace DAL
         }
 
         /// <summary>Obtiene una prenda por ID.</summary>
-        public BE.Prenda ObtenerPorId(int idPrenda)
+        public override BE.Prenda ObtenerPorId(int idPrenda)
         {
             SqlParameter[] p = { new SqlParameter("@IdPrenda", idPrenda) };
             try

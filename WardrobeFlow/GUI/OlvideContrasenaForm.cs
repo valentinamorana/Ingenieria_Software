@@ -17,8 +17,15 @@ namespace GUI
     ///   3. Muestra un mensaje indicando que debe contactar al administrador
     ///   4. El administrador resetea la clave desde Menú → Administrar → Usuarios
     /// </summary>
-    public partial class OlvideContrasenaForm : Form
+    /// <summary>
+    /// Hereda de <see cref="FormBase"/>:
+    ///   - MostrarError() → heredado, no se redeclara
+    ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
+    /// </summary>
+    public partial class OlvideContrasenaForm : FormBase
     {
+        protected override Label MensajeLabel => lblMensaje;
+
         public OlvideContrasenaForm()
         {
             InitializeComponent();
@@ -86,10 +93,5 @@ namespace GUI
             }
         }
 
-        private void MostrarError(string mensaje)
-        {
-            lblMensaje.ForeColor = Color.Crimson;
-            lblMensaje.Text      = mensaje;
-        }
     }
 }

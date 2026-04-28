@@ -18,10 +18,13 @@ namespace DAL
     ///   Estado            bit        → 1=activo, 0=bloqueado (T02)
     ///   IntentosFallidos  int        → contador persistente de intentos fallidos
     /// </summary>
-    public class Usuario
+    /// <summary>
+    /// Hereda de <see cref="BaseDAL{T}"/>:
+    ///   - acceso  → Singleton de BD (heredado, no se redeclara)
+    ///   - ObtenerTodos() y ObtenerPorId() → implementados con SQL de Usuario
+    /// </summary>
+    public class Usuario : BaseDAL<BE.Usuario>
     {
-        private readonly Acceso acceso = Acceso.GetInstance();
-
         /// <summary>
         /// Inserta un nuevo usuario con contraseña hasheada y rol asignado.
         /// Estado=1 (activo) e IntentosFallidos=0 por defecto al crear.
@@ -175,10 +178,49 @@ namespace DAL
         }
 
         /// <summary>
+        /// Obtiene un usuario por su clave primaria (IdUsuario).
+        /// Incluye Estado e IntentosFallidos para el control de bloqueo.
+        /// </summary>
+        public override BE.Usuario ObtenerPorId(int idUsuario)
+        {
+            SqlParameter[] parametros = new SqlParameter[]
+            {
+                new SqlParameter("@IdUsuario", idUsuario)
+            };
+            try
+            {
+                DataTable tabla = acceso.Leer(
+                    "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
+                    "       Estado, IntentosFallidos " +
+                    "FROM Usuario WHERE IdUsuario = @IdUsuario",
+                    parametros);
+
+                if (tabla == null || tabla.Rows.Count == 0) return null;
+
+                DataRow row = tabla.Rows[0];
+                return new BE.Usuario
+                {
+                    Id               = Convert.ToInt32(row["Id"]),
+                    Username         = row["Username"].ToString(),
+                    Contraseña       = row["Contraseña"].ToString(),
+                    Rol              = row["Rol"]    != DBNull.Value ? row["Rol"].ToString()    : null,
+                    Perfil           = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
+                    Bloqueado        = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
+                    IntentosFallidos = row["IntentosFallidos"] != DBNull.Value
+                                          ? Convert.ToInt32(row["IntentosFallidos"]) : 0
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener el usuario por ID.", ex);
+            }
+        }
+
+        /// <summary>
         /// Lista todos los usuarios del sistema (sin contraseña).
         /// Incluye Estado e IntentosFallidos para la vista de administración.
         /// </summary>
-        public List<BE.Usuario> ObtenerTodos()
+        public override List<BE.Usuario> ObtenerTodos()
         {
             var lista = new List<BE.Usuario>();
             try

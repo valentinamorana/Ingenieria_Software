@@ -9,7 +9,7 @@ namespace BLL.Interfaces
     public interface IPrendaService
     {
         /// <summary>Devuelve todas las prendas con cliente actual (JOIN).</summary>
-        List<BE.Prenda> ObtenerTodas();
+        List<BE.Prenda> ObtenerTodos();
 
         /// <summary>Devuelve solo las prendas disponibles para asignar a pedidos.</summary>
         List<BE.Prenda> ObtenerDisponibles();

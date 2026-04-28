@@ -26,7 +26,7 @@ namespace BLL
 
         // ── Consultas ─────────────────────────────────────────────────────────
 
-        public List<BE.Prenda> ObtenerTodas()                  => dalPrenda.ObtenerTodas();
+        public List<BE.Prenda> ObtenerTodos()                   => dalPrenda.ObtenerTodos();
         public List<BE.Prenda> ObtenerDisponibles()            => dalPrenda.ObtenerDisponibles();
         public List<BE.Prenda> ObtenerPorCliente(int id)       => dalPrenda.ObtenerPorCliente(id);
         public BE.Prenda       ObtenerPorId(int idPrenda)      => dalPrenda.ObtenerPorId(idPrenda);

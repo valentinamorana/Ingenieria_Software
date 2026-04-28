@@ -20,7 +20,12 @@ namespace GUI
     ///
     /// Accesible para Administrador (mnuAuditoria) y Supervisor (mnuAuditoria).
     /// </summary>
-    public partial class Bitacora : Form
+    /// <summary>
+    /// Hereda de <see cref="FormBase"/>:
+    ///   - MostrarError() → heredado. Como este formulario no tiene lblMensaje,
+    ///     MensajeLabel retorna null y FormBase usa MessageBox automáticamente.
+    /// </summary>
+    public partial class Bitacora : FormBase
     {
         // La GUI accede a Servicios directamente para consultas de bitácora.
         // BLL decide CUÁNDO registrar; Servicios sabe CÓMO persistir Y CÓMO consultar.
@@ -375,9 +380,5 @@ namespace GUI
             }
         }
 
-        private void MostrarError(string msg)
-        {
-            MessageBox.Show($"Error: {msg}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
     }
 }

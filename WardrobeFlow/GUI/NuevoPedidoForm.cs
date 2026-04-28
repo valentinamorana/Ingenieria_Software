@@ -16,8 +16,15 @@ namespace GUI
     /// Devuelve DialogResult.OK cuando el pedido fue creado exitosamente.
     /// El ID del pedido creado queda en IdPedidoCreado.
     /// </summary>
-    public partial class NuevoPedidoForm : Form
+    /// <summary>
+    /// Hereda de <see cref="FormBase"/>:
+    ///   - MostrarError() → heredado, no se redeclara
+    ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
+    /// </summary>
+    public partial class NuevoPedidoForm : FormBase
     {
+        protected override Label MensajeLabel => lblMensaje;
+
         public int IdPedidoCreado { get; private set; }
 
         // ── BLL ───────────────────────────────────────────────────────────────
@@ -281,10 +288,5 @@ namespace GUI
             }
         }
 
-        private void MostrarError(string msg)
-        {
-            lblMensaje.ForeColor = Color.DarkRed;
-            lblMensaje.Text      = $"✗ {msg}";
-        }
     }
 }

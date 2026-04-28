@@ -17,8 +17,15 @@ namespace GUI
     ///
     /// Accesible desde Menú → Ventas → Pedidos de Venta (permiso mnuPedidosVenta).
     /// </summary>
-    public partial class PedidosVenta : Form
+    /// <summary>
+    /// Hereda de <see cref="FormBase"/>:
+    ///   - MostrarOk() y MostrarError() → heredados, no se redeclaran
+    ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
+    /// </summary>
+    public partial class PedidosVenta : FormBase
     {
+        protected override Label MensajeLabel => lblMensaje;
+
         private readonly BLL.Pedido pedidoBLL = new BLL.Pedido();
 
         private List<BE.Pedido> _pedidos = new List<BE.Pedido>();
@@ -310,16 +317,5 @@ namespace GUI
             return resultado;
         }
 
-        private void MostrarOk(string msg)
-        {
-            lblMensaje.ForeColor = Color.DarkGreen;
-            lblMensaje.Text      = $"✓ {msg}";
-        }
-
-        private void MostrarError(string msg)
-        {
-            lblMensaje.ForeColor = Color.DarkRed;
-            lblMensaje.Text      = $"✗ {msg}";
-        }
     }
 }

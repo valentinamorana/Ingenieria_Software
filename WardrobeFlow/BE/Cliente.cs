@@ -8,7 +8,12 @@ namespace BE
     /// Son registros en la BD que el Vendedor crea y gestiona.
     /// Mapea la tabla [Cliente].
     /// </summary>
-    public class Cliente
+    /// <summary>
+    /// Hereda de <see cref="Entidad"/>:
+    ///   - FechaAlta  → fecha de registro del suscriptor (heredada)
+    ///   - GetId()    → retorna IdCliente (implementación concreta)
+    /// </summary>
+    public class Cliente : Entidad
     {
         public int              IdCliente      { get; set; }
         public string           Nombre         { get; set; }
@@ -23,8 +28,6 @@ namespace BE
         /// <summary>Nombre del plan (cargado por JOIN, no persiste).</summary>
         public string           NombrePlan     { get; set; }
 
-        public DateTime         FechaAlta      { get; set; }
-
         /// <summary>Cantidad de prendas actualmente en uso por este cliente.</summary>
         public int              StockUtilizado { get; set; }
 
@@ -33,6 +36,9 @@ namespace BE
 
         /// <summary>Nombre completo para mostrar en grillas.</summary>
         public string NombreCompleto => $"{Nombre} {Apellido}";
+
+        /// <summary>Implementación de Entidad.GetId() → retorna la clave primaria de Cliente.</summary>
+        public override int GetId() => IdCliente;
 
         // ── Comportamiento ────────────────────────────────────────────────────
 

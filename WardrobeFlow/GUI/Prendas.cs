@@ -24,8 +24,15 @@ namespace GUI
     ///
     /// Accesible desde Menú → Inventario → Prendas.
     /// </summary>
-    public partial class Prendas : Form
+    /// <summary>
+    /// Hereda de <see cref="FormBase"/>:
+    ///   - MostrarOk() y MostrarError() → heredados, no se redeclaran
+    ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
+    /// </summary>
+    public partial class Prendas : FormBase
     {
+        protected override Label MensajeLabel => lblMensaje;
+
         private readonly BLL.Prenda prendaBLL = new BLL.Prenda();
 
         // Determina si el usuario puede cambiar estados (ControladorDeStock)
@@ -83,7 +90,7 @@ namespace GUI
         {
             try
             {
-                _prendas = prendaBLL.ObtenerTodas();
+                _prendas = prendaBLL.ObtenerTodos();
                 AplicarFiltro();
                 MostrarOk($"{_prendas.Count} prenda(s) en el catálogo.");
             }
@@ -289,16 +296,5 @@ namespace GUI
             }
         }
 
-        private void MostrarOk(string msg)
-        {
-            lblMensaje.ForeColor = Color.DarkGreen;
-            lblMensaje.Text      = $"✓ {msg}";
-        }
-
-        private void MostrarError(string msg)
-        {
-            lblMensaje.ForeColor = Color.DarkRed;
-            lblMensaje.Text      = $"✗ {msg}";
-        }
     }
 }

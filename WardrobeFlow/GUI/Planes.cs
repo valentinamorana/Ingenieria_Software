@@ -20,8 +20,15 @@ namespace GUI
     ///
     /// Accesible desde Menú → Ventas → Planes (permiso mnuPlanSuscripciones).
     /// </summary>
-    public partial class Planes : Form
+    /// <summary>
+    /// Hereda de <see cref="FormBase"/>:
+    ///   - MostrarOk() y MostrarError() → heredados, no se redeclaran
+    ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
+    /// </summary>
+    public partial class Planes : FormBase
     {
+        protected override Label MensajeLabel => lblMensaje;
+
         private readonly BLL.PlanSuscripcion planBLL = new BLL.PlanSuscripcion();
 
         private List<BE.PlanSuscripcion> _planes = new List<BE.PlanSuscripcion>();
@@ -219,16 +226,5 @@ namespace GUI
             catch (Exception ex) { MostrarError(ex.Message); }
         }
 
-        private void MostrarOk(string msg)
-        {
-            lblMensaje.ForeColor = Color.DarkGreen;
-            lblMensaje.Text      = $"✓ {msg}";
-        }
-
-        private void MostrarError(string msg)
-        {
-            lblMensaje.ForeColor = Color.DarkRed;
-            lblMensaje.Text      = $"✗ {msg}";
-        }
     }
 }

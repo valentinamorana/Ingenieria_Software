@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FormBase.cs" />
     <Compile Include="Bitacora.cs">
       <SubType>Form</SubType>
     </Compile>

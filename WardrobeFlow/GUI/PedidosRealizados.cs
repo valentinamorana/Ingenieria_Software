@@ -20,8 +20,15 @@ namespace GUI
     ///
     /// Accesible desde Menú → Ventas → Pedidos Realizados (permiso mnuPedidosRealizados).
     /// </summary>
-    public partial class PedidosRealizados : Form
+    /// <summary>
+    /// Hereda de <see cref="FormBase"/>:
+    ///   - MostrarOk() y MostrarError() → heredados, no se redeclaran
+    ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
+    /// </summary>
+    public partial class PedidosRealizados : FormBase
     {
+        protected override Label MensajeLabel => lblMensaje;
+
         private readonly BLL.Pedido pedidoBLL = new BLL.Pedido();
 
         private List<BE.Pedido> _pedidos = new List<BE.Pedido>();
@@ -371,16 +378,5 @@ namespace GUI
             }
         }
 
-        private void MostrarOk(string msg)
-        {
-            lblMensaje.ForeColor = Color.DarkGreen;
-            lblMensaje.Text      = $"✓ {msg}";
-        }
-
-        private void MostrarError(string msg)
-        {
-            lblMensaje.ForeColor = Color.DarkRed;
-            lblMensaje.Text      = $"✗ {msg}";
-        }
     }
 }

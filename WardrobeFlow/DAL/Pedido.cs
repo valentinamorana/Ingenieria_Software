@@ -9,9 +9,13 @@ namespace DAL
     /// Capa de Acceso a Datos — Pedido.
     /// Opera sobre las tablas [Pedido] y [PedidoPrenda] de WardrobeFlowDB.
     /// </summary>
-    public class Pedido
+    /// <summary>
+    /// Hereda de <see cref="BaseDAL{T}"/>:
+    ///   - acceso  → Singleton de BD (heredado, no se redeclara)
+    ///   - ObtenerTodos() y ObtenerPorId() → implementados con SQL de Pedido
+    /// </summary>
+    public class Pedido : BaseDAL<BE.Pedido>
     {
-        private readonly Acceso acceso = Acceso.GetInstance();
 
         // ── Query base reutilizable ───────────────────────────────────────────
         // Un único punto de verdad para las columnas y JOINs del SELECT de Pedido.
@@ -31,7 +35,7 @@ namespace DAL
         /// Devuelve todos los pedidos con nombre de cliente y empleado.
         /// Las prendas de cada pedido NO se cargan aquí — usar ObtenerConPrendas() si es necesario.
         /// </summary>
-        public List<BE.Pedido> ObtenerTodos()
+        public override List<BE.Pedido> ObtenerTodos()
         {
             var lista = new List<BE.Pedido>();
             try
@@ -73,7 +77,7 @@ namespace DAL
         }
 
         /// <summary>Obtiene un pedido por ID incluyendo sus prendas.</summary>
-        public BE.Pedido ObtenerPorId(int idPedido)
+        public override BE.Pedido ObtenerPorId(int idPedido)
         {
             SqlParameter[] p = { new SqlParameter("@IdPedido", idPedido) };
             try
