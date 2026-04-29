@@ -184,7 +184,7 @@ namespace GUI
             // 
             // btnResetearClave
             // 
-            this.btnResetearClave.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
+            this.btnResetearClave.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(110)))), ((int)(((byte)(180)))));
             this.btnResetearClave.Enabled = false;
             this.btnResetearClave.FlatAppearance.BorderSize = 0;
             this.btnResetearClave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -226,7 +226,7 @@ namespace GUI
             // 
             // btnDesbloquear
             // 
-            this.btnDesbloquear.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(130)))), ((int)(((byte)(76)))));
+            this.btnDesbloquear.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
             this.btnDesbloquear.Enabled = false;
             this.btnDesbloquear.FlatAppearance.BorderSize = 0;
             this.btnDesbloquear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;

@@ -42,8 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bitacora.cs" />
-    <Compile Include="BitacoraNegocio.cs" />
     <Compile Include="Cliente.cs" />
     <Compile Include="Configuracion.cs" />
     <Compile Include="Interfaces\IClienteService.cs" />

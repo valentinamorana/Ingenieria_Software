@@ -73,7 +73,7 @@
             // 
             this.usuarioToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cerrarSesionToolStripMenuItem});
-            this.usuarioToolStripMenuItem.Image = global::GUI.Properties.Resources._3106921_1_;
+//            this.usuarioToolStripMenuItem.Image = global::GUI.Properties.Resources._3106921_1_;
             this.usuarioToolStripMenuItem.Name = "usuarioToolStripMenuItem";
             this.usuarioToolStripMenuItem.Size = new System.Drawing.Size(62, 20);
             this.usuarioToolStripMenuItem.Text = "Perfil";

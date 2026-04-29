@@ -15,8 +15,8 @@ namespace GUI
 
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.panelHeader = new System.Windows.Forms.Panel();
             this.lblPaso = new System.Windows.Forms.Label();
             this.panelStatus = new System.Windows.Forms.Panel();
@@ -34,7 +34,7 @@ namespace GUI
             this.Nombre = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Categoria = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Talle = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colColor = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Color = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lblResumen = new System.Windows.Forms.Label();
             this.btnVolver = new System.Windows.Forms.Button();
             this.btnConfirmar = new System.Windows.Forms.Button();
@@ -177,8 +177,8 @@ namespace GUI
             // 
             this.dgvPrendas.AllowUserToAddRows = false;
             this.dgvPrendas.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(248)))), ((int)(((byte)(252)))));
-            this.dgvPrendas.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(248)))), ((int)(((byte)(252)))));
+            this.dgvPrendas.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvPrendas.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvPrendas.BackgroundColor = System.Drawing.Color.White;
             this.dgvPrendas.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -187,15 +187,15 @@ namespace GUI
             this.Nombre,
             this.Categoria,
             this.Talle,
-            this.colColor});
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(182)))), ((int)(((byte)(193)))));
-            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.Color.Black;
-            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvPrendas.DefaultCellStyle = dataGridViewCellStyle6;
+            this.Color});
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(182)))), ((int)(((byte)(193)))));
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.Black;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvPrendas.DefaultCellStyle = dataGridViewCellStyle2;
             this.dgvPrendas.Location = new System.Drawing.Point(10, 26);
             this.dgvPrendas.Name = "dgvPrendas";
             this.dgvPrendas.RowHeadersVisible = false;
@@ -240,13 +240,13 @@ namespace GUI
             this.Talle.ReadOnly = true;
             this.Talle.Width = 60;
             // 
-            // colColor
-            //
-            this.colColor.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.colColor.HeaderText = "Color";
-            this.colColor.Name = "Color";
-            this.colColor.ReadOnly = true;
-            this.colColor.Width = 90;
+            // Color
+            // 
+            this.Color.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.Color.HeaderText = "Color";
+            this.Color.Name = "Color";
+            this.Color.ReadOnly = true;
+            this.Color.Width = 90;
             // 
             // lblResumen
             // 
@@ -254,7 +254,7 @@ namespace GUI
             this.lblResumen.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(80)))), ((int)(((byte)(140)))));
             this.lblResumen.Location = new System.Drawing.Point(10, 374);
             this.lblResumen.Name = "lblResumen";
-            this.lblResumen.Size = new System.Drawing.Size(660, 44);
+            this.lblResumen.Size = new System.Drawing.Size(660, 40);
             this.lblResumen.TabIndex = 2;
             // 
             // btnVolver
@@ -329,5 +329,6 @@ namespace GUI
         private System.Windows.Forms.DataGridViewTextBoxColumn  Categoria;
         private System.Windows.Forms.DataGridViewTextBoxColumn  Talle;
         private System.Windows.Forms.DataGridViewTextBoxColumn  colColor;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Color;
     }
 }
