@@ -34,7 +34,7 @@ namespace GUI
             this.Nombre = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Categoria = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Talle = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Color = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colColor = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lblResumen = new System.Windows.Forms.Label();
             this.btnVolver = new System.Windows.Forms.Button();
             this.btnConfirmar = new System.Windows.Forms.Button();
@@ -187,7 +187,7 @@ namespace GUI
             this.Nombre,
             this.Categoria,
             this.Talle,
-            this.Color});
+            this.colColor});
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
             dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -242,11 +242,11 @@ namespace GUI
             // 
             // Color
             // 
-            this.Color.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.Color.HeaderText = "Color";
-            this.Color.Name = "Color";
-            this.Color.ReadOnly = true;
-            this.Color.Width = 90;
+            this.colColor.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.colColor.HeaderText = "Color";
+            this.colColor.Name = "Color";
+            this.colColor.ReadOnly = true;
+            this.colColor.Width = 90;
             // 
             // lblResumen
             // 
@@ -329,6 +329,5 @@ namespace GUI
         private System.Windows.Forms.DataGridViewTextBoxColumn  Categoria;
         private System.Windows.Forms.DataGridViewTextBoxColumn  Talle;
         private System.Windows.Forms.DataGridViewTextBoxColumn  colColor;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Color;
     }
 }
