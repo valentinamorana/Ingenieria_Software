@@ -184,7 +184,7 @@ namespace GUI
             // 
             // btnResetearClave
             // 
-            this.btnResetearClave.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(180)))), ((int)(((byte)(100)))), ((int)(((byte)(30)))));
+            this.btnResetearClave.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
             this.btnResetearClave.Enabled = false;
             this.btnResetearClave.FlatAppearance.BorderSize = 0;
             this.btnResetearClave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
