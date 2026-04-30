@@ -3,7 +3,7 @@
   "WorkspaceRootPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{759E1C38-E8EC-45A2-A367-0EA9CF9DABAD}|DAL\\DAL.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\dal\\bitacoranegocio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{759E1C38-E8EC-45A2-A367-0EA9CF9DABAD}|DAL\\DAL.csproj|c:\\users\\valen\\documents\\ingenieria de software\\ingenieria_software\\wardrobeflow\\dal\\bitacoranegocio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{759E1C38-E8EC-45A2-A367-0EA9CF9DABAD}|DAL\\DAL.csproj|solutionrelative:dal\\bitacoranegocio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -63,7 +63,7 @@
       "RelativeMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|solutionrelative:bll\\configuracion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|c:\\users\\valen\\documents\\ingenieria de software\\ingenieria_software\\wardrobeflow\\bll\\usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\bll\\usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|solutionrelative:bll\\usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -266,8 +266,7 @@
               "RelativeToolTip": "GUI\\Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:23:13.743Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:23:13.743Z"
             },
             {
               "$type": "Document",
@@ -279,8 +278,7 @@
               "RelativeToolTip": "BLL\\PlanSuscripcion.cs",
               "ViewState": "AgIAABkAAAAAAAAAAAAgwDsAAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:19:49.303Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:19:49.303Z"
             },
             {
               "$type": "Document",
@@ -292,8 +290,7 @@
               "RelativeToolTip": "BLL\\Pedido.cs",
               "ViewState": "AgIAAAsAAAAAAAAAAAAQwBIAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:19:48.254Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:19:48.254Z"
             },
             {
               "$type": "Document",
@@ -305,8 +302,7 @@
               "RelativeToolTip": "DAL\\Permiso.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAADIAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:20:04.83Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:20:04.83Z"
             },
             {
               "$type": "Document",
@@ -318,8 +314,7 @@
               "RelativeToolTip": "DAL\\Usuario.cs",
               "ViewState": "AgIAAAkAAAAAAAAAAAAAACkAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:20:06.058Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:20:06.058Z"
             },
             {
               "$type": "Document",
@@ -331,8 +326,7 @@
               "RelativeToolTip": "DAL\\Prenda.cs",
               "ViewState": "AgIAAHEAAAAAAAAAAAAIwIIAAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:34:16.405Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:34:16.405Z"
             },
             {
               "$type": "Document",
@@ -344,8 +338,7 @@
               "RelativeToolTip": "DAL\\PlanSuscripcion.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAFEAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:20:05.429Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:20:05.429Z"
             },
             {
               "$type": "Document",
@@ -355,7 +348,7 @@
               "RelativeDocumentMoniker": "DAL\\BitacoraNegocio.cs",
               "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\BitacoraNegocio.cs",
               "RelativeToolTip": "DAL\\BitacoraNegocio.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAxwDEAAABXAAAAAAAAAA==",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAADEAAABXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-29T00:20:00.743Z",
               "EditorCaption": ""
@@ -370,8 +363,7 @@
               "RelativeToolTip": "BLL\\Prenda.cs",
               "ViewState": "AgIAADsAAAAAAAAAAAAuwE8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:19:50.022Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:19:50.022Z"
             },
             {
               "$type": "Document",
@@ -383,8 +375,7 @@
               "RelativeToolTip": "DAL\\Pedido.cs",
               "ViewState": "AgIAABkAAAAAAAAAAAAgwGQAAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:20:04.156Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:20:04.156Z"
             },
             {
               "$type": "Document",
@@ -396,8 +387,7 @@
               "RelativeToolTip": "DAL\\Empleado.cs",
               "ViewState": "AgIAAFMAAAAAAAAAAAAwwHwAAAA4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:20:03.473Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:20:03.473Z"
             },
             {
               "$type": "Document",
@@ -409,8 +399,7 @@
               "RelativeToolTip": "DAL\\Bitacora.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAH8AAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:19:17.408Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:19:17.408Z"
             },
             {
               "$type": "Document",
@@ -422,8 +411,7 @@
               "RelativeToolTip": "BLL\\Cliente.cs",
               "ViewState": "AgIAAFIAAAAAAAAAAAAcwFQAAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:22:57.311Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:22:57.311Z"
             },
             {
               "$type": "Document",
@@ -435,8 +423,7 @@
               "RelativeToolTip": "BLL\\Usuario.cs",
               "ViewState": "AgIAAIcAAAAAAAAAAAAmwKIAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:19:50.684Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:19:50.684Z"
             },
             {
               "$type": "Document",
@@ -448,8 +435,7 @@
               "RelativeToolTip": "BLL\\Configuracion.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:32:54.959Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:32:54.959Z"
             },
             {
               "$type": "Document",
@@ -461,8 +447,7 @@
               "RelativeToolTip": "BE\\Usuario.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-30T03:07:58.691Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-30T03:07:58.691Z"
             },
             {
               "$type": "Document",
@@ -474,8 +459,7 @@
               "RelativeToolTip": "BE\\BitacoraNegocio.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAAACEAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:33:13.828Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:33:13.828Z"
             },
             {
               "$type": "Document",
@@ -487,8 +471,7 @@
               "RelativeToolTip": "BE\\Permiso.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-30T02:58:38.741Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-30T02:58:38.741Z"
             },
             {
               "$type": "Document",
@@ -500,8 +483,7 @@
               "RelativeToolTip": "BE\\TipoEventoNegocio.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-30T03:07:05.41Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-30T03:07:05.41Z"
             },
             {
               "$type": "Document",
@@ -513,8 +495,7 @@
               "RelativeToolTip": "BLL\\Interfaces\\IClienteService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAABCAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:22:54.82Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:22:54.82Z"
             },
             {
               "$type": "Document",

@@ -105,7 +105,15 @@ namespace BLL
 
             string claveHasheada = Encriptador.Hash(nuevaClave);
             usuarioDAL.ResetearClave(idUsuario, claveHasheada);
-            bitacora.Registrar(formulario.Text, "Reset Contrasena", BE.Criticidad.RecuperacionClave);
+
+            var admin = SessionManager.GetInstance.Usuario;
+            bitacora.RegistrarSinSesion(
+                modulo:     formulario.Text,
+                actividad:  "Reset Contrasena",
+                criticidad: BE.Criticidad.RecuperacionClave,
+                idUsuario:  admin.Id,
+                detalle:    $"Admin '{admin.Username}' (ID: {admin.Id}) reseteo la contrasena del usuario ID {idUsuario} a las {DateTime.Now:HH:mm:ss}."
+            );
         }
 
         // Desbloquea la cuenta de un usuario y resetea el contador de intentos. Solo Administrador.
