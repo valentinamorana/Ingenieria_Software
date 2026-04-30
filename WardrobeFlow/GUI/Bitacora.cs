@@ -48,7 +48,16 @@ namespace GUI
 
         private void Bitacora_Load(object sender, EventArgs e)
         {
-            CargarSistema();
+            // Supervisor solo accede a la bitácora de negocio (seguimiento de ventas/prendas).
+            // Se elimina la tab de Sistema antes de mostrar el formulario.
+            var usuario = new BLL.Usuario().ObtenerUsuarioActivo();
+            string perfil = usuario?.Perfil ?? "";
+
+            if (perfil.Equals("Supervisor", StringComparison.OrdinalIgnoreCase))
+                tabControl.TabPages.Remove(tabPageSistema);
+            else
+                CargarSistema();
+
             CargarNegocio();
         }
 

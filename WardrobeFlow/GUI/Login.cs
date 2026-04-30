@@ -31,6 +31,27 @@ namespace GUI
             // Efecto de hover manual en el botón Ingresar para cambiar color de texto
             btnIngresar.MouseEnter += (s, e) => btnIngresar.ForeColor = Color.FromArgb(18, 18, 30);
             btnIngresar.MouseLeave += (s, e) => btnIngresar.ForeColor = Color.White;
+
+            // Ojito mostrar/ocultar contraseña — se achica el textbox para que el botón quede afuera del borde
+            txtContraseña.Width -= 28;
+            var btnOjo = new Button
+            {
+                Text      = "👁",
+                Font      = new Font("Segoe UI Emoji", 9f),
+                Size      = new Size(26, txtContraseña.Height),
+                Location  = new Point(txtContraseña.Right + 2, txtContraseña.Top),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = txtContraseña.BackColor,
+                ForeColor = Color.FromArgb(100, 100, 100),
+                Cursor    = Cursors.Hand,
+                TabStop   = false
+            };
+            btnOjo.FlatAppearance.BorderSize = 1;
+            btnOjo.FlatAppearance.BorderColor = Color.FromArgb(180, 180, 180);
+            btnOjo.Click += (s, e) =>
+                txtContraseña.PasswordChar = txtContraseña.PasswordChar == '\0' ? '●' : '\0';
+            pnlCard.Controls.Add(btnOjo);
+            btnOjo.BringToFront();
         }
 
         /// <summary>

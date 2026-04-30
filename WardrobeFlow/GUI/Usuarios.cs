@@ -39,6 +39,27 @@ namespace GUI
         {
             InitializeComponent();
             this.Load += new EventHandler(Usuarios_Load);
+
+            // Ojito mostrar/ocultar contraseña en el campo Nuevo Usuario
+            txtContraseña.Width -= 28;
+            var btnOjo = new Button
+            {
+                Text      = "👁",
+                Font      = new Font("Segoe UI Emoji", 9f),
+                Size      = new Size(26, txtContraseña.Height),
+                Location  = new Point(txtContraseña.Right + 2, txtContraseña.Top),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = txtContraseña.BackColor,
+                ForeColor = Color.FromArgb(100, 100, 100),
+                Cursor    = Cursors.Hand,
+                TabStop   = false
+            };
+            btnOjo.FlatAppearance.BorderSize = 1;
+            btnOjo.FlatAppearance.BorderColor = Color.FromArgb(180, 180, 180);
+            btnOjo.Click += (s, e) =>
+                txtContraseña.PasswordChar = txtContraseña.PasswordChar == '\0' ? '●' : '\0';
+            panelAlta.Controls.Add(btnOjo);
+            btnOjo.BringToFront();
         }
 
         // ── Eventos del Designer ──────────────────────────────────────────────
@@ -132,20 +153,9 @@ namespace GUI
                 return;
             }
 
-            // El username debe ser numérico (representa el DNI del empleado)
-            foreach (char c in username)
+            if (username.Length < 3)
             {
-                if (!char.IsDigit(c))
-                {
-                    MostrarError("El nombre de usuario solo puede contener números (DNI).");
-                    txtUsername.Focus();
-                    return;
-                }
-            }
-
-            if (username.Length < 7 || username.Length > 8)
-            {
-                MostrarError("El DNI debe tener entre 7 y 8 dígitos.");
+                MostrarError("El nombre de usuario debe tener al menos 3 caracteres.");
                 txtUsername.Focus();
                 return;
             }
