@@ -5,53 +5,24 @@ using System.Windows.Forms;
 namespace BLL
 {
     /// <summary>
-    /// Capa de Lógica de Negocio — Gestión del ciclo de vida de Pedidos.
-    /// Implementa <see cref="Interfaces.IPedidoService"/>.
-    ///
-    /// CASOS DE USO:
-    ///   CrearPedido()         — Vendedor genera un pedido para un cliente
-    ///   Despachar()           — OperadorDeInventario despacha el pedido
-    ///   MarcarEntregado()     — Se confirma la entrega al cliente
-    ///   RegistrarDevolucion() — El cliente devuelve las prendas al finalizar
-    ///   Cancelar()            — Se cancela un pedido Pendiente con motivo
-    ///   DesCancelar()         — Se revierte la cancelación si es posible
-    ///
-    /// PRINCIPIO DE RESPONSABILIDAD ÚNICA aplicado en CrearPedido:
-    ///   Cada paso del flujo tiene su propio método privado con una sola razón de cambio:
-    ///     ValidarParametrosEntrada   → si cambia la regla "al menos una prenda"
-    ///     ObtenerClienteValidado     → si cambia cómo se busca/valida el cliente
-    ///     ObtenerPlanValidado        → si cambia la política de planes
-    ///     ValidarDisponibilidadPrendas → si cambia la condición de disponibilidad
-    ///     PersistirPedido            → si cambia cómo se construye/guarda el pedido
-    ///     LogCrearPedido             → si cambia el formato o destino del log
-    ///
-    /// Roles con acceso:
-    ///   Vendedor             → CrearPedido, Cancelar, DesCancelar
-    ///   OperadorDeInventario → Despachar, MarcarEntregado, RegistrarDevolucion
-    ///   Supervisor           → solo lectura
+    /// Lógica de negocio para gestión del ciclo de vida de pedidos.
     /// </summary>
     public class Pedido : Interfaces.IPedidoService
     {
-        private readonly DAL.Pedido                dalPedido   = new DAL.Pedido();
-        private readonly DAL.Cliente               dalCliente  = new DAL.Cliente();
-        private readonly DAL.Empleado              dalEmpleado = new DAL.Empleado();
-        private readonly DAL.PlanSuscripcion       dalPlan     = new DAL.PlanSuscripcion();
-        private readonly Servicios.Bitacora        bitacora    = new Servicios.Bitacora();
+        private readonly DAL.Pedido dalPedido = new DAL.Pedido();
+        private readonly DAL.Cliente dalCliente = new DAL.Cliente();
+        private readonly DAL.Empleado dalEmpleado = new DAL.Empleado();
+        private readonly DAL.PlanSuscripcion dalPlan = new DAL.PlanSuscripcion();
+        private readonly Servicios.Bitacora bitacora = new Servicios.Bitacora();
         private readonly Servicios.BitacoraNegocio bitacoraNeg = new Servicios.BitacoraNegocio();
 
-        // ── Consultas ─────────────────────────────────────────────────────────
+        // Consultas 
+        public List<BE.Pedido> ObtenerTodos() => dalPedido.ObtenerTodos();
+        public List<BE.Pedido> ObtenerPendientes() => dalPedido.ObtenerPendientes();
+        public BE.Pedido ObtenerPorId(int id) => dalPedido.ObtenerPorId(id);
 
-        public List<BE.Pedido> ObtenerTodos()       => dalPedido.ObtenerTodos();
-        public List<BE.Pedido> ObtenerPendientes()  => dalPedido.ObtenerPendientes();
-        public BE.Pedido       ObtenerPorId(int id) => dalPedido.ObtenerPorId(id);
-
-        // ── Caso de uso: Crear Pedido ─────────────────────────────────────────
-
-        /// <summary>
-        /// Crea un nuevo pedido de venta para un cliente.
-        /// Cada paso del flujo está delegado a un método privado con responsabilidad única.
-        /// Devuelve el ID del pedido creado.
-        /// </summary>
+        // Crear Pedido 
+        // Crea un nuevo pedido para un cliente. Devuelve el ID generado.
         public int CrearPedido(Form formulario, int idCliente, List<BE.Prenda> prendas)
         {
             ValidarParametrosEntrada(prendas);
@@ -68,12 +39,8 @@ namespace BLL
             return idNuevo;
         }
 
-        // ── Caso de uso: Despachar ────────────────────────────────────────────
-
-        /// <summary>
-        /// Marca un pedido como Despachado.
-        /// Usa Pedido.PuedeDespachar() para validar la transición.
-        /// </summary>
+        // Despachar
+        // Marca el pedido como Despachado.
         public void Despachar(Form formulario, BE.Pedido pedido)
         {
             if (!pedido.PuedeDespachar())
@@ -96,12 +63,8 @@ namespace BLL
                 idCliente: pedido.IdCliente);
         }
 
-        // ── Caso de uso: Marcar Entregado ─────────────────────────────────────
-
-        /// <summary>
-        /// Marca un pedido como Entregado al cliente.
-        /// Usa Pedido.PuedeEntregarse() para validar la transición.
-        /// </summary>
+        //Marcar Entregado 
+        // Marca el pedido como Entregado.
         public void MarcarEntregado(Form formulario, BE.Pedido pedido)
         {
             if (!pedido.PuedeEntregarse())
@@ -122,13 +85,8 @@ namespace BLL
                 idCliente: pedido.IdCliente);
         }
 
-        // ── Caso de uso: Registrar Devolución ─────────────────────────────────
-
-        /// <summary>
-        /// Registra la devolución de prendas por parte del cliente al finalizar su uso.
-        /// Las prendas pasan a estado EnLimpieza para revisión antes de volver al stock.
-        /// Solo aplica si el pedido está Entregado.
-        /// </summary>
+        // Registrar Devolución
+        // Registra la devolución de prendas de un pedido Entregado.
         public void RegistrarDevolucion(Form formulario, BE.Pedido pedido)
         {
             if (pedido.Estado != BE.EstadoPedido.Entregado)
@@ -151,13 +109,8 @@ namespace BLL
                 idCliente: pedido.IdCliente);
         }
 
-        // ── Caso de uso: Cancelar ─────────────────────────────────────────────
-
-        /// <summary>
-        /// Cancela un pedido Pendiente con motivo obligatorio.
-        /// Libera las prendas a estado Disponible.
-        /// Usa Pedido.PuedeCancelarse() para validar la transición.
-        /// </summary>
+        // Cancelar
+        // Cancela un pedido Pendiente. Requiere motivo.
         public void Cancelar(Form formulario, BE.Pedido pedido, string motivo)
         {
             if (!pedido.PuedeCancelarse())
@@ -181,13 +134,8 @@ namespace BLL
                 idCliente: pedido.IdCliente);
         }
 
-        // ── Caso de uso: Des-Cancelar ─────────────────────────────────────────
-
-        /// <summary>
-        /// Revierte la cancelación de un pedido, volviendo a Pendiente.
-        /// Solo posible si todas las prendas del pedido siguen Disponibles.
-        /// Usa Pedido.PuedeDesCancelarse() para validar la transición.
-        /// </summary>
+        // Des-Cancelar
+        // Revierte la cancelación si todas las prendas siguen Disponibles.
         public void DesCancelar(Form formulario, BE.Pedido pedido)
         {
             if (!pedido.PuedeDesCancelarse())
@@ -212,20 +160,14 @@ namespace BLL
                 idCliente: pedido.IdCliente);
         }
 
-        // ── Helpers privados de CrearPedido ───────────────────────────────────
-        // Cada método tiene una sola razón para cambiar (SRP).
-
-        /// <summary>Valida que la lista de prendas no sea nula ni vacía.</summary>
+        // Valida que la lista de prendas no sea nula ni vacía.
         private void ValidarParametrosEntrada(List<BE.Prenda> prendas)
         {
             if (prendas == null || prendas.Count == 0)
                 throw new Exception("Debe seleccionar al menos una prenda.");
         }
 
-        /// <summary>
-        /// Busca el cliente en BD y verifica que exista y tenga un plan asignado.
-        /// Devuelve la entidad cliente lista para usar en validaciones posteriores.
-        /// </summary>
+        // Busca el cliente y verifica que exista y tenga plan asignado.
         private BE.Cliente ObtenerClienteValidado(int idCliente)
         {
             var cliente = dalCliente.ObtenerPorId(idCliente);
@@ -241,10 +183,7 @@ namespace BLL
             return cliente;
         }
 
-        /// <summary>
-        /// Busca el plan del cliente y verifica que permita agregar la cantidad de prendas pedidas.
-        /// Devuelve la entidad plan para usarla en el log posterior.
-        /// </summary>
+        // Verifica que el plan del cliente permita la cantidad de prendas pedidas.
         private BE.PlanSuscripcion ObtenerPlanValidado(BE.Cliente cliente, int cantidadPrendas)
         {
             var plan = dalPlan.ObtenerPorId(cliente.IdPlan.Value);
@@ -261,10 +200,7 @@ namespace BLL
             return plan;
         }
 
-        /// <summary>
-        /// Verifica que cada prenda seleccionada esté en estado Disponible al momento de crear el pedido.
-        /// Lanza excepción con el nombre de la primera prenda no disponible que encuentre.
-        /// </summary>
+        // Verifica que todas las prendas estén en estado Disponible.
         private void ValidarDisponibilidadPrendas(List<BE.Prenda> prendas)
         {
             foreach (var p in prendas)
@@ -276,30 +212,24 @@ namespace BLL
             }
         }
 
-        /// <summary>
-        /// Construye la entidad Pedido, resuelve el empleado activo y persiste en BD.
-        /// Devuelve el ID generado.
-        /// </summary>
+        // Construye el pedido y lo persiste en BD. Devuelve el ID generado.
         private int PersistirPedido(int idCliente, List<BE.Prenda> prendas)
         {
             int idEmpleado = ResolverEmpleadoActivo();
 
             var pedido = new BE.Pedido
             {
-                IdCliente   = idCliente,
-                IdEmpleado  = idEmpleado,
-                Estado      = BE.EstadoPedido.Pendiente,
+                IdCliente = idCliente,
+                IdEmpleado = idEmpleado,
+                Estado = BE.EstadoPedido.Pendiente,
                 FechaPedido = DateTime.Now,
-                Prendas     = prendas
+                Prendas = prendas
             };
 
             return dalPedido.Alta(pedido);
         }
 
-        /// <summary>
-        /// Registra la creación del pedido en bitácora del sistema y de negocio.
-        /// Separado del resto del flujo para que el formato del log tenga su propia razón de cambio.
-        /// </summary>
+        // Registra la creación del pedido en bitácora del sistema y de negocio.
         private void LogCrearPedido(Form formulario, int idPedido,
                                     BE.Cliente cliente, BE.PlanSuscripcion plan, int cantidadPrendas)
         {
@@ -316,12 +246,7 @@ namespace BLL
                 idCliente: cliente.IdCliente);
         }
 
-        // ── Helper privado de sesión ──────────────────────────────────────────
-
-        /// <summary>
-        /// Resuelve el IdEmpleado del usuario en sesión.
-        /// Lanza excepción clara si el usuario no tiene Empleado vinculado.
-        /// </summary>
+        // Obtiene el IdEmpleado del usuario en sesión.
         private int ResolverEmpleadoActivo()
         {
             var usuario  = Seguridad.SessionManager.GetInstance.Usuario;

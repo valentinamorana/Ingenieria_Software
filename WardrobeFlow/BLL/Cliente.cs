@@ -14,22 +14,20 @@ namespace BLL
         private readonly Servicios.Bitacora        bitacora    = new Servicios.Bitacora();
         private readonly Servicios.BitacoraNegocio bitacoraNeg = new Servicios.BitacoraNegocio();
 
-        /// <summary>Devuelve todos los clientes con plan y stock utilizado.</summary>
+        // Devuelve todos los clientes con plan y stock utilizado.
         public List<BE.Cliente> ObtenerTodos()
         {
             return dalCliente.ObtenerTodos();
         }
 
-        /// <summary>Obtiene un cliente por ID.</summary>
+        // Obtiene un cliente por ID.
         public BE.Cliente ObtenerPorId(int idCliente)
         {
             return dalCliente.ObtenerPorId(idCliente);
         }
 
-        /// <summary>
-        /// Registra un nuevo cliente.
-        /// Valida campos obligatorios y unicidad de DNI.
-        /// </summary>
+        // Registra un nuevo cliente.
+        // Valida campos obligatorios y unicidad de DNI.
         public void Alta(System.Windows.Forms.Form formulario, BE.Cliente cliente)
         {
             Validar(cliente);
@@ -47,10 +45,8 @@ namespace BLL
                 idCliente: cliente.IdCliente);
         }
 
-        /// <summary>
-        /// Modifica los datos de un cliente existente.
-        /// Valida unicidad de DNI excluyendo el propio registro.
-        /// </summary>
+        // Modifica los datos de un cliente existente.
+        // Valida unicidad de DNI excluyendo el propio registro.
         public void Modificar(System.Windows.Forms.Form formulario, BE.Cliente cliente)
         {
             Validar(cliente);
@@ -68,10 +64,8 @@ namespace BLL
                 idCliente: cliente.IdCliente);
         }
 
-        /// <summary>
-        /// Da de baja a un cliente.
-        /// No se puede eliminar si tiene prendas actualmente en uso.
-        /// </summary>
+        // Da de baja a un cliente.
+        // No se puede eliminar si tiene prendas actualmente en uso.
         public void Baja(System.Windows.Forms.Form formulario, BE.Cliente cliente)
         {
             // Bloquear baja si el cliente tiene prendas en uso actualmente
@@ -88,8 +82,7 @@ namespace BLL
                 idCliente: cliente.IdCliente);
         }
 
-        // ── Validaciones ─────────────────────────────────────────────────────
-
+        // Validaciones
         private void Validar(BE.Cliente cliente)
         {
             if (cliente == null)

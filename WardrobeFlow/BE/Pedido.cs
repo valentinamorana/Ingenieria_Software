@@ -10,57 +10,45 @@ namespace BE
     /// </summary>
     public class Pedido
     {
-        public int          IdPedido      { get; set; }
+        public int IdPedido { get; set; }
 
-        /// <summary>FK → Cliente.</summary>
-        public int          IdCliente     { get; set; }
+        public int IdCliente { get; set; }
 
-        /// <summary>FK → Empleado (Vendedor que generó el pedido).</summary>
-        public int          IdEmpleado    { get; set; }
+        public int IdEmpleado { get; set; }
 
-        public EstadoPedido Estado        { get; set; } = EstadoPedido.Pendiente;
+        public EstadoPedido Estado { get; set; } = EstadoPedido.Pendiente;
 
-        public DateTime     FechaPedido   { get; set; }
+        public DateTime FechaPedido { get; set; }
+        public DateTime? FechaDespacho { get; set; }
 
-        /// <summary>Fecha en que el OperadorDeInventario despachó el pedido. Null si aún no.</summary>
-        public DateTime?    FechaDespacho { get; set; }
+        public DateTime? FechaEntrega { get; set; }
 
-        /// <summary>Fecha de entrega al cliente. Null si aún no entregado.</summary>
-        public DateTime?    FechaEntrega  { get; set; }
+        public string MotivoCancelacion { get; set; }
 
-        /// <summary>Motivo de cancelación. Null si no fue cancelado.</summary>
-        public string       MotivoCancelacion { get; set; }
+        public string NombreCliente { get; set; }
 
-        // ── Campos cargados por JOIN (no persisten) ─────────────────────────
+        public string NombreEmpleado { get; set; }
 
-        /// <summary>Nombre completo del cliente (JOIN con Cliente).</summary>
-        public string       NombreCliente  { get; set; }
+        // Prendas asociadas al pedido (cargadas desde PedidoPrenda).
+        public List<Prenda> Prendas { get; set; } = new List<Prenda>();
 
-        /// <summary>Nombre completo del Vendedor (JOIN con Empleado).</summary>
-        public string       NombreEmpleado { get; set; }
-
-        /// <summary>Prendas asociadas al pedido (cargadas desde PedidoPrenda).</summary>
-        public List<Prenda> Prendas        { get; set; } = new List<Prenda>();
-
-        /// <summary>Cantidad de prendas del pedido.</summary>
         public int CantidadPrendas => Prendas?.Count ?? 0;
 
-        /// <summary>Resumen para mostrar en grillas.</summary>
+        // Resumen para mostrar en grillas.
         public string Resumen =>
             $"Pedido #{IdPedido} — {NombreCliente ?? $"Cliente {IdCliente}"} — {Estado}";
 
-        // ── Comportamiento ────────────────────────────────────────────────────
+        // Comportamiento
+        // El pedido puede cancelarse solo si está Pendiente.
+        public bool PuedeCancelarse() => Estado == EstadoPedido.Pendiente;
 
-        /// <summary>El pedido puede cancelarse solo si está Pendiente.</summary>
-        public bool PuedeCancelarse()   => Estado == EstadoPedido.Pendiente;
+        // El pedido puede despacharse solo si está Pendiente.
+        public bool PuedeDespachar() => Estado == EstadoPedido.Pendiente;
 
-        /// <summary>El pedido puede despacharse solo si está Pendiente.</summary>
-        public bool PuedeDespachar()    => Estado == EstadoPedido.Pendiente;
+        // El pedido puede marcarse como entregado solo si está Despachado. 
+        public bool PuedeEntregarse() => Estado == EstadoPedido.Despachado;
 
-        /// <summary>El pedido puede marcarse como entregado solo si está Despachado.</summary>
-        public bool PuedeEntregarse()   => Estado == EstadoPedido.Despachado;
-
-        /// <summary>El pedido puede des-cancelarse solo si está Cancelado.</summary>
+        // El pedido puede des-cancelarse solo si está Cancelado.
         public bool PuedeDesCancelarse() => Estado == EstadoPedido.Cancelado;
     }
 }

@@ -11,28 +11,26 @@ namespace BLL
     {
         private readonly DAL.PlanSuscripcion dalPlan = new DAL.PlanSuscripcion();
 
-        /// <summary>Devuelve todos los planes activos (para combos/selección).</summary>
+        // Devuelve todos los planes activos (para combos/selección).
         public List<BE.PlanSuscripcion> ObtenerActivos()
         {
             return dalPlan.ObtenerActivos();
         }
 
-        /// <summary>Devuelve todos los planes (activos e inactivos) para administración.</summary>
+        // Devuelve todos los planes (activos e inactivos) para administración.
         public List<BE.PlanSuscripcion> ObtenerTodos()
         {
             return dalPlan.ObtenerTodos();
         }
 
-        /// <summary>Obtiene un plan por ID. Devuelve null si no existe.</summary>
+        // Obtiene un plan por ID. Devuelve null si no existe.
         public BE.PlanSuscripcion ObtenerPorId(int idPlan)
         {
             return dalPlan.ObtenerPorId(idPlan);
         }
 
-        /// <summary>
-        /// Crea un nuevo plan de suscripción.
-        /// Valida que nombre no esté vacío, límite > 0 y precio >= 0.
-        /// </summary>
+        // Crea un nuevo plan de suscripción.
+        // Valida que nombre no esté vacío, límite > 0 y precio >= 0.
         public void Alta(BE.PlanSuscripcion plan)
         {
             Validar(plan);
@@ -40,33 +38,26 @@ namespace BLL
             dalPlan.Alta(plan);
         }
 
-        /// <summary>
-        /// Modifica un plan existente.
-        /// </summary>
+        // Modifica un plan existente.
         public void Modificar(BE.PlanSuscripcion plan)
         {
             Validar(plan);
             dalPlan.Modificar(plan);
         }
 
-        /// <summary>
-        /// Desactiva (baja lógica) un plan.
-        /// </summary>
+        // Desactiva (baja lógica) un plan.
         public void Desactivar(int idPlan)
         {
             dalPlan.Desactivar(idPlan);
         }
 
-        /// <summary>
-        /// Reactiva un plan previamente desactivado.
-        /// </summary>
+        // Reactiva un plan previamente desactivado.
         public void Activar(int idPlan)
         {
             dalPlan.Activar(idPlan);
         }
 
-        // ── Validaciones ─────────────────────────────────────────────────────
-
+        // Validaciones
         private void Validar(BE.PlanSuscripcion plan)
         {
             if (plan == null)

@@ -4,20 +4,7 @@ using System.Windows.Forms;
 
 namespace BLL
 {
-    /// <summary>
-    /// Capa de Lógica de Negocio — Gestión de Prendas.
-    /// Implementa <see cref="Interfaces.IPrendaService"/>.
-    ///
-    /// RESPONSABILIDADES:
-    ///   - Validar datos antes de persistir (campos obligatorios)
-    ///   - Delegar validación de transiciones de estado a la entidad Prenda
-    ///   - Registrar eventos en bitácora del sistema y de negocio
-    ///
-    /// Roles con acceso:
-    ///   ControladorDeStock → CRUD completo + cambio de estado
-    ///   OperadorLogistico  → solo lectura
-    ///   Vendedor           → solo lectura (selección en pedidos)
-    /// </summary>
+    /// <summary>Lógica de negocio para gestión de prendas.</summary>
     public class Prenda : Interfaces.IPrendaService
     {
         private readonly DAL.Prenda                dalPrenda   = new DAL.Prenda();
@@ -77,11 +64,7 @@ namespace BLL
 
         // ── Cambiar Estado ────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Cambia el estado de una prenda.
-        /// La validación de transición es delegada a <see cref="BE.Prenda.TransicionPermitida"/>,
-        /// manteniendo las reglas de negocio centralizadas en la entidad.
-        /// </summary>
+        /// <summary>Cambia el estado de una prenda validando la transición.</summary>
         public void CambiarEstado(Form formulario, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado)
         {
             if (!prenda.TransicionPermitida(nuevoEstado))

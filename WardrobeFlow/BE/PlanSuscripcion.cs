@@ -7,25 +7,20 @@ namespace BE
     /// </summary>
     public class PlanSuscripcion
     {
-        public int     IdPlan        { get; set; }
-        public string  Nombre        { get; set; }
+        public int IdPlan { get; set; }
+        public string Nombre { get; set; }
 
-        /// <summary>Cantidad máxima de prendas que puede tener el cliente al mismo tiempo.</summary>
-        public int     LimitePrendas { get; set; }
+        /// Cantidad máxima de prendas que puede tener el cliente al mismo tiempo.
+        public int LimitePrendas { get; set; }
 
-        public decimal Precio        { get; set; }
-        public bool    Estado        { get; set; } = true;
+        public decimal Precio { get; set; }
+        public bool Estado { get; set; } = true;
 
-        // ── Comportamiento ────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Verifica si el plan permite agregar <paramref name="nuevas"/> prendas
-        /// dado que el cliente ya tiene <paramref name="enUso"/> en uso.
-        /// </summary>
+        // Comportamiento
         public bool PermiteAgregarPrendas(int enUso, int nuevas)
             => (enUso + nuevas) <= LimitePrendas;
 
-        /// <summary>Cantidad de prendas adicionales que el plan aún permite dado el uso actual.</summary>
+        // Cantidad de prendas adicionales que el plan aún permite dado el uso actual.
         public int LugaresDisponibles(int enUso)
             => System.Math.Max(0, LimitePrendas - enUso);
     }

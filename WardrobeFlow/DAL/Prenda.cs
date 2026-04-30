@@ -17,7 +17,7 @@ namespace DAL
     public class Prenda : BaseDAL<BE.Prenda>
     {
 
-        /// <summary>Devuelve todas las prendas con nombre del cliente si están en uso.</summary>
+        // Devuelve todas las prendas con nombre del cliente si están en uso. 
         public override List<BE.Prenda> ObtenerTodos()
         {
             var lista = new List<BE.Prenda>();
@@ -42,7 +42,7 @@ namespace DAL
             return lista;
         }
 
-        /// <summary>Devuelve solo las prendas con estado Disponible.</summary>
+        // Devuelve solo las prendas con estado Disponible.
         public List<BE.Prenda> ObtenerDisponibles()
         {
             var lista = new List<BE.Prenda>();
@@ -67,7 +67,7 @@ namespace DAL
             return lista;
         }
 
-        /// <summary>Obtiene una prenda por ID.</summary>
+        // Obtiene una prenda por ID.
         public override BE.Prenda ObtenerPorId(int idPrenda)
         {
             SqlParameter[] p = { new SqlParameter("@IdPrenda", idPrenda) };
@@ -91,7 +91,7 @@ namespace DAL
             }
         }
 
-        /// <summary>Devuelve las prendas actualmente asignadas a un cliente.</summary>
+        // Devuelve las prendas actualmente asignadas a un cliente.
         public List<BE.Prenda> ObtenerPorCliente(int idCliente)
         {
             SqlParameter[] p = { new SqlParameter("@IdCliente", idCliente) };
@@ -117,7 +117,7 @@ namespace DAL
             return lista;
         }
 
-        /// <summary>Inserta una nueva prenda. Devuelve el ID generado.</summary>
+        // Inserta una nueva prenda. Devuelve el ID generado.
         public int Alta(BE.Prenda prenda)
         {
             SqlParameter[] p =
@@ -142,7 +142,7 @@ namespace DAL
                 : 0;
         }
 
-        /// <summary>Actualiza datos descriptivos de una prenda.</summary>
+        // Actualiza datos descriptivos de una prenda.
         public void Modificar(BE.Prenda prenda)
         {
             SqlParameter[] p =
@@ -161,7 +161,7 @@ namespace DAL
                 p);
         }
 
-        /// <summary>Cambia el estado de una prenda (disponible, en uso, limpieza, baja).</summary>
+        // Cambia el estado de una prenda (disponible, en uso, limpieza, baja).
         public void CambiarEstado(int idPrenda, BE.EstadoPrenda nuevoEstado, int? idClienteActual = null)
         {
             SqlParameter[] p =
@@ -175,8 +175,6 @@ namespace DAL
                 "WHERE IdPrenda=@IdPrenda",
                 p);
         }
-
-        // ── Mapeo privado ────────────────────────────────────────────────────
 
         private BE.Prenda Mapear(DataRow row)
         {

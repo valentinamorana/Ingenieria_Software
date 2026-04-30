@@ -5,20 +5,11 @@ using System.Data.SqlClient;
 
 namespace DAL
 {
-    /// <summary>
-    /// Capa de Acceso a Datos — Cliente.
-    /// Opera sobre la tabla [Cliente] de WardrobeFlowDB.
-    /// Los clientes son suscriptores del servicio, NO son usuarios del sistema.
-    /// </summary>
-    /// <summary>
-    /// Hereda de <see cref="BaseDAL{T}"/>:
-    ///   - acceso  → Singleton de BD (heredado, no se redeclara)
-    ///   - ObtenerTodos() y ObtenerPorId() → implementados con SQL de Cliente
-    /// </summary>
+    /// <summary>Acceso a datos de la tabla [Cliente].</summary>
     public class Cliente : BaseDAL<BE.Cliente>
     {
 
-        /// <summary>Devuelve todos los clientes activos con el nombre de su plan (JOIN).</summary>
+        // Devuelve todos los clientes activos con el nombre de su plan (JOIN).
         public override List<BE.Cliente> ObtenerTodos()
         {
             var lista = new List<BE.Cliente>();
@@ -47,7 +38,7 @@ namespace DAL
             return lista;
         }
 
-        /// <summary>Obtiene un cliente por ID con plan y stock actual.</summary>
+        // Obtiene un cliente por ID con plan y stock actual.
         public override BE.Cliente ObtenerPorId(int idCliente)
         {
             SqlParameter[] p = { new SqlParameter("@IdCliente", idCliente) };
@@ -74,7 +65,7 @@ namespace DAL
             }
         }
 
-        /// <summary>Verifica si ya existe un cliente activo con ese DNI.</summary>
+        // Verifica si ya existe un cliente activo con ese DNI.
         public bool ExisteDNI(string dni)
         {
             SqlParameter[] p = { new SqlParameter("@DNI", dni) };
@@ -83,7 +74,7 @@ namespace DAL
             return tabla != null && tabla.Rows.Count > 0;
         }
 
-        /// <summary>Inserta un nuevo cliente. Devuelve el ID generado.</summary>
+        // Inserta un nuevo cliente. Devuelve el ID generado.
         public int Alta(BE.Cliente cliente)
         {
             SqlParameter[] p =
@@ -108,7 +99,7 @@ namespace DAL
                 : 0;
         }
 
-        /// <summary>Actualiza los datos de un cliente existente.</summary>
+        // Actualiza los datos de un cliente existente.
         public void Modificar(BE.Cliente cliente)
         {
             SqlParameter[] p =
@@ -128,19 +119,13 @@ namespace DAL
                 p);
         }
 
-        /// <summary>
-        /// Baja lógica de un cliente (soft delete — Activo=0).
-        /// No elimina el registro físicamente para preservar la integridad referencial
-        /// con Pedido y BitacoraNegocio.
-        /// </summary>
+        // Baja lógica del cliente (Activo=0).
         public void Baja(int idCliente)
         {
             SqlParameter[] p = { new SqlParameter("@IdCliente", idCliente) };
             acceso.Escribir(
                 "UPDATE Cliente SET Activo = 0 WHERE IdCliente = @IdCliente", p);
         }
-
-        // ── Mapeo privado ────────────────────────────────────────────────────
 
         private BE.Cliente Mapear(DataRow row)
         {

@@ -13,7 +13,7 @@ namespace DAL
     {
         private readonly Acceso acceso = Acceso.GetInstance();
 
-        /// <summary>Registra un evento de negocio en la bitácora.</summary>
+        // Registra un evento de negocio en la bitácora.
         public void Registrar(BE.BitacoraNegocio evento)
         {
             SqlParameter[] p =
@@ -32,7 +32,7 @@ namespace DAL
                 p);
         }
 
-        /// <summary>Devuelve todos los eventos ordenados por fecha descendente.</summary>
+        // Devuelve todos los eventos ordenados por fecha descendente.
         public DataTable ObtenerTodos()
         {
             return acceso.Leer(
@@ -47,7 +47,7 @@ namespace DAL
                 null);
         }
 
-        /// <summary>Devuelve eventos filtrados por tipo, rango de fechas y entidades opcionales.</summary>
+        // Devuelve eventos filtrados por tipo, rango de fechas y entidades opcionales.
         public DataTable BuscarPorFiltros(
             DateTime? desde, DateTime? hasta,
             string tipo, int? idCliente, int? idPedido)

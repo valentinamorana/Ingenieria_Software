@@ -17,24 +17,15 @@ namespace BE
     /// </summary>
     public class Permiso
     {
-        /// <summary>Identificador único del permiso.</summary>
         public int Id { get; set; }
 
-        /// <summary>Nombre descriptivo del permiso (ej: "Ver Usuarios").</summary>
         public string Nombre { get; set; }
 
-        /// <summary>
-        /// Nombre del elemento de menú asociado en la GUI.
-        /// Se usa para mostrar/ocultar ToolStripMenuItems dinámicamente.
-        /// Valores posibles: mnuPrendas, mnuOutfits, mnuCategorias,
-        ///                   mnuUsuarios, mnuPermisos, mnuAuditoria.
-        /// </summary>
+        // Nombre del elemento de menú asociado en la GUI.
         public string NombreMenu { get; set; }
 
-        /// <summary>Categoría del módulo: "Inventario" o "Sistema".</summary>
         public string TipoComponente { get; set; }
 
-        /// <summary>true si el permiso está activo y puede asignarse.</summary>
         public bool Estado { get; set; }
     }
 }

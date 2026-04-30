@@ -6,30 +6,7 @@ using System.Windows.Forms;
 
 namespace BLL
 {
-    /// <summary>
-    /// Capa de Lógica de Negocio — Gestión de Usuarios.
-    ///
-    /// RESPONSABILIDADES:
-    ///   - Validar credenciales de Login usando PBKDF2-SHA256 (Encriptador)
-    ///   - Controlar bloqueo automático tras 3 intentos fallidos consecutivos (T02)
-    ///   - Cargar permisos del rol tras autenticación exitosa
-    ///   - Establecer y destruir la sesión via SessionManager (Singleton)
-    ///   - Registrar todos los eventos relevantes en Bitácora
-    ///   - Crear/resetear usuarios; desbloquear cuentas (solo Administrador)
-    ///
-    /// FLUJO DE LOGIN (T02 §CU001):
-    ///   1. Validar campos no vacíos
-    ///   2. Buscar usuario en BD (incluye IntentosFallidos actual)
-    ///   3. Verificar si la cuenta está bloqueada → lanzar excepción si es así
-    ///   4. Verificar contraseña con PBKDF2-SHA256
-    ///   5a. Si OK: resetear IntentosFallidos en BD + cargar permisos + sesión + bitácora
-    ///   5b. Si falla: incrementar IntentosFallidos en BD; si ≥ 3 → bloquear + bitácora
-    ///
-    /// BLOQUEO DE CUENTA:
-    ///   El contador IntentosFallidos persiste en BD — sobrevive reinicios de la app.
-    ///   El estado BLOQUEADO (Estado=0) persiste en BD hasta que un Administrador
-    ///   lo desbloquee desde Administrar → Usuarios (también resetea el contador).
-    /// </summary>
+    /// <summary>Lógica de negocio para autenticación y gestión de usuarios.</summary>
     public class Usuario
     {
         private readonly DAL.Usuario        usuarioDAL = new DAL.Usuario();
@@ -40,53 +17,36 @@ namespace BLL
 
         // ─────────────────────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Autentica un usuario y establece la sesión con sus permisos cargados.
-        /// Controla automáticamente el bloqueo de cuenta tras 3 intentos fallidos.
-        /// El contador de intentos se persiste en BD (no en memoria).
-        /// </summary>
+        /// <summary>Autentica al usuario y establece la sesión. Bloquea la cuenta tras 3 intentos fallidos.</summary>
         public bool Login(Form formulario, string username, string contraseña)
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(contraseña))
                 throw new Exception("Usuario y contraseña son obligatorios.");
 
-            // 1. Buscar usuario en BD (incluye IntentosFallidos actual)
             BE.Usuario usuario = usuarioDAL.ObtenerPorUsername(username);
             if (usuario == null) return false;
 
-            // 2. Verificar si la cuenta ya está bloqueada en BD (T02 §3.2)
             if (usuario.Bloqueado)
                 throw new Exception(
                     $"La cuenta '{username}' está bloqueada.\n" +
                     "Contactá al Administrador para que la reactive desde Administrar → Usuarios.");
 
-            // 3. Verificar contraseña con PBKDF2-SHA256
             bool esValido = Encriptador.VerificarContraseña(contraseña, usuario.Contraseña);
 
             if (esValido)
             {
-                // Credenciales correctas → resetear contador en BD
                 usuarioDAL.ResetearIntentosFallidos(username);
-
-                // 4. Cargar permisos del rol
                 usuario.Permisos = permisoDAL.ObtenerPorRol(usuario.Rol ?? usuario.Perfil);
-
-                // 5. Crear sesión Singleton
                 SessionManager.Login(usuario);
-
-                // 6. Registrar en bitácora
                 bitacora.Registrar(formulario.Text, "Inicio Sesion", BE.Criticidad.None);
             }
             else
             {
-                // Credenciales incorrectas → incrementar contador en BD
                 usuarioDAL.IncrementarIntentosFallidos(username);
-                int intentos = usuario.IntentosFallidos + 1;  // valor actualizado localmente
+                int intentos = usuario.IntentosFallidos + 1;
 
-                // Registrar intento fallido en bitácora
                 RegistrarIntentoFallidoInterno(formulario.Text, username, intentos, usuario.Id);
 
-                // Si alcanzó el límite → bloquear cuenta en BD
                 if (intentos >= MaxIntentosFallidos)
                 {
                     usuarioDAL.Bloquear(usuario.Id);
@@ -117,10 +77,7 @@ namespace BLL
             SessionManager.Logout();
         }
 
-        /// <summary>
-        /// Crea un nuevo usuario con su rol y contraseña hasheada con PBKDF2-SHA256.
-        /// Solo un Administrador debería ejecutar esta acción.
-        /// </summary>
+        /// <summary>Crea un nuevo usuario con rol y contraseña hasheada.</summary>
         public void Alta(Form formulario, string username, string contraseña, string perfil)
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(contraseña))
@@ -137,9 +94,7 @@ namespace BLL
                 BE.Criticidad.Media);
         }
 
-        /// <summary>
-        /// Resetea la contraseña de un usuario. Solo Administrador puede hacerlo.
-        /// </summary>
+        /// <summary>Resetea la contraseña de un usuario. Solo Administrador.</summary>
         public void ResetearClave(Form formulario, int idUsuario, string nuevaClave)
         {
             if (!SessionManager.IsLoggedIn)
@@ -157,14 +112,7 @@ namespace BLL
             bitacora.Registrar(formulario.Text, "Reset Contrasena", BE.Criticidad.RecuperacionClave);
         }
 
-        /// <summary>
-        /// Desbloquea la cuenta de un usuario. Solo Administrador puede hacerlo.
-        /// También resetea el contador IntentosFallidos en BD.
-        /// </summary>
-        /// <summary>
-        /// Desbloquea la cuenta de un usuario. Solo Administrador puede hacerlo.
-        /// También resetea el contador IntentosFallidos en BD.
-        /// </summary>
+        /// <summary>Desbloquea la cuenta de un usuario y resetea el contador de intentos. Solo Administrador.</summary>
         public void Desbloquear(Form formulario, int idUsuario, string usernameObjetivo)
         {
             if (!SessionManager.IsLoggedIn)
@@ -174,7 +122,6 @@ namespace BLL
             if (!perfil.Equals("Administrador", StringComparison.OrdinalIgnoreCase))
                 throw new Exception("Solo un Administrador puede desbloquear cuentas.");
 
-            // Desbloquear en BD y resetear contador (ambos en un solo UPDATE en DAL)
             usuarioDAL.Desbloquear(idUsuario);
 
             bitacora.Registrar(formulario.Text,
@@ -195,10 +142,7 @@ namespace BLL
             return usuarioDAL.ObtenerTodos();
         }
 
-        /// <summary>
-        /// Verifica si un username existe en la base de datos.
-        /// Usado por el formulario de recuperación de contraseña.
-        /// </summary>
+        /// <summary>Verifica si un username existe en la base de datos.</summary>
         public bool ExisteUsername(string username)
         {
             if (string.IsNullOrWhiteSpace(username)) return false;
@@ -206,13 +150,8 @@ namespace BLL
         }
 
         // ── Helpers privados de bitácora de seguridad ─────────────────────────
-        // FIX: ahora reciben idUsuario (int?) para que aparezca en la columna
-        // "usuario" de la bitácora incluso antes de que haya sesión activa.
 
-        /// <summary>
-        /// Registra un intento fallido de login en la bitácora usando Servicios.Bitacora.RegistrarSinSesion,
-        /// manteniendo la separación de capas (no llama DAL directamente).
-        /// </summary>
+        /// <summary>Registra un intento de login fallido en bitácora.</summary>
         private void RegistrarIntentoFallidoInterno(string modulo, string username,
                                                      int numeroIntento, int? idUsuario = null)
         {
@@ -226,9 +165,7 @@ namespace BLL
                              $"a las {DateTime.Now:HH:mm:ss}.");
         }
 
-        /// <summary>
-        /// Registra el bloqueo de cuenta en la bitácora usando Servicios.Bitacora.RegistrarSinSesion.
-        /// </summary>
+        /// <summary>Registra el bloqueo de cuenta en bitácora.</summary>
         private void RegistrarBloqueo(string modulo, string username, int? idUsuario = null)
         {
             bitacora.RegistrarSinSesion(

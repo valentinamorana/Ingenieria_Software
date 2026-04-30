@@ -14,7 +14,7 @@ namespace DAL
     {
         private readonly Acceso acceso = Acceso.GetInstance();
 
-        /// <summary>Devuelve todos los empleados con su username (si tienen usuario).</summary>
+        // Devuelve todos los empleados con su username (si tienen usuario).
         public List<BE.Empleado> ObtenerTodos()
         {
             var lista = new List<BE.Empleado>();
@@ -39,7 +39,7 @@ namespace DAL
             return lista;
         }
 
-        /// <summary>Obtiene un empleado por ID.</summary>
+        // Obtiene un empleado por ID.
         public BE.Empleado ObtenerPorId(int idEmpleado)
         {
             SqlParameter[] p = { new SqlParameter("@IdEmpleado", idEmpleado) };
@@ -63,7 +63,7 @@ namespace DAL
             }
         }
 
-        /// <summary>Obtiene el empleado vinculado a un usuario del sistema.</summary>
+        // Obtiene el empleado vinculado a un usuario del sistema.
         public BE.Empleado ObtenerPorUsuario(int idUsuario)
         {
             SqlParameter[] p = { new SqlParameter("@IdUsuario", idUsuario) };
@@ -87,7 +87,7 @@ namespace DAL
             }
         }
 
-        /// <summary>Verifica si ya existe un empleado con ese DNI.</summary>
+        // Verifica si ya existe un empleado con ese DNI.
         public bool ExisteDNI(string dni)
         {
             SqlParameter[] p = { new SqlParameter("@DNI", dni) };
@@ -96,7 +96,7 @@ namespace DAL
             return tabla != null && tabla.Rows.Count > 0;
         }
 
-        /// <summary>Inserta un nuevo empleado. Devuelve el ID generado.</summary>
+        // Inserta un nuevo empleado. Devuelve el ID generado.
         public int Alta(BE.Empleado empleado)
         {
             SqlParameter[] p =
@@ -122,7 +122,7 @@ namespace DAL
                 : 0;
         }
 
-        /// <summary>Actualiza los datos de un empleado existente.</summary>
+        // Actualiza los datos de un empleado existente.
         public void Modificar(BE.Empleado empleado)
         {
             SqlParameter[] p =
@@ -143,8 +143,6 @@ namespace DAL
                 "IdUsuario=@IdUsuario WHERE IdEmpleado=@IdEmpleado",
                 p);
         }
-
-        // ── Mapeo privado ────────────────────────────────────────────────────
 
         private BE.Empleado Mapear(DataRow row)
         {

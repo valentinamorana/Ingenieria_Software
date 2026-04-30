@@ -13,7 +13,7 @@ namespace DAL
     {
         private readonly Acceso acceso = Acceso.GetInstance();
 
-        /// <summary>Devuelve todos los planes activos.</summary>
+        // Devuelve todos los planes activos. 
         public List<BE.PlanSuscripcion> ObtenerActivos()
         {
             var lista = new List<BE.PlanSuscripcion>();
@@ -34,7 +34,7 @@ namespace DAL
             return lista;
         }
 
-        /// <summary>Devuelve todos los planes (activos e inactivos) — para administración.</summary>
+        // Devuelve todos los planes (activos e inactivos) — para administración.
         public List<BE.PlanSuscripcion> ObtenerTodos()
         {
             var lista = new List<BE.PlanSuscripcion>();
@@ -55,7 +55,7 @@ namespace DAL
             return lista;
         }
 
-        /// <summary>Obtiene un plan por su ID. Devuelve null si no existe.</summary>
+        // Obtiene un plan por su ID. Devuelve null si no existe.
         public BE.PlanSuscripcion ObtenerPorId(int idPlan)
         {
             SqlParameter[] p = { new SqlParameter("@IdPlan", idPlan) };
@@ -75,7 +75,7 @@ namespace DAL
             }
         }
 
-        /// <summary>Inserta un nuevo plan.</summary>
+        // Inserta un nuevo plan.
         public void Alta(BE.PlanSuscripcion plan)
         {
             SqlParameter[] p =
@@ -91,7 +91,7 @@ namespace DAL
                 p);
         }
 
-        /// <summary>Actualiza datos de un plan existente.</summary>
+        // Actualiza datos de un plan existente.
         public void Modificar(BE.PlanSuscripcion plan)
         {
             SqlParameter[] p =
@@ -108,7 +108,7 @@ namespace DAL
                 p);
         }
 
-        /// <summary>Desactiva un plan (baja lógica).</summary>
+        // Desactiva un plan (baja lógica).
         public void Desactivar(int idPlan)
         {
             SqlParameter[] p = { new SqlParameter("@IdPlan", idPlan) };
@@ -116,15 +116,13 @@ namespace DAL
                 "UPDATE PlanSuscripcion SET Estado=0 WHERE IdPlan=@IdPlan", p);
         }
 
-        /// <summary>Reactiva un plan previamente desactivado.</summary>
+        // Reactiva un plan previamente desactivado.
         public void Activar(int idPlan)
         {
             SqlParameter[] p = { new SqlParameter("@IdPlan", idPlan) };
             acceso.Escribir(
                 "UPDATE PlanSuscripcion SET Estado=1 WHERE IdPlan=@IdPlan", p);
         }
-
-        // ── Mapeo privado ────────────────────────────────────────────────────
 
         private BE.PlanSuscripcion Mapear(DataRow row)
         {

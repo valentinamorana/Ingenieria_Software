@@ -4,25 +4,25 @@ using System.Windows.Forms;
 namespace BLL.Interfaces
 {
     /// <summary>
-    /// Contrato de negocio para la gestión de Clientes.
+    /// Gestión de Clientes.
     /// Define las operaciones que la capa de presentación puede invocar
     /// sin conocer los detalles de implementación.
     /// </summary>
     public interface IClienteService
     {
-        /// <summary>Devuelve todos los clientes con plan y stock utilizado.</summary>
+        // Devuelve todos los clientes con plan y stock utilizado.
         List<BE.Cliente> ObtenerTodos();
 
-        /// <summary>Obtiene un cliente por su ID.</summary>
+        // Obtiene un cliente por su ID.
         BE.Cliente ObtenerPorId(int idCliente);
 
-        /// <summary>Registra un nuevo cliente validando datos y unicidad de DNI.</summary>
+        // Registra un nuevo cliente validando datos y unicidad de DNI.
         void Alta(Form formulario, BE.Cliente cliente);
 
-        /// <summary>Modifica los datos de un cliente existente.</summary>
+        // Modifica los datos de un cliente existente.
         void Modificar(Form formulario, BE.Cliente cliente);
 
-        /// <summary>Elimina un cliente si no tiene prendas en uso.</summary>
+        // Elimina un cliente si no tiene prendas en uso.
         void Baja(Form formulario, BE.Cliente cliente);
     }
 }

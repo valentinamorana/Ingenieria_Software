@@ -18,10 +18,8 @@ namespace Servicios
     {
         private readonly DAL.BitacoraNegocio dal = new DAL.BitacoraNegocio();
 
-        /// <summary>
-        /// Registra un evento de negocio.
-        /// IdUsuario se resuelve automáticamente desde SessionManager si hay sesión activa.
-        /// </summary>
+        // Registra un evento de negocio.
+        // IdUsuario se resuelve automáticamente desde SessionManager si hay sesión activa.
         public void Registrar(
             TipoEventoNegocio tipo,
             string descripcion,
@@ -54,18 +52,14 @@ namespace Servicios
             }
         }
 
-        // ── Métodos de consulta (para GUI, sin pasar por BLL) ─────────────────
-
-        /// <summary>Devuelve todos los eventos de negocio ordenados por fecha descendente.</summary>
+        // Devuelve todos los eventos de negocio ordenados por fecha descendente.
         public DataTable ObtenerTodos()
         {
             return dal.ObtenerTodos();
         }
 
-        /// <summary>
-        /// Búsqueda combinada: rango de fechas, tipo de evento, cliente y pedido.
-        /// Cualquier parámetro nulo/vacío se ignora en el filtro.
-        /// </summary>
+        // Búsqueda combinada: rango de fechas, tipo de evento, cliente y pedido.
+        // Cualquier parámetro nulo/vacío se ignora en el filtro.
         public DataTable BuscarPorFiltros(
             DateTime? desde, DateTime? hasta,
             string tipo, int? idCliente, int? idPedido)

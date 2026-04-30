@@ -12,20 +12,18 @@ namespace DAL
     {
         private readonly Acceso acceso = Acceso.GetInstance();
 
-        /// <summary>
-        /// Inserta un registro de auditoría. Id es identity — lo genera la BD.
-        /// </summary>
+        // Inserta un registro de auditoría. Id es identity — lo genera la BD.
         public void Registrar(BE.Bitacora registro)
         {
             SqlParameter[] parametros = new SqlParameter[]
             {
-                new SqlParameter("@fecha",      registro.Fecha),
-                new SqlParameter("@usuario",    (object)registro.IdUsuario ?? DBNull.Value),
-                new SqlParameter("@modulo",     registro.Modulo),
-                new SqlParameter("@actividad",  registro.Actividad),
-                new SqlParameter("@detalle",    registro.Detalle),
+                new SqlParameter("@fecha", registro.Fecha),
+                new SqlParameter("@usuario", (object)registro.IdUsuario ?? DBNull.Value),
+                new SqlParameter("@modulo", (object)registro.Modulo ?? DBNull.Value),
+                new SqlParameter("@actividad", (object)registro.Actividad ?? DBNull.Value),
+                new SqlParameter("@detalle", (object)registro.Detalle ?? DBNull.Value),
                 new SqlParameter("@criticidad", (int)registro.Criticidad),
-                new SqlParameter("@ip",         (object)registro.IP ?? DBNull.Value)
+                new SqlParameter("@ip", (object)registro.IP ?? DBNull.Value)
             };
 
             try
@@ -41,7 +39,7 @@ namespace DAL
             }
         }
 
-        /// <summary>Obtiene todos los registros ordenados por fecha descendente.</summary>
+        // Obtiene todos los registros ordenados por fecha descendente.
         public DataTable ObtenerTodos()
         {
             try
@@ -58,12 +56,7 @@ namespace DAL
             }
         }
 
-        /// <summary>
-        /// Devuelve los registros de los últimos <paramref name="dias"/> días,
-        /// calculando la fecha de corte como DateTime.Now menos los días indicados.
-        /// Cumple el requisito de "traer los últimos N días definibles".
-        /// </summary>
-        /// <param name="dias">Cantidad de días hacia atrás desde hoy.</param>
+        // Devuelve los registros de los últimos días calculando la fecha de corte como DateTime.
         public DataTable ObtenerUltimosNDias(int dias)
         {
             SqlParameter[] parametros = new SqlParameter[]
@@ -85,10 +78,7 @@ namespace DAL
             }
         }
 
-        /// <summary>
-        /// Búsqueda combinada por rango de fechas, usuario, actividad y criticidad.
-        /// Cumple T06a: búsquedas por datos almacenados de manera combinada.
-        /// </summary>
+        // Búsqueda combinada por rango de fechas, usuario, actividad y criticidad.
         public DataTable BuscarPorFiltros(DateTime? desde, DateTime? hasta, int idUsuario, string actividad, int criticidad)
         {
             string consulta = "SELECT Id, fecha, usuario, modulo, actividad, detalle, criticidad, ip " +

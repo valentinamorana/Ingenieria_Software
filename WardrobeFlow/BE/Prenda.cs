@@ -2,15 +2,7 @@ using System;
 
 namespace BE
 {
-    /// <summary>
-    /// Entidad — Prenda (unidad de stock del catálogo).
-    /// Mapea la tabla [Prenda].
-    /// </summary>
-    /// <summary>
-    /// Hereda de <see cref="Entidad"/>:
-    ///   - FechaAlta  → fecha de incorporación de la prenda al catálogo (heredada)
-    ///   - GetId()    → retorna IdPrenda (implementación concreta)
-    /// </summary>
+    /// <summary>Entidad Prenda. Mapea la tabla [Prenda].</summary>
     public class Prenda : Entidad
     {
         public int          IdPrenda        { get; set; }
@@ -27,7 +19,6 @@ namespace BE
         /// <summary>Nombre del cliente que la tiene (cargado por JOIN, no persiste).</summary>
         public string       NombreCliente   { get; set; }
 
-        /// <summary>Implementación de Entidad.GetId() → retorna la clave primaria de Prenda.</summary>
         public override int GetId() => IdPrenda;
 
         /// <summary>Descripción para mostrar en grillas: "Vestido azul – en uso"</summary>
@@ -41,14 +32,7 @@ namespace BE
         /// <summary>Indica si la prenda puede ser asignada a un pedido.</summary>
         public bool EstaDisponible() => Estado == EstadoPrenda.Disponible;
 
-        /// <summary>
-        /// Indica si la transición al nuevo estado está permitida por las reglas de negocio.
-        /// Transiciones válidas desde la UI:
-        ///   Disponible  → EnLimpieza, Baja
-        ///   EnLimpieza  → Disponible, Baja
-        ///   EnUso       → solo el sistema (al cancelar/devolver pedido)
-        ///   Baja        → irreversible
-        /// </summary>
+        /// <summary>Indica si el cambio al nuevo estado está permitido.</summary>
         public bool TransicionPermitida(EstadoPrenda nuevo)
         {
             if (Estado == nuevo)          return true;

@@ -6,40 +6,28 @@ namespace BE
     /// </summary>
     public enum TipoEventoNegocio
     {
-        /// <summary>Nuevo pedido de venta creado por el Vendedor.</summary>
-        Venta              = 0,
+        Venta = 0,
 
-        /// <summary>Pedido cancelado antes del despacho.</summary>
-        Cancelacion        = 1,
+        Cancelacion = 1,
 
-        /// <summary>Pedido despachado por el OperadorDeInventario.</summary>
-        Despacho           = 2,
+        Despacho = 2,
 
-        /// <summary>Pedido marcado como entregado al cliente.</summary>
-        Entrega            = 3,
+        Entrega = 3,
 
-        /// <summary>Nueva prenda dada de alta en el catálogo.</summary>
-        AltaPrenda         = 4,
+        AltaPrenda = 4,
 
-        /// <summary>Datos descriptivos de una prenda modificados.</summary>
         ModificacionPrenda = 5,
 
-        /// <summary>Estado de una prenda cambiado (Disponible/EnLimpieza/Baja).</summary>
         CambioEstadoPrenda = 6,
 
-        /// <summary>Nuevo cliente registrado en el sistema.</summary>
-        AltaCliente        = 7,
+        AltaCliente = 7,
 
-        /// <summary>Datos de un cliente modificados.</summary>
         ModificacionCliente = 8,
 
-        /// <summary>Cliente dado de baja del sistema.</summary>
-        BajaCliente        = 9,
+        BajaCliente = 9,
 
-        /// <summary>Prendas devueltas por el cliente al finalizar el uso (pasan a EnLimpieza).</summary>
-        Devolucion         = 10,
+        Devolucion = 10,
 
-        /// <summary>Pedido cancelado que fue reactivado a estado Pendiente.</summary>
-        Reactivacion       = 11
+        Reactivacion = 11
     }
 }

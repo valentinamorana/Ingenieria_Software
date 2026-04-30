@@ -28,17 +28,15 @@ namespace DAL
     /// </summary>
     public sealed class Acceso
     {
-        // ── Singleton ────────────────────────────────────────────────────────
+        // Singleton
         private static volatile Acceso _instance;
         private static readonly object _lock = new object();
 
         // Cadena de conexión leída una sola vez desde App.config al construir el Singleton
         private readonly string _cadenaConexion;
 
-        /// <summary>
-        /// Constructor privado: lee la connection string de App.config.
-        /// La única forma de obtener una instancia es mediante GetInstance().
-        /// </summary>
+        // Constructor privado: lee la connection string de App.config.
+        // La única forma de obtener una instancia es mediante GetInstance().
         private Acceso()
         {
             _cadenaConexion = ConfigurationManager
@@ -46,10 +44,8 @@ namespace DAL
                 .ConnectionString;
         }
 
-        /// <summary>
-        /// Punto de acceso global al Singleton de Acceso.
-        /// Implementa "double-checked locking" para thread-safety con mínimo overhead.
-        /// </summary>
+        // Punto de acceso global al Singleton de Acceso.
+        // Implementa "double-checked locking" para thread-safety con mínimo overhead.
         public static Acceso GetInstance()
         {
             if (_instance == null)
@@ -63,12 +59,8 @@ namespace DAL
             return _instance;
         }
 
-        // ── Operaciones ──────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Ejecuta una consulta SELECT y retorna los resultados en un DataTable.
-        /// Abre una conexión nueva, la usa y la devuelve al pool al salir del using.
-        /// </summary>
+        // Ejecuta una consulta SELECT y retorna los resultados en un DataTable.
+        // Abre una conexión nueva, la usa y la devuelve al pool al salir del using.
         public DataTable Leer(string consulta, SqlParameter[] parametros)
         {
             using (SqlConnection conexion = new SqlConnection(_cadenaConexion))
@@ -85,10 +77,8 @@ namespace DAL
             }
         }
 
-        /// <summary>
-        /// Ejecuta una sentencia INSERT, UPDATE o DELETE.
-        /// Abre una conexión nueva, la usa y la devuelve al pool al salir del using.
-        /// </summary>
+        // Ejecuta una sentencia INSERT, UPDATE o DELETE.
+        // Abre una conexión nueva, la usa y la devuelve al pool al salir del using.
         public int Escribir(string consulta, SqlParameter[] parametros)
         {
             using (SqlConnection conexion = new SqlConnection(_cadenaConexion))
@@ -102,10 +92,8 @@ namespace DAL
             }
         }
 
-        /// <summary>
-        /// Verifica que la base de datos esté disponible intentando abrir una conexión.
-        /// Se llama desde BLL.Configuracion al arranque de la aplicación.
-        /// </summary>
+        // Verifica que la base de datos esté disponible intentando abrir una conexión.
+        // Se llama desde BLL.Configuracion al arranque de la aplicación.
         public bool VerificarConexion()
         {
             try
@@ -155,10 +143,6 @@ namespace DAL
             }
         }
 
-        /// <summary>
-        /// Conservado por compatibilidad. Con la estrategia nueva-conexión-por-operación
-        /// no hay una conexión persistente que cerrar; este método es un no-op intencional.
-        /// </summary>
         public void CerrarConexion() { /* no-op: cada operación gestiona su propia conexión */ }
     }
 }

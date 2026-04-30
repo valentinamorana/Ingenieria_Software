@@ -5,16 +5,12 @@ namespace BE
     /// </summary>
     public enum EstadoPrenda
     {
-        /// <summary>Disponible para asignar a un cliente.</summary>
-        Disponible  = 0,
+        Disponible = 0,
 
-        /// <summary>Asignada a un cliente actualmente.</summary>
-        EnUso       = 1,
+        EnUso = 1,
 
-        /// <summary>En proceso de limpieza tras devolución.</summary>
-        EnLimpieza  = 2,
+        EnLimpieza = 2,
 
-        /// <summary>Dada de baja (daño irreparable o extravío).</summary>
-        Baja        = 3
+        Baja = 3
     }
 }

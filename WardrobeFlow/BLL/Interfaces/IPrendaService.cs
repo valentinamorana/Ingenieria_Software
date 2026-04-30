@@ -4,31 +4,29 @@ using System.Windows.Forms;
 namespace BLL.Interfaces
 {
     /// <summary>
-    /// Contrato de negocio para la gestión del catálogo de Prendas.
+    /// Gestión del catálogo de Prendas.
     /// </summary>
     public interface IPrendaService
     {
-        /// <summary>Devuelve todas las prendas con cliente actual (JOIN).</summary>
+        // Devuelve todas las prendas con cliente actual (JOIN).
         List<BE.Prenda> ObtenerTodos();
 
-        /// <summary>Devuelve solo las prendas disponibles para asignar a pedidos.</summary>
+        // Devuelve solo las prendas disponibles para asignar a pedidos.
         List<BE.Prenda> ObtenerDisponibles();
 
-        /// <summary>Devuelve las prendas actualmente asignadas a un cliente.</summary>
+        // Devuelve las prendas actualmente asignadas a un cliente.
         List<BE.Prenda> ObtenerPorCliente(int idCliente);
 
-        /// <summary>Obtiene una prenda por ID.</summary>
+        // Obtiene una prenda por ID.
         BE.Prenda ObtenerPorId(int idPrenda);
 
-        /// <summary>Da de alta una nueva prenda. Estado inicial siempre Disponible.</summary>
+        // Da de alta una nueva prenda. Estado inicial siempre Disponible.
         void Alta(Form formulario, BE.Prenda prenda);
 
-        /// <summary>Modifica los datos descriptivos de una prenda (no afecta estado ni cliente).</summary>
+        // Modifica los datos descriptivos de una prenda (no afecta estado ni cliente).
         void Modificar(Form formulario, BE.Prenda prenda);
 
-        /// <summary>
-        /// Cambia el estado de una prenda validando las transiciones permitidas por negocio.
-        /// </summary>
+        // Cambia el estado de una prenda validando las transiciones permitidas por negocio.
         void CambiarEstado(Form formulario, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado);
     }
 }

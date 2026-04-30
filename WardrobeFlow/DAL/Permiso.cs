@@ -16,12 +16,7 @@ namespace DAL
     {
         private readonly Acceso acceso = Acceso.GetInstance();
 
-        /// <summary>
-        /// Obtiene la lista de permisos activos asignados a un rol.
-        /// Hace JOIN entre RolPermiso y Permiso para retornar solo los habilitados.
-        /// </summary>
-        /// <param name="rol">Nombre del rol (ej: "Administrador", "Supervisor").</param>
-        /// <returns>Lista de BE.Permiso con los permisos del rol.</returns>
+        // Obtiene la lista de permisos activos asignados a un rol.
         public List<BE.Permiso> ObtenerPorRol(string rol)
         {
             var lista = new List<BE.Permiso>();

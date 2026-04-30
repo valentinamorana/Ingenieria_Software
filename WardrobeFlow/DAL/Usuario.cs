@@ -15,20 +15,18 @@ namespace DAL
     ///   Clave             varchar    → hash PBKDF2-SHA256 (alias "Contraseña")
     ///   Rol               varchar    → rol técnico
     ///   Perfil            varchar    → nombre visible
-    ///   Estado            bit        → 1=activo, 0=bloqueado (T02)
+    ///   Estado            bit        → 1=activo, 0=bloqueado
     ///   IntentosFallidos  int        → contador persistente de intentos fallidos
     /// </summary>
     /// <summary>
-    /// Hereda de <see cref="BaseDAL{T}"/>:
+    /// Hereda de BaseDAL<BE.Usuario>
     ///   - acceso  → Singleton de BD (heredado, no se redeclara)
     ///   - ObtenerTodos() y ObtenerPorId() → implementados con SQL de Usuario
     /// </summary>
     public class Usuario : BaseDAL<BE.Usuario>
     {
-        /// <summary>
-        /// Inserta un nuevo usuario con contraseña hasheada y rol asignado.
-        /// Estado=1 (activo) e IntentosFallidos=0 por defecto al crear.
-        /// </summary>
+        // Inserta un nuevo usuario con contraseña hasheada y rol asignado.
+        // Estado=1 (activo) e IntentosFallidos=0 por defecto al crear.
         public void Alta(string username, string clave, string perfil)
         {
             SqlParameter[] parametros = new SqlParameter[]
@@ -44,13 +42,10 @@ namespace DAL
                 parametros);
         }
 
-        /// <summary>No-op — conservado por compatibilidad. La conexión ahora es por operación.</summary>
         public void Logout() { /* no-op */ }
 
-        /// <summary>
-        /// Busca un usuario por Username para el proceso de Login.
-        /// Incluye Estado e IntentosFallidos para el control de bloqueo (T02).
-        /// </summary>
+        // Busca un usuario por Username para el proceso de Login.
+        // Incluye Estado e IntentosFallidos para el control de bloqueo.
         public BE.Usuario ObtenerPorUsername(string username)
         {
             SqlParameter[] parametros = new SqlParameter[]
@@ -87,10 +82,8 @@ namespace DAL
             }
         }
 
-        /// <summary>
-        /// Bloquea la cuenta de un usuario (Estado=0).
-        /// Se llama tras superar el máximo de intentos fallidos (T02).
-        /// </summary>
+        // Bloquea la cuenta de un usuario (Estado=0).
+        // Se llama tras superar el máximo de intentos fallidos 
         public void Bloquear(int idUsuario)
         {
             SqlParameter[] parametros = new SqlParameter[]
@@ -102,10 +95,8 @@ namespace DAL
                 parametros);
         }
 
-        /// <summary>
-        /// Desbloquea la cuenta de un usuario (Estado=1) y resetea el contador de intentos.
-        /// Solo puede ejecutarlo un Administrador desde la GUI de Usuarios.
-        /// </summary>
+        // Desbloquea la cuenta de un usuario (Estado=1) y resetea el contador de intentos.
+        // Solo puede ejecutarlo un Administrador desde la GUI de Usuarios.
         public void Desbloquear(int idUsuario)
         {
             SqlParameter[] parametros = new SqlParameter[]
@@ -117,10 +108,8 @@ namespace DAL
                 parametros);
         }
 
-        /// <summary>
-        /// Incrementa en 1 el contador de intentos fallidos para el username dado.
-        /// El contador persiste en BD: sobrevive reinicios de la aplicación.
-        /// </summary>
+        // Incrementa en 1 el contador de intentos fallidos para el username dado.
+        // El contador persiste en BD: sobrevive reinicios de la aplicación.
         public void IncrementarIntentosFallidos(string username)
         {
             SqlParameter[] parametros = new SqlParameter[]
@@ -140,10 +129,8 @@ namespace DAL
             }
         }
 
-        /// <summary>
-        /// Resetea a 0 el contador de intentos fallidos para el username dado.
-        /// Se llama tras un login exitoso.
-        /// </summary>
+        // Resetea a 0 el contador de intentos fallidos para el username dado.
+        // Se llama tras un login exitoso.
         public void ResetearIntentosFallidos(string username)
         {
             SqlParameter[] parametros = new SqlParameter[]
@@ -162,9 +149,7 @@ namespace DAL
             }
         }
 
-        /// <summary>
-        /// Actualiza la contraseña de un usuario existente (ya hasheada por la BLL).
-        /// </summary>
+        // Actualiza la contraseña de un usuario existente (ya hasheada por la BLL).
         public void ResetearClave(int idUsuario, string claveHasheada)
         {
             SqlParameter[] parametros = new SqlParameter[]
@@ -177,10 +162,8 @@ namespace DAL
                 parametros);
         }
 
-        /// <summary>
-        /// Obtiene un usuario por su clave primaria (IdUsuario).
-        /// Incluye Estado e IntentosFallidos para el control de bloqueo.
-        /// </summary>
+        // Obtiene un usuario por su clave primaria (IdUsuario).
+        // Incluye Estado e IntentosFallidos para el control de bloqueo.
         public override BE.Usuario ObtenerPorId(int idUsuario)
         {
             SqlParameter[] parametros = new SqlParameter[]
@@ -216,10 +199,8 @@ namespace DAL
             }
         }
 
-        /// <summary>
-        /// Lista todos los usuarios del sistema (sin contraseña).
-        /// Incluye Estado e IntentosFallidos para la vista de administración.
-        /// </summary>
+        // Lista todos los usuarios del sistema (sin contraseña).
+        // Incluye Estado e IntentosFallidos para la vista de administración.
         public override List<BE.Usuario> ObtenerTodos()
         {
             var lista = new List<BE.Usuario>();

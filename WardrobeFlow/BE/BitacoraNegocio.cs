@@ -10,31 +10,30 @@ namespace BE
     /// </summary>
     public class BitacoraNegocio
     {
-        public int                 IdEvento    { get; set; }
-        public DateTime            Fecha       { get; set; }
-        public TipoEventoNegocio   Tipo        { get; set; }
+        public int IdEvento { get; set; }
+        public DateTime Fecha { get; set; }
+        public TipoEventoNegocio Tipo { get; set; }
 
-        /// <summary>FK → Usuario. El empleado que realizó la acción.</summary>
-        public int?                IdUsuario   { get; set; }
+        // int? (nullable): el evento no siempre involucra todas las entidades, el campo queda null cuando no aplica para ese tipo de evento.
+        public int? IdUsuario { get; set; }
 
-        /// <summary>FK → Pedido. Solo aplica para eventos de venta/despacho/entrega/cancelación.</summary>
-        public int?                IdPedido    { get; set; }
+        // Eventos de venta/despacho/entrega/cancelación.
+        public int? IdPedido { get; set; }
 
-        /// <summary>FK → Prenda. Solo aplica para eventos de inventario.</summary>
-        public int?                IdPrenda    { get; set; }
+        // Eventos de inventario.
+        public int? IdPrenda { get; set; }
 
-        /// <summary>FK → Cliente. Solo aplica para eventos de gestión de clientes.</summary>
-        public int?                IdCliente   { get; set; }
+        // Eventos de gestión de clientes.
+        public int? IdCliente { get; set; }
 
-        /// <summary>Descripción completa del evento.</summary>
-        public string              Descripcion { get; set; }
+        // Descripción completa del evento.
+        public string Descripcion { get; set; }
 
-        // ── Campos cargados por JOIN (no persisten) ──────────────────────────
-
-        /// <summary>Username del usuario que generó el evento.</summary>
+        // Campos cargados por JOIN: no existen en la tabla, se obtienen al SELECT con JOIN a Usuario/Cliente para mostrar nombres en pantalla.
+        // Username del usuario que generó el evento.
         public string UsernameUsuario { get; set; }
 
-        /// <summary>Nombre completo del cliente involucrado.</summary>
-        public string NombreCliente  { get; set; }
+        // Nombre completo del cliente involucrado. 
+        public string NombreCliente { get; set; }
     }
 }
