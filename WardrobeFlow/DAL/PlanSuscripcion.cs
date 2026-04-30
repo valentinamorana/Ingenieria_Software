@@ -80,10 +80,10 @@ namespace DAL
         {
             SqlParameter[] p =
             {
-                new SqlParameter("@Nombre",        plan.Nombre),
+                new SqlParameter("@Nombre", plan.Nombre),
                 new SqlParameter("@LimitePrendas", plan.LimitePrendas),
-                new SqlParameter("@Precio",        plan.Precio),
-                new SqlParameter("@Estado",        plan.Estado ? 1 : 0)
+                new SqlParameter("@Precio", plan.Precio),
+                new SqlParameter("@Estado", plan.Estado ? 1 : 0)
             };
             acceso.Escribir(
                 "INSERT INTO PlanSuscripcion (Nombre, LimitePrendas, Precio, Estado) " +
@@ -96,11 +96,11 @@ namespace DAL
         {
             SqlParameter[] p =
             {
-                new SqlParameter("@Nombre",        plan.Nombre),
+                new SqlParameter("@Nombre", plan.Nombre),
                 new SqlParameter("@LimitePrendas", plan.LimitePrendas),
-                new SqlParameter("@Precio",        plan.Precio),
-                new SqlParameter("@Estado",        plan.Estado ? 1 : 0),
-                new SqlParameter("@IdPlan",        plan.IdPlan)
+                new SqlParameter("@Precio", plan.Precio),
+                new SqlParameter("@Estado", plan.Estado ? 1 : 0),
+                new SqlParameter("@IdPlan", plan.IdPlan)
             };
             acceso.Escribir(
                 "UPDATE PlanSuscripcion SET Nombre=@Nombre, LimitePrendas=@LimitePrendas, " +
@@ -128,11 +128,11 @@ namespace DAL
         {
             return new BE.PlanSuscripcion
             {
-                IdPlan        = Convert.ToInt32(row["IdPlan"]),
-                Nombre        = row["Nombre"].ToString(),
+                IdPlan = Convert.ToInt32(row["IdPlan"]),
+                Nombre = row["Nombre"].ToString(),
                 LimitePrendas = Convert.ToInt32(row["LimitePrendas"]),
-                Precio        = Convert.ToDecimal(row["Precio"]),
-                Estado        = Convert.ToBoolean(row["Estado"])
+                Precio = Convert.ToDecimal(row["Precio"]),
+                Estado = Convert.ToBoolean(row["Estado"])
             };
         }
     }

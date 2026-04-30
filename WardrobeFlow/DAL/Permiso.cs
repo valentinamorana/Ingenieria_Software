@@ -44,11 +44,11 @@ namespace DAL
                 {
                     lista.Add(new BE.Permiso
                     {
-                        Id             = Convert.ToInt32(row["IdPermiso"]),
-                        Nombre         = row["Nombre"].ToString(),
-                        NombreMenu     = row["NombreMenu"].ToString(),
+                        Id = Convert.ToInt32(row["IdPermiso"]),
+                        Nombre = row["Nombre"].ToString(),
+                        NombreMenu = row["NombreMenu"].ToString(),
                         TipoComponente = row["TipoComponente"].ToString(),
-                        Estado         = Convert.ToBoolean(row["Estado"])
+                        Estado = Convert.ToBoolean(row["Estado"])
                     });
                 }
             }

@@ -122,13 +122,13 @@ namespace DAL
         {
             SqlParameter[] p =
             {
-                new SqlParameter("@Nombre",      prenda.Nombre),
+                new SqlParameter("@Nombre", prenda.Nombre),
                 new SqlParameter("@Descripcion", (object)prenda.Descripcion ?? DBNull.Value),
-                new SqlParameter("@Talle",       (object)prenda.Talle       ?? DBNull.Value),
-                new SqlParameter("@Color",       (object)prenda.Color       ?? DBNull.Value),
-                new SqlParameter("@Categoria",   (object)prenda.Categoria   ?? DBNull.Value),
-                new SqlParameter("@Estado",      (int)prenda.Estado),
-                new SqlParameter("@FechaAlta",   prenda.FechaAlta)
+                new SqlParameter("@Talle", (object)prenda.Talle ?? DBNull.Value),
+                new SqlParameter("@Color", (object)prenda.Color ?? DBNull.Value),
+                new SqlParameter("@Categoria", (object)prenda.Categoria ?? DBNull.Value),
+                new SqlParameter("@Estado", (int)prenda.Estado),
+                new SqlParameter("@FechaAlta", prenda.FechaAlta)
             };
 
             DataTable tabla = acceso.Leer(
@@ -147,12 +147,12 @@ namespace DAL
         {
             SqlParameter[] p =
             {
-                new SqlParameter("@Nombre",      prenda.Nombre),
+                new SqlParameter("@Nombre", prenda.Nombre),
                 new SqlParameter("@Descripcion", (object)prenda.Descripcion ?? DBNull.Value),
-                new SqlParameter("@Talle",       (object)prenda.Talle       ?? DBNull.Value),
-                new SqlParameter("@Color",       (object)prenda.Color       ?? DBNull.Value),
-                new SqlParameter("@Categoria",   (object)prenda.Categoria   ?? DBNull.Value),
-                new SqlParameter("@IdPrenda",    prenda.IdPrenda)
+                new SqlParameter("@Talle", (object)prenda.Talle ?? DBNull.Value),
+                new SqlParameter("@Color", (object)prenda.Color ?? DBNull.Value),
+                new SqlParameter("@Categoria", (object)prenda.Categoria ?? DBNull.Value),
+                new SqlParameter("@IdPrenda", prenda.IdPrenda)
             };
             acceso.Escribir(
                 "UPDATE Prenda SET Nombre=@Nombre, Descripcion=@Descripcion, " +
@@ -166,9 +166,9 @@ namespace DAL
         {
             SqlParameter[] p =
             {
-                new SqlParameter("@Estado",          (int)nuevoEstado),
+                new SqlParameter("@Estado", (int)nuevoEstado),
                 new SqlParameter("@IdClienteActual", (object)idClienteActual ?? DBNull.Value),
-                new SqlParameter("@IdPrenda",        idPrenda)
+                new SqlParameter("@IdPrenda", idPrenda)
             };
             acceso.Escribir(
                 "UPDATE Prenda SET Estado=@Estado, IdClienteActual=@IdClienteActual " +
@@ -180,16 +180,16 @@ namespace DAL
         {
             return new BE.Prenda
             {
-                IdPrenda        = Convert.ToInt32(row["IdPrenda"]),
-                Nombre          = row["Nombre"].ToString(),
-                Descripcion     = row["Descripcion"]     != DBNull.Value ? row["Descripcion"].ToString()     : null,
-                Talle           = row["Talle"]           != DBNull.Value ? row["Talle"].ToString()           : null,
-                Color           = row["Color"]           != DBNull.Value ? row["Color"].ToString()           : null,
-                Categoria       = row["Categoria"]       != DBNull.Value ? row["Categoria"].ToString()       : null,
-                Estado          = (BE.EstadoPrenda)Convert.ToInt32(row["Estado"]),
+                IdPrenda = Convert.ToInt32(row["IdPrenda"]),
+                Nombre = row["Nombre"].ToString(),
+                Descripcion = row["Descripcion"] != DBNull.Value ? row["Descripcion"].ToString() : null,
+                Talle = row["Talle"]  != DBNull.Value ? row["Talle"].ToString() : null,
+                Color = row["Color"]  != DBNull.Value ? row["Color"].ToString() : null,
+                Categoria = row["Categoria"] != DBNull.Value ? row["Categoria"].ToString() : null,
+                Estado = (BE.EstadoPrenda)Convert.ToInt32(row["Estado"]),
                 IdClienteActual = row["IdClienteActual"] != DBNull.Value ? (int?)Convert.ToInt32(row["IdClienteActual"]) : null,
-                NombreCliente   = row["NombreCliente"]   != DBNull.Value ? row["NombreCliente"].ToString()   : null,
-                FechaAlta       = Convert.ToDateTime(row["FechaAlta"])
+                NombreCliente = row["NombreCliente"] != DBNull.Value ? row["NombreCliente"].ToString() : null,
+                FechaAlta = Convert.ToDateTime(row["FechaAlta"])
             };
         }
     }

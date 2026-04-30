@@ -97,9 +97,9 @@ namespace DAL
                     "SELECT SCOPE_IDENTITY() AS IdNuevo",
                     conexion, tx))
                 {
-                    cmd.Parameters.AddWithValue("@IdCliente",   pedido.IdCliente);
-                    cmd.Parameters.AddWithValue("@IdEmpleado",  pedido.IdEmpleado);
-                    cmd.Parameters.AddWithValue("@Estado",      (int)pedido.Estado);
+                    cmd.Parameters.AddWithValue("@IdCliente", pedido.IdCliente);
+                    cmd.Parameters.AddWithValue("@IdEmpleado", pedido.IdEmpleado);
+                    cmd.Parameters.AddWithValue("@Estado", (int)pedido.Estado);
                     cmd.Parameters.AddWithValue("@FechaPedido", pedido.FechaPedido);
 
                     var resultado = cmd.ExecuteScalar();
@@ -126,7 +126,7 @@ namespace DAL
                         conexion, tx))
                     {
                         cmdPr.Parameters.AddWithValue("@IdCliente", pedido.IdCliente);
-                        cmdPr.Parameters.AddWithValue("@IdPrenda",  prenda.IdPrenda);
+                        cmdPr.Parameters.AddWithValue("@IdPrenda", prenda.IdPrenda);
                         cmdPr.ExecuteNonQuery();
                     }
                 }
@@ -141,7 +141,7 @@ namespace DAL
             SqlParameter[] p =
             {
                 new SqlParameter("@FechaDespacho", DateTime.Now),
-                new SqlParameter("@IdPedido",      idPedido)
+                new SqlParameter("@IdPedido", idPedido)
             };
             acceso.Escribir(
                 "UPDATE Pedido SET Estado=1, FechaDespacho=@FechaDespacho " +
@@ -155,7 +155,7 @@ namespace DAL
             SqlParameter[] p =
             {
                 new SqlParameter("@FechaEntrega", DateTime.Now),
-                new SqlParameter("@IdPedido",     idPedido)
+                new SqlParameter("@IdPedido", idPedido)
             };
             acceso.Escribir(
                 "UPDATE Pedido SET Estado=2, FechaEntrega=@FechaEntrega " +
@@ -251,14 +251,14 @@ namespace DAL
             {
                 lista.Add(new BE.Prenda
                 {
-                    IdPrenda    = Convert.ToInt32(row["IdPrenda"]),
-                    Nombre      = row["Nombre"].ToString(),
+                    IdPrenda = Convert.ToInt32(row["IdPrenda"]),
+                    Nombre = row["Nombre"].ToString(),
                     Descripcion = row["Descripcion"] != DBNull.Value ? row["Descripcion"].ToString() : null,
-                    Talle       = row["Talle"]       != DBNull.Value ? row["Talle"].ToString()       : null,
-                    Color       = row["Color"]       != DBNull.Value ? row["Color"].ToString()       : null,
-                    Categoria   = row["Categoria"]   != DBNull.Value ? row["Categoria"].ToString()   : null,
-                    Estado      = (BE.EstadoPrenda)Convert.ToInt32(row["Estado"]),
-                    FechaAlta   = Convert.ToDateTime(row["FechaAlta"])
+                    Talle = row["Talle"] != DBNull.Value ? row["Talle"].ToString() : null,
+                    Color = row["Color"] != DBNull.Value ? row["Color"].ToString() : null,
+                    Categoria = row["Categoria"] != DBNull.Value ? row["Categoria"].ToString() : null,
+                    Estado = (BE.EstadoPrenda)Convert.ToInt32(row["Estado"]),
+                    FechaAlta = Convert.ToDateTime(row["FechaAlta"])
                 });
             }
 
@@ -269,17 +269,17 @@ namespace DAL
         {
             return new BE.Pedido
             {
-                IdPedido           = Convert.ToInt32(row["IdPedido"]),
-                IdCliente          = Convert.ToInt32(row["IdCliente"]),
-                IdEmpleado         = Convert.ToInt32(row["IdEmpleado"]),
-                Estado             = (BE.EstadoPedido)Convert.ToInt32(row["Estado"]),
-                FechaPedido        = Convert.ToDateTime(row["FechaPedido"]),
-                FechaDespacho      = row["FechaDespacho"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(row["FechaDespacho"]) : null,
-                FechaEntrega       = row["FechaEntrega"]  != DBNull.Value ? (DateTime?)Convert.ToDateTime(row["FechaEntrega"])  : null,
-                MotivoCancelacion  = row.Table.Columns.Contains("MotivoCancelacion") && row["MotivoCancelacion"] != DBNull.Value
+                IdPedido = Convert.ToInt32(row["IdPedido"]),
+                IdCliente = Convert.ToInt32(row["IdCliente"]),
+                IdEmpleado = Convert.ToInt32(row["IdEmpleado"]),
+                Estado = (BE.EstadoPedido)Convert.ToInt32(row["Estado"]),
+                FechaPedido = Convert.ToDateTime(row["FechaPedido"]),
+                FechaDespacho = row["FechaDespacho"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(row["FechaDespacho"]) : null,
+                FechaEntrega = row["FechaEntrega"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(row["FechaEntrega"]) : null,
+                MotivoCancelacion = row.Table.Columns.Contains("MotivoCancelacion") && row["MotivoCancelacion"] != DBNull.Value
                                         ? row["MotivoCancelacion"].ToString() : null,
-                NombreCliente      = row["NombreCliente"].ToString(),
-                NombreEmpleado     = row["NombreEmpleado"].ToString()
+                NombreCliente = row["NombreCliente"].ToString(),
+                NombreEmpleado = row["NombreEmpleado"].ToString()
             };
         }
     }

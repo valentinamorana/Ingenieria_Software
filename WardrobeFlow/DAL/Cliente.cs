@@ -79,13 +79,13 @@ namespace DAL
         {
             SqlParameter[] p =
             {
-                new SqlParameter("@Nombre",     cliente.Nombre),
-                new SqlParameter("@Apellido",   cliente.Apellido),
-                new SqlParameter("@DNI",        cliente.DNI),
-                new SqlParameter("@Email",      (object)cliente.Email      ?? DBNull.Value),
+                new SqlParameter("@Nombre", cliente.Nombre),
+                new SqlParameter("@Apellido", cliente.Apellido),
+                new SqlParameter("@DNI", cliente.DNI),
+                new SqlParameter("@Email", (object)cliente.Email ?? DBNull.Value),
                 new SqlParameter("@MetodoPago", cliente.MetodoPago),
-                new SqlParameter("@IdPlan",     (object)cliente.IdPlan     ?? DBNull.Value),
-                new SqlParameter("@FechaAlta",  cliente.FechaAlta)
+                new SqlParameter("@IdPlan", (object)cliente.IdPlan ?? DBNull.Value),
+                new SqlParameter("@FechaAlta", cliente.FechaAlta)
             };
 
             DataTable tabla = acceso.Leer(
@@ -104,13 +104,13 @@ namespace DAL
         {
             SqlParameter[] p =
             {
-                new SqlParameter("@Nombre",     cliente.Nombre),
-                new SqlParameter("@Apellido",   cliente.Apellido),
-                new SqlParameter("@DNI",        cliente.DNI),
-                new SqlParameter("@Email",      (object)cliente.Email  ?? DBNull.Value),
+                new SqlParameter("@Nombre", cliente.Nombre),
+                new SqlParameter("@Apellido", cliente.Apellido),
+                new SqlParameter("@DNI", cliente.DNI),
+                new SqlParameter("@Email", (object)cliente.Email ?? DBNull.Value),
                 new SqlParameter("@MetodoPago", cliente.MetodoPago),
-                new SqlParameter("@IdPlan",     (object)cliente.IdPlan ?? DBNull.Value),
-                new SqlParameter("@IdCliente",  cliente.IdCliente)
+                new SqlParameter("@IdPlan", (object)cliente.IdPlan ?? DBNull.Value),
+                new SqlParameter("@IdCliente", cliente.IdCliente)
             };
             acceso.Escribir(
                 "UPDATE Cliente SET Nombre=@Nombre, Apellido=@Apellido, DNI=@DNI, " +

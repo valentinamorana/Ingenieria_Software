@@ -15,8 +15,6 @@ namespace BLL
 
         private const int MaxIntentosFallidos = 3;
 
-        // ─────────────────────────────────────────────────────────────────────
-
         /// <summary>Autentica al usuario y establece la sesión. Bloquea la cuenta tras 3 intentos fallidos.</summary>
         public bool Login(Form formulario, string username, string contraseña)
         {
@@ -66,10 +64,8 @@ namespace BLL
 
             return esValido;
         }
-
-        /// <summary>
-        /// Cierra la sesión: registra en bitácora y destruye la sesión Singleton.
-        /// </summary>
+       
+        // Cierra la sesión: registra en bitácora y destruye la sesión Singleton.
         public void Logout(Form formulario)
         {
             bitacora.Registrar(formulario.Text, "Cierre Sesion", BE.Criticidad.None);
@@ -77,7 +73,7 @@ namespace BLL
             SessionManager.Logout();
         }
 
-        /// <summary>Crea un nuevo usuario con rol y contraseña hasheada.</summary>
+        // Crea un nuevo usuario con rol y contraseña hasheada.
         public void Alta(Form formulario, string username, string contraseña, string perfil)
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(contraseña))
@@ -94,7 +90,7 @@ namespace BLL
                 BE.Criticidad.Media);
         }
 
-        /// <summary>Resetea la contraseña de un usuario. Solo Administrador.</summary>
+        // Resetea la contraseña de un usuario. Solo Administrador.
         public void ResetearClave(Form formulario, int idUsuario, string nuevaClave)
         {
             if (!SessionManager.IsLoggedIn)
@@ -112,7 +108,7 @@ namespace BLL
             bitacora.Registrar(formulario.Text, "Reset Contrasena", BE.Criticidad.RecuperacionClave);
         }
 
-        /// <summary>Desbloquea la cuenta de un usuario y resetea el contador de intentos. Solo Administrador.</summary>
+        // Desbloquea la cuenta de un usuario y resetea el contador de intentos. Solo Administrador.
         public void Desbloquear(Form formulario, int idUsuario, string usernameObjetivo)
         {
             if (!SessionManager.IsLoggedIn)
@@ -129,29 +125,27 @@ namespace BLL
                 BE.Criticidad.Alta);
         }
 
-        /// <summary>Retorna el usuario en sesión (con sus permisos) desde el SessionManager.</summary>
+        // Retorna el usuario en sesión (con sus permisos) desde el SessionManager.
         public BE.Usuario ObtenerUsuarioActivo()
         {
             if (!SessionManager.IsLoggedIn) return null;
             return SessionManager.GetInstance.Usuario;
         }
 
-        /// <summary>Lista todos los usuarios del sistema (sin contraseñas).</summary>
+        // Lista todos los usuarios del sistema (sin contraseñas).
         public List<BE.Usuario> ObtenerTodos()
         {
             return usuarioDAL.ObtenerTodos();
         }
 
-        /// <summary>Verifica si un username existe en la base de datos.</summary>
+        // Verifica si un username existe en la base de datos.
         public bool ExisteUsername(string username)
         {
             if (string.IsNullOrWhiteSpace(username)) return false;
             return usuarioDAL.ObtenerPorUsername(username) != null;
         }
 
-        // ── Helpers privados de bitácora de seguridad ─────────────────────────
-
-        /// <summary>Registra un intento de login fallido en bitácora.</summary>
+        // Registra un intento de login fallido en bitácora.
         private void RegistrarIntentoFallidoInterno(string modulo, string username,
                                                      int numeroIntento, int? idUsuario = null)
         {
@@ -165,7 +159,7 @@ namespace BLL
                              $"a las {DateTime.Now:HH:mm:ss}.");
         }
 
-        /// <summary>Registra el bloqueo de cuenta en bitácora.</summary>
+        // Registra el bloqueo de cuenta en bitácora.
         private void RegistrarBloqueo(string modulo, string username, int? idUsuario = null)
         {
             bitacora.RegistrarSinSesion(

@@ -11,18 +11,12 @@ namespace BLL
         private readonly Servicios.Bitacora        bitacora    = new Servicios.Bitacora();
         private readonly Servicios.BitacoraNegocio bitacoraNeg = new Servicios.BitacoraNegocio();
 
-        // ── Consultas ─────────────────────────────────────────────────────────
-
         public List<BE.Prenda> ObtenerTodos()                   => dalPrenda.ObtenerTodos();
         public List<BE.Prenda> ObtenerDisponibles()            => dalPrenda.ObtenerDisponibles();
         public List<BE.Prenda> ObtenerPorCliente(int id)       => dalPrenda.ObtenerPorCliente(id);
         public BE.Prenda       ObtenerPorId(int idPrenda)      => dalPrenda.ObtenerPorId(idPrenda);
 
-        // ── Alta ──────────────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Da de alta una nueva prenda. Estado inicial siempre Disponible.
-        /// </summary>
+        // Da de alta una nueva prenda. Estado inicial siempre Disponible.
         public void Alta(Form formulario, BE.Prenda prenda)
         {
             Validar(prenda);
@@ -42,12 +36,8 @@ namespace BLL
                 idPrenda: idNuevo);
         }
 
-        // ── Modificar ─────────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Modifica los datos descriptivos de una prenda.
-        /// No afecta estado ni cliente asignado.
-        /// </summary>
+        // Modifica los datos descriptivos de una prenda.
+        // No afecta estado ni cliente asignado.
         public void Modificar(Form formulario, BE.Prenda prenda)
         {
             Validar(prenda);
@@ -62,9 +52,7 @@ namespace BLL
                 idPrenda: prenda.IdPrenda);
         }
 
-        // ── Cambiar Estado ────────────────────────────────────────────────────
-
-        /// <summary>Cambia el estado de una prenda validando la transición.</summary>
+        // Cambia el estado de una prenda validando la transición.
         public void CambiarEstado(Form formulario, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado)
         {
             if (!prenda.TransicionPermitida(nuevoEstado))
@@ -89,8 +77,6 @@ namespace BLL
                 $"Prenda '{prenda.Nombre}' (ID {prenda.IdPrenda}): {prenda.Estado} → {nuevoEstado}",
                 idPrenda: prenda.IdPrenda);
         }
-
-        // ── Validaciones internas ─────────────────────────────────────────────
 
         private void Validar(BE.Prenda prenda)
         {

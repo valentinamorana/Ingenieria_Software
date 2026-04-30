@@ -18,12 +18,12 @@ namespace DAL
         {
             SqlParameter[] p =
             {
-                new SqlParameter("@Fecha",       evento.Fecha),
-                new SqlParameter("@Tipo",        evento.Tipo.ToString()),
-                new SqlParameter("@IdUsuario",   (object)evento.IdUsuario ?? DBNull.Value),
-                new SqlParameter("@IdPedido",    (object)evento.IdPedido  ?? DBNull.Value),
-                new SqlParameter("@IdPrenda",    (object)evento.IdPrenda  ?? DBNull.Value),
-                new SqlParameter("@IdCliente",   (object)evento.IdCliente ?? DBNull.Value),
+                new SqlParameter("@Fecha", evento.Fecha),
+                new SqlParameter("@Tipo", evento.Tipo.ToString()),
+                new SqlParameter("@IdUsuario", (object)evento.IdUsuario ?? DBNull.Value),
+                new SqlParameter("@IdPedido", (object)evento.IdPedido ?? DBNull.Value),
+                new SqlParameter("@IdPrenda", (object)evento.IdPrenda ?? DBNull.Value),
+                new SqlParameter("@IdCliente", (object)evento.IdCliente ?? DBNull.Value),
                 new SqlParameter("@Descripcion", evento.Descripcion)
             };
             acceso.Escribir(

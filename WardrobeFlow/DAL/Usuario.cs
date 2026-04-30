@@ -32,9 +32,9 @@ namespace DAL
             SqlParameter[] parametros = new SqlParameter[]
             {
                 new SqlParameter("@username", username),
-                new SqlParameter("@clave",    clave),
-                new SqlParameter("@perfil",   perfil),
-                new SqlParameter("@rol",      perfil)
+                new SqlParameter("@clave", clave),
+                new SqlParameter("@perfil", perfil),
+                new SqlParameter("@rol", perfil)
             };
             acceso.Escribir(
                 "INSERT INTO Usuario (Username, Clave, Rol, Estado, Perfil, IntentosFallidos) " +
@@ -66,12 +66,12 @@ namespace DAL
                 DataRow row = tabla.Rows[0];
                 return new BE.Usuario
                 {
-                    Id               = Convert.ToInt32(row["Id"]),
-                    Username         = row["Username"].ToString(),
-                    Contraseña       = row["Contraseña"].ToString(),
-                    Rol              = row["Rol"]    != DBNull.Value ? row["Rol"].ToString()    : null,
-                    Perfil           = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
-                    Bloqueado        = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
+                    Id = Convert.ToInt32(row["Id"]),
+                    Username = row["Username"].ToString(),
+                    Contraseña = row["Contraseña"].ToString(),
+                    Rol = row["Rol"] != DBNull.Value ? row["Rol"].ToString() : null,
+                    Perfil = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
+                    Bloqueado = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
                     IntentosFallidos = row["IntentosFallidos"] != DBNull.Value
                                           ? Convert.ToInt32(row["IntentosFallidos"]) : 0
                 };
@@ -154,7 +154,7 @@ namespace DAL
         {
             SqlParameter[] parametros = new SqlParameter[]
             {
-                new SqlParameter("@clave",     claveHasheada),
+                new SqlParameter("@clave", claveHasheada),
                 new SqlParameter("@idUsuario", idUsuario)
             };
             acceso.Escribir(
@@ -183,12 +183,12 @@ namespace DAL
                 DataRow row = tabla.Rows[0];
                 return new BE.Usuario
                 {
-                    Id               = Convert.ToInt32(row["Id"]),
-                    Username         = row["Username"].ToString(),
-                    Contraseña       = row["Contraseña"].ToString(),
-                    Rol              = row["Rol"]    != DBNull.Value ? row["Rol"].ToString()    : null,
-                    Perfil           = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
-                    Bloqueado        = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
+                    Id = Convert.ToInt32(row["Id"]),
+                    Username = row["Username"].ToString(),
+                    Contraseña = row["Contraseña"].ToString(),
+                    Rol = row["Rol"] != DBNull.Value ? row["Rol"].ToString() : null,
+                    Perfil = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
+                    Bloqueado = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
                     IntentosFallidos = row["IntentosFallidos"] != DBNull.Value
                                           ? Convert.ToInt32(row["IntentosFallidos"]) : 0
                 };
@@ -215,10 +215,10 @@ namespace DAL
                 {
                     lista.Add(new BE.Usuario
                     {
-                        Id               = Convert.ToInt32(row["Id"]),
-                        Username         = row["Username"].ToString(),
-                        Perfil           = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
-                        Bloqueado        = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
+                        Id = Convert.ToInt32(row["Id"]),
+                        Username = row["Username"].ToString(),
+                        Perfil = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
+                        Bloqueado = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
                         IntentosFallidos = row["IntentosFallidos"] != DBNull.Value
                                               ? Convert.ToInt32(row["IntentosFallidos"]) : 0
                     });
