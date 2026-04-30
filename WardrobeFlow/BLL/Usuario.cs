@@ -31,7 +31,7 @@ namespace BLL
                     $"La cuenta '{username}' está bloqueada.\n" +
                     "Contactá al Administrador para que la reactive desde Administrar → Usuarios.");
 
-            bool esValido = Encriptador.VerificarContraseña(contraseña, usuario.Contraseña);
+            bool esValido = Encriptador.VerificarContrasena(contraseña, usuario.Contraseña);
 
             if (esValido)
             {

@@ -3,11 +3,31 @@
   "WorkspaceRootPath": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\gui\\menu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "AbsoluteMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\bll\\usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|solutionrelative:bll\\usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D86288E-77FF-4076-B495-E881FC568379}|Seguridad\\Seguridad.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\seguridad\\encriptador.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D86288E-77FF-4076-B495-E881FC568379}|Seguridad\\Seguridad.csproj|solutionrelative:seguridad\\encriptador.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D86288E-77FF-4076-B495-E881FC568379}|Seguridad\\Seguridad.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\seguridad\\sessionmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D86288E-77FF-4076-B495-E881FC568379}|Seguridad\\Seguridad.csproj|solutionrelative:seguridad\\sessionmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\bll\\pedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|solutionrelative:bll\\pedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{759E1C38-E8EC-45A2-A367-0EA9CF9DABAD}|DAL\\DAL.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\dal\\bitacora.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{759E1C38-E8EC-45A2-A367-0EA9CF9DABAD}|DAL\\DAL.csproj|solutionrelative:dal\\bitacora.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|c:\\users\\valen\\documents\\ingenieria de software\\ingenieria_software\\wardrobeflow\\gui\\menu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|solutionrelative:gui\\menu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|c:\\users\\valen\\documents\\ingenieria de software\\ingenieria_software\\wardrobeflow\\gui\\clienteform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\gui\\clienteform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|solutionrelative:gui\\clienteform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -21,14 +41,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{F41A7A3A-8AC1-4036-9FCA-B81EE8812B8E}|Servicios\\Servicios.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\servicios\\bitacora.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F41A7A3A-8AC1-4036-9FCA-B81EE8812B8E}|Servicios\\Servicios.csproj|solutionrelative:servicios\\bitacora.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8D86288E-77FF-4076-B495-E881FC568379}|Seguridad\\Seguridad.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\seguridad\\sessionmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8D86288E-77FF-4076-B495-E881FC568379}|Seguridad\\Seguridad.csproj|solutionrelative:seguridad\\sessionmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{8D86288E-77FF-4076-B495-E881FC568379}|Seguridad\\Seguridad.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\seguridad\\encriptador.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8D86288E-77FF-4076-B495-E881FC568379}|Seguridad\\Seguridad.csproj|solutionrelative:seguridad\\encriptador.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\gui\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -67,10 +79,6 @@
       "RelativeMoniker": "D:0:0:{759E1C38-E8EC-45A2-A367-0EA9CF9DABAD}|DAL\\DAL.csproj|solutionrelative:dal\\basedal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{759E1C38-E8EC-45A2-A367-0EA9CF9DABAD}|DAL\\DAL.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\dal\\bitacora.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{759E1C38-E8EC-45A2-A367-0EA9CF9DABAD}|DAL\\DAL.csproj|solutionrelative:dal\\bitacora.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{759E1C38-E8EC-45A2-A367-0EA9CF9DABAD}|DAL\\DAL.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\dal\\bitacoranegocio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{759E1C38-E8EC-45A2-A367-0EA9CF9DABAD}|DAL\\DAL.csproj|solutionrelative:dal\\bitacoranegocio.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -85,10 +93,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\bll\\configuracion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|solutionrelative:bll\\configuracion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\bll\\pedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|solutionrelative:bll\\pedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\bll\\plansuscripcion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -175,10 +179,6 @@
       "RelativeMoniker": "D:0:0:{EAB99289-C035-40BF-9866-DCC247B7C9DF}|GUI\\GUI.csproj|solutionrelative:gui\\prendas.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\bll\\usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|solutionrelative:bll\\usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\bll\\prenda.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4A9B520A-B2FE-4E78-9989-1C7FA5746DD9}|BLL\\BLL.csproj|solutionrelative:bll\\prenda.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -258,67 +258,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "BitacoraNegocio.cs",
-              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Servicios\\BitacoraNegocio.cs",
-              "RelativeDocumentMoniker": "Servicios\\BitacoraNegocio.cs",
-              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Servicios\\BitacoraNegocio.cs",
-              "RelativeToolTip": "Servicios\\BitacoraNegocio.cs",
-              "ViewState": "AgIAACIAAAAAAAAAAAAgwD0AAAAKAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-30T03:29:44.176Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Bitacora.cs",
-              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Servicios\\Bitacora.cs",
-              "RelativeDocumentMoniker": "Servicios\\Bitacora.cs",
-              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Servicios\\Bitacora.cs",
-              "RelativeToolTip": "Servicios\\Bitacora.cs",
-              "ViewState": "AgIAAD8AAAAAAAAAAAAowFQAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-30T03:29:03.099Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "BaseDAL.cs",
-              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\BaseDAL.cs",
-              "RelativeDocumentMoniker": "DAL\\BaseDAL.cs",
-              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\BaseDAL.cs",
-              "RelativeToolTip": "DAL\\BaseDAL.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:33:23.814Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
-              "Title": "Bitacora.cs",
-              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Bitacora.cs",
-              "RelativeDocumentMoniker": "DAL\\Bitacora.cs",
-              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Bitacora.cs",
-              "RelativeToolTip": "DAL\\Bitacora.cs",
-              "ViewState": "AgIAAGIAAAAAAAAAAAAIwH8AAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:19:17.408Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "Empleado.cs",
-              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Empleado.cs",
-              "RelativeDocumentMoniker": "DAL\\Empleado.cs",
-              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Empleado.cs",
-              "RelativeToolTip": "DAL\\Empleado.cs",
-              "ViewState": "AgIAAGoAAAAAAAAAAAAcwJEAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:20:03.473Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 14,
               "Title": "Permiso.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Permiso.cs",
               "RelativeDocumentMoniker": "DAL\\Permiso.cs",
@@ -330,7 +270,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 15,
               "Title": "Pedido.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Pedido.cs",
               "RelativeDocumentMoniker": "DAL\\Pedido.cs",
@@ -342,7 +282,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 17,
               "Title": "Cliente.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Cliente.cs",
               "RelativeDocumentMoniker": "DAL\\Cliente.cs",
@@ -354,7 +294,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 5,
               "Title": "Menu.cs [Design]",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\Menu.cs",
               "RelativeDocumentMoniker": "GUI\\Menu.cs",
@@ -366,7 +306,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 6,
               "Title": "ClienteForm.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\ClienteForm.cs",
               "RelativeDocumentMoniker": "GUI\\ClienteForm.cs",
@@ -374,12 +314,11 @@
               "RelativeToolTip": "GUI\\ClienteForm.cs",
               "ViewState": "AgIAAE4AAAAAAAAAAAAmwAwAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-30T03:30:33.031Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-30T03:30:33.031Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 13,
               "Title": "PlanSuscripcion.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\PlanSuscripcion.cs",
               "RelativeDocumentMoniker": "DAL\\PlanSuscripcion.cs",
@@ -391,7 +330,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 12,
               "Title": "Prenda.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Prenda.cs",
               "RelativeDocumentMoniker": "DAL\\Prenda.cs",
@@ -403,7 +342,120 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Pedido.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\Pedido.cs",
+              "RelativeDocumentMoniker": "BLL\\Pedido.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\Pedido.cs",
+              "RelativeToolTip": "BLL\\Pedido.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-29T00:19:48.254Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Usuario.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\Usuario.cs",
+              "RelativeDocumentMoniker": "BLL\\Usuario.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\Usuario.cs",
+              "RelativeToolTip": "BLL\\Usuario.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAIA1wCEAAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-29T00:19:50.684Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Bitacora.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Bitacora.cs",
+              "RelativeDocumentMoniker": "DAL\\Bitacora.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Bitacora.cs",
+              "RelativeToolTip": "DAL\\Bitacora.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAH8AAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-29T00:19:17.408Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Encriptador.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Seguridad\\Encriptador.cs",
+              "RelativeDocumentMoniker": "Seguridad\\Encriptador.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Seguridad\\Encriptador.cs",
+              "RelativeToolTip": "Seguridad\\Encriptador.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAuwC0AAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-29T00:20:13.412Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "SessionManager.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Seguridad\\SessionManager.cs",
+              "RelativeDocumentMoniker": "Seguridad\\SessionManager.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Seguridad\\SessionManager.cs",
+              "RelativeToolTip": "Seguridad\\SessionManager.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADYAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-29T00:20:11.658Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Empleado.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Empleado.cs",
+              "RelativeDocumentMoniker": "DAL\\Empleado.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Empleado.cs",
+              "RelativeToolTip": "DAL\\Empleado.cs",
+              "ViewState": "AgIAAGoAAAAAAAAAAAAcwJEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-29T00:20:03.473Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "BaseDAL.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\BaseDAL.cs",
+              "RelativeDocumentMoniker": "DAL\\BaseDAL.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\BaseDAL.cs",
+              "RelativeToolTip": "DAL\\BaseDAL.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-29T00:33:23.814Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Bitacora.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Servicios\\Bitacora.cs",
+              "RelativeDocumentMoniker": "Servicios\\Bitacora.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Servicios\\Bitacora.cs",
+              "RelativeToolTip": "Servicios\\Bitacora.cs",
+              "ViewState": "AgIAAD8AAAAAAAAAAAAowFQAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-30T03:29:03.099Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "BitacoraNegocio.cs",
+              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Servicios\\BitacoraNegocio.cs",
+              "RelativeDocumentMoniker": "Servicios\\BitacoraNegocio.cs",
+              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Servicios\\BitacoraNegocio.cs",
+              "RelativeToolTip": "Servicios\\BitacoraNegocio.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAgwD0AAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-30T03:29:44.176Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
               "Title": "Clientes.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\Clientes.cs",
               "RelativeDocumentMoniker": "GUI\\Clientes.cs",
@@ -415,7 +467,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 11,
               "Title": "Usuario.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Usuario.cs",
               "RelativeDocumentMoniker": "DAL\\Usuario.cs",
@@ -427,7 +479,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 10,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\Program.cs",
               "RelativeDocumentMoniker": "GUI\\Program.cs",
@@ -439,31 +491,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Encriptador.cs",
-              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Seguridad\\Encriptador.cs",
-              "RelativeDocumentMoniker": "Seguridad\\Encriptador.cs",
-              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Seguridad\\Encriptador.cs",
-              "RelativeToolTip": "Seguridad\\Encriptador.cs",
-              "ViewState": "AgIAAL4AAAAAAAAAAAAcwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:20:13.412Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "SessionManager.cs",
-              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Seguridad\\SessionManager.cs",
-              "RelativeDocumentMoniker": "Seguridad\\SessionManager.cs",
-              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\Seguridad\\SessionManager.cs",
-              "RelativeToolTip": "Seguridad\\SessionManager.cs",
-              "ViewState": "AgIAACAAAAAAAAAAAAAIwDYAAAANAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:20:11.658Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 19,
               "Title": "BitacoraNegocio.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\BitacoraNegocio.cs",
               "RelativeDocumentMoniker": "DAL\\BitacoraNegocio.cs",
@@ -475,7 +503,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 20,
               "Title": "Acceso.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\DAL\\Acceso.cs",
               "RelativeDocumentMoniker": "DAL\\Acceso.cs",
@@ -487,7 +515,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 21,
               "Title": "Cliente.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\Cliente.cs",
               "RelativeDocumentMoniker": "BLL\\Cliente.cs",
@@ -499,7 +527,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 22,
               "Title": "Configuracion.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\Configuracion.cs",
               "RelativeDocumentMoniker": "BLL\\Configuracion.cs",
@@ -511,19 +539,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
-              "Title": "Pedido.cs",
-              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\Pedido.cs",
-              "RelativeDocumentMoniker": "BLL\\Pedido.cs",
-              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\Pedido.cs",
-              "RelativeToolTip": "BLL\\Pedido.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAVAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:19:48.254Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 23,
               "Title": "PlanSuscripcion.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\PlanSuscripcion.cs",
               "RelativeDocumentMoniker": "BLL\\PlanSuscripcion.cs",
@@ -535,7 +551,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 24,
               "Title": "IPrendaService.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\Interfaces\\IPrendaService.cs",
               "RelativeDocumentMoniker": "BLL\\Interfaces\\IPrendaService.cs",
@@ -547,7 +563,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 25,
               "Title": "IPedidoService.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\Interfaces\\IPedidoService.cs",
               "RelativeDocumentMoniker": "BLL\\Interfaces\\IPedidoService.cs",
@@ -559,7 +575,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 26,
               "Title": "IClienteService.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\Interfaces\\IClienteService.cs",
               "RelativeDocumentMoniker": "BLL\\Interfaces\\IClienteService.cs",
@@ -571,7 +587,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 27,
               "Title": "Usuario.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BE\\Usuario.cs",
               "RelativeDocumentMoniker": "BE\\Usuario.cs",
@@ -583,7 +599,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 28,
               "Title": "Permiso.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BE\\Permiso.cs",
               "RelativeDocumentMoniker": "BE\\Permiso.cs",
@@ -595,7 +611,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 29,
               "Title": "Pedido.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BE\\Pedido.cs",
               "RelativeDocumentMoniker": "BE\\Pedido.cs",
@@ -607,7 +623,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 30,
               "Title": "EstadoPedido.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BE\\EstadoPedido.cs",
               "RelativeDocumentMoniker": "BE\\EstadoPedido.cs",
@@ -619,7 +635,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 31,
               "Title": "Empleado.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BE\\Empleado.cs",
               "RelativeDocumentMoniker": "BE\\Empleado.cs",
@@ -631,7 +647,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 32,
               "Title": "Criticidad.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BE\\Criticidad.cs",
               "RelativeDocumentMoniker": "BE\\Criticidad.cs",
@@ -643,7 +659,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 33,
               "Title": "Cliente.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BE\\Cliente.cs",
               "RelativeDocumentMoniker": "BE\\Cliente.cs",
@@ -655,7 +671,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
+              "DocumentIndex": 34,
               "Title": "TipoEventoNegocio.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BE\\TipoEventoNegocio.cs",
               "RelativeDocumentMoniker": "BE\\TipoEventoNegocio.cs",
@@ -667,7 +683,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 35,
               "Title": "EstadoPrenda.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BE\\EstadoPrenda.cs",
               "RelativeDocumentMoniker": "BE\\EstadoPrenda.cs",
@@ -679,7 +695,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 36,
               "Title": "PlanSuscripcion.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BE\\PlanSuscripcion.cs",
               "RelativeDocumentMoniker": "BE\\PlanSuscripcion.cs",
@@ -691,7 +707,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 41,
               "Title": "Bitacora.cs [Design]",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\Bitacora.cs",
               "RelativeDocumentMoniker": "GUI\\Bitacora.cs",
@@ -702,7 +718,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 37,
               "Title": "Bitacora.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BE\\Bitacora.cs",
               "RelativeDocumentMoniker": "BE\\Bitacora.cs",
@@ -714,7 +730,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 38,
               "Title": "BitacoraNegocio.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BE\\BitacoraNegocio.cs",
               "RelativeDocumentMoniker": "BE\\BitacoraNegocio.cs",
@@ -726,7 +742,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 40,
               "Title": "CambioEstadoDialog.cs [Design]",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\CambioEstadoDialog.cs",
               "RelativeDocumentMoniker": "GUI\\CambioEstadoDialog.cs",
@@ -737,7 +753,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
+              "DocumentIndex": 39,
               "Title": "ClienteForm.cs [Design]",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\ClienteForm.cs",
               "RelativeDocumentMoniker": "GUI\\ClienteForm.cs",
@@ -748,7 +764,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
+              "DocumentIndex": 42,
               "Title": "Prendas.cs",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\Prendas.cs",
               "RelativeDocumentMoniker": "GUI\\Prendas.cs",
@@ -760,7 +776,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 42,
+              "DocumentIndex": 43,
               "Title": "Prendas.cs [Design]",
               "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\GUI\\Prendas.cs",
               "RelativeDocumentMoniker": "GUI\\Prendas.cs",
@@ -768,18 +784,6 @@
               "RelativeToolTip": "GUI\\Prendas.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-29T00:23:16.103Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 43,
-              "Title": "Usuario.cs",
-              "DocumentMoniker": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\Usuario.cs",
-              "RelativeDocumentMoniker": "BLL\\Usuario.cs",
-              "ToolTip": "C:\\Users\\valen\\Documents\\INGENIERIA DE SOFTWARE\\Ingenieria_Software\\WardrobeFlow\\BLL\\Usuario.cs",
-              "RelativeToolTip": "BLL\\Usuario.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:19:50.684Z"
             },
             {
               "$type": "Document",
@@ -870,8 +874,7 @@
               "RelativeToolTip": "GUI\\Menu.Designer.cs",
               "ViewState": "AgIAADIAAAAAAAAAAAApwEsAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-29T00:17:07.943Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-29T00:17:07.943Z"
             },
             {
               "$type": "Document",
