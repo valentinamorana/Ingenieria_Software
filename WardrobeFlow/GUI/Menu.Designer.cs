@@ -73,7 +73,7 @@
             // 
             this.usuarioToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cerrarSesionToolStripMenuItem});
-//            this.usuarioToolStripMenuItem.Image = global::GUI.Properties.Resources._3106921_1_;
+            this.usuarioToolStripMenuItem.Image = global::GUI.Properties.Resources._3106921_1_;
             this.usuarioToolStripMenuItem.Name = "usuarioToolStripMenuItem";
             this.usuarioToolStripMenuItem.Size = new System.Drawing.Size(62, 20);
             this.usuarioToolStripMenuItem.Text = "Perfil";
@@ -98,21 +98,21 @@
             // prendasToolStripMenuItem
             // 
             this.prendasToolStripMenuItem.Name = "prendasToolStripMenuItem";
-            this.prendasToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.prendasToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.prendasToolStripMenuItem.Text = "Prendas";
             this.prendasToolStripMenuItem.Click += new System.EventHandler(this.prendasToolStripMenuItem_Click);
             // 
             // outfitsToolStripMenuItem
             // 
             this.outfitsToolStripMenuItem.Name = "outfitsToolStripMenuItem";
-            this.outfitsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.outfitsToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.outfitsToolStripMenuItem.Text = "Outfits";
             this.outfitsToolStripMenuItem.Click += new System.EventHandler(this.outfitsToolStripMenuItem_Click);
             // 
             // categoriasToolStripMenuItem
             // 
             this.categoriasToolStripMenuItem.Name = "categoriasToolStripMenuItem";
-            this.categoriasToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.categoriasToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
             this.categoriasToolStripMenuItem.Text = "Categorias";
             this.categoriasToolStripMenuItem.Click += new System.EventHandler(this.categoriasToolStripMenuItem_Click);
             // 
@@ -164,7 +164,7 @@
             this.gestionToolStripMenuItem.Text = "Administrar";
             // 
             // usuariosToolStripMenuItem
-            //
+            // 
             this.usuariosToolStripMenuItem.Name = "usuariosToolStripMenuItem";
             this.usuariosToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
             this.usuariosToolStripMenuItem.Text = "Usuarios";

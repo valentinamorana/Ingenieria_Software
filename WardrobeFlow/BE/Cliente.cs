@@ -3,9 +3,10 @@ using System;
 namespace BE
 {
     /// <summary>Entidad Cliente. Mapea la tabla [Cliente].</summary>
-    public class Cliente : Entidad
+    public class Cliente
     {
         public int IdCliente { get; set; }
+        public DateTime FechaAlta { get; set; }
         public string Nombre { get; set; }
         public string Apellido { get; set; }
         public string DNI { get; set; }
@@ -27,9 +28,7 @@ namespace BE
         // Nombre completo para mostrar en grillas.
         public string NombreCompleto => $"{Nombre} {Apellido}";
 
-        public override int GetId() => IdCliente;
-
-        // Comportamiento 
+        // ── Comportamiento ────────────────────────────────────────────────────
         // Indica si el cliente tiene un plan de suscripción asignado.
         public bool TienePlan() => IdPlan.HasValue;
 
