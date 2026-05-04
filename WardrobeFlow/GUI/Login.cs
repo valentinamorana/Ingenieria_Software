@@ -1,7 +1,8 @@
-﻿using BLL;
+using BLL;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Servicios.Multiidioma;
 
 namespace GUI
 {
@@ -16,8 +17,15 @@ namespace GUI
     ///   → Si OK: el formulario desaparece (DialogResult.OK) y se abre el sistema
     ///   → Si falla: muestra mensaje de error sin cerrar el formulario
     ///   → Botón Salir: cierra la aplicación directamente
+    ///
+    /// PATRÓN OBSERVER — T05 Gestión de Múltiples Idiomas:
+    ///   Implementa IIdiomaObserver. Se suscribe al GestorIdioma en Load
+    ///   y se desuscribe en FormClosing. Al recibir UpdateLanguage() aplica
+    ///   las traducciones del nuevo idioma a todos sus controles.
+    ///   El cambio de idioma ocurre desde la barra del Menu principal,
+    ///   sin abrir ningún formulario adicional.
     /// </summary>
-    public partial class Login : Form
+    public partial class Login : Form, IIdiomaObserver
     {
         private readonly Usuario usuarioBLL = new Usuario();
 
@@ -62,6 +70,70 @@ namespace GUI
             pnlCard.Controls.Add(btnOjo);
             btnOjo.BringToFront();
         }
+
+        // ── Eventos del ciclo de vida ─────────────────────────────────────────
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            // Suscribirse al Observer de idioma — equivalente a frmLogin_Load del ejemplo de cátedra
+            GestorIdioma.SuscribirObservador(this);
+            // Aplicar el idioma activo en el momento en que se abre el formulario
+            Traducir(GestorIdioma.IdiomaActual);
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            // Desuscribirse al cerrar — equivalente a frmLogin_FormClosing del ejemplo de cátedra
+            GestorIdioma.DesuscribirObservador(this);
+            base.OnFormClosing(e);
+        }
+
+        // ══════════════════════════════════════════════════════════════════════
+        // PATRÓN OBSERVER — T05 Gestión de Múltiples Idiomas
+        // ══════════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Recibe la notificación del GestorIdioma cuando el idioma cambia.
+        /// Equivalente a UpdateLanguage(IIdioma idioma) del ejemplo de cátedra.
+        /// El formulario se traduce al instante sin reinicios ni ventanas adicionales.
+        /// </summary>
+        public void UpdateLanguage(Idioma idioma)
+        {
+            Traducir(idioma);
+        }
+
+        /// <summary>
+        /// Reasigna el .Text de cada control leyendo su propiedad Tag como clave
+        /// de traducción — exactamente igual que en el ejemplo de cátedra (frmLogin).
+        /// Los Tags se asignan en el Designer; el código no hardcodea ninguna clave.
+        /// </summary>
+        private void Traducir(Idioma idioma)
+        {
+            var t = Traductor.ObtenerTraducciones(idioma);
+
+            // Título del formulario — Tag asignado en el Designer: "frm.login"
+            if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
+                this.Text = t[this.Tag.ToString()].Texto;
+
+            // Controles — cada uno lee su propio Tag para obtener la clave
+            if (lblUsuario.Tag   != null && t.ContainsKey(lblUsuario.Tag.ToString()))
+                lblUsuario.Text   = t[lblUsuario.Tag.ToString()].Texto;
+
+            if (lblContraseña.Tag != null && t.ContainsKey(lblContraseña.Tag.ToString()))
+                lblContraseña.Text = t[lblContraseña.Tag.ToString()].Texto;
+
+            if (btnIngresar.Tag  != null && t.ContainsKey(btnIngresar.Tag.ToString()))
+                btnIngresar.Text  = t[btnIngresar.Tag.ToString()].Texto;
+
+            if (btnSalir.Tag     != null && t.ContainsKey(btnSalir.Tag.ToString()))
+                btnSalir.Text     = t[btnSalir.Tag.ToString()].Texto;
+
+            if (lnkOlvidaste.Tag != null && t.ContainsKey(lnkOlvidaste.Tag.ToString()))
+                lnkOlvidaste.Text = t[lnkOlvidaste.Tag.ToString()].Texto;
+        }
+
+        // ── Eventos de negocio ────────────────────────────────────────────────
 
         /// <summary>
         /// Autentica al empleado. Si las credenciales son válidas,

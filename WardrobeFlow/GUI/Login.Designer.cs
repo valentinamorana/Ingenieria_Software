@@ -65,6 +65,7 @@ namespace GUI
             this.lblUsuario.Location = new System.Drawing.Point(22, 28);
             this.lblUsuario.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblUsuario.Name = "lblUsuario";
+            this.lblUsuario.Tag = "lbl.usuario";
             this.lblUsuario.Size = new System.Drawing.Size(240, 15);
             this.lblUsuario.TabIndex = 0;
             this.lblUsuario.Text = "Usuario";
@@ -77,6 +78,7 @@ namespace GUI
             this.lblContraseña.Location = new System.Drawing.Point(22, 85);
             this.lblContraseña.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblContraseña.Name = "lblContraseña";
+            this.lblContraseña.Tag = "lbl.contrasena";
             this.lblContraseña.Size = new System.Drawing.Size(240, 15);
             this.lblContraseña.TabIndex = 2;
             this.lblContraseña.Text = "Contraseña";
@@ -94,6 +96,7 @@ namespace GUI
             this.btnIngresar.Location = new System.Drawing.Point(22, 153);
             this.btnIngresar.Margin = new System.Windows.Forms.Padding(2);
             this.btnIngresar.Name = "btnIngresar";
+            this.btnIngresar.Tag = "btn.ingresar";
             this.btnIngresar.Size = new System.Drawing.Size(240, 34);
             this.btnIngresar.TabIndex = 5;
             this.btnIngresar.Text = "INGRESAR";
@@ -112,6 +115,7 @@ namespace GUI
             this.btnSalir.Location = new System.Drawing.Point(98, 238);
             this.btnSalir.Margin = new System.Windows.Forms.Padding(2);
             this.btnSalir.Name = "btnSalir";
+            this.btnSalir.Tag = "btn.salir";
             this.btnSalir.Size = new System.Drawing.Size(90, 24);
             this.btnSalir.TabIndex = 7;
             this.btnSalir.Text = "SALIR";
@@ -138,6 +142,7 @@ namespace GUI
             this.lnkOlvidaste.LinkColor = System.Drawing.Color.Purple;
             this.lnkOlvidaste.Location = new System.Drawing.Point(22, 210);
             this.lnkOlvidaste.Name = "lnkOlvidaste";
+            this.lnkOlvidaste.Tag = "lnk.olvide";
             this.lnkOlvidaste.Size = new System.Drawing.Size(240, 18);
             this.lnkOlvidaste.TabIndex = 6;
             this.lnkOlvidaste.TabStop = true;
@@ -224,6 +229,7 @@ namespace GUI
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Login";
+            this.Tag = "frm.login";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "WardrobeFlow";
             this.pnlCard.ResumeLayout(false);

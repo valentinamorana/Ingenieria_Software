@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.Windows.Forms;
+using Servicios.Multiidioma;
 
 namespace GUI
 {
@@ -27,12 +28,58 @@ namespace GUI
     ///
     /// Los permisos se leen de BE.Usuario.Permisos via BLL.ObtenerUsuarioActivo().
     /// La GUI nunca accede directamente a Seguridad ni a DAL.
+    ///
+    /// PATRÓN OBSERVER — T05 Gestión de Múltiples Idiomas:
+    ///   Implementa IIdiomaObserver. Se suscribe al GestorIdioma en Load
+    ///   y se desuscribe en FormClosing. Al recibir UpdateLanguage() llama
+    ///   a Traducir() que reasigna el .Text de todos los ítems del menú.
+    ///   La barra de idiomas (ToolStrip con 3 botones) se construye en el constructor.
     /// </summary>
-    public partial class Menu : Form
+    public partial class Menu : Form, IIdiomaObserver
     {
+        // Botones de idioma — se guardan para poder marcar el activo con negrita
+        private ToolStripButton _btnES, _btnEN, _btnRU;
+
         public Menu()
         {
             InitializeComponent();
+
+            // ── Barra de selección de idioma ─────────────────────────────────
+            // Se agrega un ToolStrip justo debajo del MenuStrip existente.
+            // Los 3 botones llaman a GestorIdioma.CambiarIdioma() → notifica a
+            // todos los formularios abiertos de forma automática (patrón Observer).
+            var tsIdioma = new ToolStrip
+            {
+                Dock      = DockStyle.Top,
+                BackColor = Color.FromArgb(40, 40, 55),
+                GripStyle = ToolStripGripStyle.Hidden,
+                Padding   = new Padding(4, 0, 4, 0),
+                Height    = 28
+            };
+
+            var lblIdioma = new ToolStripLabel
+            {
+                Text      = "🌐  Idioma:",
+                ForeColor = Color.FromArgb(200, 200, 210),
+                Font      = new System.Drawing.Font("Segoe UI", 8.5f)
+            };
+
+            _btnES = CrearBotonIdioma("🇦🇷  ES", "ES");
+            _btnEN = CrearBotonIdioma("🇬🇧  EN", "EN");
+            _btnRU = CrearBotonIdioma("🇷🇺  RU", "RU");
+
+            tsIdioma.Items.Add(lblIdioma);
+            tsIdioma.Items.Add(new ToolStripSeparator());
+            tsIdioma.Items.Add(_btnES);
+            tsIdioma.Items.Add(_btnEN);
+            tsIdioma.Items.Add(_btnRU);
+
+            // Insertar el ToolStrip después del MenuStrip (índice 0 = primero visible abajo del borde)
+            this.Controls.Add(tsIdioma);
+            tsIdioma.BringToFront();
+
+            // Marcar ES como activo por defecto
+            MarcarIdiomaActivo("ES");
 
             // Obtener usuario activo via BLL (GUI nunca toca SessionManager directamente)
             BLL.Usuario bll = new BLL.Usuario();
@@ -46,25 +93,6 @@ namespace GUI
 
             // Construir menú dinámico según permisos del rol
             AplicarPermisos(usuarioActivo?.Permisos);
-        }
-
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-
-            // Aplicar fondo rosa con monograma WF al área MDI.
-            // Se accede al MdiClient interno y se le asigna un BackgroundImage
-            // generado en código — más confiable que interceptar WM_ERASEBKGND.
-            foreach (Control c in Controls)
-            {
-                if (c.GetType().Name == "MdiClient")
-                {
-                    c.BackColor             = Color.FromArgb(252, 228, 235);
-                    c.BackgroundImage       = GenerarTileWF();
-                    c.BackgroundImageLayout = ImageLayout.Tile;
-                    break;
-                }
-            }
         }
 
         /// <summary>
@@ -294,6 +322,144 @@ namespace GUI
                 if (hijo is PedidosRealizados) { hijo.BringToFront(); return; }
             }
             new PedidosRealizados { MdiParent = this }.Show();
+        }
+
+        // ══════════════════════════════════════════════════════════════════════
+        // PATRÓN OBSERVER — T05 Gestión de Múltiples Idiomas
+        // ══════════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Suscribe este formulario al GestorIdioma al abrirse.
+        /// Equivalente a frmMain_Load → ManejadorDeSesion.SuscribirObservador(this)
+        /// del ejemplo de cátedra.
+        /// </summary>
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            // Fondo MDI rosa con monograma WF
+            foreach (Control c in Controls)
+            {
+                if (c.GetType().Name == "MdiClient")
+                {
+                    c.BackColor             = Color.FromArgb(252, 228, 235);
+                    c.BackgroundImage       = GenerarTileWF();
+                    c.BackgroundImageLayout = ImageLayout.Tile;
+                    break;
+                }
+            }
+
+            // Suscribirse al Observer de idioma
+            GestorIdioma.SuscribirObservador(this);
+
+            // Aplicar el idioma activo al abrirse (puede ser diferente del default si ya se cambió)
+            Traducir(GestorIdioma.IdiomaActual);
+        }
+
+        /// <summary>
+        /// Desuscribe este formulario del GestorIdioma al cerrarse.
+        /// Equivalente a frmMain_FormClosing → ManejadorDeSesion.DesuscribirObservador(this)
+        /// del ejemplo de cátedra.
+        /// </summary>
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            GestorIdioma.DesuscribirObservador(this);
+            base.OnFormClosing(e);
+        }
+
+        /// <summary>
+        /// Recibe la notificación del GestorIdioma cuando el idioma cambia.
+        /// Equivalente a UpdateLanguage(IIdioma idioma) del ejemplo de cátedra.
+        /// </summary>
+        public void UpdateLanguage(Idioma idioma)
+        {
+            Traducir(idioma);
+            MarcarIdiomaActivo(idioma.Id);
+        }
+
+        /// <summary>
+        /// Reasigna el .Text de cada ítem del menú leyendo su propiedad Tag como
+        /// clave de traducción — exactamente igual que en el ejemplo de cátedra (frmMain).
+        /// Los Tags se asignan en el Designer; el código no hardcodea ninguna clave.
+        /// </summary>
+        private void Traducir(Idioma idioma)
+        {
+            var t = Traductor.ObtenerTraducciones(idioma);
+
+            Aplicar(inventarioToolStripMenuItem,        t);
+            Aplicar(prendasToolStripMenuItem,           t);
+            Aplicar(ventasToolStripMenuItem,            t);
+            Aplicar(clientesToolStripMenuItem,          t);
+            Aplicar(planesToolStripMenuItem,            t);
+            Aplicar(pedidosVentaToolStripMenuItem,      t);
+            Aplicar(pedidosRealizadosToolStripMenuItem, t);
+            Aplicar(gestionToolStripMenuItem,           t);
+            Aplicar(usuariosToolStripMenuItem,          t);
+            Aplicar(bitacoraToolStripMenuItem,          t);
+            Aplicar(cerrarSesionToolStripMenuItem,      t);
+        }
+
+        /// <summary>
+        /// Lee el Tag del ítem para obtener la clave y aplica la traducción.
+        /// Equivalente al patrón if (item.Tag != null && traducciones.ContainsKey(...))
+        /// del ejemplo de cátedra — el Tag actúa como clave del diccionario.
+        /// </summary>
+        private static void Aplicar(ToolStripMenuItem item,
+            IDictionary<string, Traduccion> t)
+        {
+            if (item != null && item.Tag != null && t.ContainsKey(item.Tag.ToString()))
+                item.Text = t[item.Tag.ToString()].Texto;
+        }
+
+        // ── Helpers de la barra de idioma ─────────────────────────────────────
+
+        /// <summary>
+        /// Crea un botón de idioma para el ToolStrip. Al hacer click llama a
+        /// GestorIdioma.CambiarIdioma() que notifica a todos los observers.
+        /// </summary>
+        private ToolStripButton CrearBotonIdioma(string texto, string codigoIdioma)
+        {
+            var btn = new ToolStripButton
+            {
+                Text        = texto,
+                ForeColor   = Color.FromArgb(210, 210, 220),
+                BackColor   = Color.Transparent,
+                Font        = new System.Drawing.Font("Segoe UI", 8.5f),
+                AutoSize    = true,
+                DisplayStyle = ToolStripItemDisplayStyle.Text,
+                Padding     = new Padding(6, 0, 6, 0)
+            };
+            btn.Click += (s, e) =>
+            {
+                // Buscar el idioma por código y notificar a todos los observers
+                foreach (var idioma in Traductor.ObtenerIdiomas())
+                {
+                    if (idioma.Id == codigoIdioma)
+                    {
+                        GestorIdioma.CambiarIdioma(idioma);
+                        break;
+                    }
+                }
+            };
+            return btn;
+        }
+
+        /// <summary>
+        /// Resalta en negrita el botón del idioma activo y normaliza los demás.
+        /// </summary>
+        private void MarcarIdiomaActivo(string codigoIdioma)
+        {
+            var fontNormal  = new System.Drawing.Font("Segoe UI", 8.5f, FontStyle.Regular);
+            var fontActivo  = new System.Drawing.Font("Segoe UI", 8.5f, FontStyle.Bold);
+            var colorActivo = Color.White;
+            var colorNormal = Color.FromArgb(170, 170, 180);
+
+            _btnES.Font      = codigoIdioma == "ES" ? fontActivo  : fontNormal;
+            _btnES.ForeColor = codigoIdioma == "ES" ? colorActivo : colorNormal;
+            _btnEN.Font      = codigoIdioma == "EN" ? fontActivo  : fontNormal;
+            _btnEN.ForeColor = codigoIdioma == "EN" ? colorActivo : colorNormal;
+            _btnRU.Font      = codigoIdioma == "RU" ? fontActivo  : fontNormal;
+            _btnRU.ForeColor = codigoIdioma == "RU" ? colorActivo : colorNormal;
         }
 
     }
