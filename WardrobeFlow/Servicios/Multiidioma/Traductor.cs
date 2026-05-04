@@ -91,7 +91,10 @@ namespace Servicios.Multiidioma
             { "btn.ingresar",     "INGRESAR"                       },
             { "btn.salir",        "SALIR"                          },
             { "lnk.olvide",       "Olvidé mi contraseña"           },
+            // Barra de idioma
+            { "lbl.idioma",       "Idioma:"                        },
             // Menú principal
+            { "mnu.perfil",       "Perfil"                         },
             { "mnu.inventario",   "Inventario"                     },
             { "mnu.prendas",      "Prendas"                        },
             { "mnu.ventas",       "Ventas"                         },
@@ -117,7 +120,10 @@ namespace Servicios.Multiidioma
             { "btn.ingresar",     "Sign In"                         },
             { "btn.salir",        "Exit"                            },
             { "lnk.olvide",       "Forgot your password?"           },
+            // Language bar
+            { "lbl.idioma",       "Language:"                       },
             // Main menu
+            { "mnu.perfil",       "Profile"                         },
             { "mnu.inventario",   "Inventory"                       },
             { "mnu.prendas",      "Garments"                        },
             { "mnu.ventas",       "Sales"                           },
@@ -143,7 +149,10 @@ namespace Servicios.Multiidioma
             { "btn.ingresar",     "Войти"                          },
             { "btn.salir",        "Выйти"                          },
             { "lnk.olvide",       "Забыли пароль?"                 },
+            // Панель языка
+            { "lbl.idioma",       "Язык:"                          },
             // Главное меню
+            { "mnu.perfil",       "Профиль"                        },
             { "mnu.inventario",   "Склад"                          },
             { "mnu.prendas",      "Одежда"                         },
             { "mnu.ventas",       "Продажи"                        },

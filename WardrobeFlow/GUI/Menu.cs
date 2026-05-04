@@ -39,6 +39,8 @@ namespace GUI
     {
         // Botones de idioma — se guardan para poder marcar el activo con negrita
         private ToolStripButton _btnES, _btnEN, _btnRU;
+        // Label "Idioma:" / "Language:" / "Язык:" — dinámico por Observer
+        private ToolStripLabel _lblIdioma;
 
         public Menu()
         {
@@ -57,18 +59,18 @@ namespace GUI
                 Height    = 28
             };
 
-            var lblIdioma = new ToolStripLabel
+            _lblIdioma = new ToolStripLabel
             {
-                Text      = "🌐  Idioma:",
+                Text      = "Idioma:",
                 ForeColor = Color.FromArgb(200, 200, 210),
                 Font      = new System.Drawing.Font("Segoe UI", 8.5f)
             };
 
-            _btnES = CrearBotonIdioma("🇦🇷  ES", "ES");
-            _btnEN = CrearBotonIdioma("🇬🇧  EN", "EN");
-            _btnRU = CrearBotonIdioma("🇷🇺  RU", "RU");
+            _btnES = CrearBotonIdioma("Español", "ES");
+            _btnEN = CrearBotonIdioma("English", "EN");
+            _btnRU = CrearBotonIdioma("Русский", "RU");
 
-            tsIdioma.Items.Add(lblIdioma);
+            tsIdioma.Items.Add(_lblIdioma);
             tsIdioma.Items.Add(new ToolStripSeparator());
             tsIdioma.Items.Add(_btnES);
             tsIdioma.Items.Add(_btnEN);
@@ -386,6 +388,11 @@ namespace GUI
         {
             var t = Traductor.ObtenerTraducciones(idioma);
 
+            // Label dinámico "Idioma:" / "Language:" / "Язык:"
+            if (t.ContainsKey("lbl.idioma"))
+                _lblIdioma.Text = t["lbl.idioma"].Texto;
+
+            Aplicar(usuarioToolStripMenuItem,           t);
             Aplicar(inventarioToolStripMenuItem,        t);
             Aplicar(prendasToolStripMenuItem,           t);
             Aplicar(ventasToolStripMenuItem,            t);

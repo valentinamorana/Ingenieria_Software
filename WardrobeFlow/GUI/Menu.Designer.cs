@@ -75,6 +75,7 @@
             this.cerrarSesionToolStripMenuItem});
             this.usuarioToolStripMenuItem.Image = global::GUI.Properties.Resources._3106921_1_;
             this.usuarioToolStripMenuItem.Name = "usuarioToolStripMenuItem";
+            this.usuarioToolStripMenuItem.Tag = "mnu.perfil";
             this.usuarioToolStripMenuItem.Size = new System.Drawing.Size(62, 20);
             this.usuarioToolStripMenuItem.Text = "Perfil";
             // 
