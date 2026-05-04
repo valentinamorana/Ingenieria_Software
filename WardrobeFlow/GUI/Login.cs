@@ -40,14 +40,10 @@ namespace GUI
             btnIngresar.MouseEnter += (s, e) => btnIngresar.ForeColor = Color.FromArgb(18, 18, 30);
             btnIngresar.MouseLeave += (s, e) => btnIngresar.ForeColor = Color.White;
 
-            // lblError necesita más altura para mostrar mensajes de bloqueo (multi-línea).
-            // Se desplazan los controles de abajo para hacer lugar.
-            int extra = 36;
-            lblError.Height    += extra;
-            btnIngresar.Top    += extra;
-            lnkOlvidaste.Top   += extra;
-            btnSalir.Top       += extra;
-            pnlCard.Height     += extra;
+            // lblError: habilitar wrapping para mensajes largos (bloqueo).
+            // No se expande en constructor — el form arranca igual que en el Designer.
+            lblError.AutoSize  = false;
+            lblError.MaximumSize = new Size(lblError.Width, 0);
 
             // Ojito mostrar/ocultar contraseña — se achica el textbox para que el botón quede afuera del borde
             txtContraseña.Width -= 28;
@@ -81,26 +77,26 @@ namespace GUI
 
         private void AgregarBotonesIdioma()
         {
-            int y      = this.ClientSize.Height - 34;
-            int startX = this.ClientSize.Width  - 10;
+            int y      = 6;
+            int startX = this.ClientSize.Width - 10;
 
             // Se crean de derecha a izquierda: RU | EN | ES
             foreach (var (codigo, texto) in new[] {
-                ("RU", "🇷🇺 RU"), ("EN", "🇬🇧 EN"), ("ES", "🇦🇷 ES") })
+                ("RU", "Русский"), ("EN", "English"), ("ES", "Español") })
             {
                 var btn = new Button
                 {
                     Text      = texto,
-                    Size      = new Size(70, 26),
+                    Size      = new Size(62, 20),
                     FlatStyle = FlatStyle.Flat,
                     BackColor = Color.FromArgb(100, 40, 65),
                     ForeColor = Color.FromArgb(200, 200, 210),
-                    Font      = new Font("Segoe UI", 8f),
+                    Font      = new Font("Segoe UI", 7.5f),
                     Cursor    = Cursors.Hand,
                     TabStop   = false
                 };
                 btn.FlatAppearance.BorderSize  = 0;
-                startX -= btn.Width + 4;
+                startX -= btn.Width + 3;
                 btn.Location = new Point(startX, y);
 
                 string cod = codigo; // captura para el closure
@@ -228,6 +224,27 @@ namespace GUI
                 lblError.ForeColor = bloqueado
                     ? Color.FromArgb(140, 0, 0)
                     : Color.FromArgb(180, 50, 50);
+
+                // Expandir el card dinámicamente solo si el mensaje necesita más espacio
+                // (mensajes de bloqueo son multi-línea). Calculamos cuánto espacio extra
+                // requiere el texto y desplazamos los controles de abajo.
+                using (var g = lblError.CreateGraphics())
+                {
+                    var tamano = g.MeasureString(lblError.Text, lblError.Font,
+                                                 lblError.Width);
+                    int alturaTexto  = (int)tamano.Height + 4;
+                    int alturaActual = lblError.Height;
+                    int diferencia   = Math.Max(0, alturaTexto - alturaActual);
+
+                    if (diferencia > 0)
+                    {
+                        lblError.Height       += diferencia;
+                        btnIngresar.Top       += diferencia;
+                        lnkOlvidaste.Top      += diferencia;
+                        btnSalir.Top          += diferencia;
+                        pnlCard.Height        += diferencia;
+                    }
+                }
 
                 if (bloqueado)
                 {
