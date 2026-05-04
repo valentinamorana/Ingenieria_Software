@@ -149,6 +149,13 @@ namespace DAL
             }
         }
 
+        // Actualiza la contraseña de TODOS los usuarios al hash recibido.
+        public void ResetearTodasLasClaves(string claveHasheada)
+        {
+            SqlParameter[] p = { new SqlParameter("@clave", claveHasheada) };
+            acceso.Escribir("UPDATE Usuario SET Clave = @clave", p);
+        }
+
         // Actualiza la contraseña de un usuario existente (ya hasheada por la BLL).
         public void ResetearClave(int idUsuario, string claveHasheada)
         {

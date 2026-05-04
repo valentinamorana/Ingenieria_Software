@@ -62,6 +62,32 @@ namespace Seguridad
             }
         }
 
+        // ── Validacion de requisitos de contraseña ────────────────────────────
+
+        // Requisitos: minimo 8 caracteres, al menos 1 numero y 1 caracter especial.
+        public static (bool valida, string mensaje) ValidarContrasena(string contrasena)
+        {
+            if (string.IsNullOrWhiteSpace(contrasena) || contrasena.Length < 8)
+                return (false, "La contrasena debe tener al menos 8 caracteres.");
+
+            bool tieneNumero   = false;
+            bool tieneEspecial = false;
+            const string especiales = "!@#$%^&*()_+-=[]{}|;:',.<>?/";
+
+            foreach (char c in contrasena)
+            {
+                if (char.IsDigit(c))            tieneNumero   = true;
+                if (especiales.IndexOf(c) >= 0) tieneEspecial = true;
+            }
+
+            if (!tieneNumero)
+                return (false, "La contrasena debe contener al menos un numero.");
+            if (!tieneEspecial)
+                return (false, "La contrasena debe contener al menos un caracter especial (!@#$%...).");
+
+            return (true, string.Empty);
+        }
+
         // ── AES-128-CBC — cifrado reversible para datos sensibles (ej: DNI) ───
 
         // Clave fija de 16 bytes derivada de una semilla. En produccion deberia

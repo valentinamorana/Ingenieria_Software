@@ -32,26 +32,35 @@ namespace GUI
             btnIngresar.MouseEnter += (s, e) => btnIngresar.ForeColor = Color.FromArgb(18, 18, 30);
             btnIngresar.MouseLeave += (s, e) => btnIngresar.ForeColor = Color.White;
 
-            //// Ojito mostrar/ocultar contraseña — se achica el textbox para que el botón quede afuera del borde
-            //txtContraseña.Width -= 28;
-            //var btnOjo = new Button
-            //{
-            //    Text      = "👁",
-            //    Font      = new Font("Segoe UI Emoji", 9f),
-            //    Size      = new Size(26, txtContraseña.Height),
-            //    Location  = new Point(txtContraseña.Right + 2, txtContraseña.Top),
-            //    FlatStyle = FlatStyle.Flat,
-            //    BackColor = txtContraseña.BackColor,
-            //    ForeColor = Color.FromArgb(100, 100, 100),
-            //    Cursor    = Cursors.Hand,
-            //    TabStop   = false
-            //};
-            //btnOjo.FlatAppearance.BorderSize = 1;
-            //btnOjo.FlatAppearance.BorderColor = Color.FromArgb(180, 180, 180);
-            //btnOjo.Click += (s, e) =>
-            //    txtContraseña.PasswordChar = txtContraseña.PasswordChar == '\0' ? '●' : '\0';
-            //pnlCard.Controls.Add(btnOjo);
-            //btnOjo.BringToFront();
+            // lblError necesita más altura para mostrar mensajes de bloqueo (multi-línea).
+            // Se desplazan los controles de abajo para hacer lugar.
+            int extra = 36;
+            lblError.Height    += extra;
+            btnIngresar.Top    += extra;
+            lnkOlvidaste.Top   += extra;
+            btnSalir.Top       += extra;
+            pnlCard.Height     += extra;
+
+            // Ojito mostrar/ocultar contraseña — se achica el textbox para que el botón quede afuera del borde
+            txtContraseña.Width -= 28;
+            var btnOjo = new Button
+            {
+                Text      = "👁",
+                Font      = new Font("Segoe UI Emoji", 9f),
+                Size      = new Size(26, txtContraseña.Height),
+                Location  = new Point(txtContraseña.Right + 2, txtContraseña.Top),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = txtContraseña.BackColor,
+                ForeColor = Color.FromArgb(100, 100, 100),
+                Cursor    = Cursors.Hand,
+                TabStop   = false
+            };
+            btnOjo.FlatAppearance.BorderSize = 1;
+            btnOjo.FlatAppearance.BorderColor = Color.FromArgb(180, 180, 180);
+            btnOjo.Click += (s, e) =>
+                txtContraseña.PasswordChar = txtContraseña.PasswordChar == '\0' ? '●' : '\0';
+            pnlCard.Controls.Add(btnOjo);
+            btnOjo.BringToFront();
         }
 
         /// <summary>
@@ -77,9 +86,26 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                lblError.Text = ex.Message;
-                txtContraseña.Clear();
-                txtContraseña.Focus();
+                bool bloqueado = ex.Message.Contains("bloqueada");
+
+                lblError.Text      = ex.Message;
+                lblError.ForeColor = bloqueado
+                    ? Color.FromArgb(140, 0, 0)
+                    : Color.FromArgb(180, 50, 50);
+
+                if (bloqueado)
+                {
+                    // Cuenta bloqueada: deshabilitar todo para que no siga intentando
+                    txtUsuario.Enabled    = false;
+                    txtContraseña.Enabled = false;
+                    btnIngresar.Enabled   = false;
+                    this.AcceptButton     = null;
+                }
+                else
+                {
+                    txtContraseña.Clear();
+                    txtContraseña.Focus();
+                }
             }
         }
 

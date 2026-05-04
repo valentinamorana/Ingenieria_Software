@@ -40,6 +40,22 @@ namespace GUI
             InitializeComponent();
             this.Load += new EventHandler(Usuarios_Load);
 
+            // Botón reset masivo — se agrega debajo del último control del panel
+            var btnResetMasivo = new Button
+            {
+                Text      = "Resetear todas las claves a temporal",
+                Size      = new Size(216, 30),
+                Location  = new Point(12, btnDesbloquear.Bottom + 20),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(80, 80, 80),
+                ForeColor = Color.White,
+                Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold),
+                Cursor    = Cursors.Hand
+            };
+            btnResetMasivo.FlatAppearance.BorderSize = 0;
+            btnResetMasivo.Click += BtnResetMasivo_Click;
+            panelAlta.Controls.Add(btnResetMasivo);
+
             // Ojito mostrar/ocultar contraseña en el campo Nuevo Usuario
             txtContraseña.Width -= 28;
             var btnOjo = new Button
@@ -160,9 +176,10 @@ namespace GUI
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(password) || password.Length < 6)
+            var (valida, mensajeVal) = Seguridad.Encriptador.ValidarContrasena(password);
+            if (!valida)
             {
-                MostrarError("La contraseña debe tener al menos 6 caracteres.");
+                MostrarError(mensajeVal);
                 return;
             }
 
@@ -257,6 +274,35 @@ namespace GUI
                 usuarioBLL.Desbloquear(this, idUsuario, username);
                 CargarUsuarios();
                 MostrarOk($"Cuenta '{username}' desbloqueada correctamente.");
+            }
+            catch (Exception ex)
+            {
+                MostrarError(ex.Message);
+            }
+        }
+
+        // ── Reset masivo ──────────────────────────────────────────────────────
+
+        private void BtnResetMasivo_Click(object sender, EventArgs e)
+        {
+            const string claveTemporal = "Wardrobe1!";
+
+            var confirm = MessageBox.Show(
+                $"Esto va a resetear la contraseña de TODOS los usuarios a:\n\n" +
+                $"   {claveTemporal}\n\n" +
+                "Comunicate con cada empleado para que la cambien.\n\n" +
+                "¿Confirmar?",
+                "Resetear todas las claves",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+
+            if (confirm != DialogResult.Yes) return;
+
+            try
+            {
+                usuarioBLL.ResetearTodasLasClaves(this, claveTemporal);
+                MostrarOk($"Todas las claves fueron reseteadas a: {claveTemporal}");
             }
             catch (Exception ex)
             {
