@@ -176,10 +176,10 @@ namespace GUI
                 return;
             }
 
-            var (valida, mensajeVal) = Seguridad.Encriptador.ValidarContrasena(password);
-            if (!valida)
+            var resultado = usuarioBLL.ValidarContrasena(password);
+            if (!resultado.valida)
             {
-                MostrarError(mensajeVal);
+                MostrarError(resultado.mensaje);
                 return;
             }
 

@@ -39,8 +39,8 @@ namespace GUI
             this.txtUsuario.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtUsuario.Location = new System.Drawing.Point(22, 46);
             this.txtUsuario.Margin = new System.Windows.Forms.Padding(2);
-            this.txtUsuario.Name = "txtUsuario";
             this.txtUsuario.MaxLength = 50;
+            this.txtUsuario.Name = "txtUsuario";
             this.txtUsuario.Size = new System.Drawing.Size(240, 25);
             this.txtUsuario.TabIndex = 1;
             // 
@@ -51,8 +51,8 @@ namespace GUI
             this.txtContraseña.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtContraseña.Location = new System.Drawing.Point(22, 102);
             this.txtContraseña.Margin = new System.Windows.Forms.Padding(2);
-            this.txtContraseña.Name = "txtContraseña";
             this.txtContraseña.MaxLength = 100;
+            this.txtContraseña.Name = "txtContraseña";
             this.txtContraseña.PasswordChar = '●';
             this.txtContraseña.Size = new System.Drawing.Size(240, 25);
             this.txtContraseña.TabIndex = 3;
@@ -65,9 +65,9 @@ namespace GUI
             this.lblUsuario.Location = new System.Drawing.Point(22, 28);
             this.lblUsuario.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblUsuario.Name = "lblUsuario";
-            this.lblUsuario.Tag = "lbl.usuario";
             this.lblUsuario.Size = new System.Drawing.Size(240, 15);
             this.lblUsuario.TabIndex = 0;
+            this.lblUsuario.Tag = "lbl.usuario";
             this.lblUsuario.Text = "Usuario";
             // 
             // lblContraseña
@@ -78,9 +78,9 @@ namespace GUI
             this.lblContraseña.Location = new System.Drawing.Point(22, 85);
             this.lblContraseña.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblContraseña.Name = "lblContraseña";
-            this.lblContraseña.Tag = "lbl.contrasena";
             this.lblContraseña.Size = new System.Drawing.Size(240, 15);
             this.lblContraseña.TabIndex = 2;
+            this.lblContraseña.Tag = "lbl.contrasena";
             this.lblContraseña.Text = "Contraseña";
             // 
             // btnIngresar
@@ -96,9 +96,9 @@ namespace GUI
             this.btnIngresar.Location = new System.Drawing.Point(22, 153);
             this.btnIngresar.Margin = new System.Windows.Forms.Padding(2);
             this.btnIngresar.Name = "btnIngresar";
-            this.btnIngresar.Tag = "btn.ingresar";
             this.btnIngresar.Size = new System.Drawing.Size(240, 34);
             this.btnIngresar.TabIndex = 5;
+            this.btnIngresar.Tag = "btn.ingresar";
             this.btnIngresar.Text = "INGRESAR";
             this.btnIngresar.UseVisualStyleBackColor = false;
             this.btnIngresar.Click += new System.EventHandler(this.btnIngresar_Click);
@@ -115,9 +115,9 @@ namespace GUI
             this.btnSalir.Location = new System.Drawing.Point(98, 238);
             this.btnSalir.Margin = new System.Windows.Forms.Padding(2);
             this.btnSalir.Name = "btnSalir";
-            this.btnSalir.Tag = "btn.salir";
             this.btnSalir.Size = new System.Drawing.Size(90, 24);
             this.btnSalir.TabIndex = 7;
+            this.btnSalir.Tag = "btn.salir";
             this.btnSalir.Text = "SALIR";
             this.btnSalir.UseVisualStyleBackColor = false;
             this.btnSalir.Click += new System.EventHandler(this.btnSalir_Click);
@@ -142,10 +142,10 @@ namespace GUI
             this.lnkOlvidaste.LinkColor = System.Drawing.Color.Purple;
             this.lnkOlvidaste.Location = new System.Drawing.Point(22, 210);
             this.lnkOlvidaste.Name = "lnkOlvidaste";
-            this.lnkOlvidaste.Tag = "lnk.olvide";
             this.lnkOlvidaste.Size = new System.Drawing.Size(240, 18);
             this.lnkOlvidaste.TabIndex = 6;
             this.lnkOlvidaste.TabStop = true;
+            this.lnkOlvidaste.Tag = "lnk.olvide";
             this.lnkOlvidaste.Text = "Olvidé mi contraseña";
             this.lnkOlvidaste.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lnkOlvidaste.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkOlvidaste_LinkClicked);
@@ -205,7 +205,7 @@ namespace GUI
             // label1
             // 
             this.label1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(100)))), ((int)(((byte)(135)))));
-            this.label1.Location = new System.Drawing.Point(0, 430);
+            this.label1.Location = new System.Drawing.Point(0, 443);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(746, 10);
@@ -216,7 +216,7 @@ namespace GUI
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(146)))), ((int)(((byte)(62)))), ((int)(((byte)(96)))));
-            this.ClientSize = new System.Drawing.Size(744, 437);
+            this.ClientSize = new System.Drawing.Size(744, 449);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lblAccent);
             this.Controls.Add(this.lblTitle);
@@ -229,8 +229,8 @@ namespace GUI
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Login";
-            this.Tag = "frm.login";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Tag = "frm.login";
             this.Text = "WardrobeFlow";
             this.pnlCard.ResumeLayout(false);
             this.pnlCard.PerformLayout();

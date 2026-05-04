@@ -22,8 +22,8 @@ namespace GUI
     ///   Implementa IIdiomaObserver. Se suscribe al GestorIdioma en Load
     ///   y se desuscribe en FormClosing. Al recibir UpdateLanguage() aplica
     ///   las traducciones del nuevo idioma a todos sus controles.
-    ///   El cambio de idioma ocurre desde la barra del Menu principal,
-    ///   sin abrir ningún formulario adicional.
+    ///   El Login tiene sus propios botones 🇦🇷 ES / 🇬🇧 EN / 🇷🇺 RU en la esquina inferior.
+    ///   Al cambiar el idioma acá, el Menu ya abre traducido cuando el usuario ingresa.
     /// </summary>
     public partial class Login : Form, IIdiomaObserver
     {
@@ -69,6 +69,70 @@ namespace GUI
                 txtContraseña.PasswordChar = txtContraseña.PasswordChar == '\0' ? '●' : '\0';
             pnlCard.Controls.Add(btnOjo);
             btnOjo.BringToFront();
+
+            // ── Botones de idioma — esquina inferior del formulario ───────────
+            // Permiten cambiar el idioma antes de hacer login, igual que en el Menu.
+            // Al clickear notifican al GestorIdioma → todos los observers se traducen.
+            AgregarBotonesIdioma();
+        }
+
+        // Referencia a los botones para poder marcar el activo
+        private Button _loginBtnES, _loginBtnEN, _loginBtnRU;
+
+        private void AgregarBotonesIdioma()
+        {
+            int y      = this.ClientSize.Height - 34;
+            int startX = this.ClientSize.Width  - 10;
+
+            // Se crean de derecha a izquierda: RU | EN | ES
+            foreach (var (codigo, texto) in new[] {
+                ("RU", "🇷🇺 RU"), ("EN", "🇬🇧 EN"), ("ES", "🇦🇷 ES") })
+            {
+                var btn = new Button
+                {
+                    Text      = texto,
+                    Size      = new Size(70, 26),
+                    FlatStyle = FlatStyle.Flat,
+                    BackColor = Color.FromArgb(100, 40, 65),
+                    ForeColor = Color.FromArgb(200, 200, 210),
+                    Font      = new Font("Segoe UI", 8f),
+                    Cursor    = Cursors.Hand,
+                    TabStop   = false
+                };
+                btn.FlatAppearance.BorderSize  = 0;
+                startX -= btn.Width + 4;
+                btn.Location = new Point(startX, y);
+
+                string cod = codigo; // captura para el closure
+                btn.Click += (s, e) =>
+                {
+                    foreach (var idioma in Servicios.Multiidioma.Traductor.ObtenerIdiomas())
+                        if (idioma.Id == cod)
+                        { Servicios.Multiidioma.GestorIdioma.CambiarIdioma(idioma); break; }
+                    MarcarIdiomaActivoLogin(cod);
+                };
+
+                this.Controls.Add(btn);
+                btn.BringToFront();
+
+                if (codigo == "ES") _loginBtnES = btn;
+                if (codigo == "EN") _loginBtnEN = btn;
+                if (codigo == "RU") _loginBtnRU = btn;
+            }
+
+            MarcarIdiomaActivoLogin("ES");
+        }
+
+        private void MarcarIdiomaActivoLogin(string codigo)
+        {
+            var activo  = new Font("Segoe UI", 8f, FontStyle.Bold);
+            var normal  = new Font("Segoe UI", 8f, FontStyle.Regular);
+            var cActivo = Color.White;
+            var cNormal = Color.FromArgb(170, 170, 180);
+
+            if (_loginBtnES != null) { _loginBtnES.Font = codigo=="ES"?activo:normal; _loginBtnES.ForeColor = codigo=="ES"?cActivo:cNormal; }
+            if (_loginBtnEN != null) { _loginBtnEN.Font = codigo=="EN"?activo:normal; _loginBtnEN.ForeColor = codigo=="EN"?cActivo:cNormal; }
+            if (_loginBtnRU != null) { _loginBtnRU.Font = codigo=="RU"?activo:normal; _loginBtnRU.ForeColor = codigo=="RU"?cActivo:cNormal; }
         }
 
         // ── Eventos del ciclo de vida ─────────────────────────────────────────

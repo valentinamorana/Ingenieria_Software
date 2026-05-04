@@ -182,6 +182,13 @@ namespace BLL
             return usuarioDAL.ObtenerPorUsername(username) != null;
         }
 
+        // Expone la validación de contraseña para que la GUI pueda dar feedback
+        // temprano sin acceder directamente a la capa Seguridad.
+        public (bool valida, string mensaje) ValidarContrasena(string contrasena)
+        {
+            return Encriptador.ValidarContrasena(contrasena);
+        }
+
         // Registra un intento de login fallido en bitácora.
         private void RegistrarIntentoFallidoInterno(string modulo, string username,
                                                      int numeroIntento, int? idUsuario = null)

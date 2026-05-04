@@ -84,25 +84,25 @@ namespace Servicios.Multiidioma
         private static readonly IDictionary<string, Traduccion> _es =
             Construir(new Dictionary<string, string>
         {
-            // Login
-            { "frm.login",        "WardrobeFlow — Acceso"         },
+            // Login — textos idénticos al Designer para que ES no cambie nada visualmente
+            { "frm.login",        "WardrobeFlow"                   },
             { "lbl.usuario",      "Usuario"                        },
             { "lbl.contrasena",   "Contraseña"                     },
-            { "btn.ingresar",     "Ingresar"                       },
-            { "btn.salir",        "Salir"                          },
-            { "lnk.olvide",       "¿Olvidaste tu contraseña?"      },
+            { "btn.ingresar",     "INGRESAR"                       },
+            { "btn.salir",        "SALIR"                          },
+            { "lnk.olvide",       "Olvidé mi contraseña"           },
             // Menú principal
             { "mnu.inventario",   "Inventario"                     },
             { "mnu.prendas",      "Prendas"                        },
             { "mnu.ventas",       "Ventas"                         },
             { "mnu.clientes",     "Clientes"                       },
-            { "mnu.planes",       "Planes de Suscripción"          },
+            { "mnu.planes",       "Planes de Suscripcion"          },
             { "mnu.pedidosventa", "Pedidos de Venta"               },
             { "mnu.pedidosreal",  "Pedidos Realizados"             },
             { "mnu.administrar",  "Administrar"                    },
             { "mnu.usuarios",     "Usuarios"                       },
             { "mnu.bitacora",     "Bitácora"                       },
-            { "mnu.cerrarsesion", "Cerrar Sesión"                  },
+            { "mnu.cerrarsesion", "Cerrar Sesion"                  },
         });
 
         // ── Diccionario English (EN) ──────────────────────────────────────────
