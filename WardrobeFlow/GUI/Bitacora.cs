@@ -147,7 +147,7 @@ namespace GUI
                 int uid         = int.TryParse(txtUsuario.Text, out int u) ? u : 0;
                 string activ    = txtActividad.Text.Trim();
 
-                int[] criticidadMap = { -1, 1, 2, 3, 4, 5, 6 };
+                int[] criticidadMap = { -1, 0, 1, 2, 3, 4, 5, 6 };
                 int criticidad = criticidadMap[cmbCriticidad.SelectedIndex];
 
                 var dt = srvSistema.BuscarPorFiltros(desde, null, uid, activ, criticidad);
@@ -352,7 +352,7 @@ namespace GUI
                     conteos[c]++;
             }
 
-            string[] etiquetas = { "None", "Baja", "Media", "Alta", "Int.Login", "Recup.Clave", "Bloqueos" };
+            string[] etiquetas = { "Ninguno", "Baja", "Media", "Alta", "Int.Login", "Recup.Clave", "Bloqueos" };
             var partes = new List<string>();
             for (int i = 0; i < 7; i++)
                 if (conteos[i] > 0)

@@ -72,6 +72,7 @@ namespace GUI
             this.txtUsername.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtUsername.Location = new System.Drawing.Point(24, 128);
             this.txtUsername.Name = "txtUsername";
+            this.txtUsername.MaxLength = 50;
             this.txtUsername.Size = new System.Drawing.Size(332, 25);
             this.txtUsername.TabIndex = 4;
             // 

@@ -44,6 +44,7 @@ namespace GUI
             // 
             this.txtNombre.Location = new System.Drawing.Point(16, 38);
             this.txtNombre.Name = "txtNombre";
+            this.txtNombre.MaxLength = 50;
             this.txtNombre.Size = new System.Drawing.Size(340, 20);
             this.txtNombre.TabIndex = 1;
             // 
@@ -59,6 +60,7 @@ namespace GUI
             // 
             this.txtApellido.Location = new System.Drawing.Point(16, 90);
             this.txtApellido.Name = "txtApellido";
+            this.txtApellido.MaxLength = 50;
             this.txtApellido.Size = new System.Drawing.Size(340, 20);
             this.txtApellido.TabIndex = 3;
             // 
@@ -74,6 +76,7 @@ namespace GUI
             // 
             this.txtDNI.Location = new System.Drawing.Point(16, 142);
             this.txtDNI.Name = "txtDNI";
+            this.txtDNI.MaxLength = 10;
             this.txtDNI.Size = new System.Drawing.Size(340, 20);
             this.txtDNI.TabIndex = 5;
             // 
@@ -89,6 +92,7 @@ namespace GUI
             // 
             this.txtEmail.Location = new System.Drawing.Point(16, 194);
             this.txtEmail.Name = "txtEmail";
+            this.txtEmail.MaxLength = 100;
             this.txtEmail.Size = new System.Drawing.Size(340, 20);
             this.txtEmail.TabIndex = 7;
             // 

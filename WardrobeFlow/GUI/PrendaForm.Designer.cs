@@ -44,6 +44,7 @@ namespace GUI
             this.txtNombre.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.txtNombre.Location = new System.Drawing.Point(16, 36);
             this.txtNombre.Name = "txtNombre";
+            this.txtNombre.MaxLength = 50;
             this.txtNombre.Size = new System.Drawing.Size(360, 24);
             this.txtNombre.TabIndex = 1;
             // 
@@ -62,6 +63,7 @@ namespace GUI
             this.txtDescripcion.Location = new System.Drawing.Point(16, 90);
             this.txtDescripcion.Multiline = true;
             this.txtDescripcion.Name = "txtDescripcion";
+            this.txtDescripcion.MaxLength = 200;
             this.txtDescripcion.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtDescripcion.Size = new System.Drawing.Size(360, 56);
             this.txtDescripcion.TabIndex = 3;
@@ -113,6 +115,7 @@ namespace GUI
             this.txtColor.Font = new System.Drawing.Font("Segoe UI", 9.5F);
             this.txtColor.Location = new System.Drawing.Point(196, 170);
             this.txtColor.Name = "txtColor";
+            this.txtColor.MaxLength = 50;
             this.txtColor.Size = new System.Drawing.Size(180, 24);
             this.txtColor.TabIndex = 7;
             // 

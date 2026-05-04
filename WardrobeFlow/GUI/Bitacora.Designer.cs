@@ -208,6 +208,7 @@ namespace GUI
             // 
             this.txtUsuario.Location = new System.Drawing.Point(390, 10);
             this.txtUsuario.Name = "txtUsuario";
+            this.txtUsuario.MaxLength = 10;
             this.txtUsuario.Size = new System.Drawing.Size(55, 20);
             this.txtUsuario.TabIndex = 5;
             this.txtUsuario.Text = "0";
@@ -224,6 +225,7 @@ namespace GUI
             // 
             this.txtActividad.Location = new System.Drawing.Point(82, 50);
             this.txtActividad.Name = "txtActividad";
+            this.txtActividad.MaxLength = 100;
             this.txtActividad.Size = new System.Drawing.Size(200, 20);
             this.txtActividad.TabIndex = 7;
             // 
@@ -240,6 +242,7 @@ namespace GUI
             this.cmbCriticidad.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbCriticidad.Items.AddRange(new object[] {
             "Todas",
+            "Ninguno (0)",
             "Baja (1)",
             "Media (2)",
             "Alta (3)",
@@ -448,6 +451,7 @@ namespace GUI
             // 
             this.txtNegPedido.Location = new System.Drawing.Point(590, 10);
             this.txtNegPedido.Name = "txtNegPedido";
+            this.txtNegPedido.MaxLength = 10;
             this.txtNegPedido.Size = new System.Drawing.Size(60, 20);
             this.txtNegPedido.TabIndex = 7;
             this.txtNegPedido.Text = "0";
@@ -464,6 +468,7 @@ namespace GUI
             // 
             this.txtNegCliente.Location = new System.Drawing.Point(732, 10);
             this.txtNegCliente.Name = "txtNegCliente";
+            this.txtNegCliente.MaxLength = 10;
             this.txtNegCliente.Size = new System.Drawing.Size(60, 20);
             this.txtNegCliente.TabIndex = 9;
             this.txtNegCliente.Text = "0";

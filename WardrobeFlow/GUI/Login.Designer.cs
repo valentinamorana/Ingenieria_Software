@@ -40,6 +40,7 @@ namespace GUI
             this.txtUsuario.Location = new System.Drawing.Point(22, 46);
             this.txtUsuario.Margin = new System.Windows.Forms.Padding(2);
             this.txtUsuario.Name = "txtUsuario";
+            this.txtUsuario.MaxLength = 50;
             this.txtUsuario.Size = new System.Drawing.Size(240, 25);
             this.txtUsuario.TabIndex = 1;
             // 
@@ -51,6 +52,7 @@ namespace GUI
             this.txtContraseña.Location = new System.Drawing.Point(22, 102);
             this.txtContraseña.Margin = new System.Windows.Forms.Padding(2);
             this.txtContraseña.Name = "txtContraseña";
+            this.txtContraseña.MaxLength = 100;
             this.txtContraseña.PasswordChar = '●';
             this.txtContraseña.Size = new System.Drawing.Size(240, 25);
             this.txtContraseña.TabIndex = 3;

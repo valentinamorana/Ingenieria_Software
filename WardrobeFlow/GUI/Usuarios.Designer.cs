@@ -91,6 +91,7 @@ namespace GUI
             // 
             this.txtUsername.Location = new System.Drawing.Point(12, 68);
             this.txtUsername.Name = "txtUsername";
+            this.txtUsername.MaxLength = 50;
             this.txtUsername.Size = new System.Drawing.Size(210, 20);
             this.txtUsername.TabIndex = 2;
             // 
@@ -106,6 +107,7 @@ namespace GUI
             // 
             this.txtContraseña.Location = new System.Drawing.Point(12, 118);
             this.txtContraseña.Name = "txtContraseña";
+            this.txtContraseña.MaxLength = 100;
             this.txtContraseña.PasswordChar = '●';
             this.txtContraseña.Size = new System.Drawing.Size(210, 20);
             this.txtContraseña.TabIndex = 4;
