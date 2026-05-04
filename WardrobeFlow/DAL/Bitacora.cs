@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 
 namespace DAL
 {
@@ -35,7 +36,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"[DAL.Bitacora] Error al registrar: {ex.Message}");
+                Debug.WriteLine($"[DAL.Bitacora] Error al registrar: {ex.Message}");
             }
         }
 
@@ -51,7 +52,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"[DAL.Bitacora] Error al obtener: {ex.Message}");
+                Debug.WriteLine($"[DAL.Bitacora] Error al obtener: {ex.Message}");
                 return new DataTable();
             }
         }
@@ -73,7 +74,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"[DAL.Bitacora] Error al obtener últimos {dias} días: {ex.Message}");
+                Debug.WriteLine($"[DAL.Bitacora] Error al obtener últimos {dias} días: {ex.Message}");
                 return new DataTable();
             }
         }
@@ -121,7 +122,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"[DAL.Bitacora] Error en búsqueda: {ex.Message}");
+                Debug.WriteLine($"[DAL.Bitacora] Error en búsqueda: {ex.Message}");
                 return new DataTable();
             }
         }

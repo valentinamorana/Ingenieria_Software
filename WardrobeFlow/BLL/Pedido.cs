@@ -254,6 +254,9 @@ namespace BLL
         // Obtiene el IdEmpleado del usuario en sesión.
         private int ResolverEmpleadoActivo()
         {
+            if (!Seguridad.SessionManager.IsLoggedIn)
+                throw new Exception("La sesión expiró. Volvé a iniciar sesión.");
+
             var usuario  = Seguridad.SessionManager.GetInstance.Usuario;
             var empleado = dalEmpleado.ObtenerPorUsuario(usuario.Id);
             if (empleado == null)
