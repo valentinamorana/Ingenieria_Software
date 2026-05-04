@@ -182,53 +182,71 @@ namespace DAL
         }
 
         // Cancela el pedido, guarda el motivo y libera las prendas a Disponible.
+        // Ambas operaciones se ejecutan en una única transacción: si falla alguna,
+        // ningún cambio queda aplicado (integridad transaccional).
         public void Cancelar(int idPedido, string motivo)
         {
-            SqlParameter[] p =
+            acceso.EjecutarTransaccion((conexion, tx) =>
             {
-                new SqlParameter("@IdPedido", idPedido),
-                new SqlParameter("@Motivo",   (object)motivo ?? DBNull.Value)
-            };
-            acceso.Escribir(
-                "UPDATE Pedido SET Estado=3, MotivoCancelacion=@Motivo " +
-                "WHERE IdPedido=@IdPedido",
-                p);
+                using (var cmdPedido = new SqlCommand(
+                    $"UPDATE Pedido SET Estado={(int)BE.EstadoPedido.Cancelado}, MotivoCancelacion=@Motivo " +
+                    "WHERE IdPedido=@IdPedido",
+                    conexion, tx))
+                {
+                    cmdPedido.Parameters.AddWithValue("@Motivo",   (object)motivo ?? DBNull.Value);
+                    cmdPedido.Parameters.AddWithValue("@IdPedido", idPedido);
+                    cmdPedido.ExecuteNonQuery();
+                }
 
-            // Liberar prendas del pedido → Disponible
-            acceso.Escribir(
-                "UPDATE Prenda SET Estado=0, IdClienteActual=NULL " +
-                "WHERE IdPrenda IN (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
-                new SqlParameter[] { new SqlParameter("@IdPedido", idPedido) });
+                // Liberar prendas del pedido → Disponible
+                using (var cmdPrendas = new SqlCommand(
+                    $"UPDATE Prenda SET Estado={(int)BE.EstadoPrenda.Disponible}, IdClienteActual=NULL " +
+                    "WHERE IdPrenda IN (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
+                    conexion, tx))
+                {
+                    cmdPrendas.Parameters.AddWithValue("@IdPedido", idPedido);
+                    cmdPrendas.ExecuteNonQuery();
+                }
+            });
         }
 
         // Revierte la cancelación. Devuelve false si alguna prenda ya no está Disponible.
+        // El UPDATE de Pedido y el de Prenda se ejecutan en una única transacción.
         public bool DesCancelar(int idPedido, int idCliente)
         {
+            // Verificar disponibilidad ANTES de abrir la transacción
             SqlParameter[] checkP = { new SqlParameter("@IdPedido", idPedido) };
             DataTable chk = acceso.Leer(
-                "SELECT COUNT(*) AS Ocupadas " +
+                $"SELECT COUNT(*) AS Ocupadas " +
                 "FROM PedidoPrenda pp " +
                 "INNER JOIN Prenda pr ON pr.IdPrenda = pp.IdPrenda " +
-                "WHERE pp.IdPedido = @IdPedido AND pr.Estado <> 0",
+                $"WHERE pp.IdPedido = @IdPedido AND pr.Estado <> {(int)BE.EstadoPrenda.Disponible}",
                 checkP);
 
             if (chk == null || Convert.ToInt32(chk.Rows[0]["Ocupadas"]) > 0)
                 return false;
 
-            acceso.Escribir(
-                "UPDATE Pedido SET Estado=0, MotivoCancelacion=NULL " +
-                "WHERE IdPedido=@IdPedido",
-                new SqlParameter[] { new SqlParameter("@IdPedido", idPedido) });
-
-            SqlParameter[] pp =
+            acceso.EjecutarTransaccion((conexion, tx) =>
             {
-                new SqlParameter("@IdCliente", idCliente),
-                new SqlParameter("@IdPedido",  idPedido)
-            };
-            acceso.Escribir(
-                "UPDATE Prenda SET Estado=1, IdClienteActual=@IdCliente " +
-                "WHERE IdPrenda IN (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
-                pp);
+                using (var cmdPedido = new SqlCommand(
+                    $"UPDATE Pedido SET Estado={(int)BE.EstadoPedido.Pendiente}, MotivoCancelacion=NULL " +
+                    "WHERE IdPedido=@IdPedido",
+                    conexion, tx))
+                {
+                    cmdPedido.Parameters.AddWithValue("@IdPedido", idPedido);
+                    cmdPedido.ExecuteNonQuery();
+                }
+
+                using (var cmdPrendas = new SqlCommand(
+                    $"UPDATE Prenda SET Estado={(int)BE.EstadoPrenda.EnUso}, IdClienteActual=@IdCliente " +
+                    "WHERE IdPrenda IN (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
+                    conexion, tx))
+                {
+                    cmdPrendas.Parameters.AddWithValue("@IdCliente", idCliente);
+                    cmdPrendas.Parameters.AddWithValue("@IdPedido",  idPedido);
+                    cmdPrendas.ExecuteNonQuery();
+                }
+            });
 
             return true;
         }

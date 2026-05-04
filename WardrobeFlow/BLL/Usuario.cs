@@ -13,7 +13,8 @@ namespace BLL
         private readonly DAL.Permiso        permisoDAL = new DAL.Permiso();
         private readonly Servicios.Bitacora bitacora   = new Servicios.Bitacora();
 
-        private const int MaxIntentosFallidos = 3;
+        private const int    MaxIntentosFallidos = 3;
+        private const string RolAdministrador    = "Administrador";
 
         /// <summary>Autentica al usuario y establece la sesión. Bloquea la cuenta tras 3 intentos fallidos.</summary>
         public bool Login(Form formulario, string username, string contraseña)
@@ -100,7 +101,7 @@ namespace BLL
                 throw new Exception("No hay sesión activa.");
 
             string perfil = SessionManager.GetInstance.Usuario.Perfil ?? "";
-            if (!perfil.Equals("Administrador", StringComparison.OrdinalIgnoreCase))
+            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
                 throw new Exception("Solo un Administrador puede resetear contraseñas.");
 
             var (valida, mensaje) = Encriptador.ValidarContrasena(nuevaClave);
@@ -126,7 +127,7 @@ namespace BLL
                 throw new Exception("No hay sesión activa.");
 
             string perfil = SessionManager.GetInstance.Usuario.Perfil ?? "";
-            if (!perfil.Equals("Administrador", StringComparison.OrdinalIgnoreCase))
+            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
                 throw new Exception("Solo un Administrador puede desbloquear cuentas.");
 
             usuarioDAL.Desbloquear(idUsuario);
@@ -143,7 +144,7 @@ namespace BLL
                 throw new Exception("No hay sesión activa.");
 
             string perfil = SessionManager.GetInstance.Usuario.Perfil ?? "";
-            if (!perfil.Equals("Administrador", StringComparison.OrdinalIgnoreCase))
+            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
                 throw new Exception("Solo un Administrador puede realizar esta operación.");
 
             var (valida, mensaje) = Encriptador.ValidarContrasena(claveTemporal);

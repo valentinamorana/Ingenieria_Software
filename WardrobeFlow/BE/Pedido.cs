@@ -45,10 +45,38 @@ namespace BE
         // El pedido puede despacharse solo si está Pendiente.
         public bool PuedeDespachar() => Estado == EstadoPedido.Pendiente;
 
-        // El pedido puede marcarse como entregado solo si está Despachado. 
+        // El pedido puede marcarse como entregado solo si está Despachado.
         public bool PuedeEntregarse() => Estado == EstadoPedido.Despachado;
 
         // El pedido puede des-cancelarse solo si está Cancelado.
         public bool PuedeDesCancelarse() => Estado == EstadoPedido.Cancelado;
+
+        /// <summary>
+        /// Valida que la transición de estado sea permitida según el flujo definido:
+        ///   Pendiente → Despachado → Entregado
+        ///   Pendiente → Cancelado  → Pendiente (des-cancelar)
+        /// Impide cualquier retroceso o salto de estado no contemplado.
+        /// </summary>
+        public bool TransicionValida(EstadoPedido destino)
+        {
+            switch (Estado)
+            {
+                case EstadoPedido.Pendiente:
+                    return destino == EstadoPedido.Despachado
+                        || destino == EstadoPedido.Cancelado;
+
+                case EstadoPedido.Despachado:
+                    return destino == EstadoPedido.Entregado;
+
+                case EstadoPedido.Entregado:
+                    return false; // Estado final — no admite más transiciones
+
+                case EstadoPedido.Cancelado:
+                    return destino == EstadoPedido.Pendiente; // Des-cancelar
+
+                default:
+                    return false;
+            }
+        }
     }
 }
