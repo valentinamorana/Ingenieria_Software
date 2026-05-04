@@ -55,6 +55,7 @@ namespace GUI
             this.panelTop.TabIndex  = 0;
 
             // lblEstado
+            this.lblEstado.Tag       = "lbl.estado";
             this.lblEstado.Text      = "Estado:";
             this.lblEstado.Left      = 8;
             this.lblEstado.Top       = 18;
@@ -75,6 +76,7 @@ namespace GUI
             this.cmbEstadoFiltro.SelectedIndexChanged += new System.EventHandler(this.CmbEstadoFiltro_SelectedIndexChanged);
 
             // lblBuscar
+            this.lblBuscar.Tag       = "lbl.buscar";
             this.lblBuscar.Text      = "Buscar:";
             this.lblBuscar.Left      = 200;
             this.lblBuscar.Top       = 18;
@@ -92,6 +94,7 @@ namespace GUI
             this.txtFiltro.TextChanged += new System.EventHandler(this.TxtFiltro_TextChanged);
 
             // btnNueva
+            this.btnNueva.Tag       = "btn.nuevaprenda";
             this.btnNueva.Text      = "+ Nueva Prenda";
             this.btnNueva.Left      = 470;
             this.btnNueva.Top       = 13;
@@ -106,6 +109,7 @@ namespace GUI
             this.btnNueva.Click    += new System.EventHandler(this.BtnNueva_Click);
 
             // btnEditar
+            this.btnEditar.Tag       = "btn.editar";
             this.btnEditar.Text      = "\u270e Editar";
             this.btnEditar.Left      = 610;
             this.btnEditar.Top       = 13;
@@ -118,6 +122,7 @@ namespace GUI
             this.btnEditar.Click    += new System.EventHandler(this.BtnEditar_Click);
 
             // btnCambiarEstado
+            this.btnCambiarEstado.Tag       = "btn.cambiarestado";
             this.btnCambiarEstado.Text      = "\u21c4 Estado";
             this.btnCambiarEstado.Left      = 698;
             this.btnCambiarEstado.Top       = 13;
@@ -164,6 +169,7 @@ namespace GUI
             this.panelDetalle.TabIndex  = 3;
 
             // lblDetalleTitulo
+            this.lblDetalleTitulo.Tag      = "lbl.clienteenuso";
             this.lblDetalleTitulo.Text     = "Cliente en uso:";
             this.lblDetalleTitulo.Font     = new System.Drawing.Font("Segoe UI", 8.5f, System.Drawing.FontStyle.Bold);
             this.lblDetalleTitulo.Left     = 10;
@@ -220,6 +226,7 @@ namespace GUI
             this.AutoScaleMode       = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize          = new System.Drawing.Size(1000, 580);
             this.MinimumSize         = new System.Drawing.Size(820, 460);
+            this.Tag                 = "frm.prendas";
             this.Text                = "Cat\u00e1logo de Prendas";
             this.Name                = "Prendas";
             this.Controls.Add(this.dgvPrendas);

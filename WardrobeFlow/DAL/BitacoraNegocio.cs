@@ -35,16 +35,24 @@ namespace DAL
         // Devuelve todos los eventos ordenados por fecha descendente.
         public DataTable ObtenerTodos()
         {
-            return acceso.Leer(
-                "SELECT bn.IdEvento, bn.Fecha, bn.Tipo, " +
-                "       u.Username AS UsernameUsuario, " +
-                "       c.Nombre + ' ' + c.Apellido AS NombreCliente, " +
-                "       bn.IdPedido, bn.IdPrenda, bn.IdCliente, bn.Descripcion " +
-                "FROM BitacoraNegocio bn " +
-                "LEFT JOIN Usuario u ON u.IdUsuario = bn.IdUsuario " +
-                "LEFT JOIN Cliente c ON c.IdCliente = bn.IdCliente " +
-                "ORDER BY bn.Fecha DESC",
-                null);
+            try
+            {
+                return acceso.Leer(
+                    "SELECT bn.IdEvento, bn.Fecha, bn.Tipo, " +
+                    "       u.Username AS UsernameUsuario, " +
+                    "       c.Nombre + ' ' + c.Apellido AS NombreCliente, " +
+                    "       bn.IdPedido, bn.IdPrenda, bn.IdCliente, bn.Descripcion " +
+                    "FROM BitacoraNegocio bn " +
+                    "LEFT JOIN Usuario u ON u.IdUsuario = bn.IdUsuario " +
+                    "LEFT JOIN Cliente c ON c.IdCliente = bn.IdCliente " +
+                    "ORDER BY bn.Fecha DESC",
+                    null);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DAL.BitacoraNegocio] Error en ObtenerTodos: {ex.Message}");
+                return new DataTable();
+            }
         }
 
         // Devuelve eventos filtrados por tipo, rango de fechas y entidades opcionales.
@@ -91,7 +99,15 @@ namespace DAL
                 "LEFT JOIN Cliente c ON c.IdCliente = bn.IdCliente " +
                 condiciones + " ORDER BY bn.Fecha DESC";
 
-            return acceso.Leer(sql, parametros.ToArray());
+            try
+            {
+                return acceso.Leer(sql, parametros.ToArray());
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DAL.BitacoraNegocio] Error en BuscarPorFiltros: {ex.Message}");
+                return new DataTable();
+            }
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Servicios.Multiidioma
@@ -79,7 +80,18 @@ namespace Servicios.Multiidioma
             // Iterar sobre copia para evitar problemas si un observer se desuscribe durante la notificación
             var copia = new List<IIdiomaObserver>(_observers);
             foreach (var observer in copia)
-                observer.UpdateLanguage(idioma);
+            {
+                try
+                {
+                    observer.UpdateLanguage(idioma);
+                }
+                catch (Exception ex)
+                {
+                    // Un formulario con error no interrumpe la traducción del resto
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[GestorIdioma] Error al notificar observer {observer.GetType().Name}: {ex.Message}");
+                }
+            }
         }
     }
 }

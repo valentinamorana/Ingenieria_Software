@@ -46,9 +46,11 @@ namespace Servicios
 
                 dal.Registrar(evento);
             }
-            catch
+            catch (Exception ex)
             {
                 // No interrumpir el flujo de negocio por error de bitácora
+                System.Diagnostics.Debug.WriteLine(
+                    $"[Servicios.BitacoraNegocio] Error al registrar evento {tipo}: {ex.Message}");
             }
         }
 

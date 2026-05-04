@@ -186,6 +186,11 @@ namespace BLL
         // Verifica que el plan del cliente permita la cantidad de prendas pedidas.
         private BE.PlanSuscripcion ObtenerPlanValidado(BE.Cliente cliente, int cantidadPrendas)
         {
+            if (!cliente.IdPlan.HasValue)
+                throw new Exception(
+                    $"El cliente {cliente.NombreCompleto} no tiene plan asignado.\n" +
+                    "Asignale un plan antes de crear un pedido.");
+
             var plan = dalPlan.ObtenerPorId(cliente.IdPlan.Value);
 
             if (plan == null)

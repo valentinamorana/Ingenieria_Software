@@ -71,6 +71,7 @@ namespace GUI
             this.lblFormTitulo.Name = "lblFormTitulo";
             this.lblFormTitulo.Size = new System.Drawing.Size(286, 24);
             this.lblFormTitulo.TabIndex = 0;
+            this.lblFormTitulo.Tag = "lbl.nuevopla";
             this.lblFormTitulo.Text = "Nuevo Plan";
             // 
             // lblNombrePlan
@@ -79,6 +80,7 @@ namespace GUI
             this.lblNombrePlan.Name = "lblNombrePlan";
             this.lblNombrePlan.Size = new System.Drawing.Size(286, 16);
             this.lblNombrePlan.TabIndex = 1;
+            this.lblNombrePlan.Tag = "lbl.nombreplan";
             this.lblNombrePlan.Text = "Nombre del plan *";
             // 
             // txtNombre
@@ -95,6 +97,7 @@ namespace GUI
             this.lblLimite.Name = "lblLimite";
             this.lblLimite.Size = new System.Drawing.Size(286, 17);
             this.lblLimite.TabIndex = 3;
+            this.lblLimite.Tag = "lbl.limiteprendas";
             this.lblLimite.Text = "Límite de prendas *";
             // 
             // nudLimite
@@ -125,6 +128,7 @@ namespace GUI
             this.lblPrecio.Name = "lblPrecio";
             this.lblPrecio.Size = new System.Drawing.Size(286, 17);
             this.lblPrecio.TabIndex = 5;
+            this.lblPrecio.Tag = "lbl.preciomensual";
             this.lblPrecio.Text = "Precio mensual ($) *";
             // 
             // nudPrecio
@@ -150,6 +154,7 @@ namespace GUI
             this.btnGuardar.Name = "btnGuardar";
             this.btnGuardar.Size = new System.Drawing.Size(286, 36);
             this.btnGuardar.TabIndex = 7;
+            this.btnGuardar.Tag = "btn.guardarplan";
             this.btnGuardar.Text = "Guardar Plan";
             this.btnGuardar.UseVisualStyleBackColor = false;
             this.btnGuardar.Click += new System.EventHandler(this.BtnGuardar_Click);
@@ -161,6 +166,7 @@ namespace GUI
             this.btnNuevo.Name = "btnNuevo";
             this.btnNuevo.Size = new System.Drawing.Size(286, 30);
             this.btnNuevo.TabIndex = 8;
+            this.btnNuevo.Tag = "btn.limpiar";
             this.btnNuevo.Text = "Limpiar / Nuevo";
             this.btnNuevo.Click += new System.EventHandler(this.BtnNuevo_Click);
             // 
@@ -180,6 +186,7 @@ namespace GUI
             this.lblAcciones.Name = "lblAcciones";
             this.lblAcciones.Size = new System.Drawing.Size(286, 18);
             this.lblAcciones.TabIndex = 10;
+            this.lblAcciones.Tag = "lbl.acciones";
             this.lblAcciones.Text = "Acciones sobre plan seleccionado";
             // 
             // btnDesactivar
@@ -193,6 +200,7 @@ namespace GUI
             this.btnDesactivar.Name = "btnDesactivar";
             this.btnDesactivar.Size = new System.Drawing.Size(286, 34);
             this.btnDesactivar.TabIndex = 11;
+            this.btnDesactivar.Tag = "btn.desactivar";
             this.btnDesactivar.Text = "Desactivar Plan";
             this.btnDesactivar.UseVisualStyleBackColor = false;
             this.btnDesactivar.Click += new System.EventHandler(this.BtnDesactivar_Click);
@@ -208,6 +216,7 @@ namespace GUI
             this.btnActivar.Name = "btnActivar";
             this.btnActivar.Size = new System.Drawing.Size(286, 34);
             this.btnActivar.TabIndex = 12;
+            this.btnActivar.Tag = "btn.activar";
             this.btnActivar.Text = "Activar Plan";
             this.btnActivar.UseVisualStyleBackColor = false;
             this.btnActivar.Click += new System.EventHandler(this.BtnActivar_Click);
@@ -258,6 +267,7 @@ namespace GUI
             this.lblTituloGrilla.Padding = new System.Windows.Forms.Padding(6, 6, 0, 0);
             this.lblTituloGrilla.Size = new System.Drawing.Size(580, 28);
             this.lblTituloGrilla.TabIndex = 2;
+            this.lblTituloGrilla.Tag = "lbl.planesreg";
             this.lblTituloGrilla.Text = "Planes registrados";
             // 
             // Planes
@@ -270,6 +280,7 @@ namespace GUI
             this.Controls.Add(this.panelForm);
             this.MinimumSize = new System.Drawing.Size(780, 500);
             this.Name = "Planes";
+            this.Tag = "frm.planes";
             this.Text = "Planes de Suscripción";
             this.panelForm.ResumeLayout(false);
             this.panelForm.PerformLayout();

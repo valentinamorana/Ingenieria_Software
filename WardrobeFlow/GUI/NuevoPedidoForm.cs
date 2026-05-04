@@ -132,10 +132,6 @@ namespace GUI
             // Mostrar info del plan
             if (_clienteSel.IdPlan.HasValue)
             {
-                int disponibles = _clienteSel.IdPlan.HasValue
-                    ? 99  // se calcula abajo
-                    : 0;
-
                 lblInfoPlan.Text =
                     $"Cliente: {_clienteSel.NombreCompleto}\n" +
                     $"Plan: {_clienteSel.NombrePlan ?? "—"}\n" +

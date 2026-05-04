@@ -77,6 +77,7 @@ namespace GUI
             this.lblTitulo.Name = "lblTitulo";
             this.lblTitulo.Size = new System.Drawing.Size(210, 23);
             this.lblTitulo.TabIndex = 0;
+            this.lblTitulo.Tag = "lbl.nuevousuario";
             this.lblTitulo.Text = "Nuevo Usuario";
             // 
             // lblUser
@@ -85,6 +86,7 @@ namespace GUI
             this.lblUser.Name = "lblUser";
             this.lblUser.Size = new System.Drawing.Size(200, 15);
             this.lblUser.TabIndex = 1;
+            this.lblUser.Tag = "lbl.nombreusuario";
             this.lblUser.Text = "Nombre de usuario:";
             // 
             // txtUsername
@@ -101,6 +103,7 @@ namespace GUI
             this.lblPass.Name = "lblPass";
             this.lblPass.Size = new System.Drawing.Size(200, 15);
             this.lblPass.TabIndex = 3;
+            this.lblPass.Tag = "lbl.contrasena";
             this.lblPass.Text = "Contraseña:";
             // 
             // txtContraseña
@@ -118,6 +121,7 @@ namespace GUI
             this.lblPerfil.Name = "lblPerfil";
             this.lblPerfil.Size = new System.Drawing.Size(200, 15);
             this.lblPerfil.TabIndex = 5;
+            this.lblPerfil.Tag = "lbl.perfilrol";
             this.lblPerfil.Text = "Perfil (rol):";
             // 
             // cmbPerfil
@@ -144,6 +148,7 @@ namespace GUI
             this.btnAgregar.Name = "btnAgregar";
             this.btnAgregar.Size = new System.Drawing.Size(210, 34);
             this.btnAgregar.TabIndex = 7;
+            this.btnAgregar.Tag = "btn.agregar";
             this.btnAgregar.Text = "Agregar Usuario";
             this.btnAgregar.UseVisualStyleBackColor = false;
             this.btnAgregar.Click += new System.EventHandler(this.BtnAgregar_Click);
@@ -172,6 +177,7 @@ namespace GUI
             this.lblResetTitulo.Name = "lblResetTitulo";
             this.lblResetTitulo.Size = new System.Drawing.Size(210, 23);
             this.lblResetTitulo.TabIndex = 10;
+            this.lblResetTitulo.Tag = "lbl.resettitulo";
             this.lblResetTitulo.Text = "Resetear Contraseña";
             // 
             // lblResetInfo
@@ -182,6 +188,7 @@ namespace GUI
             this.lblResetInfo.Name = "lblResetInfo";
             this.lblResetInfo.Size = new System.Drawing.Size(210, 36);
             this.lblResetInfo.TabIndex = 11;
+            this.lblResetInfo.Tag = "lbl.resetinfo";
             this.lblResetInfo.Text = "Selecioná un usuario\nen la lista y presioná:";
             // 
             // btnResetearClave
@@ -195,6 +202,7 @@ namespace GUI
             this.btnResetearClave.Name = "btnResetearClave";
             this.btnResetearClave.Size = new System.Drawing.Size(210, 34);
             this.btnResetearClave.TabIndex = 12;
+            this.btnResetearClave.Tag = "btn.resetclave";
             this.btnResetearClave.Text = "Resetear Contraseña";
             this.btnResetearClave.UseVisualStyleBackColor = false;
             this.btnResetearClave.Click += new System.EventHandler(this.BtnResetearClave_Click);
@@ -214,6 +222,7 @@ namespace GUI
             this.lblDesbloquearTitulo.Name = "lblDesbloquearTitulo";
             this.lblDesbloquearTitulo.Size = new System.Drawing.Size(210, 23);
             this.lblDesbloquearTitulo.TabIndex = 14;
+            this.lblDesbloquearTitulo.Tag = "lbl.desbloqtitulo";
             this.lblDesbloquearTitulo.Text = "Desbloquear Cuenta";
             // 
             // lblDesbloquearInfo
@@ -224,6 +233,7 @@ namespace GUI
             this.lblDesbloquearInfo.Name = "lblDesbloquearInfo";
             this.lblDesbloquearInfo.Size = new System.Drawing.Size(210, 36);
             this.lblDesbloquearInfo.TabIndex = 15;
+            this.lblDesbloquearInfo.Tag = "lbl.desbloqinfo";
             this.lblDesbloquearInfo.Text = "Selecioná un usuario\nbloqueado y presioná:";
             // 
             // btnDesbloquear
@@ -237,6 +247,7 @@ namespace GUI
             this.btnDesbloquear.Name = "btnDesbloquear";
             this.btnDesbloquear.Size = new System.Drawing.Size(210, 34);
             this.btnDesbloquear.TabIndex = 16;
+            this.btnDesbloquear.Tag = "btn.desbloquear";
             this.btnDesbloquear.Text = "Desbloquear Cuenta";
             this.btnDesbloquear.UseVisualStyleBackColor = false;
             this.btnDesbloquear.Click += new System.EventHandler(this.BtnDesbloquear_Click);
@@ -287,6 +298,7 @@ namespace GUI
             this.lblListaTitulo.Padding = new System.Windows.Forms.Padding(6, 6, 0, 0);
             this.lblListaTitulo.Size = new System.Drawing.Size(620, 28);
             this.lblListaTitulo.TabIndex = 2;
+            this.lblListaTitulo.Tag = "lbl.listatitulo";
             this.lblListaTitulo.Text = "Usuarios registrados en el sistema";
             // 
             // Usuarios
@@ -299,6 +311,7 @@ namespace GUI
             this.Controls.Add(this.panelAlta);
             this.MinimumSize = new System.Drawing.Size(760, 580);
             this.Name = "Usuarios";
+            this.Tag = "frm.gestion";
             this.Text = "Gestión de Usuarios";
             this.panelAlta.ResumeLayout(false);
             this.panelAlta.PerformLayout();

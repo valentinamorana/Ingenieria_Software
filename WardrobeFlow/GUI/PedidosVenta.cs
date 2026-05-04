@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using Servicios.Multiidioma;
 
 namespace GUI
 {
@@ -22,7 +23,7 @@ namespace GUI
     ///   - MostrarOk() y MostrarError() → heredados, no se redeclaran
     ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
     /// </summary>
-    public partial class PedidosVenta : FormBase
+    public partial class PedidosVenta : FormBase, IIdiomaObserver
     {
         protected override Label MensajeLabel => lblMensaje;
 
@@ -35,6 +36,42 @@ namespace GUI
             InitializeComponent();
             this.Load += new EventHandler(PedidosVenta_Load);
         }
+
+        // ── Observer de idioma ────────────────────────────────────────────────
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            GestorIdioma.SuscribirObservador(this);
+            Traducir(GestorIdioma.IdiomaActual);
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            GestorIdioma.DesuscribirObservador(this);
+            base.OnFormClosing(e);
+        }
+
+        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+
+        private void Traducir(Idioma idioma)
+        {
+            var t = Traductor.ObtenerTraducciones(idioma);
+            if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
+                this.Text = t[this.Tag.ToString()].Texto;
+            Aplicar(btnNuevoPedido, t);
+            Aplicar(btnCancelar,    t);
+            Aplicar(btnDesCancelar, t);
+            Aplicar(lblDetalleTitulo, t);
+        }
+
+        private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
+        {
+            if (c?.Tag != null && t.ContainsKey(c.Tag.ToString()))
+                c.Text = t[c.Tag.ToString()].Texto;
+        }
+
+        // ── Eventos del Designer ──────────────────────────────────────────────
 
         private void PedidosVenta_Load(object sender, EventArgs e)
         {

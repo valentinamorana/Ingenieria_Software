@@ -31,13 +31,31 @@ namespace BE
         /// <summary>Indica si la prenda puede ser asignada a un pedido.</summary>
         public bool EstaDisponible() => Estado == EstadoPrenda.Disponible;
 
-        /// <summary>Indica si el cambio al nuevo estado está permitido.</summary>
+        /// <summary>
+        /// Indica si el cambio al nuevo estado está permitido.
+        /// Transiciones válidas (solo desde el módulo de Prendas):
+        ///   Disponible  → EnLimpieza | Baja
+        ///   EnLimpieza  → Disponible | Baja
+        ///   EnUso       → (ninguna: solo via pedido)
+        ///   Baja        → (ninguna: estado final)
+        /// La transición Disponible/EnLimpieza → EnUso solo ocurre
+        /// internamente al crear o des-cancelar un pedido.
+        /// </summary>
         public bool TransicionPermitida(EstadoPrenda nuevo)
         {
-            if (Estado == nuevo)          return true;
-            if (Estado == EstadoPrenda.Baja)  return false;
-            if (Estado == EstadoPrenda.EnUso) return false;
-            return true;
+            if (Estado == nuevo) return true;
+
+            switch (Estado)
+            {
+                case EstadoPrenda.Disponible:
+                    return nuevo == EstadoPrenda.EnLimpieza || nuevo == EstadoPrenda.Baja;
+                case EstadoPrenda.EnLimpieza:
+                    return nuevo == EstadoPrenda.Disponible || nuevo == EstadoPrenda.Baja;
+                case EstadoPrenda.EnUso:
+                case EstadoPrenda.Baja:
+                default:
+                    return false;
+            }
         }
 
         /// <summary>
@@ -46,13 +64,17 @@ namespace BE
         /// </summary>
         public string MotivoTransicionNoPermitida(EstadoPrenda nuevo)
         {
-            if (Estado == nuevo) return null;
-            if (Estado == EstadoPrenda.Baja)
-                return "Una prenda dada de baja no puede cambiar de estado.";
-            if (Estado == EstadoPrenda.EnUso)
-                return "No se puede cambiar manualmente el estado de una prenda en uso.\n" +
-                       "El estado se actualiza automáticamente al procesar pedidos.";
-            return null;
+            if (TransicionPermitida(nuevo)) return null;
+            switch (Estado)
+            {
+                case EstadoPrenda.Baja:
+                    return "Una prenda dada de baja no puede cambiar de estado.";
+                case EstadoPrenda.EnUso:
+                    return "No se puede cambiar manualmente el estado de una prenda en uso.\n" +
+                           "El estado se actualiza automáticamente al procesar pedidos.";
+                default:
+                    return $"La transición de '{Estado}' a '{nuevo}' no está permitida.";
+            }
         }
     }
 }

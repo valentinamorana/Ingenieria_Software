@@ -72,6 +72,7 @@ namespace GUI
             this.lblEstado.Name = "lblEstado";
             this.lblEstado.Size = new System.Drawing.Size(50, 23);
             this.lblEstado.TabIndex = 0;
+            this.lblEstado.Tag  = "lbl.estado";
             this.lblEstado.Text = "Estado:";
             this.lblEstado.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -96,6 +97,7 @@ namespace GUI
             this.lblUltimos.Name = "lblUltimos";
             this.lblUltimos.Size = new System.Drawing.Size(56, 23);
             this.lblUltimos.TabIndex = 2;
+            this.lblUltimos.Tag  = "lbl.ultimos";
             this.lblUltimos.Text = "Últimos:";
             this.lblUltimos.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -120,6 +122,7 @@ namespace GUI
             this.lblDias.Name = "lblDias";
             this.lblDias.Size = new System.Drawing.Size(120, 23);
             this.lblDias.TabIndex = 4;
+            this.lblDias.Tag  = "lbl.dias";
             this.lblDias.Text = "días (0 = todos)";
             // 
             // lblConteo
@@ -143,6 +146,7 @@ namespace GUI
             this.btnDespachar.Name = "btnDespachar";
             this.btnDespachar.Size = new System.Drawing.Size(130, 28);
             this.btnDespachar.TabIndex = 6;
+            this.btnDespachar.Tag  = "btn.despachar";
             this.btnDespachar.Text = "📦 Despachar";
             this.btnDespachar.UseVisualStyleBackColor = false;
             this.btnDespachar.Click += new System.EventHandler(this.BtnDespachar_Click);
@@ -158,6 +162,7 @@ namespace GUI
             this.btnEntregado.Name = "btnEntregado";
             this.btnEntregado.Size = new System.Drawing.Size(160, 28);
             this.btnEntregado.TabIndex = 7;
+            this.btnEntregado.Tag  = "btn.entregado";
             this.btnEntregado.Text = "✓ Marcar Entregado";
             this.btnEntregado.UseVisualStyleBackColor = false;
             this.btnEntregado.Click += new System.EventHandler(this.BtnEntregado_Click);
@@ -170,6 +175,7 @@ namespace GUI
             this.btnVerNotificacion.Name = "btnVerNotificacion";
             this.btnVerNotificacion.Size = new System.Drawing.Size(150, 28);
             this.btnVerNotificacion.TabIndex = 8;
+            this.btnVerNotificacion.Tag  = "btn.vernotificacion";
             this.btnVerNotificacion.Text = "✉ Ver Notificación";
             this.btnVerNotificacion.Click += new System.EventHandler(this.BtnVerNotificacion_Click);
             //
@@ -184,6 +190,7 @@ namespace GUI
             this.btnDevolucion.Name = "btnDevolucion";
             this.btnDevolucion.Size = new System.Drawing.Size(160, 28);
             this.btnDevolucion.TabIndex = 10;
+            this.btnDevolucion.Tag  = "btn.devolucion";
             this.btnDevolucion.Text = "↩ Registrar Devolución";
             this.btnDevolucion.UseVisualStyleBackColor = false;
             this.btnDevolucion.Click += new System.EventHandler(this.BtnDevolucion_Click);
@@ -246,6 +253,7 @@ namespace GUI
             this.lblDetalleTitulo.Padding = new System.Windows.Forms.Padding(4, 2, 0, 0);
             this.lblDetalleTitulo.Size = new System.Drawing.Size(1044, 22);
             this.lblDetalleTitulo.TabIndex = 0;
+            this.lblDetalleTitulo.Tag  = "lbl.detallepedido";
             this.lblDetalleTitulo.Text = "Detalle del pedido seleccionado";
             // 
             // panelStatus
@@ -306,6 +314,7 @@ namespace GUI
             this.Controls.Add(this.panelTop);
             this.MinimumSize = new System.Drawing.Size(880, 520);
             this.Name = "PedidosRealizados";
+            this.Tag  = "frm.pedidosreal2";
             this.Text = "Despacho de Pedidos";
             this.panelTop.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.nudDiasFiltro)).EndInit();

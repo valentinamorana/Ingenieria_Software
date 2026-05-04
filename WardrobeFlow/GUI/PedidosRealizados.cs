@@ -4,6 +4,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using Servicios.Multiidioma;
 
 namespace GUI
 {
@@ -25,7 +26,7 @@ namespace GUI
     ///   - MostrarOk() y MostrarError() → heredados, no se redeclaran
     ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
     /// </summary>
-    public partial class PedidosRealizados : FormBase
+    public partial class PedidosRealizados : FormBase, IIdiomaObserver
     {
         protected override Label MensajeLabel => lblMensaje;
 
@@ -38,6 +39,46 @@ namespace GUI
             InitializeComponent();
             this.Load += new EventHandler(PedidosRealizados_Load);
         }
+
+        // ── Observer de idioma ────────────────────────────────────────────────
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            GestorIdioma.SuscribirObservador(this);
+            Traducir(GestorIdioma.IdiomaActual);
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            GestorIdioma.DesuscribirObservador(this);
+            base.OnFormClosing(e);
+        }
+
+        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+
+        private void Traducir(Idioma idioma)
+        {
+            var t = Traductor.ObtenerTraducciones(idioma);
+            if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
+                this.Text = t[this.Tag.ToString()].Texto;
+            Aplicar(lblEstado,          t);
+            Aplicar(lblUltimos,         t);
+            Aplicar(lblDias,            t);
+            Aplicar(btnDespachar,       t);
+            Aplicar(btnEntregado,       t);
+            Aplicar(btnVerNotificacion, t);
+            Aplicar(btnDevolucion,      t);
+            Aplicar(lblDetalleTitulo,   t);
+        }
+
+        private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
+        {
+            if (c?.Tag != null && t.ContainsKey(c.Tag.ToString()))
+                c.Text = t[c.Tag.ToString()].Texto;
+        }
+
+        // ── Eventos del Designer ──────────────────────────────────────────────
 
         private void PedidosRealizados_Load(object sender, EventArgs e)
         {

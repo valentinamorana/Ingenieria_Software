@@ -63,6 +63,7 @@ namespace GUI
             this.btnNuevoPedido.Name = "btnNuevoPedido";
             this.btnNuevoPedido.Size = new System.Drawing.Size(140, 28);
             this.btnNuevoPedido.TabIndex = 0;
+            this.btnNuevoPedido.Tag  = "btn.nuevopedido";
             this.btnNuevoPedido.Text = "+ Nuevo Pedido";
             this.btnNuevoPedido.UseVisualStyleBackColor = false;
             this.btnNuevoPedido.Click += new System.EventHandler(this.BtnNuevoPedido_Click);
@@ -78,6 +79,7 @@ namespace GUI
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(110, 28);
             this.btnCancelar.TabIndex = 1;
+            this.btnCancelar.Tag  = "btn.cancelarpedido";
             this.btnCancelar.Text = "✕ Cancelar";
             this.btnCancelar.UseVisualStyleBackColor = false;
             this.btnCancelar.Click += new System.EventHandler(this.BtnCancelarPedido_Click);
@@ -93,6 +95,7 @@ namespace GUI
             this.btnDesCancelar.Name = "btnDesCancelar";
             this.btnDesCancelar.Size = new System.Drawing.Size(130, 28);
             this.btnDesCancelar.TabIndex = 2;
+            this.btnDesCancelar.Tag  = "btn.descancelar";
             this.btnDesCancelar.Text = "↩ Des-cancelar";
             this.btnDesCancelar.UseVisualStyleBackColor = false;
             this.btnDesCancelar.Click += new System.EventHandler(this.BtnDesCancelarPedido_Click);
@@ -164,6 +167,7 @@ namespace GUI
             this.lblDetalleTitulo.Padding = new System.Windows.Forms.Padding(4, 2, 0, 0);
             this.lblDetalleTitulo.Size = new System.Drawing.Size(984, 22);
             this.lblDetalleTitulo.TabIndex = 0;
+            this.lblDetalleTitulo.Tag  = "lbl.prendaspedido";
             this.lblDetalleTitulo.Text = "Prendas del pedido seleccionado";
             // 
             // panelStatus
@@ -224,6 +228,7 @@ namespace GUI
             this.Controls.Add(this.panelTop);
             this.MinimumSize = new System.Drawing.Size(820, 480);
             this.Name = "PedidosVenta";
+            this.Tag  = "frm.pedidosventa";
             this.Text = "Pedidos de Venta";
             this.panelTop.ResumeLayout(false);
             this.panelDetalle.ResumeLayout(false);

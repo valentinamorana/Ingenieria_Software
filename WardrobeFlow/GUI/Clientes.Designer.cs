@@ -47,6 +47,7 @@ namespace GUI
             this.panelTop.TabIndex = 0;
 
             // lblFiltro
+            this.lblFiltro.Tag       = "lbl.buscar";
             this.lblFiltro.Text      = "Buscar:";
             this.lblFiltro.Left      = 8;
             this.lblFiltro.Top       = 16;
@@ -64,6 +65,7 @@ namespace GUI
             this.txtFiltro.TextChanged += new System.EventHandler(this.TxtFiltro_TextChanged);
 
             // btnNuevo
+            this.btnNuevo.Tag       = "btn.nuevocliente";
             this.btnNuevo.Text      = "+ Nuevo Cliente";
             this.btnNuevo.Left      = 300;
             this.btnNuevo.Top       = 11;
@@ -78,6 +80,7 @@ namespace GUI
             this.btnNuevo.Click    += new System.EventHandler(this.BtnNuevo_Click);
 
             // btnEditar
+            this.btnEditar.Tag       = "btn.editar";
             this.btnEditar.Text      = "\u270e Editar";
             this.btnEditar.Left      = 438;
             this.btnEditar.Top       = 11;
@@ -90,6 +93,7 @@ namespace GUI
             this.btnEditar.Click    += new System.EventHandler(this.BtnEditar_Click);
 
             // btnBaja
+            this.btnBaja.Tag       = "btn.darbaja";
             this.btnBaja.Text      = "\u2715 Dar de Baja";
             this.btnBaja.Left      = 536;
             this.btnBaja.Top       = 11;
@@ -162,6 +166,7 @@ namespace GUI
             this.AutoScaleMode       = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize          = new System.Drawing.Size(920, 560);
             this.MinimumSize         = new System.Drawing.Size(780, 460);
+            this.Tag                 = "frm.clientes";
             this.Text                = "Gesti\u00f3n de Clientes";
             this.Name                = "Clientes";
             this.Controls.Add(this.dgvClientes);

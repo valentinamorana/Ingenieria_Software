@@ -48,7 +48,7 @@ namespace DAL
             {
                 DataTable tabla = acceso.Leer(
                     SELECT_BASE +
-                    " WHERE ped.Estado = 0" +   // EstadoPedido.Pendiente = 0
+                    $" WHERE ped.Estado = {(int)BE.EstadoPedido.Pendiente}" +
                     " ORDER BY ped.FechaPedido",
                     null);
 
@@ -121,8 +121,8 @@ namespace DAL
                     }
 
                     using (var cmdPr = new SqlCommand(
-                        "UPDATE Prenda SET Estado=1, IdClienteActual=@IdCliente " +
-                        "WHERE IdPrenda=@IdPrenda",   // Estado 1 = EnUso
+                        $"UPDATE Prenda SET Estado={(int)BE.EstadoPrenda.EnUso}, IdClienteActual=@IdCliente " +
+                        "WHERE IdPrenda=@IdPrenda",
                         conexion, tx))
                     {
                         cmdPr.Parameters.AddWithValue("@IdCliente", pedido.IdCliente);
@@ -144,8 +144,8 @@ namespace DAL
                 new SqlParameter("@IdPedido", idPedido)
             };
             acceso.Escribir(
-                "UPDATE Pedido SET Estado=1, FechaDespacho=@FechaDespacho " +
-                "WHERE IdPedido=@IdPedido",   // Estado 1 = Despachado
+                $"UPDATE Pedido SET Estado={(int)BE.EstadoPedido.Despachado}, FechaDespacho=@FechaDespacho " +
+                "WHERE IdPedido=@IdPedido",
                 p);
         }
 
@@ -158,8 +158,8 @@ namespace DAL
                 new SqlParameter("@IdPedido", idPedido)
             };
             acceso.Escribir(
-                "UPDATE Pedido SET Estado=2, FechaEntrega=@FechaEntrega " +
-                "WHERE IdPedido=@IdPedido",   // Estado 2 = Entregado
+                $"UPDATE Pedido SET Estado={(int)BE.EstadoPedido.Entregado}, FechaEntrega=@FechaEntrega " +
+                "WHERE IdPedido=@IdPedido",
                 p);
         }
 
@@ -168,9 +168,9 @@ namespace DAL
         {
             acceso.EjecutarTransaccion((conexion, tx) =>
             {
-                // Prendas del pedido → EnLimpieza (2), sin cliente asignado
+                // Prendas del pedido → EnLimpieza, sin cliente asignado
                 using (var cmd = new SqlCommand(
-                    "UPDATE Prenda SET Estado=2, IdClienteActual=NULL " +
+                    $"UPDATE Prenda SET Estado={(int)BE.EstadoPrenda.EnLimpieza}, IdClienteActual=NULL " +
                     "WHERE IdPrenda IN " +
                     "  (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
                     conexion, tx))
@@ -211,23 +211,32 @@ namespace DAL
         }
 
         // Revierte la cancelación. Devuelve false si alguna prenda ya no está Disponible.
-        // El UPDATE de Pedido y el de Prenda se ejecutan en una única transacción.
+        // La verificación de disponibilidad se ejecuta DENTRO de la transacción para
+        // evitar race conditions: si otra operación cambia el estado de una prenda entre
+        // la verificación y el UPDATE, la transacción lo detecta con bloqueo consistente.
         public bool DesCancelar(int idPedido, int idCliente)
         {
-            // Verificar disponibilidad ANTES de abrir la transacción
-            SqlParameter[] checkP = { new SqlParameter("@IdPedido", idPedido) };
-            DataTable chk = acceso.Leer(
-                $"SELECT COUNT(*) AS Ocupadas " +
-                "FROM PedidoPrenda pp " +
-                "INNER JOIN Prenda pr ON pr.IdPrenda = pp.IdPrenda " +
-                $"WHERE pp.IdPedido = @IdPedido AND pr.Estado <> {(int)BE.EstadoPrenda.Disponible}",
-                checkP);
-
-            if (chk == null || Convert.ToInt32(chk.Rows[0]["Ocupadas"]) > 0)
-                return false;
+            bool puedeReactivar = true;
 
             acceso.EjecutarTransaccion((conexion, tx) =>
             {
+                // Verificar disponibilidad DENTRO de la transacción (con bloqueo compartido)
+                using (var cmdCheck = new SqlCommand(
+                    "SELECT COUNT(*) AS Ocupadas " +
+                    "FROM PedidoPrenda pp " +
+                    "INNER JOIN Prenda pr ON pr.IdPrenda = pp.IdPrenda " +
+                    $"WHERE pp.IdPedido = @IdPedido AND pr.Estado <> {(int)BE.EstadoPrenda.Disponible}",
+                    conexion, tx))
+                {
+                    cmdCheck.Parameters.AddWithValue("@IdPedido", idPedido);
+                    int ocupadas = Convert.ToInt32(cmdCheck.ExecuteScalar());
+                    if (ocupadas > 0)
+                    {
+                        puedeReactivar = false;
+                        return;  // salir del lambda; la transacción se revierte en EjecutarTransaccion
+                    }
+                }
+
                 using (var cmdPedido = new SqlCommand(
                     $"UPDATE Pedido SET Estado={(int)BE.EstadoPedido.Pendiente}, MotivoCancelacion=NULL " +
                     "WHERE IdPedido=@IdPedido",
@@ -248,7 +257,7 @@ namespace DAL
                 }
             });
 
-            return true;
+            return puedeReactivar;
         }
 
         private List<BE.Prenda> ObtenerPrendasDePedido(int idPedido)

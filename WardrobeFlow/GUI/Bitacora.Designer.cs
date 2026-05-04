@@ -155,6 +155,7 @@ namespace GUI
             this.lblUltimosSistema.Name = "lblUltimosSistema";
             this.lblUltimosSistema.Size = new System.Drawing.Size(55, 23);
             this.lblUltimosSistema.TabIndex = 0;
+            this.lblUltimosSistema.Tag = "lbl.ultimos";
             this.lblUltimosSistema.Text = "Últimos";
             // 
             // nudDias
@@ -180,6 +181,7 @@ namespace GUI
             this.lblDiasSistema.Name = "lblDiasSistema";
             this.lblDiasSistema.Size = new System.Drawing.Size(110, 23);
             this.lblDiasSistema.TabIndex = 2;
+            this.lblDiasSistema.Tag = "lbl.dias";
             this.lblDiasSistema.Text = "días  (0 = todos)";
             // 
             // btnUltimosDias
@@ -192,6 +194,7 @@ namespace GUI
             this.btnUltimosDias.Name = "btnUltimosDias";
             this.btnUltimosDias.Size = new System.Drawing.Size(50, 26);
             this.btnUltimosDias.TabIndex = 3;
+            this.btnUltimosDias.Tag = "btn.ver";
             this.btnUltimosDias.Text = "Ver";
             this.btnUltimosDias.UseVisualStyleBackColor = false;
             this.btnUltimosDias.Click += new System.EventHandler(this.BtnUltimosDias_Click);
@@ -202,6 +205,7 @@ namespace GUI
             this.lblUsuarioId.Name = "lblUsuarioId";
             this.lblUsuarioId.Size = new System.Drawing.Size(75, 23);
             this.lblUsuarioId.TabIndex = 4;
+            this.lblUsuarioId.Tag = "lbl.usuarioid";
             this.lblUsuarioId.Text = "Usuario ID:";
             // 
             // txtUsuario
@@ -219,6 +223,7 @@ namespace GUI
             this.lblActividadSistema.Name = "lblActividadSistema";
             this.lblActividadSistema.Size = new System.Drawing.Size(70, 23);
             this.lblActividadSistema.TabIndex = 6;
+            this.lblActividadSistema.Tag = "lbl.actividad";
             this.lblActividadSistema.Text = "Actividad:";
             // 
             // txtActividad
@@ -235,6 +240,7 @@ namespace GUI
             this.lblCriticidadSistema.Name = "lblCriticidadSistema";
             this.lblCriticidadSistema.Size = new System.Drawing.Size(70, 23);
             this.lblCriticidadSistema.TabIndex = 8;
+            this.lblCriticidadSistema.Tag = "lbl.criticidad";
             this.lblCriticidadSistema.Text = "Criticidad:";
             // 
             // cmbCriticidad
@@ -264,6 +270,7 @@ namespace GUI
             this.btnBuscar.Name = "btnBuscar";
             this.btnBuscar.Size = new System.Drawing.Size(80, 26);
             this.btnBuscar.TabIndex = 10;
+            this.btnBuscar.Tag = "btn.buscar";
             this.btnBuscar.Text = "Buscar";
             this.btnBuscar.UseVisualStyleBackColor = false;
             this.btnBuscar.Click += new System.EventHandler(this.BtnBuscarSistema_Click);
@@ -275,6 +282,7 @@ namespace GUI
             this.btnLimpiar.Name = "btnLimpiar";
             this.btnLimpiar.Size = new System.Drawing.Size(80, 26);
             this.btnLimpiar.TabIndex = 11;
+            this.btnLimpiar.Tag = "btn.limpiarfiltro";
             this.btnLimpiar.Text = "Limpiar";
             this.btnLimpiar.Click += new System.EventHandler(this.BtnLimpiar_Click);
             // 
@@ -370,6 +378,7 @@ namespace GUI
             this.lblUltimosNegocio.Name = "lblUltimosNegocio";
             this.lblUltimosNegocio.Size = new System.Drawing.Size(55, 23);
             this.lblUltimosNegocio.TabIndex = 0;
+            this.lblUltimosNegocio.Tag = "lbl.ultimos";
             this.lblUltimosNegocio.Text = "Últimos";
             // 
             // nudNegDias
@@ -395,6 +404,7 @@ namespace GUI
             this.lblDiasNegocio.Name = "lblDiasNegocio";
             this.lblDiasNegocio.Size = new System.Drawing.Size(110, 23);
             this.lblDiasNegocio.TabIndex = 2;
+            this.lblDiasNegocio.Tag = "lbl.dias";
             this.lblDiasNegocio.Text = "días  (0 = todos)";
             // 
             // btnNegUltimosDias
@@ -407,6 +417,7 @@ namespace GUI
             this.btnNegUltimosDias.Name = "btnNegUltimosDias";
             this.btnNegUltimosDias.Size = new System.Drawing.Size(50, 26);
             this.btnNegUltimosDias.TabIndex = 3;
+            this.btnNegUltimosDias.Tag = "btn.ver";
             this.btnNegUltimosDias.Text = "Ver";
             this.btnNegUltimosDias.UseVisualStyleBackColor = false;
             this.btnNegUltimosDias.Click += new System.EventHandler(this.BtnNegUltimosDias_Click);
@@ -417,6 +428,7 @@ namespace GUI
             this.lblTipoEvento.Name = "lblTipoEvento";
             this.lblTipoEvento.Size = new System.Drawing.Size(40, 23);
             this.lblTipoEvento.TabIndex = 4;
+            this.lblTipoEvento.Tag = "lbl.tipoevento";
             this.lblTipoEvento.Text = "Tipo:";
             // 
             // cmbTipoEvento
@@ -445,6 +457,7 @@ namespace GUI
             this.lblIdPedido.Name = "lblIdPedido";
             this.lblIdPedido.Size = new System.Drawing.Size(70, 23);
             this.lblIdPedido.TabIndex = 6;
+            this.lblIdPedido.Tag = "lbl.idpedido";
             this.lblIdPedido.Text = "ID Pedido:";
             // 
             // txtNegPedido
@@ -462,6 +475,7 @@ namespace GUI
             this.lblIdCliente.Name = "lblIdCliente";
             this.lblIdCliente.Size = new System.Drawing.Size(70, 23);
             this.lblIdCliente.TabIndex = 8;
+            this.lblIdCliente.Tag = "lbl.idcliente";
             this.lblIdCliente.Text = "ID Cliente:";
             // 
             // txtNegCliente
@@ -483,6 +497,7 @@ namespace GUI
             this.btnNegBuscar.Name = "btnNegBuscar";
             this.btnNegBuscar.Size = new System.Drawing.Size(80, 28);
             this.btnNegBuscar.TabIndex = 10;
+            this.btnNegBuscar.Tag = "btn.buscar";
             this.btnNegBuscar.Text = "Buscar";
             this.btnNegBuscar.UseVisualStyleBackColor = false;
             this.btnNegBuscar.Click += new System.EventHandler(this.BtnBuscarNegocio_Click);
@@ -494,6 +509,7 @@ namespace GUI
             this.btnNegLimpiar.Name = "btnNegLimpiar";
             this.btnNegLimpiar.Size = new System.Drawing.Size(80, 28);
             this.btnNegLimpiar.TabIndex = 11;
+            this.btnNegLimpiar.Tag = "btn.limpiarfiltro";
             this.btnNegLimpiar.Text = "Limpiar";
             this.btnNegLimpiar.Click += new System.EventHandler(this.BtnNegLimpiar_Click);
             // 
@@ -520,6 +536,7 @@ namespace GUI
             this.Controls.Add(this.tabControl);
             this.MinimumSize = new System.Drawing.Size(860, 540);
             this.Name = "Bitacora";
+            this.Tag = "frm.bitacora";
             this.Text = "Auditoría — Bitácoras del Sistema";
             this.Load += new System.EventHandler(this.Bitacora_Load);
             this.tabControl.ResumeLayout(false);

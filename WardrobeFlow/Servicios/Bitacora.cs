@@ -11,6 +11,8 @@ namespace Servicios
     {
         private readonly DAL.Bitacora bitacoraDAL = new DAL.Bitacora();
 
+        private const string IP_DESCONOCIDA = "IP desconocida";
+
         // >Registra una actividad del usuario en sesión. No lanza si no hay sesión activa.
         public void Registrar(string modulo, string actividad, Criticidad criticidad)
         {
@@ -100,7 +102,7 @@ namespace Servicios
             {
                 System.Diagnostics.Debug.WriteLine($"[Servicios.Bitacora.ObtenerIPLocal] {ex.Message}");
             }
-            return "IP desconocida";
+            return IP_DESCONOCIDA;
         }
     }
 }

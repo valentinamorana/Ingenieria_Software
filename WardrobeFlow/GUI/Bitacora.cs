@@ -4,6 +4,7 @@ using System.Data;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Windows.Forms;
+using Servicios.Multiidioma;
 
 namespace GUI
 {
@@ -25,7 +26,7 @@ namespace GUI
     ///   - MostrarError() → heredado. Como este formulario no tiene lblMensaje,
     ///     MensajeLabel retorna null y FormBase usa MessageBox automáticamente.
     /// </summary>
-    public partial class Bitacora : FormBase
+    public partial class Bitacora : FormBase, IIdiomaObserver
     {
         // La GUI accede a Servicios directamente para consultas de bitácora.
         // BLL decide CUÁNDO registrar; Servicios sabe CÓMO persistir Y CÓMO consultar.
@@ -44,6 +45,59 @@ namespace GUI
         public Bitacora()
         {
             InitializeComponent();
+        }
+
+        // ── Observer de idioma ────────────────────────────────────────────────
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            GestorIdioma.SuscribirObservador(this);
+            Traducir(GestorIdioma.IdiomaActual);
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            GestorIdioma.DesuscribirObservador(this);
+            base.OnFormClosing(e);
+        }
+
+        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+
+        private void Traducir(Idioma idioma)
+        {
+            var t = Traductor.ObtenerTraducciones(idioma);
+            if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
+                this.Text = t[this.Tag.ToString()].Texto;
+            // Tabs
+            if (t.ContainsKey("tab.sistema")) tabPageSistema.Text = t["tab.sistema"].Texto;
+            if (t.ContainsKey("tab.negocio")) tabPageNegocio.Text = t["tab.negocio"].Texto;
+            // Filtros sistema
+            Aplicar(lblUltimosSistema,    t);
+            Aplicar(lblDiasSistema,       t);
+            Aplicar(btnUltimosDias,       t);
+            Aplicar(lblUsuarioId,         t);
+            Aplicar(lblActividadSistema,  t);
+            Aplicar(lblCriticidadSistema, t);
+            Aplicar(btnBuscar,            t);
+            Aplicar(btnLimpiar,           t);
+            Aplicar(btnExportSistema,     t);
+            // Filtros negocio
+            Aplicar(lblUltimosNegocio,    t);
+            Aplicar(lblDiasNegocio,       t);
+            Aplicar(btnNegUltimosDias,    t);
+            Aplicar(lblTipoEvento,        t);
+            Aplicar(lblIdPedido,          t);
+            Aplicar(lblIdCliente,         t);
+            Aplicar(btnNegBuscar,         t);
+            Aplicar(btnNegLimpiar,        t);
+            Aplicar(btnExportNegocio,     t);
+        }
+
+        private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
+        {
+            if (c?.Tag != null && t.ContainsKey(c.Tag.ToString()))
+                c.Text = t[c.Tag.ToString()].Texto;
         }
 
         private void Bitacora_Load(object sender, EventArgs e)

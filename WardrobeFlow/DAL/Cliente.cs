@@ -21,7 +21,7 @@ namespace DAL
                     "       p.Nombre AS NombrePlan, " +
                     "       ISNULL(p.LimitePrendas, 0) AS LimitePrendas, " +
                     "       (SELECT COUNT(*) FROM Prenda pr WHERE pr.IdClienteActual = c.IdCliente " +
-                    "        AND pr.Estado = 1) AS StockUtilizado " +
+                    "        AND pr.Estado = " + (int)BE.EstadoPrenda.EnUso + ") AS StockUtilizado " +
                     "FROM Cliente c " +
                     "LEFT JOIN PlanSuscripcion p ON p.IdPlan = c.IdPlan " +
                     "WHERE c.Activo = 1 " +
@@ -50,7 +50,7 @@ namespace DAL
                     "       p.Nombre AS NombrePlan, " +
                     "       ISNULL(p.LimitePrendas, 0) AS LimitePrendas, " +
                     "       (SELECT COUNT(*) FROM Prenda pr WHERE pr.IdClienteActual = c.IdCliente " +
-                    "        AND pr.Estado = 1) AS StockUtilizado " +
+                    "        AND pr.Estado = " + (int)BE.EstadoPrenda.EnUso + ") AS StockUtilizado " +
                     "FROM Cliente c " +
                     "LEFT JOIN PlanSuscripcion p ON p.IdPlan = c.IdPlan " +
                     "WHERE c.IdCliente = @IdCliente AND c.Activo = 1",

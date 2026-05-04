@@ -53,7 +53,7 @@ namespace DAL
                     "       p.Categoria, p.Estado, p.IdClienteActual, p.FechaAlta, " +
                     "       NULL AS NombreCliente " +
                     "FROM Prenda p " +
-                    "WHERE p.Estado = 0 " +  // EstadoPrenda.Disponible = 0
+                    $"WHERE p.Estado = {(int)BE.EstadoPrenda.Disponible} " +
                     "ORDER BY p.Categoria, p.Nombre",
                     null);
 
@@ -104,7 +104,7 @@ namespace DAL
                     "       c.Nombre + ' ' + c.Apellido AS NombreCliente " +
                     "FROM Prenda p " +
                     "LEFT JOIN Cliente c ON c.IdCliente = p.IdClienteActual " +
-                    "WHERE p.IdClienteActual = @IdCliente AND p.Estado = 1",  // EnUso = 1
+                    $"WHERE p.IdClienteActual = @IdCliente AND p.Estado = {(int)BE.EstadoPrenda.EnUso}",
                     p);
 
                 foreach (DataRow row in tabla.Rows)
