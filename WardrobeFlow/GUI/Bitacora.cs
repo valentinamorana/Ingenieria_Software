@@ -36,6 +36,7 @@ namespace GUI
         // ── Estado para impresión paginada ────────────────────────────────────
         private DataTable   _tablaImpresion;
         private string      _tituloImpresion;
+        private string[]    _headersImpresion;   // headers traducidos capturados del DataGridView
         private int         _paginaActual;
         private int         _filaImpresion;
         private Font        _fuenteHeader;
@@ -62,7 +63,13 @@ namespace GUI
             base.OnFormClosing(e);
         }
 
-        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+        public void UpdateLanguage(Idioma idioma)
+        {
+            Traducir(idioma);
+            // Refrescar headers de las grillas actualmente visibles
+            TraducirHeadersGrilla(dgvSistema, idioma, esSistema: true);
+            TraducirHeadersGrilla(dgvNegocio, idioma, esSistema: false);
+        }
 
         private void Traducir(Idioma idioma)
         {
@@ -246,9 +253,14 @@ namespace GUI
                 return;
             }
 
-            // Capturar datos en tabla independiente para la impresión
+            // Capturar datos y headers traducidos para la impresión.
+            // Se usan los HeaderText del DataGridView (ya traducidos) en vez de
+            // los ColumnName del DataTable (nombres crudos de BD).
             _tablaImpresion  = (DataTable)dgv.DataSource;
             _tituloImpresion = titulo;
+            _headersImpresion = new string[dgv.Columns.Count];
+            for (int i = 0; i < dgv.Columns.Count; i++)
+                _headersImpresion[i] = dgv.Columns[i].HeaderText;
             _paginaActual    = 1;
             _filaImpresion   = 0;
 
@@ -318,7 +330,10 @@ namespace GUI
 
                 for (int col = 0; col < nCols; col++)
                 {
-                    string nombre = _tablaImpresion.Columns[col].ColumnName;
+                    // Usar el HeaderText traducido capturado del DataGridView
+                    string nombre = (_headersImpresion != null && col < _headersImpresion.Length)
+                        ? _headersImpresion[col]
+                        : _tablaImpresion.Columns[col].ColumnName;
                     var rect = new RectangleF(
                         xIzq + col * colAncho + 2, y + 2,
                         colAncho - 4, alturaHeader - 4);
@@ -382,13 +397,17 @@ namespace GUI
         {
             dgv.DataSource = datos;
 
+            // Traducir los headers de columna al idioma activo
+            bool esSistema = (dgv == dgvSistema);
+            TraducirHeadersGrilla(dgv, GestorIdioma.IdiomaActual, esSistema);
+
             string linea1 = $"  {datos.Rows.Count} registro(s)";
             if (!string.IsNullOrEmpty(contexto)) linea1 += $"  —  {contexto}";
 
             if (dgv == dgvSistema && datos.Columns.Contains("criticidad"))
             {
                 lbl.Height = 44;
-                lbl.Text   = linea1 + "\r\n  " + ComputarEstadisticasCriticidad(datos);
+                lbl.Text   = linea1 + "\r\n  " + ComputarEstadisticasCriticidad(datos, GestorIdioma.IdiomaActual);
             }
             else
             {
@@ -397,7 +416,48 @@ namespace GUI
             }
         }
 
-        private string ComputarEstadisticasCriticidad(DataTable datos)
+        /// <summary>
+        /// Renombra el HeaderText de las columnas de la grilla de bitácora
+        /// según el idioma activo, sin cambiar los nombres internos del DataTable
+        /// (ColorearPorCriticidad sigue usando el nombre "criticidad").
+        /// </summary>
+        private void TraducirHeadersGrilla(DataGridView dgv, Idioma idioma, bool esSistema)
+        {
+            if (dgv == null || dgv.Columns.Count == 0) return;
+            var t = Traductor.ObtenerTraducciones(idioma);
+
+            void RH(string col, string clave)
+            {
+                if (dgv.Columns.Contains(col) && t.ContainsKey(clave))
+                    dgv.Columns[col].HeaderText = t[clave].Texto;
+            }
+
+            if (esSistema)
+            {
+                RH("Id",         "col.bit.id");
+                RH("fecha",      "col.bit.fecha");
+                RH("usuario",    "col.bit.usuario");
+                RH("modulo",     "col.bit.modulo");
+                RH("actividad",  "col.bit.actividad");
+                RH("detalle",    "col.bit.detalle");
+                RH("criticidad", "col.bit.criticidad");
+                RH("ip",         "col.bit.ip");
+            }
+            else
+            {
+                RH("IdEvento",        "col.neg.idevento");
+                RH("Fecha",           "col.neg.fecha");
+                RH("Tipo",            "col.neg.tipo");
+                RH("UsernameUsuario", "col.neg.usuario");
+                RH("NombreCliente",   "col.neg.cliente");
+                RH("IdPedido",        "col.neg.idpedido");
+                RH("IdPrenda",        "col.neg.idprenda");
+                RH("IdCliente",       "col.neg.idcliente");
+                RH("Descripcion",     "col.neg.desc");
+            }
+        }
+
+        private string ComputarEstadisticasCriticidad(DataTable datos, Idioma idioma = null)
         {
             var conteos = new int[7];
             foreach (DataRow row in datos.Rows)
@@ -406,11 +466,18 @@ namespace GUI
                     conteos[c]++;
             }
 
-            string[] etiquetas = { "Ninguno", "Baja", "Media", "Alta", "Int.Login", "Recup.Clave", "Bloqueos" };
+            var t = Traductor.ObtenerTraducciones(idioma ?? GestorIdioma.IdiomaActual);
+            string[] claves = { "stat.ninguno", "stat.baja", "stat.media", "stat.alta",
+                                 "stat.intlogin", "stat.recupclave", "stat.bloqueos" };
+            string[] fallback = { "Ninguno", "Baja", "Media", "Alta", "Int.Login", "Recup.Clave", "Bloqueos" };
+
             var partes = new List<string>();
             for (int i = 0; i < 7; i++)
                 if (conteos[i] > 0)
-                    partes.Add($"{etiquetas[i]}: {conteos[i]}");
+                {
+                    string etiqueta = t.ContainsKey(claves[i]) ? t[claves[i]].Texto : fallback[i];
+                    partes.Add($"{etiqueta}: {conteos[i]}");
+                }
 
             return partes.Count > 0
                 ? string.Join("   |   ", partes)

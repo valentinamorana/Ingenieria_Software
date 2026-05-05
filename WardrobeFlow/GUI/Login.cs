@@ -191,6 +191,10 @@ namespace GUI
 
             if (lnkOlvidaste.Tag != null && t.ContainsKey(lnkOlvidaste.Tag.ToString()))
                 lnkOlvidaste.Text = t[lnkOlvidaste.Tag.ToString()].Texto;
+
+            // Subtítulo "PORTAL DE EMPLEADOS" — traducción directa por clave fija
+            if (t.ContainsKey("lbl.subtitulo"))
+                lblSubtitulo.Text = t["lbl.subtitulo"].Texto;
         }
 
         // ── Eventos de negocio ────────────────────────────────────────────────

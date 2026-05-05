@@ -19,12 +19,11 @@ namespace GUI
     ///   ✓ Ver el detalle de prendas de cada pedido
     ///   ✓ Ver notificación de despacho (resumen para comunicar al cliente)
     ///
-    /// Accesible desde Menú → Ventas → Pedidos Realizados (permiso mnuPedidosRealizados).
-    /// </summary>
-    /// <summary>
     /// Hereda de <see cref="FormBase"/>:
     ///   - MostrarOk() y MostrarError() → heredados, no se redeclaran
     ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
+    ///
+    /// Accesible desde Menú → Ventas → Pedidos Realizados (permiso mnuPedidosRealizados).
     /// </summary>
     public partial class PedidosRealizados : FormBase, IIdiomaObserver
     {
@@ -33,6 +32,10 @@ namespace GUI
         private readonly BLL.Pedido pedidoBLL = new BLL.Pedido();
 
         private List<BE.Pedido> _pedidos = new List<BE.Pedido>();
+
+        // Idioma activo — se actualiza en UpdateLanguage para poder usarlo
+        // en los helpers EstadoLabel() y ComputarUrgencia() que no reciben parámetro.
+        private Idioma _idioma = GestorIdioma.IdiomaActual;
 
         public PedidosRealizados()
         {
@@ -55,10 +58,17 @@ namespace GUI
             base.OnFormClosing(e);
         }
 
-        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+        public void UpdateLanguage(Idioma idioma)
+        {
+            Traducir(idioma);
+            // Re-aplicar filtro para que las celdas (Urgencia, Estado) se re-generen
+            // con las etiquetas del nuevo idioma.
+            AplicarFiltro();
+        }
 
         private void Traducir(Idioma idioma)
         {
+            _idioma = idioma;  // centralizado aquí para que EstadoLabel/ComputarUrgencia estén siempre sincronizados
             var t = Traductor.ObtenerTraducciones(idioma);
             if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
                 this.Text = t[this.Tag.ToString()].Texto;
@@ -136,15 +146,17 @@ namespace GUI
             });
 
             var tabla = new DataTable();
-            tabla.Columns.Add("ID",        typeof(int));
-            tabla.Columns.Add("Urgencia",  typeof(string));
-            tabla.Columns.Add("Fecha",     typeof(string));
-            tabla.Columns.Add("Cliente",   typeof(string));
-            tabla.Columns.Add("Vendedor",  typeof(string));
-            tabla.Columns.Add("Prendas",   typeof(int));
-            tabla.Columns.Add("Estado",    typeof(string));
-            tabla.Columns.Add("Despacho",  typeof(string));
-            tabla.Columns.Add("Entrega",   typeof(string));
+            tabla.Columns.Add("ID",         typeof(int));
+            tabla.Columns.Add("Urgencia",   typeof(string));
+            tabla.Columns.Add("Fecha",      typeof(string));
+            tabla.Columns.Add("Cliente",    typeof(string));
+            tabla.Columns.Add("Vendedor",   typeof(string));
+            tabla.Columns.Add("Prendas",    typeof(int));
+            tabla.Columns.Add("Estado",     typeof(string));
+            tabla.Columns.Add("Despacho",   typeof(string));
+            tabla.Columns.Add("Entrega",    typeof(string));
+            // Columna interna: almacena el int del enum para colorear sin depender del idioma
+            tabla.Columns.Add("_EstadoKey", typeof(int));
 
             foreach (var p in lista)
             {
@@ -157,7 +169,8 @@ namespace GUI
                     p.CantidadPrendas,
                     EstadoLabel(p.Estado),
                     p.FechaDespacho?.ToString("dd/MM/yyyy") ?? "—",
-                    p.FechaEntrega?.ToString("dd/MM/yyyy")  ?? "—");
+                    p.FechaEntrega?.ToString("dd/MM/yyyy")  ?? "—",
+                    (int)p.Estado);
             }
 
             dgvPedidos.DataSource = tabla;
@@ -166,11 +179,19 @@ namespace GUI
             if (dgvPedidos.Columns.Contains("ID"))
                 dgvPedidos.Columns["ID"].Width = 44;
             if (dgvPedidos.Columns.Contains("Urgencia"))
-                dgvPedidos.Columns["Urgencia"].Width = 80;
+                dgvPedidos.Columns["Urgencia"].Width = 90;
 
+            // Una sola llamada a ObtenerTraducciones para headers + conteo
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            TraducirHeadersGrilla(t);
+
+            string urgLabel = t.ContainsKey("urg.urgente") ? t["urg.urgente"].Texto : "Urgentes";
+            string norLabel = t.ContainsKey("urg.normal")  ? t["urg.normal"].Texto  : "Normales";
+            // Conteo de urgentes/normales usando el emoji (independiente del idioma)
+            int nUrgentes = lista.Count(p => ComputarUrgencia(p).StartsWith("🔴"));
+            int nNormales = lista.Count(p => ComputarUrgencia(p).StartsWith("🟡"));
             lblConteo.Text = $"Mostrando {lista.Count} de {_pedidos.Count}  |  " +
-                             $"🔴 Urgentes: {lista.Count(p => ComputarUrgencia(p).StartsWith("🔴"))}  " +
-                             $"🟡 Normales: {lista.Count(p => ComputarUrgencia(p).StartsWith("🟡"))}";
+                             $"🔴 {urgLabel}: {nUrgentes}  🟡 {norLabel}: {nNormales}";
             LimpiarDetalle();
         }
 
@@ -179,52 +200,86 @@ namespace GUI
         /// 🔴 Urgente: Pendiente > 3 días o Despachado > 5 días
         /// 🟡 Normal:  1–3 días pendiente
         /// 🟢 Reciente: menos de 1 día
+        /// El prefijo emoji queda fijo (lo usa ColorearFilas); el texto se traduce.
         /// </summary>
         private string ComputarUrgencia(BE.Pedido p)
         {
             if (p.Estado == BE.EstadoPedido.Entregado || p.Estado == BE.EstadoPedido.Cancelado)
                 return "—";
 
+            var t      = Traductor.ObtenerTraducciones(_idioma);
+            string urg = t.ContainsKey("urg.urgente")  ? t["urg.urgente"].Texto  : "Urgente";
+            string nor = t.ContainsKey("urg.normal")   ? t["urg.normal"].Texto   : "Normal";
+            string rec = t.ContainsKey("urg.reciente") ? t["urg.reciente"].Texto : "Reciente";
+
             double dias = (DateTime.Now - p.FechaPedido).TotalDays;
 
             if (p.Estado == BE.EstadoPedido.Pendiente)
             {
-                if (dias > 3) return "🔴 Urgente";
-                if (dias > 1) return "🟡 Normal";
-                return "🟢 Reciente";
+                if (dias > 3) return $"🔴 {urg}";
+                if (dias > 1) return $"🟡 {nor}";
+                return $"🟢 {rec}";
             }
             if (p.Estado == BE.EstadoPedido.Despachado)
             {
                 double diasDespacho = p.FechaDespacho.HasValue
                     ? (DateTime.Now - p.FechaDespacho.Value).TotalDays : dias;
-                if (diasDespacho > 5) return "🔴 Urgente";
-                if (diasDespacho > 2) return "🟡 Normal";
-                return "🟢 Reciente";
+                if (diasDespacho > 5) return $"🔴 {urg}";
+                if (diasDespacho > 2) return $"🟡 {nor}";
+                return $"🟢 {rec}";
             }
             return "—";
+        }
+
+        /// <summary>
+        /// Renombra el HeaderText de las columnas de dgvPedidos según el idioma activo.
+        /// Recibe el diccionario ya obtenido para evitar una llamada redundante a ObtenerTraducciones.
+        /// Los nombres internos del DataTable no cambian (se usan como índices en ColorearFilas).
+        /// </summary>
+        private void TraducirHeadersGrilla(IDictionary<string, Traduccion> t)
+        {
+            void RH(string col, string clave)
+            {
+                if (dgvPedidos.Columns.Contains(col) && t.ContainsKey(clave))
+                    dgvPedidos.Columns[col].HeaderText = t[clave].Texto;
+            }
+
+            RH("Urgencia", "col.ped.urgencia");
+            RH("Fecha",    "col.ped.fecha");
+            RH("Cliente",  "col.ped.cliente");
+            RH("Vendedor", "col.ped.vendedor");
+            RH("Prendas",  "col.ped.prendas");
+            RH("Estado",   "col.ped.estado");
+            RH("Despacho", "col.ped.despacho");
+            RH("Entrega",  "col.ped.entrega");
+
+            // Ocultar la columna interna de clave de estado
+            if (dgvPedidos.Columns.Contains("_EstadoKey"))
+                dgvPedidos.Columns["_EstadoKey"].Visible = false;
         }
 
         private void ColorearFilas()
         {
             foreach (DataGridViewRow row in dgvPedidos.Rows)
             {
-                string estado    = row.Cells["Estado"].Value?.ToString()   ?? "";
                 string urgencia  = row.Cells["Urgencia"].Value?.ToString() ?? "";
-
-                // Color de fondo por urgencia (solo pedidos activos)
+                // El emoji prefijo es independiente del idioma: 🔴 / 🟡 / 🟢
                 if (urgencia.StartsWith("🔴"))
                     row.DefaultCellStyle.BackColor = Color.FromArgb(255, 225, 225);
                 else if (urgencia.StartsWith("🟡"))
                     row.DefaultCellStyle.BackColor = Color.FromArgb(255, 250, 210);
 
-                // Color de texto por estado
-                row.DefaultCellStyle.ForeColor = estado switch
+                // Coloreado por estado usando la columna interna _EstadoKey (int enum)
+                // para ser independiente del idioma de la etiqueta visible.
+                if (!row.Cells.Contains("_EstadoKey")) continue;
+                if (!int.TryParse(row.Cells["_EstadoKey"].Value?.ToString(), out int estadoKey)) continue;
+                row.DefaultCellStyle.ForeColor = estadoKey switch
                 {
-                    "Pendiente"  => Color.FromArgb(160, 100, 0),
-                    "Despachado" => Color.FromArgb(30, 100, 170),
-                    "Entregado"  => Color.FromArgb(30, 130, 30),
-                    "Cancelado"  => Color.FromArgb(150, 50, 50),
-                    _            => Color.Black
+                    (int)BE.EstadoPedido.Pendiente  => Color.FromArgb(160, 100, 0),
+                    (int)BE.EstadoPedido.Despachado => Color.FromArgb(30, 100, 170),
+                    (int)BE.EstadoPedido.Entregado  => Color.FromArgb(30, 130, 30),
+                    (int)BE.EstadoPedido.Cancelado  => Color.FromArgb(150, 50, 50),
+                    _                               => Color.Black
                 };
             }
         }
@@ -409,12 +464,13 @@ namespace GUI
 
         private string EstadoLabel(BE.EstadoPedido e)
         {
+            var t = Traductor.ObtenerTraducciones(_idioma);
             switch (e)
             {
-                case BE.EstadoPedido.Pendiente:  return "Pendiente";
-                case BE.EstadoPedido.Despachado: return "Despachado";
-                case BE.EstadoPedido.Entregado:  return "Entregado";
-                case BE.EstadoPedido.Cancelado:  return "Cancelado";
+                case BE.EstadoPedido.Pendiente:  return t.ContainsKey("est.pendiente")  ? t["est.pendiente"].Texto  : "Pendiente";
+                case BE.EstadoPedido.Despachado: return t.ContainsKey("est.despachado") ? t["est.despachado"].Texto : "Despachado";
+                case BE.EstadoPedido.Entregado:  return t.ContainsKey("est.entregado")  ? t["est.entregado"].Texto  : "Entregado";
+                case BE.EstadoPedido.Cancelado:  return t.ContainsKey("est.cancelado")  ? t["est.cancelado"].Texto  : "Cancelado";
                 default: return e.ToString();
             }
         }

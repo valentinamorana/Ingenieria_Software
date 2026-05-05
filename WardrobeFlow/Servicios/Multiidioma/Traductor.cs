@@ -93,6 +93,8 @@ namespace Servicios.Multiidioma
             { "lnk.olvide",       "Olvidé mi contraseña"           },
             // Barra de idioma
             { "lbl.idioma",       "Idioma:"                        },
+            // Login — subtítulo
+            { "lbl.subtitulo",    "PORTAL DE EMPLEADOS"            },
             // Menú principal
             { "mnu.perfil",       "Perfil"                         },
             { "mnu.inventario",   "Inventario"                     },
@@ -172,6 +174,51 @@ namespace Servicios.Multiidioma
             { "btn.vernotificacion","✉ Ver Notificación"           },
             { "btn.devolucion",    "↩ Registrar Devolución"        },
             { "lbl.detallepedido", "Detalle del pedido seleccionado" },
+            // Pedidos Realizados — columnas de grilla
+            { "col.ped.urgencia",  "Urgencia"                      },
+            { "col.ped.fecha",     "Fecha"                         },
+            { "col.ped.cliente",   "Cliente"                       },
+            { "col.ped.vendedor",  "Vendedor"                      },
+            { "col.ped.prendas",   "Prendas"                       },
+            { "col.ped.estado",    "Estado"                        },
+            { "col.ped.despacho",  "Despacho"                      },
+            { "col.ped.entrega",   "Entrega"                       },
+            // Pedidos Realizados — valores de urgencia
+            { "urg.urgente",       "Urgente"                       },
+            { "urg.normal",        "Normal"                        },
+            { "urg.reciente",      "Reciente"                      },
+            // Pedidos Realizados — valores de estado
+            { "est.pendiente",     "Pendiente"                     },
+            { "est.despachado",    "Despachado"                    },
+            { "est.entregado",     "Entregado"                     },
+            { "est.cancelado",     "Cancelado"                     },
+            // Bitácora Sistema — columnas de grilla
+            { "col.bit.id",        "Id"                            },
+            { "col.bit.fecha",     "Fecha"                         },
+            { "col.bit.usuario",   "Usuario"                       },
+            { "col.bit.modulo",    "Módulo"                        },
+            { "col.bit.actividad", "Actividad"                     },
+            { "col.bit.detalle",   "Detalle"                       },
+            { "col.bit.criticidad","Criticidad"                    },
+            { "col.bit.ip",        "IP"                            },
+            // Bitácora Negocio — columnas de grilla
+            { "col.neg.idevento",  "Id Evento"                     },
+            { "col.neg.fecha",     "Fecha"                         },
+            { "col.neg.tipo",      "Tipo"                          },
+            { "col.neg.usuario",   "Usuario"                       },
+            { "col.neg.cliente",   "Cliente"                       },
+            { "col.neg.idpedido",  "Id Pedido"                     },
+            { "col.neg.idprenda",  "Id Prenda"                     },
+            { "col.neg.idcliente", "Id Cliente"                    },
+            { "col.neg.desc",      "Descripción"                   },
+            // Bitácora — estadísticas de criticidad
+            { "stat.ninguno",      "Ninguno"                       },
+            { "stat.baja",         "Baja"                          },
+            { "stat.media",        "Media"                         },
+            { "stat.alta",         "Alta"                          },
+            { "stat.intlogin",     "Int.Login"                     },
+            { "stat.recupclave",   "Recup.Clave"                   },
+            { "stat.bloqueos",     "Bloqueos"                      },
         });
 
         // ── Diccionario English (EN) ──────────────────────────────────────────
@@ -188,6 +235,8 @@ namespace Servicios.Multiidioma
             { "lnk.olvide",       "Forgot your password?"           },
             // Language bar
             { "lbl.idioma",       "Language:"                       },
+            // Login — subtitle
+            { "lbl.subtitulo",    "EMPLOYEE PORTAL"                 },
             // Main menu
             { "mnu.perfil",       "Profile"                         },
             { "mnu.inventario",   "Inventory"                       },
@@ -267,6 +316,51 @@ namespace Servicios.Multiidioma
             { "btn.vernotificacion","✉ View Notification"          },
             { "btn.devolucion",    "↩ Register Return"             },
             { "lbl.detallepedido", "Selected order detail"         },
+            // Order Dispatch — grid columns
+            { "col.ped.urgencia",  "Urgency"                       },
+            { "col.ped.fecha",     "Date"                          },
+            { "col.ped.cliente",   "Client"                        },
+            { "col.ped.vendedor",  "Seller"                        },
+            { "col.ped.prendas",   "Garments"                      },
+            { "col.ped.estado",    "Status"                        },
+            { "col.ped.despacho",  "Dispatch"                      },
+            { "col.ped.entrega",   "Delivery"                      },
+            // Order Dispatch — urgency values
+            { "urg.urgente",       "Urgent"                        },
+            { "urg.normal",        "Normal"                        },
+            { "urg.reciente",      "Recent"                        },
+            // Order Dispatch — status values
+            { "est.pendiente",     "Pending"                       },
+            { "est.despachado",    "Dispatched"                    },
+            { "est.entregado",     "Delivered"                     },
+            { "est.cancelado",     "Cancelled"                     },
+            // Audit Log Sistema — grid columns
+            { "col.bit.id",        "Id"                            },
+            { "col.bit.fecha",     "Date"                          },
+            { "col.bit.usuario",   "User"                          },
+            { "col.bit.modulo",    "Module"                        },
+            { "col.bit.actividad", "Activity"                      },
+            { "col.bit.detalle",   "Detail"                        },
+            { "col.bit.criticidad","Severity"                      },
+            { "col.bit.ip",        "IP"                            },
+            // Audit Log Negocio — grid columns
+            { "col.neg.idevento",  "Event Id"                      },
+            { "col.neg.fecha",     "Date"                          },
+            { "col.neg.tipo",      "Type"                          },
+            { "col.neg.usuario",   "User"                          },
+            { "col.neg.cliente",   "Client"                        },
+            { "col.neg.idpedido",  "Order Id"                      },
+            { "col.neg.idprenda",  "Garment Id"                    },
+            { "col.neg.idcliente", "Client Id"                     },
+            { "col.neg.desc",      "Description"                   },
+            // Audit Log — severity statistics
+            { "stat.ninguno",      "None"                          },
+            { "stat.baja",         "Low"                           },
+            { "stat.media",        "Medium"                        },
+            { "stat.alta",         "High"                          },
+            { "stat.intlogin",     "Login Att."                    },
+            { "stat.recupclave",   "Pwd Reset"                     },
+            { "stat.bloqueos",     "Lockouts"                      },
         });
 
         // ── Diccionario Русский (RU) ──────────────────────────────────────────
@@ -283,6 +377,8 @@ namespace Servicios.Multiidioma
             { "lnk.olvide",       "Забыли пароль?"                 },
             // Панель языка
             { "lbl.idioma",       "Язык:"                          },
+            // Вход — подзаголовок
+            { "lbl.subtitulo",    "ПОРТАЛ СОТРУДНИКОВ"             },
             // Главное меню
             { "mnu.perfil",       "Профиль"                        },
             { "mnu.inventario",   "Склад"                          },
@@ -362,6 +458,51 @@ namespace Servicios.Multiidioma
             { "btn.vernotificacion","✉ Уведомление"                },
             { "btn.devolucion",    "↩ Возврат"                     },
             { "lbl.detallepedido", "Детали выбранного заказа"      },
+            // Отправка заказов — столбцы таблицы
+            { "col.ped.urgencia",  "Срочность"                     },
+            { "col.ped.fecha",     "Дата"                          },
+            { "col.ped.cliente",   "Клиент"                        },
+            { "col.ped.vendedor",  "Продавец"                      },
+            { "col.ped.prendas",   "Одежда"                        },
+            { "col.ped.estado",    "Статус"                        },
+            { "col.ped.despacho",  "Отправка"                      },
+            { "col.ped.entrega",   "Доставка"                      },
+            // Отправка заказов — значения срочности
+            { "urg.urgente",       "Срочно"                        },
+            { "urg.normal",        "Обычный"                       },
+            { "urg.reciente",      "Недавний"                      },
+            // Отправка заказов — значения статуса
+            { "est.pendiente",     "Ожидание"                      },
+            { "est.despachado",    "Отправлен"                     },
+            { "est.entregado",     "Доставлен"                     },
+            { "est.cancelado",     "Отменён"                       },
+            // Журнал аудита — столбцы системного журнала
+            { "col.bit.id",        "Id"                            },
+            { "col.bit.fecha",     "Дата"                          },
+            { "col.bit.usuario",   "Пользователь"                  },
+            { "col.bit.modulo",    "Модуль"                        },
+            { "col.bit.actividad", "Активность"                    },
+            { "col.bit.detalle",   "Детали"                        },
+            { "col.bit.criticidad","Критичность"                   },
+            { "col.bit.ip",        "IP"                            },
+            // Журнал аудита — столбцы журнала операций
+            { "col.neg.idevento",  "Id события"                    },
+            { "col.neg.fecha",     "Дата"                          },
+            { "col.neg.tipo",      "Тип"                           },
+            { "col.neg.usuario",   "Пользователь"                  },
+            { "col.neg.cliente",   "Клиент"                        },
+            { "col.neg.idpedido",  "Id заказа"                     },
+            { "col.neg.idprenda",  "Id одежды"                     },
+            { "col.neg.idcliente", "Id клиента"                    },
+            { "col.neg.desc",      "Описание"                      },
+            // Журнал аудита — статистика критичности
+            { "stat.ninguno",      "Нет"                           },
+            { "stat.baja",         "Низкая"                        },
+            { "stat.media",        "Средняя"                       },
+            { "stat.alta",         "Высокая"                       },
+            { "stat.intlogin",     "Вход"                          },
+            { "stat.recupclave",   "Сброс пароля"                  },
+            { "stat.bloqueos",     "Блокировки"                    },
         });
 
         // ── Helper ────────────────────────────────────────────────────────────

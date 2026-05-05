@@ -16,12 +16,11 @@ namespace GUI
     ///   ✓ Cancelar un pedido pendiente (libera prendas)
     ///   ✓ Ver detalle de prendas de cada pedido al seleccionarlo
     ///
-    /// Accesible desde Menú → Ventas → Pedidos de Venta (permiso mnuPedidosVenta).
-    /// </summary>
-    /// <summary>
     /// Hereda de <see cref="FormBase"/>:
     ///   - MostrarOk() y MostrarError() → heredados, no se redeclaran
     ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
+    ///
+    /// Accesible desde Menú → Ventas → Pedidos de Venta (permiso mnuPedidosVenta).
     /// </summary>
     public partial class PedidosVenta : FormBase, IIdiomaObserver
     {
@@ -30,6 +29,9 @@ namespace GUI
         private readonly BLL.Pedido pedidoBLL = new BLL.Pedido();
 
         private List<BE.Pedido> _pedidos = new List<BE.Pedido>();
+
+        // Idioma activo — se actualiza en Traducir() para usarlo en EstadoLabel() y ColorearFilasPedidos()
+        private Idioma _idioma = GestorIdioma.IdiomaActual;
 
         public PedidosVenta()
         {
@@ -52,16 +54,22 @@ namespace GUI
             base.OnFormClosing(e);
         }
 
-        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+        public void UpdateLanguage(Idioma idioma)
+        {
+            Traducir(idioma);
+            // Recargar la grilla para que EstadoLabel() y los headers usen el nuevo idioma
+            CargarPedidos();
+        }
 
         private void Traducir(Idioma idioma)
         {
+            _idioma = idioma;  // mantener sincronizado para EstadoLabel y ColorearFilasPedidos
             var t = Traductor.ObtenerTraducciones(idioma);
             if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
                 this.Text = t[this.Tag.ToString()].Texto;
-            Aplicar(btnNuevoPedido, t);
-            Aplicar(btnCancelar,    t);
-            Aplicar(btnDesCancelar, t);
+            Aplicar(btnNuevoPedido,   t);
+            Aplicar(btnCancelar,      t);
+            Aplicar(btnDesCancelar,   t);
             Aplicar(lblDetalleTitulo, t);
         }
 
@@ -100,6 +108,8 @@ namespace GUI
                 tabla.Columns.Add("Despacho",   typeof(string));
                 tabla.Columns.Add("Entrega",    typeof(string));
                 tabla.Columns.Add("Motivo",     typeof(string));
+                // Columna interna: int del enum para colorear sin depender del idioma activo
+                tabla.Columns.Add("_EstadoKey", typeof(int));
 
                 foreach (var p in _pedidos)
                 {
@@ -112,7 +122,8 @@ namespace GUI
                         EstadoLabel(p.Estado),
                         p.FechaDespacho.HasValue ? p.FechaDespacho.Value.ToString("dd/MM/yyyy") : "—",
                         p.FechaEntrega.HasValue  ? p.FechaEntrega.Value.ToString("dd/MM/yyyy")  : "—",
-                        p.MotivoCancelacion ?? "");
+                        p.MotivoCancelacion ?? "",
+                        (int)p.Estado);
                 }
 
                 dgvPedidos.DataSource = tabla;
@@ -121,9 +132,15 @@ namespace GUI
                 if (dgvPedidos.Columns.Contains("ID"))
                     dgvPedidos.Columns["ID"].Width = 44;
 
+                // Ocultar la columna interna y traducir headers
+                if (dgvPedidos.Columns.Contains("_EstadoKey"))
+                    dgvPedidos.Columns["_EstadoKey"].Visible = false;
+                TraducirHeadersGrilla();
+
                 lblConteo.Text = $"{_pedidos.Count} pedido(s)";
                 dgvDetallePrendas.DataSource = null;
-                lblDetalleTitulo.Text = "Prendas del pedido seleccionado";
+                // lblDetalleTitulo se traduce via Tag en Traducir(); no hardcodear aquí
+                Aplicar(lblDetalleTitulo, Traductor.ObtenerTraducciones(_idioma));
 
                 MostrarOk($"{_pedidos.Count} pedido(s) cargado(s).");
             }
@@ -137,16 +154,42 @@ namespace GUI
         {
             foreach (DataGridViewRow row in dgvPedidos.Rows)
             {
-                string estado = row.Cells["Estado"].Value?.ToString() ?? "";
-                row.DefaultCellStyle.ForeColor = estado switch
+                // Usar _EstadoKey (int del enum) en lugar del texto visible,
+                // así el coloreado funciona independientemente del idioma activo.
+                if (!row.Cells.Contains("_EstadoKey")) continue;
+                if (!int.TryParse(row.Cells["_EstadoKey"].Value?.ToString(), out int estadoKey)) continue;
+                row.DefaultCellStyle.ForeColor = estadoKey switch
                 {
-                    "Pendiente"  => Color.FromArgb(160, 100, 0),
-                    "Despachado" => Color.FromArgb(30, 100, 170),
-                    "Entregado"  => Color.FromArgb(30, 130, 30),
-                    "Cancelado"  => Color.FromArgb(160, 50, 50),
-                    _            => Color.Black
+                    (int)BE.EstadoPedido.Pendiente  => Color.FromArgb(160, 100, 0),
+                    (int)BE.EstadoPedido.Despachado => Color.FromArgb(30, 100, 170),
+                    (int)BE.EstadoPedido.Entregado  => Color.FromArgb(30, 130, 30),
+                    (int)BE.EstadoPedido.Cancelado  => Color.FromArgb(160, 50, 50),
+                    _                               => Color.Black
                 };
             }
+        }
+
+        /// <summary>
+        /// Renombra los HeaderText de las columnas de dgvPedidos según el idioma activo.
+        /// Los nombres internos del DataTable no cambian (se usan en ObtenerPedidoSeleccionado).
+        /// </summary>
+        private void TraducirHeadersGrilla()
+        {
+            var t = Traductor.ObtenerTraducciones(_idioma);
+
+            void RH(string col, string clave)
+            {
+                if (dgvPedidos.Columns.Contains(col) && t.ContainsKey(clave))
+                    dgvPedidos.Columns[col].HeaderText = t[clave].Texto;
+            }
+
+            RH("Fecha",    "col.ped.fecha");
+            RH("Cliente",  "col.ped.cliente");
+            RH("Vendedor", "col.ped.vendedor");
+            RH("Prendas",  "col.ped.prendas");
+            RH("Estado",   "col.ped.estado");
+            RH("Despacho", "col.ped.despacho");
+            RH("Entrega",  "col.ped.entrega");
         }
 
         private void DgvPedidos_SelectionChanged(object sender, EventArgs e)
@@ -289,12 +332,13 @@ namespace GUI
 
         private string EstadoLabel(BE.EstadoPedido estado)
         {
+            var t = Traductor.ObtenerTraducciones(_idioma);
             switch (estado)
             {
-                case BE.EstadoPedido.Pendiente:  return "Pendiente";
-                case BE.EstadoPedido.Despachado: return "Despachado";
-                case BE.EstadoPedido.Entregado:  return "Entregado";
-                case BE.EstadoPedido.Cancelado:  return "Cancelado";
+                case BE.EstadoPedido.Pendiente:  return t.ContainsKey("est.pendiente")  ? t["est.pendiente"].Texto  : "Pendiente";
+                case BE.EstadoPedido.Despachado: return t.ContainsKey("est.despachado") ? t["est.despachado"].Texto : "Despachado";
+                case BE.EstadoPedido.Entregado:  return t.ContainsKey("est.entregado")  ? t["est.entregado"].Texto  : "Entregado";
+                case BE.EstadoPedido.Cancelado:  return t.ContainsKey("est.cancelado")  ? t["est.cancelado"].Texto  : "Cancelado";
                 default: return estado.ToString();
             }
         }
