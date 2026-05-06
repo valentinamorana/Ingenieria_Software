@@ -89,6 +89,9 @@
     <Compile Include="NuevoPedidoForm.Designer.cs">
       <DependentUpon>NuevoPedidoForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="PedidoHistorialForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="PedidosVenta.cs">
       <SubType>Form</SubType>
     </Compile>

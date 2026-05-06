@@ -12,6 +12,9 @@ namespace Servicios.Multiidioma
         /// <summary>La clave que identifica el texto en la interfaz.</summary>
         public Etiqueta Etiqueta { get; set; }
 
+        /// <summary>La clave string que identifica el texto (usada por Traductor.Construir).</summary>
+        public string   Clave    { get; set; }
+
         /// <summary>El texto traducido al idioma correspondiente.</summary>
         public string   Texto    { get; set; }
     }

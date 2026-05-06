@@ -272,7 +272,7 @@ namespace GUI
 
                 // Coloreado por estado usando la columna interna _EstadoKey (int enum)
                 // para ser independiente del idioma de la etiqueta visible.
-                if (!row.Cells.Contains("_EstadoKey")) continue;
+                if (!dgvPedidos.Columns.Contains("_EstadoKey")) continue;
                 if (!int.TryParse(row.Cells["_EstadoKey"].Value?.ToString(), out int estadoKey)) continue;
                 row.DefaultCellStyle.ForeColor = estadoKey switch
                 {

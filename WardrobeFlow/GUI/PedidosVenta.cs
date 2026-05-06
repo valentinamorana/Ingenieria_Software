@@ -157,7 +157,7 @@ namespace GUI
             {
                 // Usar _EstadoKey (int del enum) en lugar del texto visible,
                 // así el coloreado funciona independientemente del idioma activo.
-                if (!row.Cells.Contains("_EstadoKey")) continue;
+                if (!dgvPedidos.Columns.Contains("_EstadoKey")) continue;
                 if (!int.TryParse(row.Cells["_EstadoKey"].Value?.ToString(), out int estadoKey)) continue;
                 row.DefaultCellStyle.ForeColor = estadoKey switch
                 {
@@ -339,7 +339,7 @@ namespace GUI
             switch (estado)
             {
                 case BE.EstadoPedido.Pendiente:  return t.ContainsKey("est.pendiente")  ? t["est.pendiente"].Texto  : "Pendiente";
-                case BE.                case BE.EstadoPedido.Despachado: return t.ContainsKey("est.despachado") ? t["est.despachado"].Texto : "Despachado";
+                case BE.EstadoPedido.Despachado: return t.ContainsKey("est.despachado") ? t["est.despachado"].Texto : "Despachado";
                 case BE.EstadoPedido.Entregado:  return t.ContainsKey("est.entregado")  ? t["est.entregado"].Texto  : "Entregado";
                 case BE.EstadoPedido.Cancelado:  return t.ContainsKey("est.cancelado")  ? t["est.cancelado"].Texto  : "Cancelado";
                 default: return estado.ToString();

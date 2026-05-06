@@ -49,6 +49,7 @@
     <Compile Include="EstadoPedido.cs" />
     <Compile Include="EstadoPrenda.cs" />
     <Compile Include="Pedido.cs" />
+    <Compile Include="PedidoHistorial.cs" />
     <Compile Include="Permiso.cs" />
     <Compile Include="PlanSuscripcion.cs" />
     <Compile Include="Prenda.cs" />
