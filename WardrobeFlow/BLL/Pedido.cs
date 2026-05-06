@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace BLL
@@ -15,6 +16,7 @@ namespace BLL
         private readonly DAL.PlanSuscripcion dalPlan = new DAL.PlanSuscripcion();
         private readonly Servicios.Bitacora bitacora = new Servicios.Bitacora();
         private readonly Servicios.BitacoraNegocio bitacoraNeg = new Servicios.BitacoraNegocio();
+        private readonly DAL.PedidoHistorial dalHistorial = new DAL.PedidoHistorial();
 
         // Consultas 
         public List<BE.Pedido> ObtenerTodos() => dalPedido.ObtenerTodos();
@@ -34,6 +36,12 @@ namespace BLL
 
             int idNuevo = PersistirPedido(idCliente, prendas);
 
+            RegistrarHistorial(idNuevo, "CREAR", new List<(string, string, string)>
+            {
+                ("Estado",      null, BE.EstadoPedido.Pendiente.ToString()),
+                ("FechaPedido", null, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))
+            });
+
             LogCrearPedido(formulario, idNuevo, cliente, plan, prendas.Count);
 
             return idNuevo;
@@ -49,6 +57,12 @@ namespace BLL
                     $"Este pedido está '{pedido.Estado}'.");
 
             dalPedido.Despachar(pedido.IdPedido);
+
+            RegistrarHistorial(pedido.IdPedido, "DESPACHAR", new List<(string, string, string)>
+            {
+                ("Estado",       pedido.Estado.ToString(),                          BE.EstadoPedido.Despachado.ToString()),
+                ("FechaDespacho", pedido.FechaDespacho?.ToString("yyyy-MM-dd HH:mm:ss"), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))
+            });
 
             bitacora.Registrar(formulario.Text,
                 $"Despachar Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente} — " +
@@ -74,6 +88,12 @@ namespace BLL
 
             dalPedido.MarcarEntregado(pedido.IdPedido);
 
+            RegistrarHistorial(pedido.IdPedido, "ENTREGAR", new List<(string, string, string)>
+            {
+                ("Estado",      pedido.Estado.ToString(),                         BE.EstadoPedido.Entregado.ToString()),
+                ("FechaEntrega", pedido.FechaEntrega?.ToString("yyyy-MM-dd HH:mm:ss"), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))
+            });
+
             bitacora.Registrar(formulario.Text,
                 $"Entrega Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente}",
                 BE.Criticidad.Baja);
@@ -95,6 +115,11 @@ namespace BLL
                     $"Este pedido está '{pedido.Estado}'.");
 
             dalPedido.RegistrarDevolucion(pedido.IdPedido);
+
+            RegistrarHistorial(pedido.IdPedido, "DEVOLUCION", new List<(string, string, string)>
+            {
+                ("Prendas", "EnUso", $"EnLimpieza ({pedido.CantidadPrendas} prenda(s))")
+            });
 
             bitacora.Registrar(formulario.Text,
                 $"Devolución Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente} — " +
@@ -123,6 +148,12 @@ namespace BLL
 
             dalPedido.Cancelar(pedido.IdPedido, motivo.Trim());
 
+            RegistrarHistorial(pedido.IdPedido, "CANCELAR", new List<(string, string, string)>
+            {
+                ("Estado",             pedido.Estado.ToString(),            BE.EstadoPedido.Cancelado.ToString()),
+                ("MotivoCancelacion",  pedido.MotivoCancelacion,           motivo.Trim())
+            });
+
             bitacora.Registrar(formulario.Text,
                 $"Cancelar Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente} — Motivo: {motivo}",
                 BE.Criticidad.Media);
@@ -148,6 +179,12 @@ namespace BLL
                 throw new Exception(
                     $"No se puede des-cancelar el Pedido #{pedido.IdPedido}.\n" +
                     "Una o más prendas del pedido ya no están disponibles.");
+
+            RegistrarHistorial(pedido.IdPedido, "DESCANCELAR", new List<(string, string, string)>
+            {
+                ("Estado",            pedido.Estado.ToString(),           BE.EstadoPedido.Pendiente.ToString()),
+                ("MotivoCancelacion", pedido.MotivoCancelacion,          null)
+            });
 
             bitacora.Registrar(formulario.Text,
                 $"Des-cancelar Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente}",
@@ -224,11 +261,11 @@ namespace BLL
 
             var pedido = new BE.Pedido
             {
-                IdCliente = idCliente,
+                IdCliente  = idCliente,
                 IdEmpleado = idEmpleado,
-                Estado = BE.EstadoPedido.Pendiente,
+                Estado     = BE.EstadoPedido.Pendiente,
                 FechaPedido = DateTime.Now,
-                Prendas = prendas
+                Prendas    = prendas
             };
 
             return dalPedido.Alta(pedido);
@@ -264,6 +301,78 @@ namespace BLL
                     $"El usuario '{usuario.Username}' no tiene un Empleado vinculado.\n" +
                     "Pedíle al Administrador que configure el vínculo.");
             return empleado.IdEmpleado;
+        }
+
+        // ── Historial ─────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Crea y persiste registros de historial para todos los campos cambiados en un evento.
+        /// Obtiene el usuario de la sesión activa; si no hay sesión registra como anónimo.
+        /// </summary>
+        private void RegistrarHistorial(int idPedido, string accion,
+                                        List<(string Campo, string Anterior, string Nuevo)> campos)
+        {
+            int?   idUsuario     = null;
+            string nombreUsuario = null;
+
+            if (Seguridad.SessionManager.IsLoggedIn)
+            {
+                var u = Seguridad.SessionManager.GetInstance.Usuario;
+                idUsuario     = u.Id;
+                nombreUsuario = u.Username;
+            }
+
+            int idOp = dalHistorial.ObtenerSiguienteIdOperacion(idPedido);
+
+            var registros = campos.Select(c => new BE.PedidoHistorial
+            {
+                IdPedido      = idPedido,
+                IdOperacion   = idOp,
+                Fecha         = DateTime.Now,
+                IdUsuario     = idUsuario,
+                NombreUsuario = nombreUsuario,
+                Accion        = accion,
+                Campo         = c.Campo,
+                ValorAnterior = c.Anterior,
+                ValorNuevo    = c.Nuevo
+            }).ToList();
+
+            dalHistorial.RegistrarCambios(registros);
+        }
+
+        /// <summary>Devuelve el historial de cambios de un pedido con filtros opcionales.</summary>
+        public System.Data.DataTable ObtenerHistorial(
+            int idPedido, string accion = null,
+            DateTime? desde = null, DateTime? hasta = null)
+            => dalHistorial.ObtenerPorPedido(idPedido, accion, desde, hasta);
+
+        /// <summary>
+        /// Restaura el pedido al estado previo a la operación indicada (por IdOperacion).
+        /// Revierte cada campo al ValorAnterior registrado y escribe un evento RESTAURAR.
+        /// </summary>
+        public void RestaurarOperacion(Form formulario, int idPedido, int idOperacion)
+        {
+            var cambios = dalHistorial.ObtenerPorOperacion(idPedido, idOperacion);
+            if (cambios == null || cambios.Count == 0)
+                throw new Exception(
+                    $"No se encontraron cambios para la operación #{idOperacion} del Pedido #{idPedido}.");
+
+            string accionOriginal = cambios[0].Accion;
+
+            foreach (var c in cambios)
+                dalHistorial.RestaurarCampo(idPedido, c.Campo, c.ValorAnterior);
+
+            RegistrarHistorial(idPedido, "RESTAURAR",
+                cambios.Select(c => (c.Campo, c.ValorNuevo, c.ValorAnterior)).ToList());
+
+            bitacora.Registrar(formulario.Text,
+                $"Restaurar Pedido #{idPedido} — Revertida operación '{accionOriginal}' (op. #{idOperacion})",
+                BE.Criticidad.Alta);
+
+            bitacoraNeg.Registrar(
+                BE.TipoEventoNegocio.Reactivacion,
+                $"Pedido #{idPedido} restaurado — operación '{accionOriginal}' #{idOperacion} revertida",
+                idPedido: idPedido);
         }
     }
 }

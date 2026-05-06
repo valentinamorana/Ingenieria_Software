@@ -40,6 +40,7 @@ namespace GUI
         public PedidosRealizados()
         {
             InitializeComponent();
+            AgregarBotonHistorial();
             this.Load += new EventHandler(PedidosRealizados_Load);
         }
 
@@ -303,6 +304,7 @@ namespace GUI
             btnDevolucion.Enabled       = pedido.Estado == BE.EstadoPedido.Entregado;
             btnVerNotificacion.Enabled  = pedido.Estado == BE.EstadoPedido.Despachado ||
                                           pedido.Estado == BE.EstadoPedido.Entregado;
+            if (_btnHistorial != null) _btnHistorial.Enabled = true;
 
             CargarDetallePrendas(pedido);
         }
@@ -397,15 +399,11 @@ namespace GUI
             var pedidoCompleto = pedidoBLL.ObtenerPorId(pedido.IdPedido);
             if (pedidoCompleto == null) return;
 
-            string listaPrendas = string.Join("\n  • ",
-                pedidoCompleto.Prendas.ConvertAll(p => $"{p.Nombre} ({p.Talle} — {p.Color})"));
-
             var confirmar = MessageBox.Show(
-                $"¿Registrar la devolución del Pedido #{pedido.IdPedido}?\n\n" +
-                $"Cliente: {pedido.NombreCliente}\n\n" +
-                $"Prendas que volverán a EnLimpieza:\n  • {listaPrendas}\n\n" +
-                "Las prendas quedarán en estado 'En Limpieza' hasta ser revisadas\n" +
-                "y marcadas Disponibles por el ControladorDeStock.",
+                $"¿Registrar devolución del Pedido #{pedidoCompleto.IdPedido}?\n\n" +
+                $"Cliente: {pedidoCompleto.NombreCliente}\n" +
+                $"Prendas: {pedidoCompleto.CantidadPrendas}\n\n" +
+                "Las prendas pasarán a estado EnLimpieza.",
                 "Confirmar Devolución",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question,
@@ -415,9 +413,8 @@ namespace GUI
 
             try
             {
-                pedidoBLL.RegistrarDevolucion(this, pedido);
-                MostrarOk($"Devolución del Pedido #{pedido.IdPedido} registrada. " +
-                          $"{pedidoCompleto.CantidadPrendas} prenda(s) pasaron a EnLimpieza.");
+                pedidoBLL.RegistrarDevolucion(this, pedidoCompleto);
+                MostrarOk($"Devolución registrada — {pedidoCompleto.CantidadPrendas} prenda(s) pasan a EnLimpieza.");
                 CargarPedidos();
             }
             catch (Exception ex) { MostrarError(ex.Message); }
@@ -425,21 +422,42 @@ namespace GUI
 
         private void BtnVerNotificacion_Click(object sender, EventArgs e)
         {
-            var pedidoResumen = ObtenerPedidoSeleccionado();
-            if (pedidoResumen == null) return;
+            var pedido = ObtenerPedidoSeleccionado();
+            if (pedido == null) return;
 
-            try
-            {
-                var pedido = pedidoBLL.ObtenerPorId(pedidoResumen.IdPedido);
-                if (pedido == null) return;
+            var completo = pedidoBLL.ObtenerPorId(pedido.IdPedido);
+            if (completo == null) return;
 
-                using (var notif = new NotificacionDespachoForm(pedido))
-                    notif.ShowDialog(this);
-            }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            string texto =
+                $"=== NOTIFICACIÓN DE PEDIDO ===\n\n" +
+                $"Pedido #:   {completo.IdPedido}\n" +
+                $"Cliente:    {completo.NombreCliente}\n" +
+                $"Estado:     {EstadoLabel(completo.Estado)}\n" +
+                $"Fecha:      {completo.FechaPedido:dd/MM/yyyy HH:mm}\n" +
+                $"Despacho:   {(completo.FechaDespacho.HasValue ? completo.FechaDespacho.Value.ToString("dd/MM/yyyy") : "—")}\n" +
+                $"Entrega:    {(completo.FechaEntrega.HasValue  ? completo.FechaEntrega.Value.ToString("dd/MM/yyyy")  : "—")}\n" +
+                $"Prendas:    {completo.CantidadPrendas}\n";
+
+            MessageBox.Show(texto, $"Notificación — Pedido #{completo.IdPedido}",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────
+
+        private void DeshabilitarBotones()
+        {
+            btnDespachar.Enabled       = false;
+            btnEntregado.Enabled       = false;
+            btnDevolucion.Enabled      = false;
+            btnVerNotificacion.Enabled = false;
+            if (_btnHistorial != null) _btnHistorial.Enabled = false;
+        }
+
+        private void LimpiarDetalle()
+        {
+            dgvDetalle.DataSource = null;
+            lblDetalleTitulo.Text = "";
+        }
 
         private BE.Pedido ObtenerPedidoSeleccionado()
         {
@@ -448,32 +466,52 @@ namespace GUI
             return _pedidos.Find(p => p.IdPedido == id);
         }
 
-        private void LimpiarDetalle()
-        {
-            dgvDetalle.DataSource = null;
-            lblDetalleTitulo.Text = "Detalle del pedido seleccionado";
-        }
-
-        private void DeshabilitarBotones()
-        {
-            btnDespachar.Enabled       = false;
-            btnEntregado.Enabled       = false;
-            btnDevolucion.Enabled      = false;
-            btnVerNotificacion.Enabled = false;
-        }
-
-        private string EstadoLabel(BE.EstadoPedido e)
+        private string EstadoLabel(BE.EstadoPedido estado)
         {
             var t = Traductor.ObtenerTraducciones(_idioma);
-            switch (e)
+            switch (estado)
             {
                 case BE.EstadoPedido.Pendiente:  return t.ContainsKey("est.pendiente")  ? t["est.pendiente"].Texto  : "Pendiente";
                 case BE.EstadoPedido.Despachado: return t.ContainsKey("est.despachado") ? t["est.despachado"].Texto : "Despachado";
                 case BE.EstadoPedido.Entregado:  return t.ContainsKey("est.entregado")  ? t["est.entregado"].Texto  : "Entregado";
                 case BE.EstadoPedido.Cancelado:  return t.ContainsKey("est.cancelado")  ? t["est.cancelado"].Texto  : "Cancelado";
-                default: return e.ToString();
+                default: return estado.ToString();
             }
         }
 
+        // ── Historial de cambios ──────────────────────────────────────────────
+
+        private Button _btnHistorial;
+
+        /// <summary>
+        /// Agrega el botón "📋 Historial" al panelTop en tiempo de ejecución.
+        /// Se ubica a continuación de btnRefrescar (Location.X = 640).
+        /// </summary>
+        private void AgregarBotonHistorial()
+        {
+            _btnHistorial = new Button
+            {
+                Text      = "📋 Historial",
+                Size      = new Size(110, 28),
+                Location  = new Point(728, 50),
+                BackColor = Color.FromArgb(60, 110, 160),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor    = Cursors.Hand,
+                Enabled   = false
+            };
+            _btnHistorial.FlatAppearance.BorderSize = 0;
+            _btnHistorial.Click += BtnHistorial_Click;
+            panelTop.Controls.Add(_btnHistorial);
+        }
+
+        private void BtnHistorial_Click(object sender, EventArgs e)
+        {
+            var pedido = ObtenerPedidoSeleccionado();
+            if (pedido == null) return;
+
+            using (var frm = new PedidoHistorialForm(pedido.IdPedido))
+                frm.ShowDialog(this);
+        }
     }
 }

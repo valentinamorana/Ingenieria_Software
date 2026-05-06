@@ -36,6 +36,7 @@ namespace GUI
         public PedidosVenta()
         {
             InitializeComponent();
+            AgregarBotonHistorial();
             this.Load += new EventHandler(PedidosVenta_Load);
         }
 
@@ -201,6 +202,7 @@ namespace GUI
             {
                 btnCancelar.Enabled    = false;
                 btnDesCancelar.Enabled = false;
+                if (_btnHistorial != null) _btnHistorial.Enabled = false;
                 return;
             }
 
@@ -209,6 +211,7 @@ namespace GUI
 
             btnCancelar.Enabled    = pedido.Estado == BE.EstadoPedido.Pendiente;
             btnDesCancelar.Enabled = pedido.Estado == BE.EstadoPedido.Cancelado;
+            if (_btnHistorial != null) _btnHistorial.Enabled = true;
 
             // Cargar detalle de prendas del pedido seleccionado
             CargarDetallePrendas(pedido.IdPedido);
@@ -336,7 +339,7 @@ namespace GUI
             switch (estado)
             {
                 case BE.EstadoPedido.Pendiente:  return t.ContainsKey("est.pendiente")  ? t["est.pendiente"].Texto  : "Pendiente";
-                case BE.EstadoPedido.Despachado: return t.ContainsKey("est.despachado") ? t["est.despachado"].Texto : "Despachado";
+                case BE.                case BE.EstadoPedido.Despachado: return t.ContainsKey("est.despachado") ? t["est.despachado"].Texto : "Despachado";
                 case BE.EstadoPedido.Entregado:  return t.ContainsKey("est.entregado")  ? t["est.entregado"].Texto  : "Entregado";
                 case BE.EstadoPedido.Cancelado:  return t.ContainsKey("est.cancelado")  ? t["est.cancelado"].Texto  : "Cancelado";
                 default: return estado.ToString();
@@ -371,20 +374,20 @@ namespace GUI
 
                 var btnOk = new Button
                 {
-                    Text = "Aceptar", Left = 220, Top = 84,
+                    Text         = "Aceptar", Left = 220, Top = 84,
                     Width = 90, Height = 30,
                     DialogResult = DialogResult.OK,
-                    BackColor = Color.SteelBlue, ForeColor = Color.White,
-                    FlatStyle = FlatStyle.Flat
+                    BackColor    = Color.SteelBlue, ForeColor = Color.White,
+                    FlatStyle    = FlatStyle.Flat
                 };
                 btnOk.FlatAppearance.BorderSize = 0;
 
                 var btnCancel = new Button
                 {
-                    Text = "Cancelar", Left = 318, Top = 84,
+                    Text         = "Cancelar", Left = 318, Top = 84,
                     Width = 90, Height = 30,
                     DialogResult = DialogResult.Cancel,
-                    FlatStyle = FlatStyle.Flat
+                    FlatStyle    = FlatStyle.Flat
                 };
 
                 dlg.Controls.Add(btnOk);
@@ -398,5 +401,40 @@ namespace GUI
             return resultado;
         }
 
+        // ── Historial de cambios ──────────────────────────────────────────────
+
+        private Button _btnHistorial;
+
+        /// <summary>
+        /// Agrega el botón "📋 Historial" a panelTop en tiempo de ejecución
+        /// (el control no está en el Designer para no alterar el layout existente).
+        /// </summary>
+        private void AgregarBotonHistorial()
+        {
+            _btnHistorial = new Button
+            {
+                Text      = "📋 Historial",
+                Size      = new Size(110, 28),
+                BackColor = Color.FromArgb(60, 110, 160),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor    = Cursors.Hand,
+                Enabled   = false
+            };
+            _btnHistorial.FlatAppearance.BorderSize = 0;
+            // Posicionar a la derecha de btnDesCancelar (Location.X = 274, Width = 130 → 274+130+6 = 410)
+            _btnHistorial.Location = new Point(412, 11);
+            _btnHistorial.Click   += BtnHistorial_Click;
+            panelTop.Controls.Add(_btnHistorial);
+        }
+
+        private void BtnHistorial_Click(object sender, EventArgs e)
+        {
+            var pedido = ObtenerPedidoSeleccionado();
+            if (pedido == null) return;
+
+            using (var frm = new PedidoHistorialForm(pedido.IdPedido))
+                frm.ShowDialog(this);
+        }
     }
 }

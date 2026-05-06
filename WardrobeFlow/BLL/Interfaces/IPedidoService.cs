@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Windows.Forms;
 
 namespace BLL.Interfaces
@@ -13,6 +15,8 @@ namespace BLL.Interfaces
     ///   RegistrarDevolucion() — El cliente devuelve las prendas al finalizar
     ///   Cancelar()            — Se cancela un pedido Pendiente
     ///   DesCancelar()         — Se revierte la cancelación
+    ///   ObtenerHistorial()    — Devuelve el historial de cambios de un pedido
+    ///   RestaurarOperacion()  — Restaura el pedido al estado previo a una operación
     /// </summary>
     public interface IPedidoService
     {
@@ -44,5 +48,13 @@ namespace BLL.Interfaces
 
         // Revierte la cancelación de un pedido si las prendas siguen disponibles.
         void DesCancelar(Form formulario, BE.Pedido pedido);
+
+        // Devuelve el historial de cambios de un pedido con filtros opcionales.
+        System.Data.DataTable ObtenerHistorial(int idPedido, string accion = null,
+                                               System.DateTime? desde = null,
+                                               System.DateTime? hasta = null);
+
+        // Restaura el pedido al estado previo a la operación indicada.
+        void RestaurarOperacion(Form formulario, int idPedido, int idOperacion);
     }
 }
