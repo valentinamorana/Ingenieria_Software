@@ -39,6 +39,9 @@ namespace GUI
         // Determina si el usuario puede cambiar estados (ControladorDeStock)
         private readonly bool _tieneStock;
 
+        // Idioma activo — sincronizado en Traducir() para usar en EstadoLabel y ColorearFilas
+        private Idioma _idioma = GestorIdioma.IdiomaActual;
+
         private List<BE.Prenda> _prendas = new List<BE.Prenda>();
 
         public Prendas()
@@ -77,6 +80,7 @@ namespace GUI
 
         private void Traducir(Idioma idioma)
         {
+            _idioma = idioma;
             var t = Traductor.ObtenerTraducciones(idioma);
             if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
                 this.Text = t[this.Tag.ToString()].Texto;
@@ -86,6 +90,46 @@ namespace GUI
             Aplicar(btnEditar,        t);
             Aplicar(btnCambiarEstado, t);
             Aplicar(lblDetalleTitulo, t);
+            RellenarComboEstado(idioma);
+            TraducirHeadersGrilla();
+        }
+
+        /// <summary>Rellena el combo de estado con las opciones traducidas al idioma activo.</summary>
+        private void RellenarComboEstado(Idioma idioma)
+        {
+            var t = Traductor.ObtenerTraducciones(idioma);
+            string T(string key, string fallback) => t.ContainsKey(key) ? t[key].Texto : fallback;
+
+            int prevIdx = cmbEstadoFiltro.SelectedIndex < 0 ? 0 : cmbEstadoFiltro.SelectedIndex;
+            cmbEstadoFiltro.SelectedIndexChanged -= CmbEstadoFiltro_SelectedIndexChanged;
+            cmbEstadoFiltro.Items.Clear();
+            cmbEstadoFiltro.Items.Add(T("combo.prenda.todos",  "Todos"));
+            cmbEstadoFiltro.Items.Add(T("prenda.disponible",   "Disponible"));
+            cmbEstadoFiltro.Items.Add(T("prenda.enuso",        "En Uso"));
+            cmbEstadoFiltro.Items.Add(T("prenda.enlimpieza",   "En Limpieza"));
+            cmbEstadoFiltro.Items.Add(T("prenda.baja",         "Baja"));
+            cmbEstadoFiltro.SelectedIndex = prevIdx < cmbEstadoFiltro.Items.Count ? prevIdx : 0;
+            cmbEstadoFiltro.SelectedIndexChanged += CmbEstadoFiltro_SelectedIndexChanged;
+        }
+
+        /// <summary>Traduce los HeaderText de la grilla de prendas según el idioma activo.</summary>
+        private void TraducirHeadersGrilla()
+        {
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            void RH(string col, string key, string fallback)
+            {
+                if (dgvPrendas.Columns.Contains(col) && t.ContainsKey(key))
+                    dgvPrendas.Columns[col].HeaderText = t[key].Texto;
+                else if (dgvPrendas.Columns.Contains(col))
+                    dgvPrendas.Columns[col].HeaderText = fallback;
+            }
+            RH("Nombre",    "col.prenda.nombre",    "Nombre");
+            RH("Categoría", "col.prenda.categoria",  "Categoría");
+            RH("Talle",     "col.prenda.talle",      "Talle");
+            RH("Color",     "col.prenda.color",      "Color");
+            RH("Estado",    "col.prenda.estado",     "Estado");
+            RH("Cliente",   "col.prenda.cliente",    "Cliente");
+            RH("Alta",      "col.prenda.alta",       "Alta");
         }
 
         private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
@@ -129,7 +173,9 @@ namespace GUI
             {
                 _prendas = prendaBLL.ObtenerTodos();
                 AplicarFiltro();
-                MostrarOk($"{_prendas.Count} prenda(s) en el catálogo.");
+                var t = Traductor.ObtenerTraducciones(_idioma);
+                string fmt = t.ContainsKey("msg.prenda.cargadas") ? t["msg.prenda.cargadas"].Texto : "{0} prenda(s) en el catálogo.";
+                MostrarOk(string.Format(fmt, _prendas.Count));
             }
             catch (Exception ex)
             {
@@ -170,6 +216,8 @@ namespace GUI
             tabla.Columns.Add("Estado",    typeof(string));
             tabla.Columns.Add("Cliente",   typeof(string));
             tabla.Columns.Add("Alta",      typeof(string));
+            // Columna interna para colorear sin depender del texto visible
+            tabla.Columns.Add("_EstadoKey", typeof(int));
 
             foreach (var p in lista)
             {
@@ -181,33 +229,41 @@ namespace GUI
                     p.Color ?? "—",
                     EstadoLabel(p.Estado),
                     p.NombreCliente ?? "—",
-                    p.FechaAlta.ToString("dd/MM/yyyy"));
+                    p.FechaAlta.ToString("dd/MM/yyyy"),
+                    (int)p.Estado);
             }
 
             dgvPrendas.DataSource = tabla;
 
-            // Colorear filas según estado
+            // Ocultar columna interna y colorear filas según estado
+            if (dgvPrendas.Columns.Contains("_EstadoKey"))
+                dgvPrendas.Columns["_EstadoKey"].Visible = false;
+
             ColorearFilas();
+            TraducirHeadersGrilla();
 
             if (dgvPrendas.Columns.Contains("ID"))
                 dgvPrendas.Columns["ID"].Width = 40;
 
-            lblConteo.Text = $"Mostrando {lista.Count} de {_prendas.Count}";
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            string fmt = t.ContainsKey("msg.prenda.conteo") ? t["msg.prenda.conteo"].Texto : "Mostrando {0} de {1}";
+            lblConteo.Text = string.Format(fmt, lista.Count, _prendas.Count);
             panelDetalle.Visible = false;
         }
 
         private void ColorearFilas()
         {
             if (dgvPrendas.DataSource == null) return;
+            if (!dgvPrendas.Columns.Contains("_EstadoKey")) return;
             foreach (DataGridViewRow row in dgvPrendas.Rows)
             {
-                string estado = row.Cells["Estado"].Value?.ToString() ?? "";
-                row.DefaultCellStyle.ForeColor = estado switch
+                if (!int.TryParse(row.Cells["_EstadoKey"].Value?.ToString(), out int key)) continue;
+                row.DefaultCellStyle.ForeColor = key switch
                 {
-                    "En Uso"       => Color.FromArgb(30, 100, 170),
-                    "En Limpieza"  => Color.FromArgb(160, 100, 0),
-                    "Baja"         => Color.FromArgb(160, 50, 50),
-                    _              => Color.Black
+                    (int)BE.EstadoPrenda.EnUso       => Color.FromArgb(30, 100, 170),
+                    (int)BE.EstadoPrenda.EnLimpieza  => Color.FromArgb(160, 100, 0),
+                    (int)BE.EstadoPrenda.Baja        => Color.FromArgb(160, 50, 50),
+                    _                                => Color.Black
                 };
             }
         }
@@ -247,7 +303,9 @@ namespace GUI
                 try
                 {
                     prendaBLL.Alta(this, form.PrendaEditada);
-                    MostrarOk($"Prenda '{form.PrendaEditada.Nombre}' agregada al catálogo.");
+                    var tAlt = Traductor.ObtenerTraducciones(_idioma);
+                    string fmtAlt = tAlt.ContainsKey("msg.prenda.agregada") ? tAlt["msg.prenda.agregada"].Texto : "Prenda '{0}' agregada al catálogo.";
+                    MostrarOk(string.Format(fmtAlt, form.PrendaEditada.Nombre));
                     CargarPrendas();
                 }
                 catch (Exception ex) { MostrarError(ex.Message); }
@@ -265,7 +323,9 @@ namespace GUI
                 try
                 {
                     prendaBLL.Modificar(this, form.PrendaEditada);
-                    MostrarOk($"Prenda '{form.PrendaEditada.Nombre}' actualizada.");
+                    var tMod = Traductor.ObtenerTraducciones(_idioma);
+                    string fmtMod = tMod.ContainsKey("msg.prenda.actualizada") ? tMod["msg.prenda.actualizada"].Texto : "Prenda '{0}' actualizada.";
+                    MostrarOk(string.Format(fmtMod, form.PrendaEditada.Nombre));
                     CargarPrendas();
                 }
                 catch (Exception ex) { MostrarError(ex.Message); }
@@ -277,35 +337,40 @@ namespace GUI
             var prenda = ObtenerPrendaSeleccionada();
             if (prenda == null) return;
 
-            // Construir opciones de transición válidas
+            // Construir opciones de transición válidas (con textos traducidos)
+            var tEst = Traductor.ObtenerTraducciones(_idioma);
+            string T_est(string k, string fb) => tEst.ContainsKey(k) ? tEst[k].Texto : fb;
+
             var opciones = new List<(string texto, BE.EstadoPrenda estado)>();
 
             switch (prenda.Estado)
             {
                 case BE.EstadoPrenda.Disponible:
-                    opciones.Add(("Enviar a Limpieza", BE.EstadoPrenda.EnLimpieza));
-                    opciones.Add(("Dar de Baja",       BE.EstadoPrenda.Baja));
+                    opciones.Add((T_est("opt.enviarlimpieza", "Enviar a Limpieza"), BE.EstadoPrenda.EnLimpieza));
+                    opciones.Add((T_est("opt.darbaja",        "Dar de Baja"),       BE.EstadoPrenda.Baja));
                     break;
                 case BE.EstadoPrenda.EnLimpieza:
-                    opciones.Add(("Marcar Disponible", BE.EstadoPrenda.Disponible));
-                    opciones.Add(("Dar de Baja",       BE.EstadoPrenda.Baja));
+                    opciones.Add((T_est("opt.marcardisp",     "Marcar Disponible"), BE.EstadoPrenda.Disponible));
+                    opciones.Add((T_est("opt.darbaja",        "Dar de Baja"),       BE.EstadoPrenda.Baja));
                     break;
                 case BE.EstadoPrenda.EnUso:
-                    MostrarError("No se puede cambiar el estado: la prenda está en uso por un cliente.");
+                    MostrarError(T_est("err.prenda.enuso", "No se puede cambiar el estado: la prenda está en uso por un cliente."));
                     return;
                 case BE.EstadoPrenda.Baja:
-                    MostrarError("La prenda está dada de baja y no puede ser reactivada.");
+                    MostrarError(T_est("err.prenda.baja", "La prenda está dada de baja y no puede ser reactivada."));
                     return;
             }
 
             // Mostrar diálogo de selección de nuevo estado
-            using (var dlg = new CambioEstadoDialog(prenda, opciones))
+            string estadoTraducido = EstadoLabel(prenda.Estado);
+            using (var dlg = new CambioEstadoDialog(prenda, opciones, estadoTraducido))
             {
                 if (dlg.ShowDialog(this) != DialogResult.OK) return;
                 try
                 {
                     prendaBLL.CambiarEstado(this, prenda, dlg.EstadoSeleccionado);
-                    MostrarOk($"Estado de '{prenda.Nombre}' actualizado a {dlg.EstadoSeleccionado}.");
+                    string fmtEstAct = T_est("msg.prenda.estadoact", "Estado de '{0}' actualizado a {1}.");
+                    MostrarOk(string.Format(fmtEstAct, prenda.Nombre, EstadoLabel(dlg.EstadoSeleccionado)));
                     CargarPrendas();
                 }
                 catch (Exception ex) { MostrarError(ex.Message); }
@@ -323,13 +388,15 @@ namespace GUI
 
         private string EstadoLabel(BE.EstadoPrenda estado)
         {
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            string T(string key, string fallback) => t.ContainsKey(key) ? t[key].Texto : fallback;
             switch (estado)
             {
-                case BE.EstadoPrenda.Disponible:  return "Disponible";
-                case BE.EstadoPrenda.EnUso:        return "En Uso";
-                case BE.EstadoPrenda.EnLimpieza:   return "En Limpieza";
-                case BE.EstadoPrenda.Baja:         return "Baja";
-                default:                           return estado.ToString();
+                case BE.EstadoPrenda.Disponible:  return T("prenda.disponible",  "Disponible");
+                case BE.EstadoPrenda.EnUso:       return T("prenda.enuso",       "En Uso");
+                case BE.EstadoPrenda.EnLimpieza:  return T("prenda.enlimpieza",  "En Limpieza");
+                case BE.EstadoPrenda.Baja:        return T("prenda.baja",        "Baja");
+                default:                          return estado.ToString();
             }
         }
 

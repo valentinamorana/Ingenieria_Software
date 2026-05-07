@@ -33,6 +33,9 @@ namespace GUI
         // BLL de usuarios para operaciones de negocio
         private readonly BLL.Usuario usuarioBLL = new BLL.Usuario();
 
+        // Idioma activo — sincronizado en Traducir() para usar en CargarUsuarios
+        private Idioma _idioma = GestorIdioma.IdiomaActual;
+
         /// <summary>
         /// Constructor: inicializa el formulario y construye la interfaz de gestión de usuarios.
         /// </summary>
@@ -40,43 +43,6 @@ namespace GUI
         {
             InitializeComponent();
             this.Load += new EventHandler(Usuarios_Load);
-
-            // Botón reset masivo — se agrega debajo del último control del panel
-            var btnResetMasivo = new Button
-            {
-                Text      = "Resetear todas las claves a temporal",
-                Size      = new Size(216, 30),
-                Location  = new Point(12, btnDesbloquear.Bottom + 20),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(80, 80, 80),
-                ForeColor = Color.White,
-                Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold),
-                Cursor    = Cursors.Hand
-            };
-            btnResetMasivo.FlatAppearance.BorderSize = 0;
-            btnResetMasivo.Click += BtnResetMasivo_Click;
-            panelAlta.Controls.Add(btnResetMasivo);
-
-            // Ojito mostrar/ocultar contraseña en el campo Nuevo Usuario
-            txtContraseña.Width -= 28;
-            var btnOjo = new Button
-            {
-                Text      = "👁",
-                Font      = new Font("Segoe UI Emoji", 9f),
-                Size      = new Size(26, txtContraseña.Height),
-                Location  = new Point(txtContraseña.Right + 2, txtContraseña.Top),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = txtContraseña.BackColor,
-                ForeColor = Color.FromArgb(100, 100, 100),
-                Cursor    = Cursors.Hand,
-                TabStop   = false
-            };
-            btnOjo.FlatAppearance.BorderSize = 1;
-            btnOjo.FlatAppearance.BorderColor = Color.FromArgb(180, 180, 180);
-            btnOjo.Click += (s, e) =>
-                txtContraseña.PasswordChar = txtContraseña.PasswordChar == '\0' ? '●' : '\0';
-            panelAlta.Controls.Add(btnOjo);
-            btnOjo.BringToFront();
         }
 
         // ── Observer de idioma ────────────────────────────────────────────────
@@ -94,10 +60,16 @@ namespace GUI
             base.OnFormClosing(e);
         }
 
-        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+        public void UpdateLanguage(Idioma idioma)
+        {
+            Traducir(idioma);
+            // Refrescar grilla para que headers y valores de estado reflejen el nuevo idioma
+            CargarUsuarios();
+        }
 
         private void Traducir(Idioma idioma)
         {
+            _idioma = idioma;
             var t = Traductor.ObtenerTraducciones(idioma);
             if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
                 this.Text = t[this.Tag.ToString()].Texto;
@@ -106,6 +78,7 @@ namespace GUI
             Aplicar(lblPass,              t);
             Aplicar(lblPerfil,            t);
             Aplicar(btnAgregar,           t);
+            Aplicar(btnRefrescar,         t);
             Aplicar(lblResetTitulo,       t);
             Aplicar(lblResetInfo,         t);
             Aplicar(btnResetearClave,     t);
@@ -113,6 +86,27 @@ namespace GUI
             Aplicar(lblDesbloquearInfo,   t);
             Aplicar(btnDesbloquear,       t);
             Aplicar(lblListaTitulo,       t);
+            TraducirHeadersGrilla();
+        }
+
+        /// <summary>Traduce los HeaderText de la grilla de usuarios según el idioma activo.</summary>
+        private void TraducirHeadersGrilla()
+        {
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            void RH(string col, string clave, string fallback)
+            {
+                if (dgvUsuarios.Columns.Contains(col) && t.ContainsKey(clave))
+                    dgvUsuarios.Columns[col].HeaderText = t[clave].Texto;
+                else if (dgvUsuarios.Columns.Contains(col))
+                    dgvUsuarios.Columns[col].HeaderText = fallback;
+            }
+            RH("Username", "col.usr.username", "Usuario");
+            RH("Perfil",   "col.usr.perfil",   "Perfil");
+            RH("Estado",   "col.usr.estado",   "Estado");
+
+            // Ocultar columna interna de clave de bloqueo
+            if (dgvUsuarios.Columns.Contains("_BloqueadoKey"))
+                dgvUsuarios.Columns["_BloqueadoKey"].Visible = false;
         }
 
         private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
@@ -125,6 +119,47 @@ namespace GUI
 
         private void Usuarios_Load(object sender, EventArgs e)
         {
+            // Se crean aquí (en Load, no en constructor) para que la escala DPI del
+            // formulario ya esté aplicada y las posiciones/tamaños sean correctos.
+
+            // Botón reset masivo — debajo del último control del panel
+            var btnResetMasivo = new Button
+            {
+                Text      = "Resetear todas las claves a temporal",
+                Size      = new Size(216, 30),
+                Location  = new Point(12, btnDesbloquear.Bottom + 20),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(80, 80, 80),
+                ForeColor = Color.White,
+                Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold),
+                Cursor    = Cursors.Hand
+            };
+            btnResetMasivo.FlatAppearance.BorderSize = 0;
+            btnResetMasivo.Click += BtnResetMasivo_Click;
+            panelAlta.Controls.Add(btnResetMasivo);
+
+            // Ojito mostrar/ocultar contraseña — se posiciona a la derecha del textbox
+            // una vez que el layout ya tiene las medidas escaladas.
+            txtContraseña.Width -= 28;
+            var btnOjo = new Button
+            {
+                Text      = "👁",
+                Font      = new Font("Segoe UI", 11f),
+                Size      = new Size(28, txtContraseña.Height),
+                Location  = new Point(txtContraseña.Right + 2, txtContraseña.Top),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = txtContraseña.BackColor,
+                ForeColor = Color.FromArgb(80, 80, 80),
+                Cursor    = Cursors.Hand,
+                TabStop   = false
+            };
+            btnOjo.FlatAppearance.BorderSize = 1;
+            btnOjo.FlatAppearance.BorderColor = Color.FromArgb(180, 180, 180);
+            btnOjo.Click += (s, e2) =>
+                txtContraseña.PasswordChar = txtContraseña.PasswordChar == '\0' ? '●' : '\0';
+            panelAlta.Controls.Add(btnOjo);
+            btnOjo.BringToFront();
+
             CargarUsuarios();
         }
 
@@ -138,11 +173,12 @@ namespace GUI
             bool haySeleccion = dgvUsuarios.SelectedRows.Count > 0;
             btnResetearClave.Enabled = haySeleccion;
 
-            // Desbloquear solo se habilita si el usuario seleccionado está bloqueado
-            if (haySeleccion)
+            // Desbloquear solo se habilita si el usuario seleccionado está bloqueado.
+            // Usamos la columna interna _BloqueadoKey (int) para ser independientes del idioma.
+            if (haySeleccion && dgvUsuarios.Columns.Contains("_BloqueadoKey"))
             {
-                var estadoCell = dgvUsuarios.SelectedRows[0].Cells["Estado"];
-                btnDesbloquear.Enabled = estadoCell?.Value?.ToString() == "BLOQUEADA";
+                var bloqCell = dgvUsuarios.SelectedRows[0].Cells["_BloqueadoKey"];
+                btnDesbloquear.Enabled = bloqCell?.Value?.ToString() == "1";
             }
             else
             {
@@ -162,30 +198,44 @@ namespace GUI
             {
                 List<BE.Usuario> usuarios = usuarioBLL.ObtenerTodos();
 
+                var t = Traductor.ObtenerTraducciones(_idioma);
+                string lblActivo    = t.ContainsKey("usr.activo")   ? t["usr.activo"].Texto   : "Activo";
+                string lblBloqueada = t.ContainsKey("usr.bloqueada") ? t["usr.bloqueada"].Texto : "Bloqueada";
+
                 var tabla = new DataTable();
-                tabla.Columns.Add("ID",       typeof(int));
-                tabla.Columns.Add("Username", typeof(string));
-                tabla.Columns.Add("Perfil",   typeof(string));
-                tabla.Columns.Add("Estado",   typeof(string));
+                tabla.Columns.Add("ID",           typeof(int));
+                tabla.Columns.Add("Username",     typeof(string));
+                tabla.Columns.Add("Perfil",       typeof(string));
+                tabla.Columns.Add("Estado",       typeof(string));
+                // Columna interna: 1 = bloqueado, 0 = activo — independiente del idioma
+                tabla.Columns.Add("_BloqueadoKey", typeof(int));
 
                 foreach (var u in usuarios)
-                    tabla.Rows.Add(u.Id, u.Username, u.Perfil ?? "—",
-                        u.Bloqueado ? "BLOQUEADA" : "Activo");
+                    tabla.Rows.Add(
+                        u.Id,
+                        u.Username,
+                        u.Perfil ?? "—",
+                        u.Bloqueado ? lblBloqueada : lblActivo,
+                        u.Bloqueado ? 1 : 0);
 
                 dgvUsuarios.DataSource = tabla;
+                TraducirHeadersGrilla();
 
-                // Colorear filas bloqueadas en rojo claro para resaltar visualmente (T02)
+                // Colorear filas bloqueadas usando la columna interna (independiente del idioma)
                 foreach (DataGridViewRow fila in dgvUsuarios.Rows)
                 {
-                    if (fila.Cells["Estado"].Value?.ToString() == "BLOQUEADA")
+                    if (fila.Cells["_BloqueadoKey"].Value?.ToString() == "1")
                     {
                         fila.DefaultCellStyle.BackColor = Color.FromArgb(255, 220, 220);
                         fila.DefaultCellStyle.ForeColor = Color.DarkRed;
                     }
                 }
 
+                string fmt = t.ContainsKey("msg.usr.cargados")
+                    ? t["msg.usr.cargados"].Texto
+                    : "{0} usuario(s) registrado(s).";
                 lblMensaje.ForeColor = Color.DarkGreen;
-                lblMensaje.Text      = $"{usuarios.Count} usuario(s) registrado(s).";
+                lblMensaje.Text      = string.Format(fmt, usuarios.Count);
             }
             catch (Exception ex)
             {

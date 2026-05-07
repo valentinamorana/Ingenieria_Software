@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Servicios.Multiidioma;
 
 namespace GUI
 {
@@ -35,12 +36,38 @@ namespace GUI
             _esEdicion       = cliente != null;
             _clienteOriginal = cliente;
 
-            this.Text = _esEdicion ? "Editar Cliente" : "Nuevo Cliente";
-            btnGuardar.Text = _esEdicion ? "Guardar Cambios" : "Registrar Cliente";
-
             CargarPlanes();
+            AplicarIdioma(GestorIdioma.IdiomaActual);
 
             if (_esEdicion) CargarDatosExistentes();
+        }
+
+        // ── Traducción ────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Aplica el idioma activo al abrir el diálogo.
+        /// ClienteForm es modal → no necesita Observer completo, basta con leer en construcción.
+        /// </summary>
+        private void AplicarIdioma(Idioma idioma)
+        {
+            var t = Traductor.ObtenerTraducciones(idioma);
+            string T(string key, string fallback) => t.ContainsKey(key) ? t[key].Texto : fallback;
+
+            this.Text       = _esEdicion ? T("frm.editarcliente", "Editar Cliente")
+                                         : T("frm.nuevocliente",  "Nuevo Cliente");
+            btnGuardar.Text = _esEdicion ? T("btn.guardar.cambios",  "Guardar Cambios")
+                                         : T("btn.registrar.cliente","Registrar Cliente");
+            btnCancelar.Text  = T("btn.cancelar",        "Cancelar");
+            lblNombre.Text    = T("lbl.cli.nombre",      "Nombre *");
+            lblApellido.Text  = T("lbl.cli.apellido",    "Apellido *");
+            lblDNI.Text       = T("lbl.cli.dni",         "DNI * (7-8 dígitos)");
+            lblEmail.Text     = T("lbl.cli.email",       "Email");
+            lblMetodoPago.Text= T("lbl.cli.metodopago",  "Método de Pago *");
+            lblPlan.Text      = T("lbl.cli.plan",        "Plan de Suscripción");
+
+            // Actualizar ítem "— Sin plan —" del combo de planes (índice 0)
+            if (cmbPlan.Items.Count > 0)
+                cmbPlan.Items[0] = T("combo.cli.sinplan", "— Sin plan —");
         }
 
         // ── Eventos del Designer ──────────────────────────────────────────────

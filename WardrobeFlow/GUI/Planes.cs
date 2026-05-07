@@ -35,6 +35,9 @@ namespace GUI
         private List<BE.PlanSuscripcion> _planes = new List<BE.PlanSuscripcion>();
         private int _idEnEdicion = 0;  // 0 = modo alta
 
+        // Idioma activo — sincronizado en Traducir() para usar en CargarPlanes
+        private Idioma _idioma = GestorIdioma.IdiomaActual;
+
         public Planes()
         {
             InitializeComponent();
@@ -60,6 +63,7 @@ namespace GUI
 
         private void Traducir(Idioma idioma)
         {
+            _idioma = idioma;
             var t = Traductor.ObtenerTraducciones(idioma);
             if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
                 this.Text = t[this.Tag.ToString()].Texto;
@@ -73,6 +77,26 @@ namespace GUI
             Aplicar(btnDesactivar,  t);
             Aplicar(btnActivar,     t);
             Aplicar(lblTituloGrilla,t);
+            TraducirHeadersGrilla();
+            // Recargar la grilla para que "Activo"/"Inactivo" y el conteo reflejen el idioma nuevo
+            if (_planes.Count > 0) CargarPlanes();
+        }
+
+        /// <summary>Traduce los HeaderText de la grilla de planes según el idioma activo.</summary>
+        private void TraducirHeadersGrilla()
+        {
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            void RH(string col, string key, string fallback)
+            {
+                if (dgvPlanes.Columns.Contains(col) && t.ContainsKey(key))
+                    dgvPlanes.Columns[col].HeaderText = t[key].Texto;
+                else if (dgvPlanes.Columns.Contains(col))
+                    dgvPlanes.Columns[col].HeaderText = fallback;
+            }
+            RH("Nombre",  "col.plan.nombre",  "Nombre");
+            RH("Prendas", "col.plan.prendas", "Prendas");
+            RH("Precio",  "col.plan.precio",  "Precio");
+            RH("Estado",  "col.plan.estado",  "Estado");
         }
 
         private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
@@ -112,25 +136,35 @@ namespace GUI
                 tabla.Columns.Add("Precio",  typeof(string));
                 tabla.Columns.Add("Estado",  typeof(string));
 
+                var t = Traductor.ObtenerTraducciones(_idioma);
+                string T(string key, string fallback) => t.ContainsKey(key) ? t[key].Texto : fallback;
+                string lblActivo   = T("plan.activo",   "Activo");
+                string lblInactivo = T("plan.inactivo", "Inactivo");
+
                 foreach (var p in _planes)
                     tabla.Rows.Add(p.IdPlan, p.Nombre, p.LimitePrendas,
-                        $"${p.Precio:N2}", p.Estado ? "Activo" : "Inactivo");
+                        $"${p.Precio:N2}", p.Estado ? lblActivo : lblInactivo);
 
                 dgvPlanes.DataSource = tabla;
                 if (dgvPlanes.Columns.Contains("ID"))
                     dgvPlanes.Columns["ID"].Width = 40;
 
-                // Resaltar planes inactivos en gris claro
+                TraducirHeadersGrilla();
+
+                // Resaltar planes inactivos en gris claro (detección por bool, no por texto)
+                int rowIdx = 0;
                 foreach (DataGridViewRow fila in dgvPlanes.Rows)
                 {
-                    if (fila.Cells["Estado"].Value?.ToString() == "Inactivo")
+                    if (rowIdx < _planes.Count && !_planes[rowIdx].Estado)
                     {
                         fila.DefaultCellStyle.ForeColor = Color.Gray;
                         fila.DefaultCellStyle.Font = new Font("Segoe UI", 8.5f, FontStyle.Italic);
                     }
+                    rowIdx++;
                 }
 
-                MostrarOk($"{_planes.Count} plan(es) cargado(s).");
+                string fmt = T("msg.planes.cargados", "{0} plan(es) cargado(s).");
+                MostrarOk(string.Format(fmt, _planes.Count));
             }
             catch (Exception ex)
             {

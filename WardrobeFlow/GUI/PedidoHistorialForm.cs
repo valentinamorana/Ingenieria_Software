@@ -115,21 +115,21 @@ namespace GUI
 
             var items = new List<ComboItem>
             {
-                new ComboItem("",           T("combo.hist.todas", "— Todas —")),
-                new ComboItem("CREAR",      "CREAR"),
-                new ComboItem("DESPACHAR",  "DESPACHAR"),
-                new ComboItem("ENTREGAR",   "ENTREGAR"),
-                new ComboItem("CANCELAR",   "CANCELAR"),
-                new ComboItem("DESCANCELAR","DESCANCELAR"),
-                new ComboItem("DEVOLUCION", "DEVOLUCION"),
-                new ComboItem("RESTAURAR",  "RESTAURAR"),
+                new ComboItem("",           T("combo.hist.todas",      "— Todas —")),
+                new ComboItem("CREAR",      T("accion.crear",          "Crear")),
+                new ComboItem("DESPACHAR",  T("accion.despachar",      "Despachar")),
+                new ComboItem("ENTREGAR",   T("accion.entregar",       "Entregar")),
+                new ComboItem("CANCELAR",   T("accion.cancelar",       "Cancelar")),
+                new ComboItem("DESCANCELAR",T("accion.descancelar",    "Des-cancelar")),
+                new ComboItem("DEVOLUCION", T("accion.devolucion",     "Devolución")),
+                new ComboItem("RESTAURAR",  T("accion.restaurar",      "Restaurar")),
             };
 
             string prevValue = (_cmbAccion.SelectedItem as ComboItem)?.Value ?? "";
             _cmbAccion.DataSource    = null;
-            _cmbAccion.DataSource    = items;
             _cmbAccion.DisplayMember = "Label";
             _cmbAccion.ValueMember   = "Value";
+            _cmbAccion.DataSource    = items;
 
             // Restaurar selección previa
             foreach (ComboItem it in items)
@@ -383,7 +383,7 @@ namespace GUI
                 Location  = new Point(12, 472),
                 Size      = new Size(130, 32),
                 Anchor    = AnchorStyles.Bottom | AnchorStyles.Left,
-                BackColor = Color.FromArgb(180, 70, 50),
+                BackColor = Color.FromArgb(210, 100, 135),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font      = new Font("Segoe UI", 9f, FontStyle.Bold),
@@ -398,8 +398,8 @@ namespace GUI
                 Location  = new Point(714, 472),
                 Size      = new Size(118, 32),
                 Anchor    = AnchorStyles.Bottom | AnchorStyles.Right,
-                BackColor = Color.FromArgb(90, 90, 90),
-                ForeColor = Color.White,
+                BackColor = Color.FromArgb(210, 210, 210),
+                ForeColor = Color.Black,
                 FlatStyle = FlatStyle.Flat,
                 Font      = new Font("Segoe UI", 9f),
                 Cursor    = Cursors.Hand

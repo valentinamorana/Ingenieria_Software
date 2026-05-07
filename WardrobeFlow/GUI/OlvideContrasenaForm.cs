@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Servicios.Multiidioma;
 
 namespace GUI
 {
@@ -21,7 +23,7 @@ namespace GUI
     ///   - MostrarError() → heredado, no se redeclara
     ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
     /// </summary>
-    public partial class OlvideContrasenaForm : FormBase
+    public partial class OlvideContrasenaForm : FormBase, IIdiomaObserver
     {
         protected override Label MensajeLabel => lblMensaje;
 
@@ -29,6 +31,43 @@ namespace GUI
         {
             InitializeComponent();
         }
+
+        // ── Observer de idioma ────────────────────────────────────────────────
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            GestorIdioma.SuscribirObservador(this);
+            Traducir(GestorIdioma.IdiomaActual);
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            GestorIdioma.DesuscribirObservador(this);
+            base.OnFormClosing(e);
+        }
+
+        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+
+        private void Traducir(Idioma idioma)
+        {
+            var t = Traductor.ObtenerTraducciones(idioma);
+            if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
+                this.Text = t[this.Tag.ToString()].Texto;
+            Aplicar(lblTitulo, t);
+            Aplicar(lblDesc,   t);
+            Aplicar(lblUser,   t);
+            Aplicar(btnEnviar, t);
+            Aplicar(btnCerrar, t);
+        }
+
+        private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
+        {
+            if (c?.Tag != null && t.ContainsKey(c.Tag.ToString()))
+                c.Text = t[c.Tag.ToString()].Texto;
+        }
+
+        // ── Eventos ───────────────────────────────────────────────────────────
 
         private void BtnCerrar_Click(object sender, EventArgs e)
         {

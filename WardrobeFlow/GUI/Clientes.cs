@@ -33,6 +33,9 @@ namespace GUI
         // Cache de la lista actual
         private List<BE.Cliente> _clientes = new List<BE.Cliente>();
 
+        // Idioma activo — sincronizado en Traducir() para usar en AplicarFiltro y CargarClientes
+        private Idioma _idioma = GestorIdioma.IdiomaActual;
+
         public Clientes()
         {
             InitializeComponent();
@@ -54,10 +57,17 @@ namespace GUI
             base.OnFormClosing(e);
         }
 
-        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+        public void UpdateLanguage(Idioma idioma)
+        {
+            Traducir(idioma);
+            // Refrescar grilla para que los headers y "Sin plan" reflejen el nuevo idioma
+            if (_clientes.Count > 0 || dgvClientes.Rows.Count > 0)
+                AplicarFiltro();
+        }
 
         private void Traducir(Idioma idioma)
         {
+            _idioma = idioma;
             var t = Traductor.ObtenerTraducciones(idioma);
             if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
                 this.Text = t[this.Tag.ToString()].Texto;
@@ -65,6 +75,28 @@ namespace GUI
             Aplicar(btnNuevo,   t);
             Aplicar(btnEditar,  t);
             Aplicar(btnBaja,    t);
+            TraducirHeadersGrilla();
+        }
+
+        /// <summary>Traduce los HeaderText de la grilla de clientes según el idioma activo.</summary>
+        private void TraducirHeadersGrilla()
+        {
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            void RH(string col, string clave, string fallback)
+            {
+                if (dgvClientes.Columns.Contains(col) && t.ContainsKey(clave))
+                    dgvClientes.Columns[col].HeaderText = t[clave].Texto;
+                else if (dgvClientes.Columns.Contains(col))
+                    dgvClientes.Columns[col].HeaderText = fallback;
+            }
+            RH("Nombre",     "col.cli.nombre",     "Nombre");
+            RH("Apellido",   "col.cli.apellido",   "Apellido");
+            RH("DNI",        "col.cli.dni",        "DNI");
+            RH("Email",      "col.cli.email",      "Email");
+            RH("Plan",       "col.cli.plan",       "Plan");
+            RH("Prendas",    "col.cli.prendas",    "Prendas");
+            RH("MetodoPago", "col.cli.metodopago", "Método de Pago");
+            RH("Alta",       "col.cli.alta",       "Alta");
         }
 
         private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
@@ -112,7 +144,12 @@ namespace GUI
             {
                 _clientes = clienteBLL.ObtenerTodos();
                 AplicarFiltro();
-                MostrarOk($"{_clientes.Count} cliente(s) registrado(s).");
+
+                var t = Traductor.ObtenerTraducciones(_idioma);
+                string fmt = t.ContainsKey("msg.cli.cargados")
+                    ? t["msg.cli.cargados"].Texto
+                    : "{0} cliente(s) registrado(s).";
+                MostrarOk(string.Format(fmt, _clientes.Count));
             }
             catch (Exception ex)
             {
@@ -129,6 +166,9 @@ namespace GUI
                     c.NombreCompleto.ToLower().Contains(filtro) ||
                     c.DNI.Contains(filtro) ||
                     (c.Email ?? "").ToLower().Contains(filtro));
+
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            string sinPlan = t.ContainsKey("lbl.sinplan") ? t["lbl.sinplan"].Texto : "Sin plan";
 
             var tabla = new DataTable();
             tabla.Columns.Add("ID",         typeof(int));
@@ -149,7 +189,7 @@ namespace GUI
                     c.Apellido,
                     c.DNI,
                     c.Email ?? "—",
-                    c.NombrePlan ?? "Sin plan",
+                    c.NombrePlan ?? sinPlan,
                     c.StockUtilizado,
                     c.MetodoPago,
                     c.FechaAlta.ToString("dd/MM/yyyy"));
@@ -161,7 +201,12 @@ namespace GUI
             if (dgvClientes.Columns.Contains("ID"))
                 dgvClientes.Columns["ID"].Width = 40;
 
-            lblConteo.Text = $"Mostrando {lista.Count} de {_clientes.Count}";
+            TraducirHeadersGrilla();
+
+            string fmtConteo = t.ContainsKey("msg.cli.conteo")
+                ? t["msg.cli.conteo"].Texto
+                : "Mostrando {0} de {1}";
+            lblConteo.Text = string.Format(fmtConteo, lista.Count, _clientes.Count);
         }
 
         // ── Eventos de botones ────────────────────────────────────────────────

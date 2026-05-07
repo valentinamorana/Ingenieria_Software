@@ -108,6 +108,7 @@ namespace GUI
             this.lblSeleccionaCliente.Name = "lblSeleccionaCliente";
             this.lblSeleccionaCliente.Size = new System.Drawing.Size(600, 23);
             this.lblSeleccionaCliente.TabIndex = 0;
+            this.lblSeleccionaCliente.Tag = "lbl.ped.selcliente";
             this.lblSeleccionaCliente.Text = "Selecioná el cliente para este pedido:";
             // 
             // cmbCliente
@@ -145,6 +146,7 @@ namespace GUI
             this.btnSiguiente.Name = "btnSiguiente";
             this.btnSiguiente.Size = new System.Drawing.Size(160, 36);
             this.btnSiguiente.TabIndex = 3;
+            this.btnSiguiente.Tag = "btn.siguiente";
             this.btnSiguiente.Text = "Siguiente →";
             this.btnSiguiente.UseVisualStyleBackColor = false;
             this.btnSiguiente.Click += new System.EventHandler(this.BtnSiguiente_Click);
@@ -171,6 +173,7 @@ namespace GUI
             this.lblInstruccion.Name = "lblInstruccion";
             this.lblInstruccion.Size = new System.Drawing.Size(660, 23);
             this.lblInstruccion.TabIndex = 0;
+            this.lblInstruccion.Tag = "lbl.ped.selprendas";
             this.lblInstruccion.Text = "Selecioná las prendas para incluir en el pedido (checkbox):";
             // 
             // dgvPrendas
@@ -264,6 +267,7 @@ namespace GUI
             this.btnVolver.Name = "btnVolver";
             this.btnVolver.Size = new System.Drawing.Size(110, 34);
             this.btnVolver.TabIndex = 3;
+            this.btnVolver.Tag = "btn.volver";
             this.btnVolver.Text = "← Volver";
             this.btnVolver.Click += new System.EventHandler(this.BtnVolver_Click);
             // 
@@ -278,6 +282,7 @@ namespace GUI
             this.btnConfirmar.Name = "btnConfirmar";
             this.btnConfirmar.Size = new System.Drawing.Size(190, 34);
             this.btnConfirmar.TabIndex = 4;
+            this.btnConfirmar.Tag = "btn.confirmar.pedido";
             this.btnConfirmar.Text = "✓ Confirmar Pedido";
             this.btnConfirmar.UseVisualStyleBackColor = false;
             this.btnConfirmar.Click += new System.EventHandler(this.BtnConfirmar_Click);
@@ -296,6 +301,7 @@ namespace GUI
             this.MinimizeBox = false;
             this.Name = "NuevoPedidoForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Tag = "frm.nuevopedido";
             this.Text = "Nuevo Pedido de Venta";
             this.panelHeader.ResumeLayout(false);
             this.panelStatus.ResumeLayout(false);

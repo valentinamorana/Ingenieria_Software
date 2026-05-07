@@ -54,7 +54,7 @@ namespace GUI
         {
             base.OnLoad(e);
             GestorIdioma.SuscribirObservador(this);
-            Traducir(GestorIdioma.IdiomaActual);
+            Traducir(GestorIdioma.IdiomaActual);  // calls RellenarComboCriticidad internally
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -65,7 +65,7 @@ namespace GUI
 
         public void UpdateLanguage(Idioma idioma)
         {
-            Traducir(idioma);
+            Traducir(idioma);   // includes RellenarComboCriticidad
             // Refrescar headers de las grillas actualmente visibles
             TraducirHeadersGrilla(dgvSistema, idioma, esSistema: true);
             TraducirHeadersGrilla(dgvNegocio, idioma, esSistema: false);
@@ -88,7 +88,6 @@ namespace GUI
             Aplicar(lblCriticidadSistema, t);
             Aplicar(btnBuscar,            t);
             Aplicar(btnLimpiar,           t);
-            Aplicar(btnExportSistema,     t);
             // Filtros negocio
             Aplicar(lblUltimosNegocio,    t);
             Aplicar(lblDiasNegocio,       t);
@@ -98,7 +97,38 @@ namespace GUI
             Aplicar(lblIdCliente,         t);
             Aplicar(btnNegBuscar,         t);
             Aplicar(btnNegLimpiar,        t);
-            Aplicar(btnExportNegocio,     t);
+            // Botones Exportar PDF (sin Tag en Designer → texto directo)
+            string exportPdf = t.ContainsKey("btn.exportar.pdf")
+                ? t["btn.exportar.pdf"].Texto : "📄 Exportar PDF";
+            btnExportSistema.Text  = exportPdf;
+            btnExportNegocio.Text  = exportPdf;
+
+            RellenarComboCriticidad(idioma);
+        }
+
+        /// <summary>
+        /// Rellena el combo de criticidad con los 8 ítems traducidos al idioma dado,
+        /// respetando el índice previamente seleccionado (para que el cambio de idioma
+        /// no pierda la selección del usuario).
+        /// </summary>
+        private void RellenarComboCriticidad(Idioma idioma)
+        {
+            int idx = cmbCriticidad.SelectedIndex;
+            if (idx < 0) idx = 0;
+            cmbCriticidad.Items.Clear();
+            var t = Traductor.ObtenerTraducciones(idioma);
+            string T(string key, string fallback) =>
+                t.ContainsKey(key) ? t[key].Texto : fallback;
+            cmbCriticidad.Items.Add(T("crit.todas",      "Todas"));
+            cmbCriticidad.Items.Add(T("crit.ninguno",    "Ninguno (0)"));
+            cmbCriticidad.Items.Add(T("crit.baja",       "Baja (1)"));
+            cmbCriticidad.Items.Add(T("crit.media",      "Media (2)"));
+            cmbCriticidad.Items.Add(T("crit.alta",       "Alta (3)"));
+            cmbCriticidad.Items.Add(T("crit.intlogin",   "Intentos Login (4)"));
+            cmbCriticidad.Items.Add(T("crit.recupclave", "Recuperacion Clave (5)"));
+            cmbCriticidad.Items.Add(T("crit.bloqueos",   "Bloqueos Cuenta (6)"));
+            cmbCriticidad.SelectedIndex =
+                (idx >= 0 && idx < cmbCriticidad.Items.Count) ? idx : 0;
         }
 
         private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
@@ -134,10 +164,12 @@ namespace GUI
 
         private void BtnLimpiar_Click(object sender, EventArgs e)
         {
-            txtUsuario.Text             = "0";
+            txtUsuario.Text = "0";
             txtActividad.Clear();
+            nudDias.Value   = 7;
+            // Refill combo first (keeps index 0), then explicitly reset to 0
+            RellenarComboCriticidad(GestorIdioma.IdiomaActual);
             cmbCriticidad.SelectedIndex = 0;
-            nudDias.Value               = 7;
             CargarSistema();
         }
 

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Servicios.Multiidioma;
 
 namespace GUI
 {
@@ -23,10 +25,43 @@ namespace GUI
             _esEdicion = prenda != null;
             _original  = prenda;
 
-            this.Text         = _esEdicion ? "Editar Prenda" : "Nueva Prenda";
-            btnGuardar.Text   = _esEdicion ? "Guardar Cambios" : "Agregar Prenda";
+            AplicarIdioma(GestorIdioma.IdiomaActual);
 
             if (_esEdicion) CargarDatos();
+        }
+
+        // ── Traducción ────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Aplica el idioma activo al abrir el diálogo.
+        /// PrendaForm es modal → lee el idioma actual en construcción, sin Observer completo.
+        /// </summary>
+        private void AplicarIdioma(Idioma idioma)
+        {
+            var t = Traductor.ObtenerTraducciones(idioma);
+            string T(string key, string fallback) => t.ContainsKey(key) ? t[key].Texto : fallback;
+
+            this.Text = _esEdicion
+                ? T("frm.editarprenda", "Editar Prenda")
+                : T("frm.nuevaprenda",  "Nueva Prenda");
+
+            // El botón guardar tiene dos estados: alta vs edición
+            btnGuardar.Text = _esEdicion
+                ? T("btn.guardar.cambios", "Guardar Cambios")
+                : T("btn.agregar.prenda",  "Agregar Prenda");
+
+            Aplicar(lblNombre,     t);
+            Aplicar(lblDescripcion,t);
+            Aplicar(lblTalle,      t);
+            Aplicar(lblColor,      t);
+            Aplicar(lblCategoria,  t);
+            Aplicar(btnCancelar,   t);
+        }
+
+        private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
+        {
+            if (c?.Tag != null && t.ContainsKey(c.Tag.ToString()))
+                c.Text = t[c.Tag.ToString()].Texto;
         }
 
         private void BtnCancelar_Click(object sender, EventArgs e)

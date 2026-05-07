@@ -37,6 +37,7 @@ namespace GUI
             this.lblNombre.Name = "lblNombre";
             this.lblNombre.Size = new System.Drawing.Size(360, 18);
             this.lblNombre.TabIndex = 0;
+            this.lblNombre.Tag = "lbl.prenda.nombre";
             this.lblNombre.Text = "Nombre *";
             // 
             // txtNombre
@@ -55,6 +56,7 @@ namespace GUI
             this.lblDescripcion.Name = "lblDescripcion";
             this.lblDescripcion.Size = new System.Drawing.Size(360, 18);
             this.lblDescripcion.TabIndex = 2;
+            this.lblDescripcion.Tag = "lbl.prenda.descrip";
             this.lblDescripcion.Text = "Descripción";
             // 
             // txtDescripcion
@@ -75,6 +77,7 @@ namespace GUI
             this.lblTalle.Name = "lblTalle";
             this.lblTalle.Size = new System.Drawing.Size(160, 18);
             this.lblTalle.TabIndex = 4;
+            this.lblTalle.Tag = "lbl.prenda.talle";
             this.lblTalle.Text = "Talle *";
             // 
             // cmbTalle
@@ -108,6 +111,7 @@ namespace GUI
             this.lblColor.Name = "lblColor";
             this.lblColor.Size = new System.Drawing.Size(180, 18);
             this.lblColor.TabIndex = 6;
+            this.lblColor.Tag = "lbl.prenda.color";
             this.lblColor.Text = "Color";
             // 
             // txtColor
@@ -126,6 +130,7 @@ namespace GUI
             this.lblCategoria.Name = "lblCategoria";
             this.lblCategoria.Size = new System.Drawing.Size(360, 18);
             this.lblCategoria.TabIndex = 8;
+            this.lblCategoria.Tag = "lbl.prenda.categoria";
             this.lblCategoria.Text = "Categoría *";
             // 
             // cmbCategoria
@@ -169,6 +174,7 @@ namespace GUI
             this.btnGuardar.Name = "btnGuardar";
             this.btnGuardar.Size = new System.Drawing.Size(184, 36);
             this.btnGuardar.TabIndex = 11;
+            this.btnGuardar.Tag = "btn.agregar.prenda";
             this.btnGuardar.Text = "Guardar Cambios";
             this.btnGuardar.UseVisualStyleBackColor = false;
             this.btnGuardar.Click += new System.EventHandler(this.BtnGuardar_Click);
@@ -183,6 +189,7 @@ namespace GUI
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(120, 36);
             this.btnCancelar.TabIndex = 12;
+            this.btnCancelar.Tag = "btn.cancelar";
             this.btnCancelar.Text = "Cancelar";
             this.btnCancelar.Click += new System.EventHandler(this.BtnCancelar_Click);
             // 

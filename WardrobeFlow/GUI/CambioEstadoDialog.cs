@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using Servicios.Multiidioma;
 
 namespace GUI
 {
@@ -15,12 +16,18 @@ namespace GUI
         private readonly List<(string texto, BE.EstadoPrenda estado)> _opciones;
 
         public CambioEstadoDialog(BE.Prenda prenda,
-            List<(string texto, BE.EstadoPrenda estado)> opciones)
+            List<(string texto, BE.EstadoPrenda estado)> opciones,
+            string estadoTraducido = null)
         {
             InitializeComponent();
             _opciones = opciones;
 
-            lblPrendaInfo.Text = $"Prenda: {prenda.Nombre}  —  Estado actual: {prenda.Estado}";
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string fmtInfo = t.ContainsKey("lbl.cambioest.info")
+                ? t["lbl.cambioest.info"].Texto
+                : "Prenda: {0}  —  Estado actual: {1}";
+            string estadoLabel = estadoTraducido ?? prenda.Estado.ToString();
+            lblPrendaInfo.Text = string.Format(fmtInfo, prenda.Nombre, estadoLabel);
 
             foreach (var op in _opciones)
                 cmbOpciones.Items.Add(op.texto);
@@ -30,8 +37,11 @@ namespace GUI
 
         private void BtnConfirmar_Click(object sender, EventArgs e)
         {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string T_dlg(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
             int idx = cmbOpciones.SelectedIndex;
-            if (idx < 0) { lblMensaje.Text = "Seleccioná una opción."; return; }
+            if (idx < 0) { lblMensaje.Text = T_dlg("msg.cambioest.selecciona", "Seleccioná una opción."); return; }
 
             EstadoSeleccionado = _opciones[idx].estado;
 
@@ -39,8 +49,9 @@ namespace GUI
             if (EstadoSeleccionado == BE.EstadoPrenda.Baja)
             {
                 var conf = MessageBox.Show(
-                    "La baja es irreversible. ¿Confirmar?",
-                    "Dar de Baja", MessageBoxButtons.YesNo,
+                    T_dlg("msg.cambioest.bajairrev", "La baja es irreversible. ¿Confirmar?"),
+                    T_dlg("conf.baja.titulo", "Dar de Baja"),
+                    MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
                 if (conf != DialogResult.Yes) return;
             }

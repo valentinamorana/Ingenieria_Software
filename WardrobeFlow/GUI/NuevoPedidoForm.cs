@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using Servicios.Multiidioma;
 
 namespace GUI
 {
@@ -36,11 +37,46 @@ namespace GUI
         private List<BE.Cliente> _clientes    = new List<BE.Cliente>();
         private List<BE.Prenda>  _disponibles = new List<BE.Prenda>();
         private BE.Cliente       _clienteSel  = null;
+        private Idioma           _idioma      = GestorIdioma.IdiomaActual;
 
         public NuevoPedidoForm()
         {
             InitializeComponent();
+            AplicarIdioma(GestorIdioma.IdiomaActual);
             this.Load += new EventHandler(NuevoPedidoForm_Load);
+        }
+
+        // ── Traducción ────────────────────────────────────────────────────────
+
+        private void AplicarIdioma(Idioma idioma)
+        {
+            _idioma = idioma;
+            var t = Traductor.ObtenerTraducciones(idioma);
+            string T(string key, string fallback) =>
+                t.ContainsKey(key) ? t[key].Texto : fallback;
+
+            this.Text             = T("frm.nuevopedido",     "Nuevo Pedido de Venta");
+            lblSeleccionaCliente.Text = T("lbl.ped.selcliente", "Seleccioná el cliente para este pedido:");
+            lblInstruccion.Text   = T("lbl.ped.selprendas",  "Seleccioná las prendas para incluir en el pedido (checkbox):");
+            btnSiguiente.Text     = T("btn.siguiente",        "Siguiente →");
+            btnVolver.Text        = T("btn.volver",           "← Volver");
+            btnConfirmar.Text = T("btn.confirmar.pedido", "✓ Confirmar Pedido");
+        }
+
+        private void TraducirHeadersGrilla()
+        {
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            void RH(string col, string clave, string fallback)
+            {
+                if (dgvPrendas.Columns.Contains(col) && t.ContainsKey(clave))
+                    dgvPrendas.Columns[col].HeaderText = t[clave].Texto;
+                else if (dgvPrendas.Columns.Contains(col))
+                    dgvPrendas.Columns[col].HeaderText = fallback;
+            }
+            RH("Nombre",   "col.prenda.nombre",    "Nombre");
+            RH("Categoria","col.prenda.categoria",  "Categoría");
+            RH("Talle",    "col.prenda.talle",      "Talle");
+            RH("Color",    "col.prenda.color",      "Color");
         }
 
         private void NuevoPedidoForm_Load(object sender, EventArgs e)
@@ -65,9 +101,14 @@ namespace GUI
         {
             try
             {
+                var t = Traductor.ObtenerTraducciones(_idioma);
+                string placeholder = t.ContainsKey("combo.ped.placeholder")
+                    ? t["combo.ped.placeholder"].Texto
+                    : "— Seleccioná un cliente —";
+
                 _clientes = clienteBLL.ObtenerTodos();
                 cmbCliente.Items.Clear();
-                cmbCliente.Items.Add("— Seleccioná un cliente —");
+                cmbCliente.Items.Add(placeholder);
                 foreach (var c in _clientes)
                     cmbCliente.Items.Add($"{c.NombreCompleto}  (DNI {c.DNI})");
                 cmbCliente.SelectedIndex = 0;
@@ -91,6 +132,7 @@ namespace GUI
                         p.Categoria ?? "—", p.Talle ?? "—", p.Color ?? "—");
                 }
 
+                TraducirHeadersGrilla();
                 ActualizarResumen();
             }
             catch (Exception ex)
@@ -105,9 +147,12 @@ namespace GUI
         {
             panelPaso1.Visible = paso == 1;
             panelPaso2.Visible = paso == 2;
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            string paso1txt = t.ContainsKey("paso1.texto") ? t["paso1.texto"].Texto : "Paso 1 de 2 — Seleccionar Cliente";
+            string paso2txt = t.ContainsKey("paso2.texto") ? t["paso2.texto"].Texto : "Paso 2 de 2 — Seleccionar Prendas";
             lblPaso.Text = paso == 1
-                ? "Paso 1 de 2 — Seleccionar Cliente"
-                : $"Paso 2 de 2 — Seleccionar Prendas  ({_clienteSel?.NombreCompleto})";
+                ? paso1txt
+                : $"{paso2txt}  ({_clienteSel?.NombreCompleto})";
             lblMensaje.Text = string.Empty;
 
             if (paso == 2) CargarPrendasDisponibles();
@@ -269,7 +314,8 @@ namespace GUI
             try
             {
                 btnConfirmar.Enabled = false;
-                btnConfirmar.Text    = "Procesando...";
+                var tp = Traductor.ObtenerTraducciones(_idioma);
+                btnConfirmar.Text = tp.ContainsKey("btn.procesando") ? tp["btn.procesando"].Texto : "Procesando...";
 
                 IdPedidoCreado = pedidoBLL.CrearPedido(this, _clienteSel.IdCliente, prendas);
 
@@ -279,7 +325,8 @@ namespace GUI
             catch (Exception ex)
             {
                 btnConfirmar.Enabled = true;
-                btnConfirmar.Text    = "✓ Confirmar Pedido";
+                var te = Traductor.ObtenerTraducciones(_idioma);
+                btnConfirmar.Text = te.ContainsKey("btn.confirmar.pedido") ? te["btn.confirmar.pedido"].Texto : "✓ Confirmar Pedido";
                 MostrarError(ex.Message);
             }
         }

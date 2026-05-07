@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Servicios.Multiidioma;
 
 namespace GUI
 {
@@ -39,8 +40,12 @@ namespace GUI
         {
             InitializeComponent();
 
+            // ── Traducciones ──────────────────────────────────────────────────
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string T_r(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
             // ── Propiedades del formulario ────────────────────────────────────
-            this.Text            = "Resetear Contraseña";
+            this.Text            = T_r("frm.resetclave", "Resetear Contraseña");
             this.ClientSize      = new Size(340, 260);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.StartPosition   = FormStartPosition.CenterParent;
@@ -51,7 +56,7 @@ namespace GUI
             // ── Controles ─────────────────────────────────────────────────────
             var lblTitulo = new Label
             {
-                Text      = "Resetear Contraseña",
+                Text      = T_r("frm.resetclave", "Resetear Contraseña"),
                 Font      = new Font("Segoe UI", 12, FontStyle.Bold),
                 Left      = 20, Top    = 18,
                 Width     = 300, Height = 24,

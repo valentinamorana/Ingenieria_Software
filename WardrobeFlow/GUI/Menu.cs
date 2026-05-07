@@ -208,16 +208,63 @@ namespace GUI
         /// </summary>
         private void cerrarSesionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var resultado = MessageBox.Show(
-                "¿Está seguro que desea cerrar la sesión?",
-                "Cerrar Sesión",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
-            if (resultado == DialogResult.Yes)
+            if (ConfirmarCerrarSesion())
             {
                 new BLL.Usuario().Logout(this);
                 Application.Restart();
+            }
+        }
+
+        /// <summary>
+        /// Diálogo de confirmación de cierre de sesión con botones traducidos al idioma activo.
+        /// Reemplaza MessageBox.Show() cuyo "Yes"/"No" es siempre en inglés (Windows).
+        /// </summary>
+        private bool ConfirmarCerrarSesion()
+        {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string T(string key, string fallback) => t.ContainsKey(key) ? t[key].Texto : fallback;
+
+            using (var dlg = new Form())
+            {
+                dlg.Text            = T("dlg.cerrarsesion.titulo", "Cerrar Sesión");
+                dlg.ClientSize      = new Size(340, 126);
+                dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
+                dlg.StartPosition   = FormStartPosition.CenterParent;
+                dlg.MaximizeBox     = false;
+                dlg.MinimizeBox     = false;
+
+                var lbl = new Label
+                {
+                    Text      = T("dlg.cerrarsesion.msg", "¿Está seguro que desea cerrar la sesión?"),
+                    Left = 16, Top = 20, Width = 308, Height = 44,
+                    Font      = new System.Drawing.Font("Segoe UI", 9.5f),
+                    TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+                };
+
+                var btnSi = new Button
+                {
+                    Text         = T("btn.si", "Sí"),
+                    Left = 84, Top = 76, Width = 76, Height = 30,
+                    DialogResult = DialogResult.Yes,
+                    BackColor    = Color.FromArgb(60, 110, 160),
+                    ForeColor    = Color.White,
+                    FlatStyle    = FlatStyle.Flat
+                };
+                btnSi.FlatAppearance.BorderSize = 0;
+
+                var btnNo = new Button
+                {
+                    Text         = T("btn.no", "No"),
+                    Left = 176, Top = 76, Width = 76, Height = 30,
+                    DialogResult = DialogResult.No,
+                    FlatStyle    = FlatStyle.Flat
+                };
+
+                dlg.Controls.AddRange(new Control[] { lbl, btnSi, btnNo });
+                dlg.AcceptButton = btnSi;
+                dlg.CancelButton = btnNo;
+
+                return dlg.ShowDialog(this) == DialogResult.Yes;
             }
         }
 

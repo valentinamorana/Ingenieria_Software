@@ -159,6 +159,7 @@ namespace GUI
             this.btnRefrescar.Name = "btnRefrescar";
             this.btnRefrescar.Size = new System.Drawing.Size(210, 28);
             this.btnRefrescar.TabIndex = 8;
+            this.btnRefrescar.Tag = "btn.refrescar";
             this.btnRefrescar.Text = "↻ Refrescar Lista";
             this.btnRefrescar.Click += new System.EventHandler(this.BtnRefrescar_Click);
             // 

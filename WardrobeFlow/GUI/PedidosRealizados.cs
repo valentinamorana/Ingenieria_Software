@@ -51,6 +51,10 @@ namespace GUI
             base.OnLoad(e);
             GestorIdioma.SuscribirObservador(this);
             Traducir(GestorIdioma.IdiomaActual);
+            // Re-aplicar después de que el combo queda correctamente inicializado
+            // (el Designer no fija SelectedIndex=0, por eso AplicarFiltro del Load
+            //  veía estadoIdx=-1 y mostraba 0 filas)
+            AplicarFiltro();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -81,6 +85,30 @@ namespace GUI
             Aplicar(btnVerNotificacion, t);
             Aplicar(btnDevolucion,      t);
             Aplicar(lblDetalleTitulo,   t);
+            RellenarComboEstado(idioma);
+            // Botón Historial (dinámico, sin Tag en Designer)
+            if (_btnHistorial != null && t.ContainsKey("btn.historial"))
+                _btnHistorial.Text = t["btn.historial"].Texto;
+        }
+
+        /// <summary>
+        /// Rellena el combo de filtro de estado con valores traducidos.
+        /// Mantiene el orden fijo (índice 0–4) para que el filtro por índice siga funcionando.
+        /// </summary>
+        private void RellenarComboEstado(Idioma idioma)
+        {
+            int idx = cmbFiltroEstado.SelectedIndex;
+            cmbFiltroEstado.SelectedIndexChanged -= CmbFiltroEstado_SelectedIndexChanged;
+            cmbFiltroEstado.Items.Clear();
+            var t = Traductor.ObtenerTraducciones(idioma);
+            string T(string key, string fallback) => t.ContainsKey(key) ? t[key].Texto : fallback;
+            cmbFiltroEstado.Items.Add(T("combo.prenda.todos", "Todos"));
+            cmbFiltroEstado.Items.Add(T("est.pendiente",  "Pendiente"));
+            cmbFiltroEstado.Items.Add(T("est.despachado", "Despachado"));
+            cmbFiltroEstado.Items.Add(T("est.entregado",  "Entregado"));
+            cmbFiltroEstado.Items.Add(T("est.cancelado",  "Cancelado"));
+            cmbFiltroEstado.SelectedIndex = idx >= 0 && idx < cmbFiltroEstado.Items.Count ? idx : 0;
+            cmbFiltroEstado.SelectedIndexChanged += CmbFiltroEstado_SelectedIndexChanged;
         }
 
         private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
@@ -118,7 +146,9 @@ namespace GUI
             {
                 _pedidos = pedidoBLL.ObtenerTodos();
                 AplicarFiltro();
-                MostrarOk($"{_pedidos.Count} pedido(s) en el sistema.");
+                var tSis = Traductor.ObtenerTraducciones(_idioma);
+                string fmtSis = tSis.ContainsKey("msg.ped.ensistema") ? tSis["msg.ped.ensistema"].Texto : "{0} pedido(s) en el sistema.";
+                MostrarOk(string.Format(fmtSis, _pedidos.Count));
             }
             catch (Exception ex)
             {
@@ -188,11 +218,12 @@ namespace GUI
 
             string urgLabel = t.ContainsKey("urg.urgente") ? t["urg.urgente"].Texto : "Urgentes";
             string norLabel = t.ContainsKey("urg.normal")  ? t["urg.normal"].Texto  : "Normales";
+            string fmtMostr = t.ContainsKey("msg.ped.mostrando") ? t["msg.ped.mostrando"].Texto : "Mostrando {0} de {1}";
             // Conteo de urgentes/normales usando el emoji (independiente del idioma)
             int nUrgentes = lista.Count(p => ComputarUrgencia(p).StartsWith("🔴"));
             int nNormales = lista.Count(p => ComputarUrgencia(p).StartsWith("🟡"));
-            lblConteo.Text = $"Mostrando {lista.Count} de {_pedidos.Count}  |  " +
-                             $"🔴 {urgLabel}: {nUrgentes}  🟡 {norLabel}: {nNormales}";
+            lblConteo.Text = string.Format(fmtMostr, lista.Count, _pedidos.Count) +
+                             $"  |  🔴 {urgLabel}: {nUrgentes}  🟡 {norLabel}: {nNormales}";
             LimpiarDetalle();
         }
 
@@ -336,8 +367,27 @@ namespace GUI
                         p.Estado.ToString());
 
                 dgvDetalle.DataSource = tabla;
+                TraducirHeadersDetalle();
             }
             catch { /* No interrumpir la UI si falla el detalle */ }
+        }
+
+        /// <summary>Traduce los HeaderText de la grilla de detalle de prendas según el idioma activo.</summary>
+        private void TraducirHeadersDetalle()
+        {
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            void RH(string col, string clave, string fallback)
+            {
+                if (dgvDetalle.Columns.Contains(col) && t.ContainsKey(clave))
+                    dgvDetalle.Columns[col].HeaderText = t[clave].Texto;
+                else if (dgvDetalle.Columns.Contains(col))
+                    dgvDetalle.Columns[col].HeaderText = fallback;
+            }
+            RH("Prenda",    "col.det.prenda",      "Prenda");
+            RH("Categoría", "col.prenda.categoria", "Categoría");
+            RH("Talle",     "col.prenda.talle",     "Talle");
+            RH("Color",     "col.prenda.color",     "Color");
+            RH("Estado",    "col.prenda.estado",    "Estado");
         }
 
         // ── Acciones ──────────────────────────────────────────────────────────
@@ -347,12 +397,15 @@ namespace GUI
             var pedido = ObtenerPedidoSeleccionado();
             if (pedido == null) return;
 
+            var tDesp = Traductor.ObtenerTraducciones(_idioma);
+            string T_desp(string k, string fb) => tDesp.ContainsKey(k) ? tDesp[k].Texto : fb;
+            string bodyDesp = string.Format(
+                T_desp("conf.despachar.body", "¿Despachar el Pedido #{0}?\n\nCliente: {1}\nPrendas: {2}\n\nEl pedido pasará a estado Despachado."),
+                pedido.IdPedido, pedido.NombreCliente, pedido.CantidadPrendas);
+
             var confirmar = MessageBox.Show(
-                $"¿Despachar el Pedido #{pedido.IdPedido}?\n\n" +
-                $"Cliente: {pedido.NombreCliente}\n" +
-                $"Prendas: {pedido.CantidadPrendas}\n\n" +
-                "El pedido pasará a estado Despachado.",
-                "Confirmar Despacho",
+                bodyDesp,
+                T_desp("conf.despachar.titulo", "Confirmar Despacho"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button1);
@@ -362,7 +415,7 @@ namespace GUI
             try
             {
                 pedidoBLL.Despachar(this, pedido);
-                MostrarOk($"Pedido #{pedido.IdPedido} despachado correctamente.");
+                MostrarOk(string.Format(T_desp("msg.ped.despachado", "Pedido #{0} despachado correctamente."), pedido.IdPedido));
                 CargarPedidos();
             }
             catch (Exception ex) { MostrarError(ex.Message); }
@@ -373,9 +426,15 @@ namespace GUI
             var pedido = ObtenerPedidoSeleccionado();
             if (pedido == null) return;
 
+            var tEntr = Traductor.ObtenerTraducciones(_idioma);
+            string T_entr(string k, string fb) => tEntr.ContainsKey(k) ? tEntr[k].Texto : fb;
+            string bodyEntr = string.Format(
+                T_entr("conf.entrega.body", "¿Confirmar entrega del Pedido #{0} a {1}?"),
+                pedido.IdPedido, pedido.NombreCliente);
+
             var confirmar = MessageBox.Show(
-                $"¿Confirmar entrega del Pedido #{pedido.IdPedido} a {pedido.NombreCliente}?",
-                "Confirmar Entrega",
+                bodyEntr,
+                T_entr("conf.entrega.titulo", "Confirmar Entrega"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button1);
@@ -385,7 +444,7 @@ namespace GUI
             try
             {
                 pedidoBLL.MarcarEntregado(this, pedido);
-                MostrarOk($"Pedido #{pedido.IdPedido} marcado como Entregado.");
+                MostrarOk(string.Format(T_entr("msg.ped.entregado", "Pedido #{0} marcado como Entregado."), pedido.IdPedido));
                 CargarPedidos();
             }
             catch (Exception ex) { MostrarError(ex.Message); }
@@ -399,12 +458,15 @@ namespace GUI
             var pedidoCompleto = pedidoBLL.ObtenerPorId(pedido.IdPedido);
             if (pedidoCompleto == null) return;
 
+            var tDev = Traductor.ObtenerTraducciones(_idioma);
+            string T_dev(string k, string fb) => tDev.ContainsKey(k) ? tDev[k].Texto : fb;
+            string bodyDev = string.Format(
+                T_dev("conf.devolucion.body", "¿Registrar devolución del Pedido #{0}?\n\nCliente: {1}\nPrendas: {2}\n\nLas prendas pasarán a estado EnLimpieza."),
+                pedidoCompleto.IdPedido, pedidoCompleto.NombreCliente, pedidoCompleto.CantidadPrendas);
+
             var confirmar = MessageBox.Show(
-                $"¿Registrar devolución del Pedido #{pedidoCompleto.IdPedido}?\n\n" +
-                $"Cliente: {pedidoCompleto.NombreCliente}\n" +
-                $"Prendas: {pedidoCompleto.CantidadPrendas}\n\n" +
-                "Las prendas pasarán a estado EnLimpieza.",
-                "Confirmar Devolución",
+                bodyDev,
+                T_dev("conf.devolucion.titulo", "Confirmar Devolución"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button1);
@@ -414,7 +476,7 @@ namespace GUI
             try
             {
                 pedidoBLL.RegistrarDevolucion(this, pedidoCompleto);
-                MostrarOk($"Devolución registrada — {pedidoCompleto.CantidadPrendas} prenda(s) pasan a EnLimpieza.");
+                MostrarOk(string.Format(T_dev("msg.ped.devolucion", "Devolución registrada — {0} prenda(s) pasan a EnLimpieza."), pedidoCompleto.CantidadPrendas));
                 CargarPedidos();
             }
             catch (Exception ex) { MostrarError(ex.Message); }
@@ -489,9 +551,11 @@ namespace GUI
         /// </summary>
         private void AgregarBotonHistorial()
         {
+            var tHR = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string histTextR = tHR.ContainsKey("btn.historial") ? tHR["btn.historial"].Texto : "📋 Historial";
             _btnHistorial = new Button
             {
-                Text      = "📋 Historial",
+                Text      = histTextR,
                 Size      = new Size(110, 28),
                 Location  = new Point(728, 50),
                 BackColor = Color.FromArgb(60, 110, 160),

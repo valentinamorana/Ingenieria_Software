@@ -42,6 +42,7 @@ namespace GUI
             this.lblTitulo.Name = "lblTitulo";
             this.lblTitulo.Size = new System.Drawing.Size(332, 28);
             this.lblTitulo.TabIndex = 1;
+            this.lblTitulo.Tag = "lbl.recup.titulo";
             this.lblTitulo.Text = "Recuperar Contraseña";
             // 
             // lblDesc
@@ -52,6 +53,7 @@ namespace GUI
             this.lblDesc.Name = "lblDesc";
             this.lblDesc.Size = new System.Drawing.Size(332, 40);
             this.lblDesc.TabIndex = 2;
+            this.lblDesc.Tag = "lbl.recup.desc";
             this.lblDesc.Text = "Ingresá tu nombre de usuario. Un administrador\npodrá resetear tu contraseña desde" +
     " el sistema.";
             // 
@@ -63,6 +65,7 @@ namespace GUI
             this.lblUser.Name = "lblUser";
             this.lblUser.Size = new System.Drawing.Size(332, 18);
             this.lblUser.TabIndex = 3;
+            this.lblUser.Tag = "lbl.recup.usuario";
             this.lblUser.Text = "Nombre de usuario:";
             // 
             // txtUsername
@@ -97,6 +100,7 @@ namespace GUI
             this.btnEnviar.Name = "btnEnviar";
             this.btnEnviar.Size = new System.Drawing.Size(160, 34);
             this.btnEnviar.TabIndex = 6;
+            this.btnEnviar.Tag = "btn.enviar.solicitud";
             this.btnEnviar.Text = "Enviar solicitud";
             this.btnEnviar.UseVisualStyleBackColor = false;
             this.btnEnviar.Click += new System.EventHandler(this.BtnEnviar_Click);
@@ -114,6 +118,7 @@ namespace GUI
             this.btnCerrar.Name = "btnCerrar";
             this.btnCerrar.Size = new System.Drawing.Size(160, 34);
             this.btnCerrar.TabIndex = 7;
+            this.btnCerrar.Tag = "btn.cancelar";
             this.btnCerrar.Text = "Cerrar";
             this.btnCerrar.UseVisualStyleBackColor = false;
             this.btnCerrar.Click += new System.EventHandler(this.BtnCerrar_Click);
@@ -139,6 +144,7 @@ namespace GUI
             this.MinimizeBox = false;
             this.Name = "OlvideContrasenaForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Tag = "frm.olvidepass";
             this.Text = "Recuperar Contraseña";
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -72,6 +72,9 @@ namespace GUI
             Aplicar(btnCancelar,      t);
             Aplicar(btnDesCancelar,   t);
             Aplicar(lblDetalleTitulo, t);
+            // Botón Historial (dinámico, sin Tag en Designer)
+            if (_btnHistorial != null && t.ContainsKey("btn.historial"))
+                _btnHistorial.Text = t["btn.historial"].Texto;
         }
 
         private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
@@ -138,12 +141,15 @@ namespace GUI
                     dgvPedidos.Columns["_EstadoKey"].Visible = false;
                 TraducirHeadersGrilla();
 
-                lblConteo.Text = $"{_pedidos.Count} pedido(s)";
+                var tConteo = Traductor.ObtenerTraducciones(_idioma);
+                string fmtConteo   = tConteo.ContainsKey("msg.ped.conteo")   ? tConteo["msg.ped.conteo"].Texto   : "{0} pedido(s)";
+                string fmtCargados = tConteo.ContainsKey("msg.ped.cargados") ? tConteo["msg.ped.cargados"].Texto : "{0} pedido(s) cargado(s).";
+                lblConteo.Text = string.Format(fmtConteo, _pedidos.Count);
                 dgvDetallePrendas.DataSource = null;
                 // lblDetalleTitulo se traduce via Tag en Traducir(); no hardcodear aquí
-                Aplicar(lblDetalleTitulo, Traductor.ObtenerTraducciones(_idioma));
+                Aplicar(lblDetalleTitulo, tConteo);
 
-                MostrarOk($"{_pedidos.Count} pedido(s) cargado(s).");
+                MostrarOk(string.Format(fmtCargados, _pedidos.Count));
             }
             catch (Exception ex)
             {
@@ -216,10 +222,12 @@ namespace GUI
             // Cargar detalle de prendas del pedido seleccionado
             CargarDetallePrendas(pedido.IdPedido);
 
+            var tMotivo = Traductor.ObtenerTraducciones(_idioma);
+            string motivoLabel = tMotivo.ContainsKey("lbl.motivo") ? tMotivo["lbl.motivo"].Texto : "Motivo:";
             lblDetalleTitulo.Text =
                 $"Pedido #{pedido.IdPedido} — {pedido.NombreCliente} — {EstadoLabel(pedido.Estado)}" +
                 (!string.IsNullOrEmpty(pedido.MotivoCancelacion)
-                    ? $"  |  Motivo: {pedido.MotivoCancelacion}" : "");
+                    ? $"  |  {motivoLabel} {pedido.MotivoCancelacion}" : "");
         }
 
         private void CargarDetallePrendas(int idPedido)
@@ -253,7 +261,9 @@ namespace GUI
             {
                 if (form.ShowDialog(this) != DialogResult.OK) return;
 
-                MostrarOk($"Pedido #{form.IdPedidoCreado} creado exitosamente. Estado: Pendiente.");
+                var tCreado = Traductor.ObtenerTraducciones(_idioma);
+                string fmtCreado = tCreado.ContainsKey("msg.ped.creado") ? tCreado["msg.ped.creado"].Texto : "Pedido #{0} creado. Estado: Pendiente.";
+                MostrarOk(string.Format(fmtCreado, form.IdPedidoCreado));
                 CargarPedidos();
             }
         }
@@ -264,20 +274,26 @@ namespace GUI
             if (pedido == null) return;
 
             // Pedir motivo de cancelación con un dialog inline
+            var tCanc = Traductor.ObtenerTraducciones(_idioma);
+            string T_c(string k, string fb) => tCanc.ContainsKey(k) ? tCanc[k].Texto : fb;
+
             string motivo = PedirTexto(
-                $"Motivo de cancelación del Pedido #{pedido.IdPedido} ({pedido.NombreCliente}):",
-                "Motivo de Cancelación");
+                $"{T_c("dlg.cancelped.titulo", "Motivo de Cancelación")} — Pedido #{pedido.IdPedido} ({pedido.NombreCliente}):",
+                T_c("dlg.cancelped.titulo", "Motivo de Cancelación"));
 
             if (string.IsNullOrWhiteSpace(motivo))
             {
-                MostrarError("La cancelación requiere un motivo.");
+                MostrarError(T_c("msg.cancelped.req", "La cancelación requiere un motivo."));
                 return;
             }
 
+            string bodyCanc = string.Format(
+                T_c("conf.cancelped.body", "¿Cancelar el Pedido #{0} de {1}?\n\nMotivo: {2}\n\nLas prendas volverán a estado Disponible."),
+                pedido.IdPedido, pedido.NombreCliente, motivo);
+
             var confirmar = MessageBox.Show(
-                $"¿Cancelar el Pedido #{pedido.IdPedido} de {pedido.NombreCliente}?\n\n" +
-                $"Motivo: {motivo}\n\nLas prendas volverán a estado Disponible.",
-                "Confirmar Cancelación",
+                bodyCanc,
+                T_c("conf.cancelped.titulo", "Confirmar Cancelación"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning,
                 MessageBoxDefaultButton.Button2);
@@ -287,7 +303,8 @@ namespace GUI
             try
             {
                 pedidoBLL.Cancelar(this, pedido, motivo);
-                MostrarOk($"Pedido #{pedido.IdPedido} cancelado. Prendas liberadas.");
+                string fmtCancelado = T_c("msg.ped.cancelado", "Pedido #{0} cancelado. Prendas liberadas.");
+                MostrarOk(string.Format(fmtCancelado, pedido.IdPedido));
                 CargarPedidos();
             }
             catch (Exception ex)
@@ -301,11 +318,16 @@ namespace GUI
             var pedido = ObtenerPedidoSeleccionado();
             if (pedido == null) return;
 
+            var tDesc = Traductor.ObtenerTraducciones(_idioma);
+            string T_d(string k, string fb) => tDesc.ContainsKey(k) ? tDesc[k].Texto : fb;
+
+            string bodyDesc = string.Format(
+                T_d("conf.descancelar.body", "¿Des-cancelar el Pedido #{0} de {1}?\n\nSe verificará que las prendas originales estén disponibles\ny el pedido volverá a estado Pendiente."),
+                pedido.IdPedido, pedido.NombreCliente);
+
             var confirmar = MessageBox.Show(
-                $"¿Des-cancelar el Pedido #{pedido.IdPedido} de {pedido.NombreCliente}?\n\n" +
-                "Se verificará que las prendas originales estén disponibles\n" +
-                "y el pedido volverá a estado Pendiente.",
-                "Confirmar Des-cancelación",
+                bodyDesc,
+                T_d("conf.descancelar.titulo", "Confirmar Des-cancelación"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button1);
@@ -315,7 +337,8 @@ namespace GUI
             try
             {
                 pedidoBLL.DesCancelar(this, pedido);
-                MostrarOk($"Pedido #{pedido.IdPedido} reactivado — volvió a Pendiente.");
+                string fmtReact = T_d("msg.ped.reactivado", "Pedido #{0} reactivado — volvió a Pendiente.");
+                MostrarOk(string.Format(fmtReact, pedido.IdPedido));
                 CargarPedidos();
             }
             catch (Exception ex)
@@ -372,9 +395,13 @@ namespace GUI
                 var txt = new TextBox { Left = 12, Top = 52, Width = 396 };
                 dlg.Controls.Add(txt);
 
+                var tPedir = Traductor.ObtenerTraducciones(_idioma);
+                string aceptarTxt  = tPedir.ContainsKey("btn.aceptar")  ? tPedir["btn.aceptar"].Texto  : "Aceptar";
+                string cancelarTxt = tPedir.ContainsKey("btn.cancelar") ? tPedir["btn.cancelar"].Texto : "Cancelar";
+
                 var btnOk = new Button
                 {
-                    Text         = "Aceptar", Left = 220, Top = 84,
+                    Text         = aceptarTxt, Left = 220, Top = 84,
                     Width = 90, Height = 30,
                     DialogResult = DialogResult.OK,
                     BackColor    = Color.SteelBlue, ForeColor = Color.White,
@@ -384,7 +411,7 @@ namespace GUI
 
                 var btnCancel = new Button
                 {
-                    Text         = "Cancelar", Left = 318, Top = 84,
+                    Text         = cancelarTxt, Left = 318, Top = 84,
                     Width = 90, Height = 30,
                     DialogResult = DialogResult.Cancel,
                     FlatStyle    = FlatStyle.Flat
@@ -411,9 +438,11 @@ namespace GUI
         /// </summary>
         private void AgregarBotonHistorial()
         {
+            var tH = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string histText = tH.ContainsKey("btn.historial") ? tH["btn.historial"].Texto : "📋 Historial";
             _btnHistorial = new Button
             {
-                Text      = "📋 Historial",
+                Text      = histText,
                 Size      = new Size(110, 28),
                 BackColor = Color.FromArgb(60, 110, 160),
                 ForeColor = Color.White,
