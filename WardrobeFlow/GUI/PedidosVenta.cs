@@ -197,6 +197,7 @@ namespace GUI
             RH("Estado",   "col.ped.estado");
             RH("Despacho", "col.ped.despacho");
             RH("Entrega",  "col.ped.entrega");
+            RH("Motivo",   "col.ped.motivo");
         }
 
         private void DgvPedidos_SelectionChanged(object sender, EventArgs e)
@@ -223,9 +224,11 @@ namespace GUI
             CargarDetallePrendas(pedido.IdPedido);
 
             var tMotivo = Traductor.ObtenerTraducciones(_idioma);
-            string motivoLabel = tMotivo.ContainsKey("lbl.motivo") ? tMotivo["lbl.motivo"].Texto : "Motivo:";
-            lblDetalleTitulo.Text =
-                $"Pedido #{pedido.IdPedido} — {pedido.NombreCliente} — {EstadoLabel(pedido.Estado)}" +
+            string T_sel(string k, string fb) => tMotivo.ContainsKey(k) ? tMotivo[k].Texto : fb;
+            string motivoLabel = T_sel("lbl.motivo", "Motivo:");
+            lblDetalleTitulo.Text = string.Format(
+                T_sel("lbl.ped.seleccionado", "Pedido #{0} — {1} — {2}"),
+                pedido.IdPedido, pedido.NombreCliente, EstadoLabel(pedido.Estado)) +
                 (!string.IsNullOrEmpty(pedido.MotivoCancelacion)
                     ? $"  |  {motivoLabel} {pedido.MotivoCancelacion}" : "");
         }
@@ -237,20 +240,36 @@ namespace GUI
                 var pedidoCompleto = pedidoBLL.ObtenerPorId(idPedido);
                 if (pedidoCompleto == null) return;
 
+                var tD = Traductor.ObtenerTraducciones(_idioma);
+                string TD(string k, string fb) => tD.ContainsKey(k) ? tD[k].Texto : fb;
+
                 var tabla = new DataTable();
-                tabla.Columns.Add("Prenda",    typeof(string));
-                tabla.Columns.Add("Categoría", typeof(string));
-                tabla.Columns.Add("Talle",     typeof(string));
-                tabla.Columns.Add("Color",     typeof(string));
-                tabla.Columns.Add("Estado",    typeof(string));
+                tabla.Columns.Add(TD("col.prenda.nombre",    "Prenda"),    typeof(string));
+                tabla.Columns.Add(TD("col.prenda.categoria", "Categoría"), typeof(string));
+                tabla.Columns.Add(TD("col.prenda.talle",     "Talle"),     typeof(string));
+                tabla.Columns.Add(TD("col.prenda.color",     "Color"),     typeof(string));
+                tabla.Columns.Add(TD("col.prenda.estado",    "Estado"),    typeof(string));
 
                 foreach (var p in pedidoCompleto.Prendas)
                     tabla.Rows.Add(p.Nombre, p.Categoria ?? "—",
-                        p.Talle ?? "—", p.Color ?? "—", p.Estado.ToString());
+                        p.Talle ?? "—", p.Color ?? "—", EstadoPrendaLabel(p.Estado));
 
                 dgvDetallePrendas.DataSource = tabla;
             }
             catch { /* No interrumpir si el detalle falla */ }
+        }
+
+        private string EstadoPrendaLabel(BE.EstadoPrenda estado)
+        {
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            switch (estado)
+            {
+                case BE.EstadoPrenda.Disponible:  return t.ContainsKey("prenda.disponible")  ? t["prenda.disponible"].Texto  : "Disponible";
+                case BE.EstadoPrenda.EnUso:       return t.ContainsKey("prenda.enuso")       ? t["prenda.enuso"].Texto       : "En Uso";
+                case BE.EstadoPrenda.EnLimpieza:  return t.ContainsKey("prenda.enlimpieza")  ? t["prenda.enlimpieza"].Texto  : "En Limpieza";
+                case BE.EstadoPrenda.Baja:        return t.ContainsKey("prenda.baja")        ? t["prenda.baja"].Texto        : "Baja";
+                default: return estado.ToString();
+            }
         }
 
         // ── Eventos ───────────────────────────────────────────────────────────
@@ -451,8 +470,10 @@ namespace GUI
                 Enabled   = false
             };
             _btnHistorial.FlatAppearance.BorderSize = 0;
-            // Posicionar a la derecha de btnRefrescar (Location.X = 412, Width = 32 → 412+32+8 = 452)
+            // Botón entre btnRefrescar (x=412, w=32) y lblConteo (x=452).
+            // Se inserta en x=452 y se desplaza lblConteo para que no solapen.
             _btnHistorial.Location = new Point(452, 11);
+            lblConteo.Location     = new Point(570, lblConteo.Location.Y);
             _btnHistorial.Click   += BtnHistorial_Click;
             panelTop.Controls.Add(_btnHistorial);
         }

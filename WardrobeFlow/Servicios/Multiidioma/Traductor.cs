@@ -367,6 +367,8 @@ namespace Servicios.Multiidioma
             { "btn.aceptar",          "Aceptar"                                                  },
             { "dlg.cancelped.titulo", "Motivo de Cancelación"                                    },
             { "msg.cancelped.req",    "La cancelación requiere un motivo."                        },
+            { "col.ped.motivo",       "Motivo"                                                   },
+            { "lbl.ped.seleccionado", "Pedido #{0} — {1} — {2}"                                  },
             { "lbl.motivo",           "Motivo:"                                                  },
             // Confirmaciones de pedidos
             { "conf.cancelped.titulo",   "Confirmar Cancelación"                                 },
@@ -759,6 +761,8 @@ namespace Servicios.Multiidioma
             { "btn.aceptar",          "Accept"                                                  },
             { "dlg.cancelped.titulo", "Cancellation Reason"                                     },
             { "msg.cancelped.req",    "Cancellation requires a reason."                         },
+            { "col.ped.motivo",       "Reason"                                                  },
+            { "lbl.ped.seleccionado", "Order #{0} — {1} — {2}"                                  },
             { "lbl.motivo",           "Reason:"                                                 },
             // Order confirmations
             { "conf.cancelped.titulo",   "Confirm Cancellation"                                 },
@@ -963,6 +967,8 @@ namespace Servicios.Multiidioma
             { "col.ped.estado",    "Статус"                                },
             { "col.ped.despacho",  "Отправка"                              },
             { "col.ped.entrega",   "Доставка"                              },
+            { "col.ped.motivo",    "Причина"                               },
+            { "lbl.ped.seleccionado", "Заказ #{0} — {1} — {2}"            },
             // Выполненные заказы — значения срочности
             { "urg.urgente",       "Срочно"                                },
             { "urg.normal",        "Норма"                                 },
