@@ -55,12 +55,13 @@ namespace GUI
             string T(string key, string fallback) =>
                 t.ContainsKey(key) ? t[key].Texto : fallback;
 
-            this.Text             = T("frm.nuevopedido",     "Nuevo Pedido de Venta");
-            lblSeleccionaCliente.Text = T("lbl.ped.selcliente", "Seleccioná el cliente para este pedido:");
-            lblInstruccion.Text   = T("lbl.ped.selprendas",  "Seleccioná las prendas para incluir en el pedido (checkbox):");
-            btnSiguiente.Text     = T("btn.siguiente",        "Siguiente →");
-            btnVolver.Text        = T("btn.volver",           "← Volver");
-            btnConfirmar.Text = T("btn.confirmar.pedido", "✓ Confirmar Pedido");
+            this.Text                 = T("frm.nuevopedido",     "Nuevo Pedido de Venta");
+            lblPaso.Text              = T("paso1.texto",          "Paso 1 de 2 — Seleccionar Cliente");
+            lblSeleccionaCliente.Text = T("lbl.ped.selcliente",   "Seleccioná el cliente para este pedido:");
+            lblInstruccion.Text       = T("lbl.ped.selprendas",   "Seleccioná las prendas para incluir en el pedido (checkbox):");
+            btnSiguiente.Text         = T("btn.siguiente",         "Siguiente →");
+            btnVolver.Text            = T("btn.volver",            "← Volver");
+            btnConfirmar.Text         = T("btn.confirmar.pedido",  "✓ Confirmar Pedido");
         }
 
         private void TraducirHeadersGrilla()
@@ -175,19 +176,26 @@ namespace GUI
             btnSiguiente.Enabled = true;
 
             // Mostrar info del plan
+            var tI = Traductor.ObtenerTraducciones(_idioma);
+            string T_i(string k, string fb) => tI.ContainsKey(k) ? tI[k].Texto : fb;
+
             if (_clienteSel.IdPlan.HasValue)
             {
-                lblInfoPlan.Text =
-                    $"Cliente: {_clienteSel.NombreCompleto}\n" +
-                    $"Plan: {_clienteSel.NombrePlan ?? "—"}\n" +
-                    $"Prendas en uso actualmente: {_clienteSel.StockUtilizado}\n" +
-                    $"Método de pago: {_clienteSel.MetodoPago}\n" +
-                    $"Alta: {_clienteSel.FechaAlta:dd/MM/yyyy}";
+                lblInfoPlan.Text = string.Format(
+                    T_i("lbl.ped.infoplan",
+                        "Cliente: {0}\nPlan: {1}\nPrendas en uso actualmente: {2}\nMétodo de pago: {3}\nAlta: {4}"),
+                    _clienteSel.NombreCompleto,
+                    _clienteSel.NombrePlan ?? "—",
+                    _clienteSel.StockUtilizado,
+                    _clienteSel.MetodoPago,
+                    _clienteSel.FechaAlta.ToString("dd/MM/yyyy"));
             }
             else
             {
-                lblInfoPlan.Text = $"⚠ {_clienteSel.NombreCompleto} no tiene plan asignado.\n" +
-                                   "Asigná un plan en el módulo de Clientes antes de crear un pedido.";
+                lblInfoPlan.Text = string.Format(
+                    T_i("err.ped.sinplan",
+                        "⚠ {0} no tiene plan asignado.\nAsigná un plan en el módulo de Clientes antes de crear un pedido."),
+                    _clienteSel.NombreCompleto);
                 lblInfoPlan.ForeColor = Color.DarkRed;
                 btnSiguiente.Enabled  = false;
             }
@@ -291,7 +299,8 @@ namespace GUI
             var prendas = ObtenerPrendasSeleccionadas();
             if (prendas.Count == 0)
             {
-                MostrarError("Seleccioná al menos una prenda.");
+                var tSP = Traductor.ObtenerTraducciones(_idioma);
+                MostrarError(tSP.ContainsKey("err.ped.sinprendas") ? tSP["err.ped.sinprendas"].Texto : "Seleccioná al menos una prenda.");
                 return;
             }
 

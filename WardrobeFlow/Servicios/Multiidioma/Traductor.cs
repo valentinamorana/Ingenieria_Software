@@ -400,6 +400,75 @@ namespace Servicios.Multiidioma
             { "btn.confirmar.reset",     "Confirmar Reset"                                        },
             { "err.clave.longitud",      "La contraseña debe tener al menos 6 caracteres."        },
             { "err.clave.nomatch",       "Las contraseñas no coinciden."                          },
+            // Notificación de despacho (BtnVerNotificacion)
+            { "notif.titulo",            "NOTIFICACIÓN DE PEDIDO"                                 },
+            { "notif.numero",            "Pedido #:"                                              },
+            { "notif.msgbox.titulo",     "Notificación — Pedido #{0}"                             },
+            // CambioEstadoDialog — controles del Designer
+            { "frm.cambioestado",        "Cambiar Estado de Prenda"                               },
+            { "lbl.nuevoestado",         "Nuevo estado:"                                          },
+            { "btn.confirmar.cambio",    "Confirmar Cambio"                                       },
+            // Validaciones menores
+            { "err.ped.sinprendas",      "Seleccioná al menos una prenda."                        },
+            { "err.hist.restaurar",      "Seleccioná una fila del historial para restaurar."      },
+            { "err.usr.sinperfil",       "Seleccioná un perfil/rol."                              },
+            // Usuarios — validaciones de username
+            { "err.usr.nombre.req",      "El nombre de usuario es obligatorio."                   },
+            { "err.usr.nombre.longitud", "El nombre de usuario debe tener al menos 3 caracteres." },
+            // ClienteForm — validaciones
+            { "err.cli.dni.numeros",     "✗ El DNI solo puede contener números."                  },
+            // PedidosRealizados — título de detalle
+            { "lbl.ped.detalletitulo",   "Pedido #{0}  ·  {1}  ·  {2}  ·  {3} {4}"              },
+            // TipoEventoNegocio — combo Bitácora de Negocio
+            { "tevt.todos",              "Todos"                                                   },
+            { "tevt.venta",              "Venta"                                                   },
+            { "tevt.cancelacion",        "Cancelación"                                             },
+            { "tevt.despacho",           "Despacho"                                               },
+            { "tevt.entrega",            "Entrega"                                                 },
+            { "tevt.altaprenda",         "Alta Prenda"                                             },
+            { "tevt.modprenda",          "Modificación Prenda"                                     },
+            { "tevt.cambiostprenda",     "Cambio Estado Prenda"                                    },
+            { "tevt.altacliente",        "Alta Cliente"                                            },
+            { "tevt.modcliente",         "Modificación Cliente"                                    },
+            { "tevt.bajacliente",        "Baja Cliente"                                            },
+            // Planes — título de formulario al editar
+            { "lbl.editplan",            "Editar Plan"                                             },
+            // Bitácora — etiquetas de resultados
+            { "msg.bit.registros",       "  {0} registro(s)"                                       },
+            { "msg.bit.ultimos",         "últimos {0} días"                                        },
+            { "msg.bit.todos",           "todos los registros"                                     },
+            // NotificacionDespachoForm — UI
+            { "notif.frm.titulo",        "Notificación — Pedido #{0}"                              },
+            { "notif.header.entregado",  "✓  Pedido #{0} — ENTREGADO"                             },
+            { "notif.header.despachado", "📦  Pedido #{0} — DESPACHADO"                            },
+            { "btn.copiar.porta",        "Copiar al portapapeles"                                  },
+            { "btn.copiado",             "✓ Copiado"                                              },
+            // Menu — módulos no disponibles
+            { "msg.modulo.outfits",      "El módulo de Outfits aún no está disponible."           },
+            { "msg.modulo.categorias",   "El módulo de Categorías aún no está disponible."        },
+            { "lbl.proximamente",        "Próximamente"                                           },
+            // Bitacora — exportar PDF
+            { "err.pdf.sinDatos",        "No hay datos para exportar."                            },
+            { "lbl.exportarpdf",         "Exportar PDF"                                           },
+            // NuevoPedidoForm — info de plan
+            { "lbl.ped.infoplan",        "Cliente: {0}\nPlan: {1}\nPrendas en uso actualmente: {2}\nMétodo de pago: {3}\nAlta: {4}" },
+            { "err.ped.sinplan",         "⚠ {0} no tiene plan asignado.\nAsigná un plan en el módulo de Clientes antes de crear un pedido." },
+            // OlvideContrasenaForm — mensajes
+            { "err.recup.nousername",    "Ingresá tu nombre de usuario."                          },
+            { "err.recup.nousuario",     "No se encontró el usuario '{0}'.\nVerificá que escribiste tu nombre correctamente." },
+            { "msg.recup.exito",         "Usuario '{0}' encontrado.\nContacta al administrador para que resetee\ntu contrasena desde Administrar -> Usuarios." },
+            // Usuarios — mensajes de operación
+            { "msg.usr.creado",          "Usuario '{0}' [{1}] creado correctamente."              },
+            { "err.usr.selecciona",      "Seleccioná un usuario de la lista."                     },
+            { "dlg.resetclave.prompt",   "Nueva contraseña para '{0}' (mínimo 6 caracteres):"     },
+            { "msg.usr.clave.reseteada", "Contraseña de '{0}' reseteada correctamente."           },
+            { "err.usr.sel.bloqueado",   "Seleccioná un usuario bloqueado de la lista."           },
+            { "conf.desbloquear.body",   "¿Desbloquear la cuenta de '{0}'?"                      },
+            { "conf.desbloquear.titulo", "Confirmar Desbloqueo"                                   },
+            { "msg.usr.desbloqueada",    "Cuenta '{0}' desbloqueada correctamente."               },
+            { "conf.resetmasivo.titulo", "Resetear todas las claves"                              },
+            { "conf.resetmasivo.body",   "Esto va a resetear la contraseña de TODOS los usuarios a:\n\n   {0}\n\nComunicate con cada empleado para que la cambien.\n\n¿Confirmar?" },
+            { "msg.usr.resetmasivo",     "Todas las claves fueron reseteadas a: {0}"              },
         });
 
         // ── Diccionario English (EN) ──────────────────────────────────────────
@@ -723,6 +792,71 @@ namespace Servicios.Multiidioma
             { "btn.confirmar.reset",     "Confirm Reset"                                        },
             { "err.clave.longitud",      "Password must be at least 6 characters."              },
             { "err.clave.nomatch",       "Passwords do not match."                              },
+            // Dispatch notification (BtnVerNotificacion)
+            { "notif.titulo",            "ORDER NOTIFICATION"                                   },
+            { "notif.numero",            "Order #:"                                             },
+            { "notif.msgbox.titulo",     "Notification — Order #{0}"                            },
+            // CambioEstadoDialog — Designer controls
+            { "frm.cambioestado",        "Change Garment Status"                                },
+            { "lbl.nuevoestado",         "New status:"                                          },
+            { "btn.confirmar.cambio",    "Confirm Change"                                       },
+            // Minor validations
+            { "err.ped.sinprendas",      "Select at least one garment."                        },
+            { "err.hist.restaurar",      "Select a history row to restore."                    },
+            { "err.usr.sinperfil",       "Select a profile/role."                              },
+            // Users — username validations
+            { "err.usr.nombre.req",      "Username is required."                               },
+            { "err.usr.nombre.longitud", "Username must be at least 3 characters."             },
+            // ClienteForm — validations
+            { "err.cli.dni.numeros",     "✗ DNI can only contain numbers."                     },
+            // PedidosRealizados — detail title
+            { "lbl.ped.detalletitulo",   "Order #{0}  ·  {1}  ·  {2}  ·  {3} {4}"              },
+            // Business event type — Bitácora combo
+            { "tevt.todos",              "All"                                                    },
+            { "tevt.venta",              "Sale"                                                   },
+            { "tevt.cancelacion",        "Cancellation"                                           },
+            { "tevt.despacho",           "Dispatch"                                              },
+            { "tevt.entrega",            "Delivery"                                              },
+            { "tevt.altaprenda",         "New Garment"                                           },
+            { "tevt.modprenda",          "Garment Edit"                                          },
+            { "tevt.cambiostprenda",     "Garment Status Change"                                 },
+            { "tevt.altacliente",        "New Client"                                            },
+            { "tevt.modcliente",         "Client Edit"                                           },
+            { "tevt.bajacliente",        "Client Removed"                                        },
+            // Plans — form title on edit
+            { "lbl.editplan",            "Edit Plan"                                             },
+            // Bitácora — result labels
+            { "msg.bit.registros",       "  {0} record(s)"                                       },
+            { "msg.bit.ultimos",         "last {0} days"                                         },
+            { "msg.bit.todos",           "all records"                                           },
+            // NotificacionDespachoForm — UI
+            { "notif.frm.titulo",        "Notification — Order #{0}"                             },
+            { "notif.header.entregado",  "✓  Order #{0} — DELIVERED"                            },
+            { "notif.header.despachado", "📦  Order #{0} — DISPATCHED"                           },
+            { "btn.copiar.porta",        "Copy to clipboard"                                     },
+            { "btn.copiado",             "✓ Copied"                                             },
+            // Menu — unavailable modules
+            { "msg.modulo.outfits",      "The Outfits module is not yet available."            },
+            { "msg.modulo.categorias",   "The Categories module is not yet available."         },
+            { "lbl.proximamente",        "Coming Soon"                                         },
+            // Bitacora — export PDF
+            { "err.pdf.sinDatos",        "No data to export."                                  },
+            { "lbl.exportarpdf",         "Export PDF"                                          },
+            // NuevoPedidoForm — plan info
+            { "lbl.ped.infoplan",        "Client: {0}\nPlan: {1}\nGarments currently in use: {2}\nPayment method: {3}\nSince: {4}" },
+            { "err.ped.sinplan",         "⚠ {0} has no plan assigned.\nAssign a plan in the Clients module before creating an order." },
+            // Users — operation messages
+            { "msg.usr.creado",          "User '{0}' [{1}] created successfully."              },
+            { "err.usr.selecciona",      "Select a user from the list."                        },
+            { "dlg.resetclave.prompt",   "New password for '{0}' (minimum 6 characters):"      },
+            { "msg.usr.clave.reseteada", "Password for '{0}' reset successfully."              },
+            { "err.usr.sel.bloqueado",   "Select a locked user from the list."                 },
+            { "conf.desbloquear.body",   "Unlock the account of '{0}'?"                        },
+            { "conf.desbloquear.titulo", "Confirm Unlock"                                       },
+            { "msg.usr.desbloqueada",    "Account '{0}' unlocked successfully."                },
+            { "conf.resetmasivo.titulo", "Reset all passwords"                                  },
+            { "conf.resetmasivo.body",   "This will reset the password of ALL users to:\n\n   {0}\n\nNotify each employee to change it.\n\nConfirm?" },
+            { "msg.usr.resetmasivo",     "All passwords have been reset to: {0}"               },
         });
 
         // ── Diccionario Русский (RU) ──────────────────────────────────────────
@@ -1046,6 +1180,71 @@ namespace Servicios.Multiidioma
             { "btn.confirmar.reset",     "Подтвердить сброс"                                    },
             { "err.clave.longitud",      "Пароль должен содержать не менее 6 символов."         },
             { "err.clave.nomatch",       "Пароли не совпадают."                                 },
+            // Уведомление об отправке (BtnVerNotificacion)
+            { "notif.titulo",            "УВЕДОМЛЕНИЕ О ЗАКАЗЕ"                                 },
+            { "notif.numero",            "Заказ #:"                                             },
+            { "notif.msgbox.titulo",     "Уведомление — Заказ #{0}"                             },
+            // CambioEstadoDialog — элементы из Designer
+            { "frm.cambioestado",        "Изменить статус вещи"                                 },
+            { "lbl.nuevoestado",         "Новый статус:"                                        },
+            { "btn.confirmar.cambio",    "Подтвердить изменение"                                },
+            // Второстепенные проверки
+            { "err.ped.sinprendas",      "Выберите хотя бы одну вещь."                          },
+            { "err.hist.restaurar",      "Выберите строку истории для восстановления."           },
+            { "err.usr.sinperfil",       "Выберите профиль/роль."                               },
+            // Пользователи — проверки имени пользователя
+            { "err.usr.nombre.req",      "Имя пользователя обязательно."                        },
+            { "err.usr.nombre.longitud", "Имя пользователя должно содержать минимум 3 символа." },
+            // ClienteForm — проверки
+            { "err.cli.dni.numeros",     "✗ DNI может содержать только цифры."                  },
+            // PedidosRealizados — заголовок детали
+            { "lbl.ped.detalletitulo",   "Заказ #{0}  ·  {1}  ·  {2}  ·  {3} {4}"              },
+            // Тип события — комбо Журнала
+            { "tevt.todos",              "Все"                                                    },
+            { "tevt.venta",              "Продажа"                                               },
+            { "tevt.cancelacion",        "Отмена"                                                },
+            { "tevt.despacho",           "Отправка"                                              },
+            { "tevt.entrega",            "Доставка"                                              },
+            { "tevt.altaprenda",         "Новая вещь"                                            },
+            { "tevt.modprenda",          "Изменение вещи"                                        },
+            { "tevt.cambiostprenda",     "Изменение статуса вещи"                                },
+            { "tevt.altacliente",        "Новый клиент"                                          },
+            { "tevt.modcliente",         "Изменение клиента"                                     },
+            { "tevt.bajacliente",        "Удаление клиента"                                      },
+            // Планы — заголовок формы при редактировании
+            { "lbl.editplan",            "Редактировать план"                                    },
+            // Журнал — подписи результатов
+            { "msg.bit.registros",       "  {0} запись(ей)"                                     },
+            { "msg.bit.ultimos",         "последние {0} дней"                                   },
+            { "msg.bit.todos",           "все записи"                                            },
+            // NotificacionDespachoForm — UI
+            { "notif.frm.titulo",        "Уведомление — Заказ #{0}"                             },
+            { "notif.header.entregado",  "✓  Заказ #{0} — ДОСТАВЛЕН"                           },
+            { "notif.header.despachado", "📦  Заказ #{0} — ОТПРАВЛЕН"                           },
+            { "btn.copiar.porta",        "Копировать в буфер обмена"                             },
+            { "btn.copiado",             "✓ Скопировано"                                       },
+            // Меню — недоступные модули
+            { "msg.modulo.outfits",      "Модуль Наряды ещё недоступен."                        },
+            { "msg.modulo.categorias",   "Модуль Категории ещё недоступен."                     },
+            { "lbl.proximamente",        "Скоро"                                                },
+            // Журнал — экспорт PDF
+            { "err.pdf.sinDatos",        "Нет данных для экспорта."                             },
+            { "lbl.exportarpdf",         "Экспорт PDF"                                          },
+            // NuevoPedidoForm — информация о плане
+            { "lbl.ped.infoplan",        "Клиент: {0}\nПлан: {1}\nВещей в использовании: {2}\nМетод оплаты: {3}\nС: {4}" },
+            { "err.ped.sinplan",         "⚠ У {0} не назначен план.\nНазначьте план в модуле Клиентов перед созданием заказа." },
+            // Пользователи — сообщения об операциях
+            { "msg.usr.creado",          "Пользователь '{0}' [{1}] успешно создан."             },
+            { "err.usr.selecciona",      "Выберите пользователя из списка."                     },
+            { "dlg.resetclave.prompt",   "Новый пароль для '{0}' (минимум 6 символов):"         },
+            { "msg.usr.clave.reseteada", "Пароль для '{0}' успешно сброшен."                    },
+            { "err.usr.sel.bloqueado",   "Выберите заблокированного пользователя из списка."    },
+            { "conf.desbloquear.body",   "Разблокировать аккаунт '{0}'?"                        },
+            { "conf.desbloquear.titulo", "Подтвердить разблокировку"                            },
+            { "msg.usr.desbloqueada",    "Аккаунт '{0}' разблокирован."                        },
+            { "conf.resetmasivo.titulo", "Сбросить все пароли"                                  },
+            { "conf.resetmasivo.body",   "Все пароли будут сброшены к:\n\n   {0}\n\nСообщите каждому сотруднику о необходимости их изменить.\n\nПодтвердить?" },
+            { "msg.usr.resetmasivo",     "Все пароли сброшены к: {0}"                           },
         });
 
         // ── Constructor de diccionario ────────────────────────────────────────

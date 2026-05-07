@@ -310,8 +310,12 @@ namespace GUI
         /// </summary>
         private void outfitsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("El módulo de Outfits aún no está disponible.",
-                "Próximamente", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var tM = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string T_m(string k, string fb) => tM.ContainsKey(k) ? tM[k].Texto : fb;
+            MessageBox.Show(
+                T_m("msg.modulo.outfits",    "El módulo de Outfits aún no está disponible."),
+                T_m("lbl.proximamente",       "Próximamente"),
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>
@@ -320,8 +324,12 @@ namespace GUI
         /// </summary>
         private void categoriasToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("El módulo de Categorías aún no está disponible.",
-                "Próximamente", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var tM = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string T_m(string k, string fb) => tM.ContainsKey(k) ? tM[k].Texto : fb;
+            MessageBox.Show(
+                T_m("msg.modulo.categorias", "El módulo de Categorías aún no está disponible."),
+                T_m("lbl.proximamente",       "Próximamente"),
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>

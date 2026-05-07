@@ -33,6 +33,9 @@ namespace GUI
         private readonly Servicios.Bitacora        srvSistema = new Servicios.Bitacora();
         private readonly Servicios.BitacoraNegocio srvNegocio = new Servicios.BitacoraNegocio();
 
+        // ── Combo Tipo Evento (DB keys paralelas a los ítems del combo) ──────────
+        private readonly List<string> _tipoEventoDB = new List<string>();
+
         // ── Estado para impresión paginada ────────────────────────────────────
         private DataTable   _tablaImpresion;
         private string      _tituloImpresion;
@@ -104,6 +107,7 @@ namespace GUI
             btnExportNegocio.Text  = exportPdf;
 
             RellenarComboCriticidad(idioma);
+            RellenarComboTipoEvento(idioma);
         }
 
         /// <summary>
@@ -129,6 +133,42 @@ namespace GUI
             cmbCriticidad.Items.Add(T("crit.bloqueos",   "Bloqueos Cuenta (6)"));
             cmbCriticidad.SelectedIndex =
                 (idx >= 0 && idx < cmbCriticidad.Items.Count) ? idx : 0;
+        }
+
+        /// <summary>
+        /// Rellena el combo de tipo de evento de negocio con ítems traducidos.
+        /// Usa _tipoEventoDB como lista paralela de claves reales de BD,
+        /// para que el filtro pueda usar el valor correcto aunque el idioma cambie.
+        /// </summary>
+        private void RellenarComboTipoEvento(Idioma idioma)
+        {
+            int idx = cmbTipoEvento.SelectedIndex;
+            if (idx < 0) idx = 0;
+            cmbTipoEvento.Items.Clear();
+            _tipoEventoDB.Clear();
+            var t = Traductor.ObtenerTraducciones(idioma);
+            string T(string key, string fb) => t.ContainsKey(key) ? t[key].Texto : fb;
+
+            void Add(string dbVal, string key, string fb)
+            {
+                cmbTipoEvento.Items.Add(T(key, fb));
+                _tipoEventoDB.Add(dbVal);
+            }
+
+            Add("",                   "tevt.todos",          "Todos");
+            Add("Venta",              "tevt.venta",          "Venta");
+            Add("Cancelacion",        "tevt.cancelacion",    "Cancelación");
+            Add("Despacho",           "tevt.despacho",       "Despacho");
+            Add("Entrega",            "tevt.entrega",        "Entrega");
+            Add("AltaPrenda",         "tevt.altaprenda",     "Alta Prenda");
+            Add("ModificacionPrenda", "tevt.modprenda",      "Modificación Prenda");
+            Add("CambioEstadoPrenda", "tevt.cambiostprenda", "Cambio Estado Prenda");
+            Add("AltaCliente",        "tevt.altacliente",    "Alta Cliente");
+            Add("ModificacionCliente","tevt.modcliente",     "Modificación Cliente");
+            Add("BajaCliente",        "tevt.bajacliente",    "Baja Cliente");
+
+            cmbTipoEvento.SelectedIndex =
+                (idx >= 0 && idx < cmbTipoEvento.Items.Count) ? idx : 0;
         }
 
         private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
@@ -158,8 +198,11 @@ namespace GUI
             DataTable dt = dias == 0
                 ? srvSistema.ObtenerTodos()
                 : srvSistema.ObtenerUltimosNDias(dias);
-            MostrarEnGrilla(dgvSistema, lblResultadosSistema, dt,
-                dias > 0 ? $"últimos {dias} días" : "todos los registros");
+            var tU = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string contexto = dias > 0
+                ? string.Format(tU.ContainsKey("msg.bit.ultimos") ? tU["msg.bit.ultimos"].Texto : "últimos {0} días", dias)
+                : (tU.ContainsKey("msg.bit.todos") ? tU["msg.bit.todos"].Texto : "todos los registros");
+            MostrarEnGrilla(dgvSistema, lblResultadosSistema, dt, contexto);
         }
 
         private void BtnLimpiar_Click(object sender, EventArgs e)
@@ -189,8 +232,11 @@ namespace GUI
             int dias = (int)nudNegDias.Value;
             DateTime? desde = dias > 0 ? DateTime.Now.AddDays(-dias) : (DateTime?)null;
             var dt = srvNegocio.BuscarPorFiltros(desde, null, null, null, null);
-            MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt,
-                dias > 0 ? $"últimos {dias} días" : "todos los registros");
+            var tUN = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string contexto = dias > 0
+                ? string.Format(tUN.ContainsKey("msg.bit.ultimos") ? tUN["msg.bit.ultimos"].Texto : "últimos {0} días", dias)
+                : (tUN.ContainsKey("msg.bit.todos") ? tUN["msg.bit.todos"].Texto : "todos los registros");
+            MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt, contexto);
         }
 
         private void BtnNegLimpiar_Click(object sender, EventArgs e)
@@ -255,9 +301,10 @@ namespace GUI
             {
                 int dias        = (int)nudNegDias.Value;
                 DateTime? desde = dias > 0 ? DateTime.Now.AddDays(-dias) : (DateTime?)null;
-                string tipo     = cmbTipoEvento.SelectedIndex == 0
+                int tipoIdx     = cmbTipoEvento.SelectedIndex;
+                string tipo     = (tipoIdx <= 0 || tipoIdx >= _tipoEventoDB.Count)
                                     ? null
-                                    : cmbTipoEvento.SelectedItem.ToString();
+                                    : _tipoEventoDB[tipoIdx];
                 int? idPedido   = int.TryParse(txtNegPedido.Text,  out int p) && p > 0 ? (int?)p : null;
                 int? idCliente  = int.TryParse(txtNegCliente.Text, out int c) && c > 0 ? (int?)c : null;
 
@@ -280,7 +327,11 @@ namespace GUI
         {
             if (dgv.Rows.Count == 0)
             {
-                MessageBox.Show("No hay datos para exportar.", "Exportar PDF",
+                var tB = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string T_b(string k, string fb) => tB.ContainsKey(k) ? tB[k].Texto : fb;
+                MessageBox.Show(
+                    T_b("err.pdf.sinDatos",  "No hay datos para exportar."),
+                    T_b("lbl.exportarpdf",   "Exportar PDF"),
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
@@ -433,7 +484,10 @@ namespace GUI
             bool esSistema = (dgv == dgvSistema);
             TraducirHeadersGrilla(dgv, GestorIdioma.IdiomaActual, esSistema);
 
-            string linea1 = $"  {datos.Rows.Count} registro(s)";
+            var tR = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string linea1 = string.Format(
+                tR.ContainsKey("msg.bit.registros") ? tR["msg.bit.registros"].Texto : "  {0} registro(s)",
+                datos.Rows.Count);
             if (!string.IsNullOrEmpty(contexto)) linea1 += $"  —  {contexto}";
 
             if (dgv == dgvSistema && datos.Columns.Contains("criticidad"))

@@ -66,7 +66,7 @@ namespace GUI
             // Muestra el nombre del usuario afectado para evitar confusiones
             var lblUsuario = new Label
             {
-                Text      = $"Usuario: {username}",
+                Text      = $"{T_r("lbl.usuario", "Usuario")}: {username}",
                 Left      = 20, Top    = 50,
                 Width     = 300, Height = 20,
                 ForeColor = Color.DimGray,
@@ -75,7 +75,7 @@ namespace GUI
 
             var lblNueva = new Label
             {
-                Text  = "Nueva contraseña (mín. 6 caracteres):",
+                Text  = T_r("lbl.nueva.clave", "Nueva contraseña (mín. 6 caracteres):"),
                 Left  = 20, Top   = 82,
                 Width = 300, Height = 18
             };
@@ -89,7 +89,7 @@ namespace GUI
 
             var lblConfirmar = new Label
             {
-                Text  = "Confirmar contraseña:",
+                Text  = T_r("lbl.confirmar.clave", "Confirmar contraseña:"),
                 Left  = 20, Top   = 136,
                 Width = 300, Height = 18
             };
@@ -113,7 +113,7 @@ namespace GUI
 
             btnAceptar = new Button
             {
-                Text      = "Confirmar Reset",
+                Text      = T_r("btn.confirmar.reset", "Confirmar Reset"),
                 Left      = 20,  Top    = 214,
                 Width     = 145, Height = 32,
                 BackColor = Color.FromArgb(180, 100, 30),
@@ -126,7 +126,7 @@ namespace GUI
 
             btnCancelar = new Button
             {
-                Text         = "Cancelar",
+                Text         = T_r("btn.cancelar", "Cancelar"),
                 Left         = 175, Top    = 214,
                 Width        = 145, Height = 32,
                 DialogResult = DialogResult.Cancel
@@ -152,13 +152,16 @@ namespace GUI
         {
             lblError.Text = string.Empty;
 
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string T_v(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
             string nueva     = txtNuevaClave.Text;
             string confirmar = txtConfirmar.Text;
 
             // Validar longitud mínima
             if (string.IsNullOrWhiteSpace(nueva) || nueva.Length < 6)
             {
-                lblError.Text = "La contraseña debe tener al menos 6 caracteres.";
+                lblError.Text = T_v("err.clave.longitud", "La contraseña debe tener al menos 6 caracteres.");
                 txtNuevaClave.Focus();
                 return;
             }
@@ -166,7 +169,7 @@ namespace GUI
             // Validar que ambas coincidan
             if (nueva != confirmar)
             {
-                lblError.Text = "Las contraseñas no coinciden.";
+                lblError.Text = T_v("err.clave.nomatch", "Las contraseñas no coinciden.");
                 txtConfirmar.Clear();
                 txtConfirmar.Focus();
                 return;

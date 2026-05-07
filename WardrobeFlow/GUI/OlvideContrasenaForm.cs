@@ -81,10 +81,12 @@ namespace GUI
         private void BtnEnviar_Click(object sender, EventArgs e)
         {
             string username = txtUsername.Text.Trim();
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string T_o(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
 
             if (string.IsNullOrWhiteSpace(username))
             {
-                MostrarError("Ingresá tu nombre de usuario.");
+                MostrarError(T_o("err.recup.nousername", "Ingresá tu nombre de usuario."));
                 return;
             }
 
@@ -96,7 +98,10 @@ namespace GUI
 
                 if (!existe)
                 {
-                    MostrarError($"No se encontró el usuario '{username}'.\nVerificá que escribiste tu nombre correctamente.");
+                    MostrarError(string.Format(
+                        T_o("err.recup.nousuario",
+                            "No se encontró el usuario '{0}'.\nVerificá que escribiste tu nombre correctamente."),
+                        username));
                     return;
                 }
 
@@ -109,10 +114,10 @@ namespace GUI
                 );
 
                 lblMensaje.ForeColor = Color.FromArgb(30, 120, 60);
-                lblMensaje.Text =
-                    $"Usuario '{username}' encontrado.\n" +
-                    "Contacta al administrador para que resetee\n" +
-                    "tu contrasena desde Administrar -> Usuarios.";
+                lblMensaje.Text = string.Format(
+                    T_o("msg.recup.exito",
+                        "Usuario '{0}' encontrado.\nContacta al administrador para que resetee\ntu contrasena desde Administrar -> Usuarios."),
+                    username);
 
                 btnEnviar.Enabled = false;
             }

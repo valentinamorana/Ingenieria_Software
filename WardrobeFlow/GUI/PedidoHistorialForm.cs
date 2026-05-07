@@ -210,7 +210,8 @@ namespace GUI
         {
             if (_dgv.SelectedRows.Count == 0)
             {
-                MostrarError("Seleccioná una fila del historial para restaurar.");
+                var tHR = Traductor.ObtenerTraducciones(_idioma);
+                MostrarError(tHR.ContainsKey("err.hist.restaurar") ? tHR["err.hist.restaurar"].Texto : "Seleccioná una fila del historial para restaurar.");
                 return;
             }
 

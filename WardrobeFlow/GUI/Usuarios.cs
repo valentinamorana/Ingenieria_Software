@@ -255,16 +255,19 @@ namespace GUI
             string password  = txtContraseña.Text;
             string perfil    = cmbPerfil.SelectedItem?.ToString() ?? "";
 
+            var tVal = Traductor.ObtenerTraducciones(_idioma);
+            string T_v(string k, string fb) => tVal.ContainsKey(k) ? tVal[k].Texto : fb;
+
             // Validaciones de UI antes de llamar a BLL
             if (string.IsNullOrWhiteSpace(username))
             {
-                MostrarError("El nombre de usuario es obligatorio.");
+                MostrarError(T_v("err.usr.nombre.req", "El nombre de usuario es obligatorio."));
                 return;
             }
 
             if (username.Length < 3)
             {
-                MostrarError("El nombre de usuario debe tener al menos 3 caracteres.");
+                MostrarError(T_v("err.usr.nombre.longitud", "El nombre de usuario debe tener al menos 3 caracteres."));
                 txtUsername.Focus();
                 return;
             }
@@ -278,7 +281,8 @@ namespace GUI
 
             if (string.IsNullOrWhiteSpace(perfil))
             {
-                MostrarError("Seleccioná un perfil/rol.");
+                var tPR = Traductor.ObtenerTraducciones(_idioma);
+                MostrarError(tPR.ContainsKey("err.usr.sinperfil") ? tPR["err.usr.sinperfil"].Texto : "Seleccioná un perfil/rol.");
                 return;
             }
 
@@ -297,7 +301,9 @@ namespace GUI
                 cmbPerfil.SelectedIndex = 2;
 
                 CargarUsuarios();
-                MostrarOk($"Usuario '{username}' [{perfil}] creado correctamente.");
+                var tCr = Traductor.ObtenerTraducciones(_idioma);
+                string fmtCr = tCr.ContainsKey("msg.usr.creado") ? tCr["msg.usr.creado"].Texto : "Usuario '{0}' [{1}] creado correctamente.";
+                MostrarOk(string.Format(fmtCr, username, perfil));
             }
             catch (Exception ex)
             {
@@ -314,23 +320,25 @@ namespace GUI
         {
             if (dgvUsuarios.SelectedRows.Count == 0)
             {
-                MostrarError("Seleccioná un usuario de la lista.");
+                var tRSel = Traductor.ObtenerTraducciones(_idioma);
+                MostrarError(tRSel.ContainsKey("err.usr.selecciona") ? tRSel["err.usr.selecciona"].Texto : "Seleccioná un usuario de la lista.");
                 return;
             }
 
             int    idUsuario = Convert.ToInt32(dgvUsuarios.SelectedRows[0].Cells["ID"].Value);
             string username  = dgvUsuarios.SelectedRows[0].Cells["Username"].Value?.ToString() ?? "";
 
-            string nuevaClave = PedirTexto(
-                $"Nueva contraseña para '{username}' (mínimo 6 caracteres):",
-                "Resetear Contraseña");
+            var tR = Traductor.ObtenerTraducciones(_idioma);
+            string T_r(string k, string fb) => tR.ContainsKey(k) ? tR[k].Texto : fb;
+            string promptReset = string.Format(T_r("dlg.resetclave.prompt", "Nueva contraseña para '{0}' (mínimo 6 caracteres):"), username);
+            string nuevaClave = PedirTexto(promptReset, T_r("frm.resetclave", "Resetear Contraseña"));
 
             if (string.IsNullOrWhiteSpace(nuevaClave)) return;
 
             try
             {
                 usuarioBLL.ResetearClave(this, idUsuario, nuevaClave);
-                MostrarOk($"Contraseña de '{username}' reseteada correctamente.");
+                MostrarOk(string.Format(T_r("msg.usr.clave.reseteada", "Contraseña de '{0}' reseteada correctamente."), username));
             }
             catch (Exception ex)
             {
@@ -346,16 +354,20 @@ namespace GUI
         {
             if (dgvUsuarios.SelectedRows.Count == 0)
             {
-                MostrarError("Seleccioná un usuario bloqueado de la lista.");
+                var tDSel = Traductor.ObtenerTraducciones(_idioma);
+                MostrarError(tDSel.ContainsKey("err.usr.sel.bloqueado") ? tDSel["err.usr.sel.bloqueado"].Texto : "Seleccioná un usuario bloqueado de la lista.");
                 return;
             }
 
             int    idUsuario = Convert.ToInt32(dgvUsuarios.SelectedRows[0].Cells["ID"].Value);
             string username  = dgvUsuarios.SelectedRows[0].Cells["Username"].Value?.ToString() ?? "";
 
+            var tD = Traductor.ObtenerTraducciones(_idioma);
+            string T_d(string k, string fb) => tD.ContainsKey(k) ? tD[k].Texto : fb;
+
             var confirm = MessageBox.Show(
-                $"¿Desbloquear la cuenta de '{username}'?",
-                "Confirmar Desbloqueo",
+                string.Format(T_d("conf.desbloquear.body",  "¿Desbloquear la cuenta de '{0}'?"), username),
+                T_d("conf.desbloquear.titulo", "Confirmar Desbloqueo"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button2);
@@ -366,7 +378,7 @@ namespace GUI
             {
                 usuarioBLL.Desbloquear(this, idUsuario, username);
                 CargarUsuarios();
-                MostrarOk($"Cuenta '{username}' desbloqueada correctamente.");
+                MostrarOk(string.Format(T_d("msg.usr.desbloqueada", "Cuenta '{0}' desbloqueada correctamente."), username));
             }
             catch (Exception ex)
             {
@@ -380,12 +392,12 @@ namespace GUI
         {
             const string claveTemporal = "Wardrobe1!";
 
+            var tM = Traductor.ObtenerTraducciones(_idioma);
+            string T_m(string k, string fb) => tM.ContainsKey(k) ? tM[k].Texto : fb;
+
             var confirm = MessageBox.Show(
-                $"Esto va a resetear la contraseña de TODOS los usuarios a:\n\n" +
-                $"   {claveTemporal}\n\n" +
-                "Comunicate con cada empleado para que la cambien.\n\n" +
-                "¿Confirmar?",
-                "Resetear todas las claves",
+                string.Format(T_m("conf.resetmasivo.body", "Esto va a resetear la contraseña de TODOS los usuarios a:\n\n   {0}\n\nComunicate con cada empleado para que la cambien.\n\n¿Confirmar?"), claveTemporal),
+                T_m("conf.resetmasivo.titulo", "Resetear todas las claves"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning,
                 MessageBoxDefaultButton.Button2);
@@ -395,7 +407,7 @@ namespace GUI
             try
             {
                 usuarioBLL.ResetearTodasLasClaves(this, claveTemporal);
-                MostrarOk($"Todas las claves fueron reseteadas a: {claveTemporal}");
+                MostrarOk(string.Format(T_m("msg.usr.resetmasivo", "Todas las claves fueron reseteadas a: {0}"), claveTemporal));
             }
             catch (Exception ex)
             {
@@ -435,16 +447,17 @@ namespace GUI
                     PasswordChar = '●'
                 };
 
+                var tPT = Traductor.ObtenerTraducciones(_idioma);
                 var btnOk = new Button
                 {
-                    Text         = "Aceptar",
+                    Text         = tPT.ContainsKey("btn.aceptar")  ? tPT["btn.aceptar"].Texto  : "Aceptar",
                     Left         = 168, Top    = 88,
                     Width        = 80,  Height = 28,
                     DialogResult = DialogResult.OK
                 };
                 var btnCancelar = new Button
                 {
-                    Text         = "Cancelar",
+                    Text         = tPT.ContainsKey("btn.cancelar") ? tPT["btn.cancelar"].Texto : "Cancelar",
                     Left         = 260, Top    = 88,
                     Width        = 88,  Height = 28,
                     DialogResult = DialogResult.Cancel

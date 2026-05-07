@@ -23,9 +23,15 @@ namespace GUI
             _opciones = opciones;
 
             var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
-            string fmtInfo = t.ContainsKey("lbl.cambioest.info")
-                ? t["lbl.cambioest.info"].Texto
-                : "Prenda: {0}  —  Estado actual: {1}";
+            string T_ce(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
+            // Traducir controles del Designer
+            this.Text              = T_ce("frm.cambioestado",     "Cambiar Estado de Prenda");
+            lblNuevoEstado.Text    = T_ce("lbl.nuevoestado",      "Nuevo estado:");
+            btnConfirmar.Text      = T_ce("btn.confirmar.cambio", "Confirmar Cambio");
+            btnCancelar.Text       = T_ce("btn.cancelar",         "Cancelar");
+
+            string fmtInfo = T_ce("lbl.cambioest.info", "Prenda: {0}  —  Estado actual: {1}");
             string estadoLabel = estadoTraducido ?? prenda.Estado.ToString();
             lblPrendaInfo.Text = string.Format(fmtInfo, prenda.Nombre, estadoLabel);
 

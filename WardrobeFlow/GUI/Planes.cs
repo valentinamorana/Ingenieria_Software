@@ -198,7 +198,8 @@ namespace GUI
             if (plan == null) return;
 
             _idEnEdicion       = plan.IdPlan;
-            lblFormTitulo.Text = "Editar Plan";
+            var tE = Traductor.ObtenerTraducciones(_idioma);
+            lblFormTitulo.Text = tE.ContainsKey("lbl.editplan") ? tE["lbl.editplan"].Texto : "Editar Plan";
             txtNombre.Text     = plan.Nombre;
             nudLimite.Value    = plan.LimitePrendas;
             nudPrecio.Value    = plan.Precio;
@@ -207,7 +208,8 @@ namespace GUI
         private void LimpiarFormulario()
         {
             _idEnEdicion       = 0;
-            lblFormTitulo.Text = "Nuevo Plan";
+            var tN = Traductor.ObtenerTraducciones(_idioma);
+            lblFormTitulo.Text = tN.ContainsKey("lbl.nuevopla") ? tN["lbl.nuevopla"].Texto : "Nuevo Plan";
             txtNombre.Clear();
             nudLimite.Value    = 3;
             nudPrecio.Value    = 0;

@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using Servicios.Multiidioma;
 
 namespace GUI
 {
@@ -19,15 +20,22 @@ namespace GUI
             InitializeComponent();
             _pedido = pedido;
 
-            this.Text = $"Notificaci\u00f3n \u2014 Pedido #{pedido.IdPedido}";
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string T(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
+            this.Text = string.Format(T("notif.frm.titulo", "Notificación — Pedido #{0}"), pedido.IdPedido);
 
             bool entregado = pedido.Estado == BE.EstadoPedido.Entregado;
             panelHeader.BackColor = entregado
                 ? Color.FromArgb(40, 140, 60)
                 : Color.FromArgb(30, 110, 180);
-            lblHeader.Text = entregado
-                ? $"\u2713  Pedido #{pedido.IdPedido} \u2014 ENTREGADO"
-                : $"\ud83d\udce6  Pedido #{pedido.IdPedido} \u2014 DESPACHADO";
+            lblHeader.Text = string.Format(
+                entregado
+                    ? T("notif.header.entregado",  "✓  Pedido #{0} — ENTREGADO")
+                    : T("notif.header.despachado",  "📦  Pedido #{0} — DESPACHADO"),
+                pedido.IdPedido);
+
+            btnCopiar.Text = T("btn.copiar.porta", "Copiar al portapapeles");
 
             txtMensaje.Text = GenerarMensaje();
         }
@@ -35,7 +43,8 @@ namespace GUI
         private void BtnCopiar_Click(object sender, EventArgs e)
         {
             Clipboard.SetText(txtMensaje.Text);
-            btnCopiar.Text      = "\u2713 Copiado";
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            btnCopiar.Text      = t.ContainsKey("btn.copiado") ? t["btn.copiado"].Texto : "✓ Copiado";
             btnCopiar.BackColor = Color.FromArgb(40, 140, 60);
             btnCopiar.ForeColor = Color.White;
         }

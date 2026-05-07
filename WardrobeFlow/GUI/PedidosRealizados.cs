@@ -347,9 +347,13 @@ namespace GUI
                 var pedido = pedidoBLL.ObtenerPorId(pedidoResumen.IdPedido);
                 if (pedido == null) return;
 
-                lblDetalleTitulo.Text =
-                    $"Pedido #{pedido.IdPedido}  ·  {pedido.NombreCliente}  ·  " +
-                    $"{EstadoLabel(pedido.Estado)}  ·  {pedido.CantidadPrendas} prenda(s)";
+                var tDet = Traductor.ObtenerTraducciones(_idioma);
+                string T_det(string k, string fb) => tDet.ContainsKey(k) ? tDet[k].Texto : fb;
+                string prendasLbl = T_det("col.ped.prendas", "prenda(s)");
+                lblDetalleTitulo.Text = string.Format(
+                    T_det("lbl.ped.detalletitulo", "Pedido #{0}  ·  {1}  ·  {2}  ·  {3} {4}"),
+                    pedido.IdPedido, pedido.NombreCliente,
+                    EstadoLabel(pedido.Estado), pedido.CantidadPrendas, prendasLbl);
 
                 var tabla = new DataTable();
                 tabla.Columns.Add("Prenda",    typeof(string));
@@ -490,17 +494,31 @@ namespace GUI
             var completo = pedidoBLL.ObtenerPorId(pedido.IdPedido);
             if (completo == null) return;
 
-            string texto =
-                $"=== NOTIFICACIÓN DE PEDIDO ===\n\n" +
-                $"Pedido #:   {completo.IdPedido}\n" +
-                $"Cliente:    {completo.NombreCliente}\n" +
-                $"Estado:     {EstadoLabel(completo.Estado)}\n" +
-                $"Fecha:      {completo.FechaPedido:dd/MM/yyyy HH:mm}\n" +
-                $"Despacho:   {(completo.FechaDespacho.HasValue ? completo.FechaDespacho.Value.ToString("dd/MM/yyyy") : "—")}\n" +
-                $"Entrega:    {(completo.FechaEntrega.HasValue  ? completo.FechaEntrega.Value.ToString("dd/MM/yyyy")  : "—")}\n" +
-                $"Prendas:    {completo.CantidadPrendas}\n";
+            var tN = Traductor.ObtenerTraducciones(_idioma);
+            string T_n(string k, string fb) => tN.ContainsKey(k) ? tN[k].Texto : fb;
 
-            MessageBox.Show(texto, $"Notificación — Pedido #{completo.IdPedido}",
+            // Reutilizar claves de columnas existentes para las etiquetas de la notificación
+            string notifTitulo   = T_n("notif.titulo",   "NOTIFICACIÓN DE PEDIDO");
+            string notifNumero   = T_n("notif.numero",   "Pedido #:");
+            string notifCliente  = T_n("col.ped.cliente","Cliente")  + ":";
+            string notifEstado   = T_n("col.ped.estado", "Estado")   + ":";
+            string notifFecha    = T_n("col.ped.fecha",  "Fecha")    + ":";
+            string notifDespacho = T_n("col.ped.despacho","Despacho")+ ":";
+            string notifEntrega  = T_n("col.ped.entrega","Entrega")  + ":";
+            string notifPrendas  = T_n("col.ped.prendas","Prendas")  + ":";
+
+            string texto =
+                $"=== {notifTitulo} ===\n\n" +
+                $"{notifNumero,-12}{completo.IdPedido}\n" +
+                $"{notifCliente,-12}{completo.NombreCliente}\n" +
+                $"{notifEstado,-12}{EstadoLabel(completo.Estado)}\n" +
+                $"{notifFecha,-12}{completo.FechaPedido:dd/MM/yyyy HH:mm}\n" +
+                $"{notifDespacho,-12}{(completo.FechaDespacho.HasValue ? completo.FechaDespacho.Value.ToString("dd/MM/yyyy") : "—")}\n" +
+                $"{notifEntrega,-12}{(completo.FechaEntrega.HasValue  ? completo.FechaEntrega.Value.ToString("dd/MM/yyyy")  : "—")}\n" +
+                $"{notifPrendas,-12}{completo.CantidadPrendas}\n";
+
+            string tituloMsgBox = string.Format(T_n("notif.msgbox.titulo", "Notificación — Pedido #{0}"), completo.IdPedido);
+            MessageBox.Show(texto, tituloMsgBox,
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 

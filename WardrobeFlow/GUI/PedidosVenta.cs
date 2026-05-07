@@ -451,8 +451,8 @@ namespace GUI
                 Enabled   = false
             };
             _btnHistorial.FlatAppearance.BorderSize = 0;
-            // Posicionar a la derecha de btnDesCancelar (Location.X = 274, Width = 130 → 274+130+6 = 410)
-            _btnHistorial.Location = new Point(412, 11);
+            // Posicionar a la derecha de btnRefrescar (Location.X = 412, Width = 32 → 412+32+8 = 452)
+            _btnHistorial.Location = new Point(452, 11);
             _btnHistorial.Click   += BtnHistorial_Click;
             panelTop.Controls.Add(_btnHistorial);
         }
