@@ -245,55 +245,16 @@ namespace GUI
 
         // ── Eventos de botones ────────────────────────────────────────────────
 
-        /// <summary>
-        /// Crea un nuevo usuario tras validar que el username sea numérico (DNI)
-        /// y que la contraseña tenga al menos 6 caracteres.
-        /// </summary>
+        /// <summary>Crea un nuevo usuario. Las validaciones se delegan a BLL.Usuario.Alta().</summary>
         private void BtnAgregar_Click(object sender, EventArgs e)
         {
             string username  = txtUsername.Text.Trim();
             string password  = txtContraseña.Text;
             string perfil    = cmbPerfil.SelectedItem?.ToString() ?? "";
 
-            var tVal = Traductor.ObtenerTraducciones(_idioma);
-            string T_v(string k, string fb) => tVal.ContainsKey(k) ? tVal[k].Texto : fb;
-
-            // Validaciones de UI antes de llamar a BLL
-            if (string.IsNullOrWhiteSpace(username))
-            {
-                MostrarError(T_v("err.usr.nombre.req", "El nombre de usuario es obligatorio."));
-                return;
-            }
-
-            if (username.Length < 3)
-            {
-                MostrarError(T_v("err.usr.nombre.longitud", "El nombre de usuario debe tener al menos 3 caracteres."));
-                txtUsername.Focus();
-                return;
-            }
-
-            var resultado = usuarioBLL.ValidarContrasena(password);
-            if (!resultado.valida)
-            {
-                MostrarError(resultado.mensaje);
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(perfil))
-            {
-                var tPR = Traductor.ObtenerTraducciones(_idioma);
-                MostrarError(tPR.ContainsKey("err.usr.sinperfil") ? tPR["err.usr.sinperfil"].Texto : "Seleccioná un perfil/rol.");
-                return;
-            }
-
-            // Mapear nombre visible → código interno que usa RolPermiso en la BD
-            string perfilInterno = perfil;
-            if (perfil == "Controlador de Stock")    perfilInterno = "ControladorDeStock";
-            if (perfil == "Operador de Inventario")  perfilInterno = "OperadorDeInventario";
-
             try
             {
-                usuarioBLL.Alta(this, username, password, perfilInterno);
+                usuarioBLL.Alta(this, username, password, perfil);
 
                 // Limpiar campos y refrescar lista
                 txtUsername.Clear();

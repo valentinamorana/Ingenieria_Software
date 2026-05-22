@@ -92,9 +92,7 @@ namespace GUI
 
             try
             {
-                // Verificar si el usuario existe en la BD
-                var bll     = new BLL.Usuario();
-                bool existe = bll.ExisteUsername(username);
+                bool existe = new BLL.Usuario().SolicitarRecuperacionClave(username);
 
                 if (!existe)
                 {
@@ -104,14 +102,6 @@ namespace GUI
                         username));
                     return;
                 }
-
-                // Usuario encontrado — registrar en bitácora sin sesión activa
-                new Servicios.Bitacora().RegistrarSinSesion(
-                    modulo:     "Recuperar Contrasena",
-                    actividad:  "Solicitud Recuperacion Clave",
-                    criticidad: BE.Criticidad.RecuperacionClave,
-                    detalle:    $"Solicitud de recuperacion de clave para '{username}' a las {DateTime.Now:HH:mm:ss}."
-                );
 
                 lblMensaje.ForeColor = Color.FromArgb(30, 120, 60);
                 lblMensaje.Text = string.Format(

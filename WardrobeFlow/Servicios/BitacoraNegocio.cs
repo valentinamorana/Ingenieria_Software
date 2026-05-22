@@ -11,7 +11,7 @@ namespace Servicios
     ///   - ESCRITURA: Registrar() persiste eventos de negocio en [BitacoraNegocio].
     ///   - LECTURA:   ObtenerTodos() y BuscarPorFiltros() para consultas desde la GUI.
     ///
-    /// No existe BLL.BitacoraNegocio: la GUI usa Servicios.BitacoraNegocio directamente.
+    /// La GUI accede a este servicio únicamente a través de BLL.Bitacora.
     /// Los eventos de negocio están separados de la tabla [Bitacora] (seguridad/sistema).
     /// </summary>
     public class BitacoraNegocio

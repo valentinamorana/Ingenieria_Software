@@ -28,10 +28,7 @@ namespace GUI
     /// </summary>
     public partial class Bitacora : FormBase, IIdiomaObserver
     {
-        // La GUI accede a Servicios directamente para consultas de bitácora.
-        // BLL decide CUÁNDO registrar; Servicios sabe CÓMO persistir Y CÓMO consultar.
-        private readonly Servicios.Bitacora        srvSistema = new Servicios.Bitacora();
-        private readonly Servicios.BitacoraNegocio srvNegocio = new Servicios.BitacoraNegocio();
+        private readonly BLL.Bitacora bllBitacora = new BLL.Bitacora();
 
         // ── Combo Tipo Evento (DB keys paralelas a los ítems del combo) ──────────
         private readonly List<string> _tipoEventoDB = new List<string>();
@@ -179,12 +176,7 @@ namespace GUI
 
         private void Bitacora_Load(object sender, EventArgs e)
         {
-            // Supervisor solo accede a la bitácora de negocio (seguimiento de ventas/prendas).
-            // Se elimina la tab de Sistema antes de mostrar el formulario.
-            var usuario = new BLL.Usuario().ObtenerUsuarioActivo();
-            string perfil = usuario?.Perfil ?? "";
-
-            if (perfil.Equals("Supervisor", StringComparison.OrdinalIgnoreCase))
+            if (!bllBitacora.UsuarioPuedeVerSistema())
                 tabControl.TabPages.Remove(tabPageSistema);
             else
                 CargarSistema();
@@ -196,8 +188,8 @@ namespace GUI
         {
             int dias = (int)nudDias.Value;
             DataTable dt = dias == 0
-                ? srvSistema.ObtenerTodos()
-                : srvSistema.ObtenerUltimosNDias(dias);
+                ? bllBitacora.ObtenerTodosSistema()
+                : bllBitacora.ObtenerUltimosNDiasSistema(dias);
             var tU = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
             string contexto = dias > 0
                 ? string.Format(tU.ContainsKey("msg.bit.ultimos") ? tU["msg.bit.ultimos"].Texto : "últimos {0} días", dias)
@@ -231,7 +223,7 @@ namespace GUI
         {
             int dias = (int)nudNegDias.Value;
             DateTime? desde = dias > 0 ? DateTime.Now.AddDays(-dias) : (DateTime?)null;
-            var dt = srvNegocio.BuscarPorFiltros(desde, null, null, null, null);
+            var dt = bllBitacora.BuscarPorFiltrosNegocio(desde, null, null, null, null);
             var tUN = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
             string contexto = dias > 0
                 ? string.Format(tUN.ContainsKey("msg.bit.ultimos") ? tUN["msg.bit.ultimos"].Texto : "últimos {0} días", dias)
@@ -259,7 +251,7 @@ namespace GUI
         {
             try
             {
-                var dt = srvSistema.ObtenerTodos();
+                var dt = bllBitacora.ObtenerTodosSistema();
                 MostrarEnGrilla(dgvSistema, lblResultadosSistema, dt);
             }
             catch (Exception ex) { MostrarError(ex.Message); }
@@ -269,7 +261,7 @@ namespace GUI
         {
             try
             {
-                var dt = srvNegocio.ObtenerTodos();
+                var dt = bllBitacora.ObtenerTodosNegocio();
                 MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt);
             }
             catch (Exception ex) { MostrarError(ex.Message); }
@@ -289,7 +281,7 @@ namespace GUI
                 int[] criticidadMap = { -1, 0, 1, 2, 3, 4, 5, 6 };
                 int criticidad = criticidadMap[cmbCriticidad.SelectedIndex];
 
-                var dt = srvSistema.BuscarPorFiltros(desde, null, uid, activ, criticidad);
+                var dt = bllBitacora.BuscarPorFiltrosSistema(desde, null, uid, activ, criticidad);
                 MostrarEnGrilla(dgvSistema, lblResultadosSistema, dt);
             }
             catch (Exception ex) { MostrarError(ex.Message); }
@@ -308,7 +300,7 @@ namespace GUI
                 int? idPedido   = int.TryParse(txtNegPedido.Text,  out int p) && p > 0 ? (int?)p : null;
                 int? idCliente  = int.TryParse(txtNegCliente.Text, out int c) && c > 0 ? (int?)c : null;
 
-                var dt = srvNegocio.BuscarPorFiltros(desde, null, tipo, idCliente, idPedido);
+                var dt = bllBitacora.BuscarPorFiltrosNegocio(desde, null, tipo, idCliente, idPedido);
                 MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt);
             }
             catch (Exception ex) { MostrarError(ex.Message); }

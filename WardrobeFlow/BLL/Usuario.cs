@@ -75,13 +75,20 @@ namespace BLL
         }
 
         // Crea un nuevo usuario con rol y contraseña hasheada.
+        // Acepta tanto el nombre visible del perfil ("Controlador de Stock")
+        // como el código interno ("ControladorDeStock") — normaliza internamente.
         public void Alta(Form formulario, string username, string contraseña, string perfil)
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(contraseña))
                 throw new Exception("Usuario y contraseña son obligatorios.");
 
+            if (username.Trim().Length < 3)
+                throw new Exception("El nombre de usuario debe tener al menos 3 caracteres.");
+
             if (string.IsNullOrWhiteSpace(perfil))
                 throw new Exception("El perfil/rol es obligatorio.");
+
+            perfil = NormalizarPerfil(perfil);
 
             var (valida, mensaje) = Encriptador.ValidarContrasena(contraseña);
             if (!valida) throw new Exception(mensaje);
@@ -183,11 +190,42 @@ namespace BLL
             return usuarioDAL.ObtenerPorUsername(username) != null;
         }
 
+        // Registra una solicitud de recuperación de clave en la bitácora.
+        // Retorna true si el usuario existe, false si no se encontró.
+        // Lanza excepción solo si ocurre un error inesperado en BD.
+        public bool SolicitarRecuperacionClave(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username)) return false;
+
+            bool existe = usuarioDAL.ObtenerPorUsername(username) != null;
+            if (!existe) return false;
+
+            bitacora.RegistrarSinSesion(
+                modulo:     "Recuperar Contrasena",
+                actividad:  "Solicitud Recuperacion Clave",
+                criticidad: BE.Criticidad.RecuperacionClave,
+                detalle:    $"Solicitud de recuperacion de clave para '{username}' a las {DateTime.Now:HH:mm:ss}."
+            );
+
+            return true;
+        }
+
         // Expone la validación de contraseña para que la GUI pueda dar feedback
         // temprano sin acceder directamente a la capa Seguridad.
         public (bool valida, string mensaje) ValidarContrasena(string contrasena)
         {
             return Encriptador.ValidarContrasena(contrasena);
+        }
+
+        // Convierte el nombre visible del perfil al código interno usado en BD.
+        private static string NormalizarPerfil(string perfil)
+        {
+            switch (perfil.Trim())
+            {
+                case "Controlador de Stock":   return "ControladorDeStock";
+                case "Operador de Inventario": return "OperadorDeInventario";
+                default:                       return perfil.Trim();
+            }
         }
 
         // Registra un intento de login fallido en bitácora.
