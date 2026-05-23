@@ -63,7 +63,7 @@ namespace DAL
             {
                 DataTable tabla = acceso.Leer(
                     "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
-                    "       Estado, IntentosFallidos " +
+                    "       Estado, IntentosFallidos, ISNULL(IdIdioma, 'ES') AS IdIdioma " +
                     "FROM Usuario WHERE Username = @Username",
                     parametros);
 
@@ -79,7 +79,8 @@ namespace DAL
                     Perfil = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
                     Bloqueado = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
                     IntentosFallidos = row["IntentosFallidos"] != DBNull.Value
-                                          ? Convert.ToInt32(row["IntentosFallidos"]) : 0
+                                          ? Convert.ToInt32(row["IntentosFallidos"]) : 0,
+                    IdIdioma = row["IdIdioma"] != DBNull.Value ? row["IdIdioma"].ToString() : "ES"
                 };
             }
             catch (Exception ex)
@@ -196,7 +197,7 @@ namespace DAL
             {
                 DataTable tabla = acceso.Leer(
                     "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
-                    "       Estado, IntentosFallidos " +
+                    "       Estado, IntentosFallidos, ISNULL(IdIdioma, 'ES') AS IdIdioma " +
                     "FROM Usuario WHERE IdUsuario = @IdUsuario",
                     parametros);
 
@@ -212,13 +213,28 @@ namespace DAL
                     Perfil = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
                     Bloqueado = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
                     IntentosFallidos = row["IntentosFallidos"] != DBNull.Value
-                                          ? Convert.ToInt32(row["IntentosFallidos"]) : 0
+                                          ? Convert.ToInt32(row["IntentosFallidos"]) : 0,
+                    IdIdioma = row["IdIdioma"] != DBNull.Value ? row["IdIdioma"].ToString() : "ES"
                 };
             }
             catch (Exception ex)
             {
                 throw new Exception("Error al obtener el usuario por ID.", ex);
             }
+        }
+
+        // Persiste la preferencia de idioma del usuario (por ejemplo 'ES', 'EN', 'RU').
+        // Llamado desde BLL cuando el usuario cambia idioma en Menu.
+        public void GuardarIdioma(int idUsuario, string idIdioma)
+        {
+            SqlParameter[] parametros = new SqlParameter[]
+            {
+                new SqlParameter("@idUsuario", idUsuario),
+                new SqlParameter("@idIdioma",  idIdioma ?? "ES")
+            };
+            acceso.Escribir(
+                "UPDATE Usuario SET IdIdioma = @idIdioma WHERE IdUsuario = @idUsuario",
+                parametros);
         }
 
         // Recalcula el DVH de un usuario específico y actualiza DVV de la tabla.

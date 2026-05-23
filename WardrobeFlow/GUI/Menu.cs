@@ -423,8 +423,24 @@ namespace GUI
             // Suscribirse al Observer de idioma
             GestorIdioma.SuscribirObservador(this);
 
-            // Aplicar el idioma activo al abrirse (puede ser diferente del default si ya se cambió)
-            Traducir(GestorIdioma.IdiomaActual);
+            // Restaurar preferencia de idioma del usuario logueado (patrón del ejemplo de cátedra)
+            BLL.Usuario bllIdioma = new BLL.Usuario();
+            BE.Usuario usuarioParaIdioma = bllIdioma.ObtenerUsuarioActivo();
+            if (usuarioParaIdioma != null && !string.IsNullOrEmpty(usuarioParaIdioma.IdIdioma))
+            {
+                foreach (var idm in Traductor.ObtenerIdiomas())
+                {
+                    if (idm.Id == usuarioParaIdioma.IdIdioma)
+                    {
+                        GestorIdioma.CambiarIdioma(idm);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                Traducir(GestorIdioma.IdiomaActual);
+            }
         }
 
         /// <summary>
@@ -508,12 +524,24 @@ namespace GUI
             };
             btn.Click += (s, e) =>
             {
-                // Buscar el idioma por código y notificar a todos los observers
                 foreach (var idioma in Traductor.ObtenerIdiomas())
                 {
                     if (idioma.Id == codigoIdioma)
                     {
                         GestorIdioma.CambiarIdioma(idioma);
+
+                        // Persistir preferencia en DB (patrón cátedra: idioma almacenado en Usuario)
+                        try
+                        {
+                            var userActivo = new BLL.Usuario().ObtenerUsuarioActivo();
+                            if (userActivo != null)
+                                new BLL.Usuario().GuardarPreferenciaIdioma(userActivo.Id, codigoIdioma);
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine(
+                                $"[Menu] Error al guardar preferencia de idioma: {ex.Message}");
+                        }
                         break;
                     }
                 }

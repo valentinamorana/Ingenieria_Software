@@ -210,6 +210,15 @@ namespace BLL
             return true;
         }
 
+        // Persiste la preferencia de idioma del usuario activo.
+        // También actualiza el objeto en sesión para que las consultas inmediatas reflejen el cambio.
+        public void GuardarPreferenciaIdioma(int idUsuario, string idIdioma)
+        {
+            usuarioDAL.GuardarIdioma(idUsuario, idIdioma);
+            if (Seguridad.SessionManager.IsLoggedIn)
+                Seguridad.SessionManager.GetInstance.Usuario.IdIdioma = idIdioma;
+        }
+
         // Expone la validación de contraseña para que la GUI pueda dar feedback
         // temprano sin acceder directamente a la capa Seguridad.
         public (bool valida, string mensaje) ValidarContrasena(string contrasena)

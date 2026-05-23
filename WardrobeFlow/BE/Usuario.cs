@@ -31,5 +31,7 @@ namespace BE
         public bool Bloqueado { get; set; }
 
         public int IntentosFallidos { get; set; }
+
+        public string IdIdioma { get; set; } = "ES";
     }
 }
