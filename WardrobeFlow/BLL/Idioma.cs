@@ -202,7 +202,7 @@ namespace BLL
             if (clave.StartsWith("lbl.recup.") || clave.StartsWith("err.recup.") ||
                 clave.StartsWith("msg.recup.") || clave == "btn.enviar.solicitud") return "RecuperarClave";
             if (clave.StartsWith("lbl.permisos.") || clave.StartsWith("btn.permisos.") ||
-                clave.StartsWith("msg.permisos."))                                        return "GestorPermisos";
+                clave.StartsWith("msg.permisos.") || clave.StartsWith("perm."))           return "GestorPermisos";
             if (clave.StartsWith("lbl.idiomas.")  || clave.StartsWith("btn.idiomas."))  return "FormIdiomas";
             if (clave == "lbl.usuario" || clave == "lbl.contrasena" ||
                 clave == "btn.ingresar" || clave == "btn.salir" ||

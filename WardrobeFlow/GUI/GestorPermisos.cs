@@ -30,6 +30,16 @@ namespace GUI
         // ── Dependencias ──────────────────────────────────────────────────────
         private readonly BLL.Familia _familiaBLL = new BLL.Familia();
 
+        // Nombres de roles tal como están en BD (usados para consultas BLL).
+        // El ComboBox muestra la traducción; esta lista guarda el original.
+        private List<string> _rolesOriginales = new List<string>();
+
+        // Devuelve el nombre de rol original (en español) para el item seleccionado.
+        private string RolOriginalActual =>
+            _cmbRol.SelectedIndex >= 0 && _cmbRol.SelectedIndex < _rolesOriginales.Count
+                ? _rolesOriginales[_cmbRol.SelectedIndex]
+                : null;
+
         // ── Controles ─────────────────────────────────────────────────────────
         private Label        _lblTitulo;
         private Label        _lblMensaje;
@@ -76,6 +86,23 @@ namespace GUI
             _lblRol.Text     = Tx("lbl.permisos.rol",      "Rol:");
             _btnGuardar.Text = Tx("btn.permisos.guardar",  "Guardar cambios");
             _btnCerrar.Text  = Tx("btn.permisos.cerrar",   "Cerrar");
+
+            // Refrescar combo con nombres de rol en el idioma nuevo (sin disparar el evento)
+            if (_rolesOriginales.Count > 0)
+            {
+                int prevIdx = _cmbRol.SelectedIndex;
+                _cmbRol.SelectedIndexChanged -= CmbRol_SelectedIndexChanged;
+                _cmbRol.Items.Clear();
+                foreach (string rol in _rolesOriginales)
+                    _cmbRol.Items.Add(Tx($"perm.rol.{rol.ToLowerInvariant().Replace(" ", "")}", rol));
+                if (prevIdx >= 0 && prevIdx < _cmbRol.Items.Count)
+                    _cmbRol.SelectedIndex = prevIdx;
+                _cmbRol.SelectedIndexChanged += CmbRol_SelectedIndexChanged;
+
+                // Reconstruir el árbol con los nombres de nodo en el nuevo idioma
+                if (_cmbRol.SelectedIndex >= 0)
+                    MostrarPermisos();
+            }
         }
 
         // Helper para traducir claves dinámicas en métodos que no reciben Idioma.
@@ -91,10 +118,10 @@ namespace GUI
         {
             try
             {
-                List<string> roles = _familiaBLL.ObtenerRoles();
+                _rolesOriginales = _familiaBLL.ObtenerRoles();
                 _cmbRol.Items.Clear();
-                foreach (string rol in roles)
-                    _cmbRol.Items.Add(rol);
+                foreach (string rol in _rolesOriginales)
+                    _cmbRol.Items.Add(T($"perm.rol.{rol.ToLowerInvariant().Replace(" ", "")}", rol));
 
                 if (_cmbRol.Items.Count > 0)
                     _cmbRol.SelectedIndex = 0;
@@ -109,7 +136,7 @@ namespace GUI
 
         private void MostrarPermisos()
         {
-            string rol = _cmbRol.SelectedItem?.ToString();
+            string rol = RolOriginalActual;
             if (string.IsNullOrEmpty(rol)) return;
 
             try
@@ -126,7 +153,8 @@ namespace GUI
                 _treeView.ExpandAll();
                 _treeView.EndUpdate();
 
-                MostrarOk(string.Format(T("msg.permisos.mostrando", "Mostrando permisos del rol '{0}'."), rol));
+                string rolTrad = _cmbRol.SelectedItem?.ToString() ?? rol;
+                MostrarOk(string.Format(T("msg.permisos.mostrando", "Mostrando permisos del rol '{0}'."), rolTrad));
                 _btnGuardar.Enabled = true;
             }
             catch (Exception ex)
@@ -141,7 +169,9 @@ namespace GUI
         {
             foreach (BE.Componente hijo in componente.Hijos)
             {
-                var nodo = new TreeNode(hijo.Nombre)
+                string prefijo = hijo is BE.Familia ? "perm.grp." : "perm.pat.";
+                string clave   = prefijo + hijo.Nombre.ToLowerInvariant().Replace(" ", "");
+                var nodo = new TreeNode(T(clave, hijo.Nombre))
                 {
                     Tag = hijo
                 };
@@ -172,7 +202,7 @@ namespace GUI
 
         private void GuardarCambios()
         {
-            string rol = _cmbRol.SelectedItem?.ToString();
+            string rol = RolOriginalActual;
             if (string.IsNullOrEmpty(rol)) return;
 
             try
