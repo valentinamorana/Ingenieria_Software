@@ -270,9 +270,26 @@ namespace GUI
             }
 
             if (errores == 0)
+            {
                 MostrarOk($"{guardadas} traducción(es) guardadas correctamente.");
+
+                // Si el idioma editado es el que está activo ahora mismo,
+                // recargar el diccionario desde BD y notificar a todos los observers
+                // para que los forms reflejen los cambios en vivo (requisito T05).
+                var idiomaActual  = GestorIdioma.IdiomaActual;
+                var idiomaEditado = _idiomas.Find(i => i.IdIdioma == _idIdiomaSeleccionado);
+
+                if (idiomaActual != null && idiomaEditado != null
+                    && idiomaEditado.Codigo == idiomaActual.Id)
+                {
+                    var dictActualizado = _bllIdioma.CargarTraducciones(idiomaActual.Id);
+                    GestorIdioma.CambiarIdioma(idiomaActual, dictActualizado);
+                }
+            }
             else
+            {
                 MostrarError($"Se guardaron {guardadas} y fallaron {errores}.");
+            }
         }
     }
 }
