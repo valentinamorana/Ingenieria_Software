@@ -69,13 +69,20 @@ namespace GUI
         private void Traducir(Idioma idioma)
         {
             var t = Traductor.ObtenerTraducciones(idioma);
-            string T(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+            string Tx(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
 
-            this.Text        = T("frm.gestorpermisos",    "Gestor de Perfiles — Permisos");
-            _lblTitulo.Text  = T("lbl.permisos.titulo",   "Perfiles y Permisos");
-            _lblRol.Text     = T("lbl.permisos.rol",      "Rol:");
-            _btnGuardar.Text = T("btn.permisos.guardar",  "Guardar cambios");
-            _btnCerrar.Text  = T("btn.permisos.cerrar",   "Cerrar");
+            this.Text        = Tx("frm.gestorpermisos",    "Gestor de Perfiles — Permisos");
+            _lblTitulo.Text  = Tx("lbl.permisos.titulo",   "Perfiles y Permisos");
+            _lblRol.Text     = Tx("lbl.permisos.rol",      "Rol:");
+            _btnGuardar.Text = Tx("btn.permisos.guardar",  "Guardar cambios");
+            _btnCerrar.Text  = Tx("btn.permisos.cerrar",   "Cerrar");
+        }
+
+        // Helper para traducir claves dinámicas en métodos que no reciben Idioma.
+        private string T(string key, string fallback)
+        {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            return t.ContainsKey(key) ? t[key].Texto : fallback;
         }
 
         // ── Carga de datos ────────────────────────────────────────────────────
@@ -119,7 +126,7 @@ namespace GUI
                 _treeView.ExpandAll();
                 _treeView.EndUpdate();
 
-                MostrarOk($"Mostrando permisos del rol '{rol}'.");
+                MostrarOk(string.Format(T("msg.permisos.mostrando", "Mostrando permisos del rol '{0}'."), rol));
                 _btnGuardar.Enabled = true;
             }
             catch (Exception ex)
@@ -178,7 +185,7 @@ namespace GUI
 
                 // Recargar el árbol para reflejar el estado actualizado
                 MostrarPermisos();
-                MostrarOk($"Cambios guardados: {asignados} permiso(s) asignado(s), {quitados} quitado(s).");
+                MostrarOk(string.Format(T("msg.permisos.guardados", "Cambios guardados: {0} permiso(s) asignado(s), {1} quitado(s)."), asignados, quitados));
             }
             catch (Exception ex)
             {
@@ -241,11 +248,12 @@ namespace GUI
             // ── Título ─────────────────────────────────────────────────────────
             _lblTitulo = new Label
             {
-                Text      = "Perfiles y Permisos",
-                Font      = new Font("Segoe UI", 13f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(40, 80, 140),
-                AutoSize  = true,
-                Location  = new Point(12, 12)
+                Text        = "Perfiles y Permisos",
+                Font        = new Font("Segoe UI", 13f, FontStyle.Bold),
+                ForeColor   = Color.FromArgb(40, 80, 140),
+                AutoSize    = true,
+                Location    = new Point(12, 12),
+                UseMnemonic = false
             };
 
             _lblMensaje = new Label

@@ -65,7 +65,7 @@ namespace BLL
             try
             {
                 var dvDAL = new DAL.DigitoVerificador();
-                var svc   = new Servicios.DigitoVerificador();
+                var svc   = new Seguridad.DigitoVerificador();
                 var filas = dvDAL.ObtenerFilasUsuario();
 
                 if (filas.Count == 0) return true;  // tabla vacía — sin datos que verificar
@@ -163,14 +163,14 @@ namespace BLL
         public static void RecalcularIntegridadDV()
         {
             var dvDAL = new DAL.DigitoVerificador();
-            var svc   = new Servicios.DigitoVerificador();
+            var svc   = new Seguridad.DigitoVerificador();
             var filas = dvDAL.ObtenerFilasUsuario();
             RecalcularTodoDV(dvDAL, svc, filas);
         }
 
         // Helper compartido entre VerificarIntegridadDV (primer arranque) y RecalcularIntegridadDV.
         private static void RecalcularTodoDV(DAL.DigitoVerificador dvDAL,
-                                              Servicios.DigitoVerificador svc,
+                                              Seguridad.DigitoVerificador svc,
                                               List<DAL.FilaUsuarioDV> filas)
         {
             var dvhValues = new List<int>();

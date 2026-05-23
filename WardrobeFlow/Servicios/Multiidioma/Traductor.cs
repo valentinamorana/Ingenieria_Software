@@ -60,22 +60,40 @@ namespace Servicios.Multiidioma
         // ── Traducciones ──────────────────────────────────────────────────────
 
         /// <summary>
-        /// Devuelve el diccionario completo de traducciones para el idioma dado.
-        /// Si el idioma es null devuelve el idioma por defecto (ES).
+        /// Devuelve el diccionario de traducciones para el idioma dado.
         ///
-        /// Equivalente a Traductor.ObtenerTraducciones(idioma) del ejemplo de cátedra,
-        /// pero usando diccionarios en memoria en lugar de consulta SQL.
+        /// Flujo con BD activa:
+        ///   GestorIdioma.TradActuales tiene el dict cargado por BLL desde SQL.
+        ///   Este método lo envuelve en IDictionary&lt;string, Traduccion&gt; para
+        ///   mantener la firma que esperan todos los formularios existentes.
+        ///
+        /// Fallback hardcodeado:
+        ///   Si TradActuales está vacío (primer arranque o error de BD),
+        ///   devuelve los diccionarios hardcodeados originales.
         /// </summary>
         public static IDictionary<string, Traduccion> ObtenerTraducciones(Idioma idioma = null)
         {
             if (idioma == null)
                 idioma = ObtenerIdiomaDefault();
 
+            // Prioridad: cache cargado desde BD por BLL.Idioma.CargarTraducciones()
+            var cache = GestorIdioma.TradActuales;
+            if (cache != null && cache.Count > 0)
+                return Construir(new System.Collections.Generic.Dictionary<string, string>(cache));
+
+            // Fallback: dicts hardcodeados (primer arranque o sin conexión)
+            return ObtenerTraduccionesHardcode(idioma);
+        }
+
+        // Expuesto para que BLL.Idioma pueda leer los dicts hardcodeados en el seeding.
+        public static IDictionary<string, Traduccion> ObtenerTraduccionesHardcode(Idioma idioma)
+        {
+            if (idioma == null) idioma = ObtenerIdiomaDefault();
             switch (idioma.Id)
             {
                 case "EN": return _en;
                 case "RU": return _ru;
-                default:   return _es;  // ES es el fallback
+                default:   return _es;
             }
         }
 
@@ -106,8 +124,10 @@ namespace Servicios.Multiidioma
             { "mnu.pedidosreal",  "Pedidos Realizados"             },
             { "mnu.administrar",  "Administrar"                    },
             { "mnu.usuarios",     "Usuarios"                       },
+            { "mnu.perfiles",     "Perfiles y Permisos"            },
             { "mnu.bitacora",     "Bitácora"                       },
             { "mnu.cerrarsesion", "Cerrar Sesion"                  },
+            { "mnu.idiomas",      "Gestión de Idiomas"             },
             // Clientes
             { "frm.clientes",     "Gestión de Clientes"            },
             { "lbl.buscar",       "Buscar:"                        },
@@ -471,6 +491,21 @@ namespace Servicios.Multiidioma
             { "conf.resetmasivo.titulo", "Resetear todas las claves"                              },
             { "conf.resetmasivo.body",   "Esto va a resetear la contraseña de TODOS los usuarios a:\n\n   {0}\n\nComunicate con cada empleado para que la cambien.\n\n¿Confirmar?" },
             { "msg.usr.resetmasivo",     "Todas las claves fueron reseteadas a: {0}"              },
+            // GestorPermisos
+            { "frm.gestorpermisos",      "Gestor de Perfiles — Permisos"                          },
+            { "lbl.permisos.titulo",     "Perfiles y Permisos"                                    },
+            { "lbl.permisos.rol",        "Rol:"                                                   },
+            { "btn.permisos.guardar",    "Guardar cambios"                                        },
+            { "btn.permisos.cerrar",     "Cerrar"                                                 },
+            { "msg.permisos.mostrando",  "Mostrando permisos del rol '{0}'."                      },
+            { "msg.permisos.guardados",  "Cambios guardados: {0} permiso(s) asignado(s), {1} quitado(s)." },
+            // FormIdiomas
+            { "frm.idiomas",             "Gestión de Idiomas"                                     },
+            { "lbl.idiomas.titulo",      "Idiomas del sistema"                                    },
+            { "lbl.idiomas.trad",        "Traducciones del idioma seleccionado"                   },
+            { "btn.idiomas.activar",     "✔ Activar"                                              },
+            { "btn.idiomas.desactivar",  "✕ Desactivar"                                           },
+            { "btn.idiomas.guardar",     "💾 Guardar cambios"                                     },
         });
 
         // ── Diccionario English (EN) ──────────────────────────────────────────
@@ -500,8 +535,10 @@ namespace Servicios.Multiidioma
             { "mnu.pedidosreal",  "Fulfilled Orders"                },
             { "mnu.administrar",  "Administration"                  },
             { "mnu.usuarios",     "Users"                           },
+            { "mnu.perfiles",     "Profiles & Permissions"          },
             { "mnu.bitacora",     "Audit Log"                       },
             { "mnu.cerrarsesion", "Sign Out"                        },
+            { "mnu.idiomas",      "Language Management"            },
             // Clients
             { "frm.clientes",     "Client Management"              },
             { "lbl.buscar",       "Search:"                        },
@@ -861,6 +898,21 @@ namespace Servicios.Multiidioma
             { "conf.resetmasivo.titulo", "Reset all passwords"                                  },
             { "conf.resetmasivo.body",   "This will reset the password of ALL users to:\n\n   {0}\n\nNotify each employee to change it.\n\nConfirm?" },
             { "msg.usr.resetmasivo",     "All passwords have been reset to: {0}"               },
+            // GestorPermisos
+            { "frm.gestorpermisos",      "Profile and Permission Manager"                        },
+            { "lbl.permisos.titulo",     "Profiles and Permissions"                              },
+            { "lbl.permisos.rol",        "Role:"                                                 },
+            { "btn.permisos.guardar",    "Save changes"                                          },
+            { "btn.permisos.cerrar",     "Close"                                                 },
+            { "msg.permisos.mostrando",  "Showing permissions for role '{0}'."                   },
+            { "msg.permisos.guardados",  "Changes saved: {0} permission(s) assigned, {1} removed." },
+            // FormIdiomas
+            { "frm.idiomas",             "Language Management"                                   },
+            { "lbl.idiomas.titulo",      "System Languages"                                      },
+            { "lbl.idiomas.trad",        "Translations for the selected language"                },
+            { "btn.idiomas.activar",     "✔ Activate"                                            },
+            { "btn.idiomas.desactivar",  "✕ Deactivate"                                          },
+            { "btn.idiomas.guardar",     "💾 Save changes"                                       },
         });
 
         // ── Diccionario Русский (RU) ──────────────────────────────────────────
@@ -890,8 +942,10 @@ namespace Servicios.Multiidioma
             { "mnu.pedidosreal",  "Выполненные заказы"                     },
             { "mnu.administrar",  "Администрирование"                      },
             { "mnu.usuarios",     "Пользователи"                           },
+            { "mnu.perfiles",     "Профили и права"                        },
             { "mnu.bitacora",     "Журнал аудита"                          },
             { "mnu.cerrarsesion", "Выйти из системы"                       },
+            { "mnu.idiomas",      "Управление языками"                     },
             // Клиенты
             { "frm.clientes",     "Управление клиентами"                   },
             { "lbl.buscar",       "Поиск:"                                 },
@@ -1251,6 +1305,21 @@ namespace Servicios.Multiidioma
             { "conf.resetmasivo.titulo", "Сбросить все пароли"                                  },
             { "conf.resetmasivo.body",   "Все пароли будут сброшены к:\n\n   {0}\n\nСообщите каждому сотруднику о необходимости их изменить.\n\nПодтвердить?" },
             { "msg.usr.resetmasivo",     "Все пароли сброшены к: {0}"                           },
+            // GestorPermisos
+            { "frm.gestorpermisos",      "Менеджер профилей — права"                             },
+            { "lbl.permisos.titulo",     "Профили и права"                                       },
+            { "lbl.permisos.rol",        "Роль:"                                                 },
+            { "btn.permisos.guardar",    "Сохранить"                                             },
+            { "btn.permisos.cerrar",     "Закрыть"                                               },
+            { "msg.permisos.mostrando",  "Показ прав роли '{0}'."                               },
+            { "msg.permisos.guardados",  "Изменения сохранены: назначено {0}, убрано {1}."      },
+            // FormIdiomas
+            { "frm.idiomas",             "Управление языками"                                    },
+            { "lbl.idiomas.titulo",      "Языки системы"                                         },
+            { "lbl.idiomas.trad",        "Переводы для выбранного языка"                         },
+            { "btn.idiomas.activar",     "✔ Включить"                                            },
+            { "btn.idiomas.desactivar",  "✕ Отключить"                                           },
+            { "btn.idiomas.guardar",     "💾 Сохранить"                                          },
         });
 
         // ── Constructor de diccionario ────────────────────────────────────────

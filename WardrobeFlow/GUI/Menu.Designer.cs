@@ -46,6 +46,7 @@
             this.gestionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.usuariosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.perfilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.idiomasToolStripMenuItem  = new System.Windows.Forms.ToolStripMenuItem();
             this.bitacoraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -169,7 +170,8 @@
             // 
             this.gestionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.usuariosToolStripMenuItem,
-            this.perfilesToolStripMenuItem});
+            this.perfilesToolStripMenuItem,
+            this.idiomasToolStripMenuItem});
             this.gestionToolStripMenuItem.Name = "gestionToolStripMenuItem";
             this.gestionToolStripMenuItem.Tag = "mnu.administrar";
             this.gestionToolStripMenuItem.Size = new System.Drawing.Size(81, 20);
@@ -190,7 +192,15 @@
             this.perfilesToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.perfilesToolStripMenuItem.Text = "Perfiles y Permisos";
             this.perfilesToolStripMenuItem.Click += new System.EventHandler(this.perfilesToolStripMenuItem_Click);
-            // 
+            //
+            // idiomasToolStripMenuItem
+            //
+            this.idiomasToolStripMenuItem.Name = "idiomasToolStripMenuItem";
+            this.idiomasToolStripMenuItem.Tag = "mnu.idiomas";
+            this.idiomasToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.idiomasToolStripMenuItem.Text = "Gestión de Idiomas";
+            this.idiomasToolStripMenuItem.Click += new System.EventHandler(this.idiomasToolStripMenuItem_Click);
+            //
             // bitacoraToolStripMenuItem
             // 
             this.bitacoraToolStripMenuItem.Name = "bitacoraToolStripMenuItem";
@@ -238,5 +248,6 @@
         private System.Windows.Forms.ToolStripMenuItem planesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pedidosVentaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pedidosRealizadosToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem idiomasToolStripMenuItem;
     }
 }

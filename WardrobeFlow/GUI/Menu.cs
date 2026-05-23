@@ -41,6 +41,8 @@ namespace GUI
         private ToolStripButton _btnES, _btnEN, _btnRU;
         // Label "Idioma:" / "Language:" / "Язык:" — dinámico por Observer
         private ToolStripLabel _lblIdioma;
+        // Usuario cargado en el constructor; reutilizado en OnLoad para no hacer dos SELECT
+        private BE.Usuario _usuarioActivo;
 
         public Menu()
         {
@@ -84,17 +86,16 @@ namespace GUI
             MarcarIdiomaActivo("ES");
 
             // Obtener usuario activo via BLL (GUI nunca toca SessionManager directamente)
-            BLL.Usuario bll = new BLL.Usuario();
-            BE.Usuario usuarioActivo = bll.ObtenerUsuarioActivo();
+            _usuarioActivo = new BLL.Usuario().ObtenerUsuarioActivo();
 
-            if (usuarioActivo != null)
+            if (_usuarioActivo != null)
             {
-                this.Text = "WardrobeFlow  —  " + usuarioActivo.Username +
-                            (usuarioActivo.Perfil != null ? "  [" + usuarioActivo.Perfil + "]" : "");
+                this.Text = "WardrobeFlow  —  " + _usuarioActivo.Username +
+                            (_usuarioActivo.Perfil != null ? "  [" + _usuarioActivo.Perfil + "]" : "");
             }
 
             // Construir menú dinámico según permisos del rol
-            AplicarPermisos(usuarioActivo?.Permisos);
+            AplicarPermisos(_usuarioActivo?.Permisos);
         }
 
         /// <summary>
@@ -197,7 +198,8 @@ namespace GUI
             // ── Administrar (Usuarios + Perfiles) ─────────────────────────────
             bool tieneUsuarios = nombresMenu.Contains("mnuUsuarios");
             usuariosToolStripMenuItem.Visible = tieneUsuarios;
-            perfilesToolStripMenuItem.Visible = tieneUsuarios;   // solo Administrador ve el gestor
+            perfilesToolStripMenuItem.Visible = tieneUsuarios;
+            idiomasToolStripMenuItem.Visible  = tieneUsuarios;   // solo Admin gestiona traducciones
             gestionToolStripMenuItem.Visible  = tieneUsuarios;
 
             // ── Bitácora ──────────────────────────────────────────────────────
@@ -304,6 +306,15 @@ namespace GUI
                 if (hijo is GestorPermisos) { hijo.BringToFront(); return; }
             }
             new GestorPermisos { MdiParent = this }.Show();
+        }
+
+        private void idiomasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Form hijo in this.MdiChildren)
+            {
+                if (hijo is FormIdiomas) { hijo.BringToFront(); return; }
+            }
+            new FormIdiomas { MdiParent = this }.Show();
         }
 
         /// <summary>
@@ -423,22 +434,26 @@ namespace GUI
             // Suscribirse al Observer de idioma
             GestorIdioma.SuscribirObservador(this);
 
-            // Restaurar preferencia de idioma del usuario logueado (patrón del ejemplo de cátedra)
-            BLL.Usuario bllIdioma = new BLL.Usuario();
-            BE.Usuario usuarioParaIdioma = bllIdioma.ObtenerUsuarioActivo();
-            if (usuarioParaIdioma != null && !string.IsNullOrEmpty(usuarioParaIdioma.IdIdioma))
+            // Continuar con el idioma activo en el Login (seleccionado por el usuario).
+            // El DB preference se aplica cuando el usuario clickea un botón en el Menu.
+            string codigoPref = GestorIdioma.IdiomaActual?.Id ?? "ES";
+
+            try
             {
+                var dictTrad = new BLL.IdiomaService().CargarTraducciones(codigoPref);
                 foreach (var idm in Traductor.ObtenerIdiomas())
                 {
-                    if (idm.Id == usuarioParaIdioma.IdIdioma)
+                    if (idm.Id == codigoPref)
                     {
-                        GestorIdioma.CambiarIdioma(idm);
+                        GestorIdioma.CambiarIdioma(idm, dictTrad);
+                        MarcarIdiomaActivo(codigoPref);
                         break;
                     }
                 }
             }
-            else
+            catch
             {
+                // Sin conexión: usa fallback hardcodeado
                 Traducir(GestorIdioma.IdiomaActual);
             }
         }
@@ -488,6 +503,7 @@ namespace GUI
             Aplicar(gestionToolStripMenuItem,           t);
             Aplicar(usuariosToolStripMenuItem,          t);
             Aplicar(perfilesToolStripMenuItem,          t);
+            Aplicar(idiomasToolStripMenuItem,           t);
             Aplicar(bitacoraToolStripMenuItem,          t);
             Aplicar(cerrarSesionToolStripMenuItem,      t);
         }
@@ -526,24 +542,32 @@ namespace GUI
             {
                 foreach (var idioma in Traductor.ObtenerIdiomas())
                 {
-                    if (idioma.Id == codigoIdioma)
-                    {
-                        GestorIdioma.CambiarIdioma(idioma);
+                    if (idioma.Id != codigoIdioma) continue;
 
-                        // Persistir preferencia en DB (patrón cátedra: idioma almacenado en Usuario)
-                        try
-                        {
-                            var userActivo = new BLL.Usuario().ObtenerUsuarioActivo();
-                            if (userActivo != null)
-                                new BLL.Usuario().GuardarPreferenciaIdioma(userActivo.Id, codigoIdioma);
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine(
-                                $"[Menu] Error al guardar preferencia de idioma: {ex.Message}");
-                        }
-                        break;
+                    try
+                    {
+                        // Un solo SELECT a BD → cache en GestorIdioma → todos los forms se traducen
+                        var dictTrad = new BLL.IdiomaService().CargarTraducciones(codigoIdioma);
+                        GestorIdioma.CambiarIdioma(idioma, dictTrad);
                     }
+                    catch
+                    {
+                        // Sin conexión: usa fallback hardcodeado
+                        GestorIdioma.CambiarIdioma(idioma);
+                    }
+
+                    // Persistir preferencia en BD — reutiliza el campo del formulario
+                    try
+                    {
+                        if (_usuarioActivo != null)
+                            new BLL.Usuario().GuardarPreferenciaIdioma(_usuarioActivo.Id, codigoIdioma);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            $"[Menu] Error al guardar preferencia de idioma: {ex.Message}");
+                    }
+                    break;
                 }
             };
             return btn;

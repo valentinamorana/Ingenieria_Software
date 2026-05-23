@@ -44,7 +44,6 @@
   <ItemGroup>
     <Compile Include="Bitacora.cs" />
     <Compile Include="BitacoraNegocio.cs" />
-    <Compile Include="DigitoVerificador.cs" />
     <Compile Include="Multiidioma\Etiqueta.cs" />
     <Compile Include="Multiidioma\GestorIdioma.cs" />
     <Compile Include="Multiidioma\IIdiomaObserver.cs" />

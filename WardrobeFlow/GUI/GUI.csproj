@@ -134,6 +134,12 @@
     <Compile Include="Login.Designer.cs">
       <DependentUpon>Login.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormIdiomas.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormIdiomas.Designer.cs">
+      <DependentUpon>FormIdiomas.cs</DependentUpon>
+    </Compile>
     <Compile Include="Menu.cs">
       <SubType>Form</SubType>
     </Compile>
