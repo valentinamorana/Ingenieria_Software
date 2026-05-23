@@ -270,7 +270,7 @@ namespace GUI
 
             try
             {
-                usuarioBLL.Alta(this, username, password, perfil);
+                usuarioBLL.Alta(this.Text, username, password, perfil);
 
                 // Limpiar campos y refrescar lista
                 txtUsername.Clear();
@@ -314,7 +314,7 @@ namespace GUI
 
             try
             {
-                usuarioBLL.ResetearClave(this, idUsuario, nuevaClave);
+                usuarioBLL.ResetearClave(this.Text, idUsuario, nuevaClave);
                 MostrarOk(string.Format(T_r("msg.usr.clave.reseteada", "Contraseña de '{0}' reseteada correctamente."), username));
             }
             catch (Exception ex)
@@ -353,7 +353,7 @@ namespace GUI
 
             try
             {
-                usuarioBLL.Desbloquear(this, idUsuario, username);
+                usuarioBLL.Desbloquear(this.Text, idUsuario, username);
                 CargarUsuarios();
                 MostrarOk(string.Format(T_d("msg.usr.desbloqueada", "Cuenta '{0}' desbloqueada correctamente."), username));
             }
@@ -398,7 +398,7 @@ namespace GUI
 
             try
             {
-                usuarioBLL.ResetearTodasLasClaves(this, claveTemporal);
+                usuarioBLL.ResetearTodasLasClaves(this.Text, claveTemporal);
                 MostrarOk(string.Format(T_m("msg.usr.resetmasivo", "Todas las claves fueron reseteadas a: {0}"), claveTemporal));
             }
             catch (Exception ex)

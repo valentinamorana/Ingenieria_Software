@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Windows.Forms;
 
 namespace BLL.Interfaces
 {
@@ -31,23 +30,23 @@ namespace BLL.Interfaces
 
         // Crea un nuevo pedido de venta validando plan, límites y disponibilidad de prendas.
         // Devuelve el ID del pedido creado.
-        int CrearPedido(Form formulario, int idCliente, List<BE.Prenda> prendas);
+        int CrearPedido(string modulo, int idCliente, List<BE.Prenda> prendas);
 
         // Marca el pedido como Despachado. Solo válido desde estado Pendiente.
-        void Despachar(Form formulario, BE.Pedido pedido);
+        void Despachar(string modulo, BE.Pedido pedido);
 
         // Marca el pedido como Entregado. Solo válido desde estado Despachado.
-        void MarcarEntregado(Form formulario, BE.Pedido pedido);
+        void MarcarEntregado(string modulo, BE.Pedido pedido);
 
         // Registra la devolución de prendas por parte del cliente.
         // Libera las prendas a estado Disponible o EnLimpieza según configuración.
-        void RegistrarDevolucion(Form formulario, BE.Pedido pedido);
+        void RegistrarDevolucion(string modulo, BE.Pedido pedido);
 
         // Cancela un pedido Pendiente con un motivo obligatorio.
-        void Cancelar(Form formulario, BE.Pedido pedido, string motivo);
+        void Cancelar(string modulo, BE.Pedido pedido, string motivo);
 
         // Revierte la cancelación de un pedido si las prendas siguen disponibles.
-        void DesCancelar(Form formulario, BE.Pedido pedido);
+        void DesCancelar(string modulo, BE.Pedido pedido);
 
         // Devuelve el historial de cambios de un pedido con filtros opcionales.
         System.Data.DataTable ObtenerHistorial(int idPedido, string accion = null,
@@ -55,6 +54,6 @@ namespace BLL.Interfaces
                                                System.DateTime? hasta = null);
 
         // Restaura el pedido al estado previo a la operación indicada.
-        void RestaurarOperacion(Form formulario, int idPedido, int idOperacion);
+        void RestaurarOperacion(string modulo, int idPedido, int idOperacion);
     }
 }

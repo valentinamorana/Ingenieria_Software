@@ -218,7 +218,7 @@ namespace GUI
                 if (form.ShowDialog(this) != DialogResult.OK) return;
                 try
                 {
-                    clienteBLL.Alta(this, form.ClienteEditado);
+                    clienteBLL.Alta(this.Text, form.ClienteEditado);
                     MostrarOk($"Cliente '{form.ClienteEditado.NombreCompleto}' registrado correctamente.");
                     CargarClientes();
                 }
@@ -242,7 +242,7 @@ namespace GUI
                     // Preservar stock utilizado (no viene del form)
                     form.ClienteEditado.StockUtilizado = cliente.StockUtilizado;
 
-                    clienteBLL.Modificar(this, form.ClienteEditado);
+                    clienteBLL.Modificar(this.Text, form.ClienteEditado);
                     MostrarOk($"Cliente '{form.ClienteEditado.NombreCompleto}' actualizado.");
                     CargarClientes();
                 }
@@ -270,7 +270,7 @@ namespace GUI
 
             try
             {
-                clienteBLL.Baja(this, cliente);
+                clienteBLL.Baja(this.Text, cliente);
                 MostrarOk($"Cliente '{cliente.NombreCompleto}' eliminado.");
                 CargarClientes();
             }

@@ -209,7 +209,7 @@ namespace GUI
 
             try
             {
-                bool esValido = usuarioBLL.Login(this, txtUsuario.Text, txtContraseña.Text);
+                bool esValido = usuarioBLL.Login(this.Text, txtUsuario.Text, txtContraseña.Text);
 
                 if (esValido)
                 {

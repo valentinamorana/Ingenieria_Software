@@ -418,7 +418,7 @@ namespace GUI
 
             try
             {
-                pedidoBLL.Despachar(this, pedido);
+                pedidoBLL.Despachar(this.Text, pedido);
                 MostrarOk(string.Format(T_desp("msg.ped.despachado", "Pedido #{0} despachado correctamente."), pedido.IdPedido));
                 CargarPedidos();
             }
@@ -447,7 +447,7 @@ namespace GUI
 
             try
             {
-                pedidoBLL.MarcarEntregado(this, pedido);
+                pedidoBLL.MarcarEntregado(this.Text, pedido);
                 MostrarOk(string.Format(T_entr("msg.ped.entregado", "Pedido #{0} marcado como Entregado."), pedido.IdPedido));
                 CargarPedidos();
             }
@@ -479,7 +479,7 @@ namespace GUI
 
             try
             {
-                pedidoBLL.RegistrarDevolucion(this, pedidoCompleto);
+                pedidoBLL.RegistrarDevolucion(this.Text, pedidoCompleto);
                 MostrarOk(string.Format(T_dev("msg.ped.devolucion", "Devolución registrada — {0} prenda(s) pasan a EnLimpieza."), pedidoCompleto.CantidadPrendas));
                 CargarPedidos();
             }

@@ -234,7 +234,7 @@ namespace GUI
 
             try
             {
-                _pedidoBLL.RestaurarOperacion(this, _idPedido, idOperacion);
+                _pedidoBLL.RestaurarOperacion(this.Text, _idPedido, idOperacion);
                 MostrarOk($"Pedido #{_idPedido} restaurado correctamente.");
                 Buscar();   // Recargar historial para ver el evento RESTAURAR
             }

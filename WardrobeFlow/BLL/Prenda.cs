@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 
 namespace BLL
 {
@@ -17,7 +16,7 @@ namespace BLL
         public BE.Prenda       ObtenerPorId(int idPrenda)      => dalPrenda.ObtenerPorId(idPrenda);
 
         // Da de alta una nueva prenda. Estado inicial siempre Disponible.
-        public void Alta(Form formulario, BE.Prenda prenda)
+        public void Alta(string modulo, BE.Prenda prenda)
         {
             Validar(prenda);
             prenda.Estado    = BE.EstadoPrenda.Disponible;
@@ -26,7 +25,7 @@ namespace BLL
             int idNuevo = dalPrenda.Alta(prenda);
             prenda.IdPrenda = idNuevo;
 
-            bitacora.Registrar(formulario.Text,
+            bitacora.Registrar(modulo,
                 $"Alta Prenda: {prenda.Nombre} (Talle {prenda.Talle}, {prenda.Color})",
                 BE.Criticidad.Baja);
 
@@ -38,12 +37,12 @@ namespace BLL
 
         // Modifica los datos descriptivos de una prenda.
         // No afecta estado ni cliente asignado.
-        public void Modificar(Form formulario, BE.Prenda prenda)
+        public void Modificar(string modulo, BE.Prenda prenda)
         {
             Validar(prenda);
             dalPrenda.Modificar(prenda);
 
-            bitacora.Registrar(formulario.Text,
+            bitacora.Registrar(modulo,
                 $"Modificar Prenda ID {prenda.IdPrenda}: {prenda.Nombre}",
                 BE.Criticidad.Baja);
 
@@ -53,7 +52,7 @@ namespace BLL
         }
 
         // Cambia el estado de una prenda validando la transición.
-        public void CambiarEstado(Form formulario, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado)
+        public void CambiarEstado(string modulo, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado)
         {
             if (!prenda.TransicionPermitida(nuevoEstado))
             {
@@ -68,7 +67,7 @@ namespace BLL
 
             dalPrenda.CambiarEstado(prenda.IdPrenda, nuevoEstado, idCliente);
 
-            bitacora.Registrar(formulario.Text,
+            bitacora.Registrar(modulo,
                 $"Estado Prenda ID {prenda.IdPrenda} '{prenda.Nombre}': {prenda.Estado} → {nuevoEstado}",
                 BE.Criticidad.Media);
 

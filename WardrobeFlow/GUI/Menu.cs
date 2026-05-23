@@ -213,7 +213,7 @@ namespace GUI
         {
             if (ConfirmarCerrarSesion())
             {
-                new BLL.Usuario().Logout(this);
+                new BLL.Usuario().Logout(this.Text);
                 Application.Restart();
             }
         }

@@ -222,15 +222,15 @@ namespace GUI
             int seleccionadas = ContarSeleccionadas();
             int enUso         = _clienteSel?.StockUtilizado ?? 0;
             int limite        = _clienteSel?.LimitePrendas  ?? 0;
+            int disponibles   = _clienteSel?.PrendasDisponiblesEnPlan() ?? 0;
             int total         = enUso + seleccionadas;
-            int disponibles   = Math.Max(0, limite - enUso); // cuántas puede agregar
 
             string linea1 = $"Seleccionadas: {seleccionadas}  |  Ya en uso: {enUso}  |  Total: {total}";
             string linea2 = "";
 
             if (limite > 0)
             {
-                if (total > limite)
+                if (!_clienteSel.PuedeSolicitarPrendas(seleccionadas))
                 {
                     linea2 = $"✗ El plan '{_clienteSel?.NombrePlan}' permite {limite} prenda(s). " +
                              $"Estás superando el límite por {total - limite}.";
@@ -252,7 +252,6 @@ namespace GUI
                 }
                 else
                 {
-                    // seleccionadas == disponibles (límite exacto)
                     linea2 = $"✓ Alcanzás el máximo del plan '{_clienteSel?.NombrePlan}' ({limite} prendas).";
                     lblResumen.ForeColor  = Color.DarkGreen;
                     btnConfirmar.Enabled  = true;
@@ -326,7 +325,7 @@ namespace GUI
                 var tp = Traductor.ObtenerTraducciones(_idioma);
                 btnConfirmar.Text = tp.ContainsKey("btn.procesando") ? tp["btn.procesando"].Texto : "Procesando...";
 
-                IdPedidoCreado = pedidoBLL.CrearPedido(this, _clienteSel.IdCliente, prendas);
+                IdPedidoCreado = pedidoBLL.CrearPedido(this.Text, _clienteSel.IdCliente, prendas);
 
                 this.DialogResult = DialogResult.OK;
                 this.Close();

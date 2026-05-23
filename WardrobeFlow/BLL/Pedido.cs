@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace BLL
 {
@@ -25,7 +24,7 @@ namespace BLL
 
         // Crear Pedido 
         // Crea un nuevo pedido para un cliente. Devuelve el ID generado.
-        public int CrearPedido(Form formulario, int idCliente, List<BE.Prenda> prendas)
+        public int CrearPedido(string modulo, int idCliente, List<BE.Prenda> prendas)
         {
             ValidarParametrosEntrada(prendas);
 
@@ -42,14 +41,14 @@ namespace BLL
                 ("FechaPedido", null, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))
             });
 
-            LogCrearPedido(formulario, idNuevo, cliente, plan, prendas.Count);
+            LogCrearPedido(modulo, idNuevo, cliente, plan, prendas.Count);
 
             return idNuevo;
         }
 
         // Despachar
         // Marca el pedido como Despachado.
-        public void Despachar(Form formulario, BE.Pedido pedido)
+        public void Despachar(string modulo, BE.Pedido pedido)
         {
             if (!pedido.PuedeDespachar())
                 throw new Exception(
@@ -64,7 +63,7 @@ namespace BLL
                 ("FechaDespacho", pedido.FechaDespacho?.ToString("yyyy-MM-dd HH:mm:ss"), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))
             });
 
-            bitacora.Registrar(formulario.Text,
+            bitacora.Registrar(modulo,
                 $"Despachar Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente} — " +
                 $"{pedido.CantidadPrendas} prenda(s)",
                 BE.Criticidad.Media);
@@ -79,7 +78,7 @@ namespace BLL
 
         //Marcar Entregado 
         // Marca el pedido como Entregado.
-        public void MarcarEntregado(Form formulario, BE.Pedido pedido)
+        public void MarcarEntregado(string modulo, BE.Pedido pedido)
         {
             if (!pedido.PuedeEntregarse())
                 throw new Exception(
@@ -94,7 +93,7 @@ namespace BLL
                 ("FechaEntrega", pedido.FechaEntrega?.ToString("yyyy-MM-dd HH:mm:ss"), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"))
             });
 
-            bitacora.Registrar(formulario.Text,
+            bitacora.Registrar(modulo,
                 $"Entrega Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente}",
                 BE.Criticidad.Baja);
 
@@ -107,7 +106,7 @@ namespace BLL
 
         // Registrar Devolución
         // Registra la devolución de prendas de un pedido Entregado.
-        public void RegistrarDevolucion(Form formulario, BE.Pedido pedido)
+        public void RegistrarDevolucion(string modulo, BE.Pedido pedido)
         {
             if (pedido.Estado != BE.EstadoPedido.Entregado)
                 throw new Exception(
@@ -121,7 +120,7 @@ namespace BLL
                 ("Prendas", "EnUso", $"EnLimpieza ({pedido.CantidadPrendas} prenda(s))")
             });
 
-            bitacora.Registrar(formulario.Text,
+            bitacora.Registrar(modulo,
                 $"Devolución Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente} — " +
                 $"{pedido.CantidadPrendas} prenda(s) devuelta(s)",
                 BE.Criticidad.Baja);
@@ -136,7 +135,7 @@ namespace BLL
 
         // Cancelar
         // Cancela un pedido Pendiente. Requiere motivo.
-        public void Cancelar(Form formulario, BE.Pedido pedido, string motivo)
+        public void Cancelar(string modulo, BE.Pedido pedido, string motivo)
         {
             if (!pedido.PuedeCancelarse())
                 throw new Exception(
@@ -154,7 +153,7 @@ namespace BLL
                 ("MotivoCancelacion",  pedido.MotivoCancelacion,           motivo.Trim())
             });
 
-            bitacora.Registrar(formulario.Text,
+            bitacora.Registrar(modulo,
                 $"Cancelar Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente} — Motivo: {motivo}",
                 BE.Criticidad.Media);
 
@@ -167,7 +166,7 @@ namespace BLL
 
         // Des-Cancelar
         // Revierte la cancelación si todas las prendas siguen Disponibles.
-        public void DesCancelar(Form formulario, BE.Pedido pedido)
+        public void DesCancelar(string modulo, BE.Pedido pedido)
         {
             if (!pedido.PuedeDesCancelarse())
                 throw new Exception(
@@ -186,7 +185,7 @@ namespace BLL
                 ("MotivoCancelacion", pedido.MotivoCancelacion,          null)
             });
 
-            bitacora.Registrar(formulario.Text,
+            bitacora.Registrar(modulo,
                 $"Des-cancelar Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente}",
                 BE.Criticidad.Media);
 
@@ -272,10 +271,10 @@ namespace BLL
         }
 
         // Registra la creación del pedido en bitácora del sistema y de negocio.
-        private void LogCrearPedido(Form formulario, int idPedido,
+        private void LogCrearPedido(string modulo, int idPedido,
                                     BE.Cliente cliente, BE.PlanSuscripcion plan, int cantidadPrendas)
         {
-            bitacora.Registrar(formulario.Text,
+            bitacora.Registrar(modulo,
                 $"CrearPedido #{idPedido} — Cliente: {cliente.NombreCompleto} — " +
                 $"{cantidadPrendas} prenda(s) — Plan: {plan.Nombre}",
                 BE.Criticidad.Media);
@@ -350,7 +349,7 @@ namespace BLL
         /// Restaura el pedido al estado previo a la operación indicada (por IdOperacion).
         /// Revierte cada campo al ValorAnterior registrado y escribe un evento RESTAURAR.
         /// </summary>
-        public void RestaurarOperacion(Form formulario, int idPedido, int idOperacion)
+        public void RestaurarOperacion(string modulo, int idPedido, int idOperacion)
         {
             var cambios = dalHistorial.ObtenerPorOperacion(idPedido, idOperacion);
             if (cambios == null || cambios.Count == 0)
@@ -365,7 +364,7 @@ namespace BLL
             RegistrarHistorial(idPedido, "RESTAURAR",
                 cambios.Select(c => (c.Campo, c.ValorNuevo, c.ValorAnterior)).ToList());
 
-            bitacora.Registrar(formulario.Text,
+            bitacora.Registrar(modulo,
                 $"Restaurar Pedido #{idPedido} — Revertida operación '{accionOriginal}' (op. #{idOperacion})",
                 BE.Criticidad.Alta);
 

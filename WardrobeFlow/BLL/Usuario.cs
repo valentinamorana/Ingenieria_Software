@@ -2,7 +2,6 @@ using Seguridad;
 using Servicios;
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 
 namespace BLL
 {
@@ -17,7 +16,7 @@ namespace BLL
         private const string RolAdministrador    = "Administrador";
 
         /// <summary>Autentica al usuario y establece la sesión. Bloquea la cuenta tras 3 intentos fallidos.</summary>
-        public bool Login(Form formulario, string username, string contraseña)
+        public bool Login(string modulo, string username, string contraseña)
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(contraseña))
                 throw new Exception("Usuario y contraseña son obligatorios.");
@@ -37,19 +36,19 @@ namespace BLL
                 usuarioDAL.ResetearIntentosFallidos(username);
                 usuario.Permisos = permisoDAL.ObtenerPorRol(usuario.Rol ?? usuario.Perfil);
                 SessionManager.Login(usuario);
-                bitacora.Registrar(formulario.Text, "Inicio Sesion", BE.Criticidad.None);
+                bitacora.Registrar(modulo, "Inicio Sesion", BE.Criticidad.None);
             }
             else
             {
                 usuarioDAL.IncrementarIntentosFallidos(username);
                 int intentos = usuario.IntentosFallidos + 1;
 
-                RegistrarIntentoFallidoInterno(formulario.Text, username, intentos, usuario.Id);
+                RegistrarIntentoFallidoInterno(modulo, username, intentos, usuario.Id);
 
                 if (intentos >= MaxIntentosFallidos)
                 {
                     usuarioDAL.Bloquear(usuario.Id);
-                    RegistrarBloqueo(formulario.Text, username, usuario.Id);
+                    RegistrarBloqueo(modulo, username, usuario.Id);
 
                     throw new Exception(
                         $"La cuenta '{username}' ha sido bloqueada tras {MaxIntentosFallidos} " +
@@ -67,9 +66,9 @@ namespace BLL
         }
        
         // Cierra la sesión: registra en bitácora y destruye la sesión Singleton.
-        public void Logout(Form formulario)
+        public void Logout(string modulo)
         {
-            bitacora.Registrar(formulario.Text, "Cierre Sesion", BE.Criticidad.None);
+            bitacora.Registrar(modulo, "Cierre Sesion", BE.Criticidad.None);
             usuarioDAL.Logout();
             SessionManager.Logout();
         }
@@ -77,7 +76,7 @@ namespace BLL
         // Crea un nuevo usuario con rol y contraseña hasheada.
         // Acepta tanto el nombre visible del perfil ("Controlador de Stock")
         // como el código interno ("ControladorDeStock") — normaliza internamente.
-        public void Alta(Form formulario, string username, string contraseña, string perfil)
+        public void Alta(string modulo, string username, string contraseña, string perfil)
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(contraseña))
                 throw new Exception("Usuario y contraseña son obligatorios.");
@@ -96,13 +95,13 @@ namespace BLL
             string claveHasheada = Encriptador.Hash(contraseña);
             usuarioDAL.Alta(username, claveHasheada, perfil);
 
-            bitacora.Registrar(formulario.Text,
+            bitacora.Registrar(modulo,
                 $"Alta Usuario: '{username}' [{perfil}]",
                 BE.Criticidad.Media);
         }
 
         // Resetea la contraseña de un usuario. Solo Administrador.
-        public void ResetearClave(Form formulario, int idUsuario, string nuevaClave)
+        public void ResetearClave(string modulo, int idUsuario, string nuevaClave)
         {
             if (!SessionManager.IsLoggedIn)
                 throw new Exception("No hay sesión activa.");
@@ -119,7 +118,7 @@ namespace BLL
 
             var admin = SessionManager.GetInstance.Usuario;
             bitacora.RegistrarSinSesion(
-                modulo:     formulario.Text,
+                modulo:     modulo,
                 actividad:  "Reset Contrasena",
                 criticidad: BE.Criticidad.RecuperacionClave,
                 idUsuario:  admin.Id,
@@ -128,7 +127,7 @@ namespace BLL
         }
 
         // Desbloquea la cuenta de un usuario y resetea el contador de intentos. Solo Administrador.
-        public void Desbloquear(Form formulario, int idUsuario, string usernameObjetivo)
+        public void Desbloquear(string modulo, int idUsuario, string usernameObjetivo)
         {
             if (!SessionManager.IsLoggedIn)
                 throw new Exception("No hay sesión activa.");
@@ -139,13 +138,13 @@ namespace BLL
 
             usuarioDAL.Desbloquear(idUsuario);
 
-            bitacora.Registrar(formulario.Text,
+            bitacora.Registrar(modulo,
                 $"Desbloqueo de Cuenta: '{usernameObjetivo}'",
                 BE.Criticidad.Alta);
         }
 
         // Resetea la contraseña de TODOS los usuarios a una clave temporal. Solo Administrador.
-        public void ResetearTodasLasClaves(Form formulario, string claveTemporal)
+        public void ResetearTodasLasClaves(string modulo, string claveTemporal)
         {
             if (!SessionManager.IsLoggedIn)
                 throw new Exception("No hay sesión activa.");
@@ -162,7 +161,7 @@ namespace BLL
 
             var admin = SessionManager.GetInstance.Usuario;
             bitacora.RegistrarSinSesion(
-                modulo:     formulario.Text,
+                modulo:     modulo,
                 actividad:  "Reset Masivo Contrasenas",
                 criticidad: BE.Criticidad.Alta,
                 idUsuario:  admin.Id,

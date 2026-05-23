@@ -15,18 +15,19 @@ namespace DAL
             var lista = new List<BE.Cliente>();
             try
             {
+                SqlParameter[] p = { new SqlParameter("@EstadoEnUso", (int)BE.EstadoPrenda.EnUso) };
                 DataTable tabla = acceso.Leer(
                     "SELECT c.IdCliente, c.Nombre, c.Apellido, c.DNI, c.Email, " +
                     "       c.MetodoPago, c.IdPlan, c.FechaAlta, " +
                     "       p.Nombre AS NombrePlan, " +
                     "       ISNULL(p.LimitePrendas, 0) AS LimitePrendas, " +
                     "       (SELECT COUNT(*) FROM Prenda pr WHERE pr.IdClienteActual = c.IdCliente " +
-                    "        AND pr.Estado = " + (int)BE.EstadoPrenda.EnUso + ") AS StockUtilizado " +
+                    "        AND pr.Estado = @EstadoEnUso) AS StockUtilizado " +
                     "FROM Cliente c " +
                     "LEFT JOIN PlanSuscripcion p ON p.IdPlan = c.IdPlan " +
                     "WHERE c.Activo = 1 " +
                     "ORDER BY c.Apellido, c.Nombre",
-                    null);
+                    p);
 
                 foreach (DataRow row in tabla.Rows)
                     lista.Add(Mapear(row));
@@ -41,7 +42,11 @@ namespace DAL
         // Obtiene un cliente por ID con plan y stock actual.
         public override BE.Cliente ObtenerPorId(int idCliente)
         {
-            SqlParameter[] p = { new SqlParameter("@IdCliente", idCliente) };
+            SqlParameter[] p =
+            {
+                new SqlParameter("@IdCliente",   idCliente),
+                new SqlParameter("@EstadoEnUso", (int)BE.EstadoPrenda.EnUso)
+            };
             try
             {
                 DataTable tabla = acceso.Leer(
@@ -50,7 +55,7 @@ namespace DAL
                     "       p.Nombre AS NombrePlan, " +
                     "       ISNULL(p.LimitePrendas, 0) AS LimitePrendas, " +
                     "       (SELECT COUNT(*) FROM Prenda pr WHERE pr.IdClienteActual = c.IdCliente " +
-                    "        AND pr.Estado = " + (int)BE.EstadoPrenda.EnUso + ") AS StockUtilizado " +
+                    "        AND pr.Estado = @EstadoEnUso) AS StockUtilizado " +
                     "FROM Cliente c " +
                     "LEFT JOIN PlanSuscripcion p ON p.IdPlan = c.IdPlan " +
                     "WHERE c.IdCliente = @IdCliente AND c.Activo = 1",

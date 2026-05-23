@@ -321,7 +321,7 @@ namespace GUI
 
             try
             {
-                pedidoBLL.Cancelar(this, pedido, motivo);
+                pedidoBLL.Cancelar(this.Text, pedido, motivo);
                 string fmtCancelado = T_c("msg.ped.cancelado", "Pedido #{0} cancelado. Prendas liberadas.");
                 MostrarOk(string.Format(fmtCancelado, pedido.IdPedido));
                 CargarPedidos();
@@ -355,7 +355,7 @@ namespace GUI
 
             try
             {
-                pedidoBLL.DesCancelar(this, pedido);
+                pedidoBLL.DesCancelar(this.Text, pedido);
                 string fmtReact = T_d("msg.ped.reactivado", "Pedido #{0} reactivado — volvió a Pendiente.");
                 MostrarOk(string.Format(fmtReact, pedido.IdPedido));
                 CargarPedidos();

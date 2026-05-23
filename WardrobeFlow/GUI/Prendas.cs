@@ -302,7 +302,7 @@ namespace GUI
                 if (form.ShowDialog(this) != DialogResult.OK) return;
                 try
                 {
-                    prendaBLL.Alta(this, form.PrendaEditada);
+                    prendaBLL.Alta(this.Text, form.PrendaEditada);
                     var tAlt = Traductor.ObtenerTraducciones(_idioma);
                     string fmtAlt = tAlt.ContainsKey("msg.prenda.agregada") ? tAlt["msg.prenda.agregada"].Texto : "Prenda '{0}' agregada al catálogo.";
                     MostrarOk(string.Format(fmtAlt, form.PrendaEditada.Nombre));
@@ -322,7 +322,7 @@ namespace GUI
                 if (form.ShowDialog(this) != DialogResult.OK) return;
                 try
                 {
-                    prendaBLL.Modificar(this, form.PrendaEditada);
+                    prendaBLL.Modificar(this.Text, form.PrendaEditada);
                     var tMod = Traductor.ObtenerTraducciones(_idioma);
                     string fmtMod = tMod.ContainsKey("msg.prenda.actualizada") ? tMod["msg.prenda.actualizada"].Texto : "Prenda '{0}' actualizada.";
                     MostrarOk(string.Format(fmtMod, form.PrendaEditada.Nombre));
@@ -368,7 +368,7 @@ namespace GUI
                 if (dlg.ShowDialog(this) != DialogResult.OK) return;
                 try
                 {
-                    prendaBLL.CambiarEstado(this, prenda, dlg.EstadoSeleccionado);
+                    prendaBLL.CambiarEstado(this.Text, prenda, dlg.EstadoSeleccionado);
                     string fmtEstAct = T_est("msg.prenda.estadoact", "Estado de '{0}' actualizado a {1}.");
                     MostrarOk(string.Format(fmtEstAct, prenda.Nombre, EstadoLabel(dlg.EstadoSeleccionado)));
                     CargarPrendas();

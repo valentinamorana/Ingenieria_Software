@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Windows.Forms;
 
 namespace BLL.Interfaces
 {
@@ -21,12 +20,12 @@ namespace BLL.Interfaces
         BE.Prenda ObtenerPorId(int idPrenda);
 
         // Da de alta una nueva prenda. Estado inicial siempre Disponible.
-        void Alta(Form formulario, BE.Prenda prenda);
+        void Alta(string modulo, BE.Prenda prenda);
 
         // Modifica los datos descriptivos de una prenda (no afecta estado ni cliente).
-        void Modificar(Form formulario, BE.Prenda prenda);
+        void Modificar(string modulo, BE.Prenda prenda);
 
         // Cambia el estado de una prenda validando las transiciones permitidas por negocio.
-        void CambiarEstado(Form formulario, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado);
+        void CambiarEstado(string modulo, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado);
     }
 }

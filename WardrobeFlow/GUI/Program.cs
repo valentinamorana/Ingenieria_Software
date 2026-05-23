@@ -11,13 +11,17 @@ namespace GUI
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            BLL.Configuracion.VerificarConexionDAL();
+            if (!BLL.Configuracion.VerificarConexionDAL(out string errConexion))
+            {
+                MessageBox.Show(errConexion, "Error de Conexión", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             // T07 — Verificar integridad DVH/DVV antes de mostrar el Login.
             // Si se detecta manipulación externa, bloquea el acceso al sistema.
-            if (!BLL.Configuracion.VerificarIntegridadDV())
+            if (!BLL.Configuracion.VerificarIntegridadDV(out string errIntegridad))
             {
-                Application.Exit();
+                MessageBox.Show(errIntegridad, "Integridad comprometida — Acceso bloqueado", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 

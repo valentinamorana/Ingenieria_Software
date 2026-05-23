@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Windows.Forms;
 
 namespace BLL.Interfaces
 {
@@ -17,12 +16,12 @@ namespace BLL.Interfaces
         BE.Cliente ObtenerPorId(int idCliente);
 
         // Registra un nuevo cliente validando datos y unicidad de DNI.
-        void Alta(Form formulario, BE.Cliente cliente);
+        void Alta(string modulo, BE.Cliente cliente);
 
         // Modifica los datos de un cliente existente.
-        void Modificar(Form formulario, BE.Cliente cliente);
+        void Modificar(string modulo, BE.Cliente cliente);
 
         // Elimina un cliente si no tiene prendas en uso.
-        void Baja(Form formulario, BE.Cliente cliente);
+        void Baja(string modulo, BE.Cliente cliente);
     }
 }

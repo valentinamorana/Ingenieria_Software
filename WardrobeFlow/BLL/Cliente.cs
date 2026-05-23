@@ -28,7 +28,7 @@ namespace BLL
 
         // Registra un nuevo cliente.
         // Valida campos obligatorios y unicidad de DNI.
-        public void Alta(System.Windows.Forms.Form formulario, BE.Cliente cliente)
+        public void Alta(string modulo, BE.Cliente cliente)
         {
             Validar(cliente);
 
@@ -39,7 +39,7 @@ namespace BLL
             int idNuevo = dalCliente.Alta(cliente);
             cliente.IdCliente = idNuevo;
 
-            bitacora.Registrar(formulario.Text, $"Alta Cliente: {cliente.NombreCompleto} (DNI {cliente.DNI})", BE.Criticidad.Baja);
+            bitacora.Registrar(modulo, $"Alta Cliente: {cliente.NombreCompleto} (DNI {cliente.DNI})", BE.Criticidad.Baja);
             bitacoraNeg.Registrar(BE.TipoEventoNegocio.AltaCliente,
                 $"Nuevo cliente: {cliente.NombreCompleto} — DNI {cliente.DNI} — Plan: {cliente.NombrePlan ?? "Sin plan"}",
                 idCliente: cliente.IdCliente);
@@ -47,7 +47,7 @@ namespace BLL
 
         // Modifica los datos de un cliente existente.
         // Valida unicidad de DNI excluyendo el propio registro.
-        public void Modificar(System.Windows.Forms.Form formulario, BE.Cliente cliente)
+        public void Modificar(string modulo, BE.Cliente cliente)
         {
             Validar(cliente);
 
@@ -58,7 +58,7 @@ namespace BLL
                 throw new Exception($"El DNI {cliente.DNI} ya está registrado para otro cliente.");
 
             dalCliente.Modificar(cliente);
-            bitacora.Registrar(formulario.Text, $"Modificar Cliente ID {cliente.IdCliente}: {cliente.NombreCompleto}", BE.Criticidad.Baja);
+            bitacora.Registrar(modulo, $"Modificar Cliente ID {cliente.IdCliente}: {cliente.NombreCompleto}", BE.Criticidad.Baja);
             bitacoraNeg.Registrar(BE.TipoEventoNegocio.ModificacionCliente,
                 $"Modificación cliente: {cliente.NombreCompleto} — DNI {cliente.DNI}",
                 idCliente: cliente.IdCliente);
@@ -66,7 +66,7 @@ namespace BLL
 
         // Da de baja a un cliente.
         // No se puede eliminar si tiene prendas actualmente en uso.
-        public void Baja(System.Windows.Forms.Form formulario, BE.Cliente cliente)
+        public void Baja(string modulo, BE.Cliente cliente)
         {
             // Bloquear baja si el cliente tiene prendas en uso actualmente
             if (cliente.StockUtilizado > 0)
@@ -76,7 +76,7 @@ namespace BLL
                     "Primero registrá la devolución de las prendas.");
 
             dalCliente.Baja(cliente.IdCliente);
-            bitacora.Registrar(formulario.Text, $"Baja Cliente ID {cliente.IdCliente}: {cliente.NombreCompleto}", BE.Criticidad.Media);
+            bitacora.Registrar(modulo, $"Baja Cliente ID {cliente.IdCliente}: {cliente.NombreCompleto}", BE.Criticidad.Media);
             bitacoraNeg.Registrar(BE.TipoEventoNegocio.BajaCliente,
                 $"Baja cliente: {cliente.NombreCompleto} — DNI {cliente.DNI}",
                 idCliente: cliente.IdCliente);
