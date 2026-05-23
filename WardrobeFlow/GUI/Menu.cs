@@ -194,9 +194,10 @@ namespace GUI
             ventasToolStripMenuItem.Visible =
                 tieneClientes || tienePlanes || tienePedidosVenta || tienePedidosReal;
 
-            // ── Administrar (Usuarios) ────────────────────────────────────────
+            // ── Administrar (Usuarios + Perfiles) ─────────────────────────────
             bool tieneUsuarios = nombresMenu.Contains("mnuUsuarios");
             usuariosToolStripMenuItem.Visible = tieneUsuarios;
+            perfilesToolStripMenuItem.Visible = tieneUsuarios;   // solo Administrador ve el gestor
             gestionToolStripMenuItem.Visible  = tieneUsuarios;
 
             // ── Bitácora ──────────────────────────────────────────────────────
@@ -290,6 +291,19 @@ namespace GUI
                 if (hijo is Usuarios) { hijo.BringToFront(); return; }
             }
             new Usuarios { MdiParent = this }.Show();
+        }
+
+        /// <summary>
+        /// Abre el Gestor de Perfiles y Permisos como hijo MDI — T04 Composite Pattern.
+        /// Accesible solo para Administrador.
+        /// </summary>
+        private void perfilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Form hijo in this.MdiChildren)
+            {
+                if (hijo is GestorPermisos) { hijo.BringToFront(); return; }
+            }
+            new GestorPermisos { MdiParent = this }.Show();
         }
 
         /// <summary>
@@ -457,6 +471,7 @@ namespace GUI
             Aplicar(pedidosRealizadosToolStripMenuItem, t);
             Aplicar(gestionToolStripMenuItem,           t);
             Aplicar(usuariosToolStripMenuItem,          t);
+            Aplicar(perfilesToolStripMenuItem,          t);
             Aplicar(bitacoraToolStripMenuItem,          t);
             Aplicar(cerrarSesionToolStripMenuItem,      t);
         }

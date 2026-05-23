@@ -44,6 +44,9 @@
     <Compile Include="Bitacora.cs" />
     <Compile Include="BitacoraNegocio.cs" />
     <Compile Include="Cliente.cs" />
+    <Compile Include="Componente.cs" />
+    <Compile Include="Familia.cs" />
+    <Compile Include="Patente.cs" />
     <Compile Include="Criticidad.cs" />
     <Compile Include="Empleado.cs" />
     <Compile Include="EstadoPedido.cs" />
@@ -54,6 +57,7 @@
     <Compile Include="PlanSuscripcion.cs" />
     <Compile Include="Prenda.cs" />
     <Compile Include="TipoEventoNegocio.cs" />
+    <Compile Include="TipoPermiso.cs" />
     <Compile Include="Usuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

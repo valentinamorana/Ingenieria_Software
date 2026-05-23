@@ -138,6 +138,22 @@ namespace GUI
             btnResetMasivo.Click += BtnResetMasivo_Click;
             panelAlta.Controls.Add(btnResetMasivo);
 
+            // Botón recalcular DV — T07: regenera DVH y DVV para todas las filas de Usuario
+            var btnRecalcularDV = new Button
+            {
+                Text      = "Recalcular integridad (DV)",
+                Size      = new Size(216, 30),
+                Location  = new Point(12, btnResetMasivo.Bottom + 8),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(40, 80, 140),
+                ForeColor = Color.White,
+                Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold),
+                Cursor    = Cursors.Hand
+            };
+            btnRecalcularDV.FlatAppearance.BorderSize = 0;
+            btnRecalcularDV.Click += BtnRecalcularDV_Click;
+            panelAlta.Controls.Add(btnRecalcularDV);
+
             // Ojito mostrar/ocultar contraseña — se posiciona a la derecha del textbox
             // una vez que el layout ya tiene las medidas escaladas.
             txtContraseña.Width -= 28;
@@ -344,6 +360,21 @@ namespace GUI
             catch (Exception ex)
             {
                 MostrarError(ex.Message);
+            }
+        }
+
+        // ── Recalcular integridad DV ──────────────────────────────────────────
+
+        private void BtnRecalcularDV_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                BLL.Configuracion.RecalcularIntegridadDV();
+                MostrarOk("DVH y DVV recalculados correctamente para todos los usuarios.");
+            }
+            catch (Exception ex)
+            {
+                MostrarError($"Error al recalcular DV: {ex.Message}");
             }
         }
 

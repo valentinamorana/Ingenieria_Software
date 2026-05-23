@@ -45,6 +45,7 @@
             this.pedidosRealizadosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gestionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.usuariosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.perfilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bitacoraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -167,19 +168,28 @@
             // gestionToolStripMenuItem
             // 
             this.gestionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.usuariosToolStripMenuItem});
+            this.usuariosToolStripMenuItem,
+            this.perfilesToolStripMenuItem});
             this.gestionToolStripMenuItem.Name = "gestionToolStripMenuItem";
             this.gestionToolStripMenuItem.Tag = "mnu.administrar";
             this.gestionToolStripMenuItem.Size = new System.Drawing.Size(81, 20);
             this.gestionToolStripMenuItem.Text = "Administrar";
-            // 
+            //
             // usuariosToolStripMenuItem
-            // 
+            //
             this.usuariosToolStripMenuItem.Name = "usuariosToolStripMenuItem";
             this.usuariosToolStripMenuItem.Tag = "mnu.usuarios";
-            this.usuariosToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
+            this.usuariosToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.usuariosToolStripMenuItem.Text = "Usuarios";
             this.usuariosToolStripMenuItem.Click += new System.EventHandler(this.usuariosToolStripMenuItem_Click);
+            //
+            // perfilesToolStripMenuItem
+            //
+            this.perfilesToolStripMenuItem.Name = "perfilesToolStripMenuItem";
+            this.perfilesToolStripMenuItem.Tag = "mnu.perfiles";
+            this.perfilesToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.perfilesToolStripMenuItem.Text = "Perfiles y Permisos";
+            this.perfilesToolStripMenuItem.Click += new System.EventHandler(this.perfilesToolStripMenuItem_Click);
             // 
             // bitacoraToolStripMenuItem
             // 
@@ -222,6 +232,7 @@
         private System.Windows.Forms.ToolStripMenuItem bitacoraToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem gestionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem usuariosToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem perfilesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ventasToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clientesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem planesToolStripMenuItem;

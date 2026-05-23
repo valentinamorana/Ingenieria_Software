@@ -45,6 +45,7 @@
     <Compile Include="Acceso.cs" />
     <Compile Include="BaseDAL.cs" />
     <Compile Include="Bitacora.cs" />
+    <Compile Include="DigitoVerificador.cs" />
     <Compile Include="BitacoraNegocio.cs" />
     <Compile Include="Cliente.cs" />
     <Compile Include="Empleado.cs" />

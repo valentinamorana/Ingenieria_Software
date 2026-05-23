@@ -27,6 +27,7 @@ namespace DAL
     {
         // Inserta un nuevo usuario con contraseña hasheada y rol asignado.
         // Estado=1 (activo) e IntentosFallidos=0 por defecto al crear.
+        // Después del INSERT calcula y persiste el DVH de la nueva fila.
         public void Alta(string username, string clave, string perfil)
         {
             SqlParameter[] parametros = new SqlParameter[]
@@ -40,6 +41,11 @@ namespace DAL
                 "INSERT INTO Usuario (Username, Clave, Rol, Estado, Perfil, IntentosFallidos) " +
                 "VALUES (@username, @clave, @rol, 1, @perfil, 0)",
                 parametros);
+
+            // Leer el nuevo ID y calcular DVH
+            BE.Usuario nuevo = ObtenerPorUsername(username);
+            if (nuevo != null)
+                RecalcularDVH(nuevo.Id);
         }
 
         public void Logout() { /* no-op */ }
@@ -83,7 +89,7 @@ namespace DAL
         }
 
         // Bloquea la cuenta de un usuario (Estado=0).
-        // Se llama tras superar el máximo de intentos fallidos 
+        // Se llama tras superar el máximo de intentos fallidos.
         public void Bloquear(int idUsuario)
         {
             SqlParameter[] parametros = new SqlParameter[]
@@ -93,6 +99,8 @@ namespace DAL
             acceso.Escribir(
                 "UPDATE Usuario SET Estado = 0 WHERE IdUsuario = @idUsuario",
                 parametros);
+
+            RecalcularDVH(idUsuario);
         }
 
         // Desbloquea la cuenta de un usuario (Estado=1) y resetea el contador de intentos.
@@ -106,6 +114,8 @@ namespace DAL
             acceso.Escribir(
                 "UPDATE Usuario SET Estado = 1, IntentosFallidos = 0 WHERE IdUsuario = @idUsuario",
                 parametros);
+
+            RecalcularDVH(idUsuario);
         }
 
         // Incrementa en 1 el contador de intentos fallidos para el username dado.
@@ -150,10 +160,13 @@ namespace DAL
         }
 
         // Actualiza la contraseña de TODOS los usuarios al hash recibido.
+        // Recalcula DVH y DVV para todas las filas afectadas.
         public void ResetearTodasLasClaves(string claveHasheada)
         {
             SqlParameter[] p = { new SqlParameter("@clave", claveHasheada) };
             acceso.Escribir("UPDATE Usuario SET Clave = @clave", p);
+
+            RecalcularTodosDVH();
         }
 
         // Actualiza la contraseña de un usuario existente (ya hasheada por la BLL).
@@ -167,6 +180,8 @@ namespace DAL
             acceso.Escribir(
                 "UPDATE Usuario SET Clave = @clave WHERE IdUsuario = @idUsuario",
                 parametros);
+
+            RecalcularDVH(idUsuario);
         }
 
         // Obtiene un usuario por su clave primaria (IdUsuario).
@@ -204,6 +219,80 @@ namespace DAL
             {
                 throw new Exception("Error al obtener el usuario por ID.", ex);
             }
+        }
+
+        // Recalcula el DVH de un usuario específico y actualiza DVV de la tabla.
+        // Se llama después de cualquier operación de escritura sobre un usuario.
+        private void RecalcularDVH(int idUsuario)
+        {
+            try
+            {
+                var dvDAL = new DigitoVerificador();
+                var filas = dvDAL.ObtenerFilasUsuario();
+
+                // Buscar la fila del usuario modificado y recalcular su DVH
+                var svc = new Servicios.DigitoVerificador();
+                foreach (var fila in filas)
+                {
+                    if (fila.Id == idUsuario)
+                    {
+                        int dvh = svc.CalcularDVH(
+                            fila.Id.ToString(), fila.Username, fila.Clave,
+                            fila.Perfil, fila.Estado, fila.IntentosFallidos);
+                        dvDAL.ActualizarDVH(idUsuario, dvh);
+                        fila.DVHAlmacenado = dvh;
+                        break;
+                    }
+                }
+
+                // Recalcular DVV con todos los DVH (usar los recién leídos — pueden ser null para filas antiguas)
+                ActualizarDVV(dvDAL);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DAL.Usuario.RecalcularDVH] {ex.Message}");
+            }
+        }
+
+        // Recalcula el DVH de TODOS los usuarios y actualiza DVV.
+        // Se usa después de operaciones masivas (ResetearTodasLasClaves).
+        private void RecalcularTodosDVH()
+        {
+            try
+            {
+                var dvDAL = new DigitoVerificador();
+                var filas = dvDAL.ObtenerFilasUsuario();
+                var svc   = new Servicios.DigitoVerificador();
+
+                foreach (var fila in filas)
+                {
+                    int dvh = svc.CalcularDVH(
+                        fila.Id.ToString(), fila.Username, fila.Clave,
+                        fila.Perfil, fila.Estado, fila.IntentosFallidos);
+                    dvDAL.ActualizarDVH(fila.Id, dvh);
+                    fila.DVHAlmacenado = dvh;
+                }
+
+                ActualizarDVV(dvDAL);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DAL.Usuario.RecalcularTodosDVH] {ex.Message}");
+            }
+        }
+
+        // Recalcula y persiste el DVV de la tabla Usuario a partir de los DVH actuales.
+        private static void ActualizarDVV(DigitoVerificador dvDAL)
+        {
+            var filas = dvDAL.ObtenerFilasUsuario();
+            var svc   = new Servicios.DigitoVerificador();
+
+            var dvhValues = new System.Collections.Generic.List<int>();
+            foreach (var fila in filas)
+                dvhValues.Add(fila.DVHAlmacenado ?? 0);
+
+            int dvv = svc.CalcularDVV(dvhValues);
+            dvDAL.GuardarDVV("Usuario", dvv);
         }
 
         // Lista todos los usuarios del sistema (sin contraseña).

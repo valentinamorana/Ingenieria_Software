@@ -13,6 +13,14 @@ namespace GUI
 
             BLL.Configuracion.VerificarConexionDAL();
 
+            // T07 — Verificar integridad DVH/DVV antes de mostrar el Login.
+            // Si se detecta manipulación externa, bloquea el acceso al sistema.
+            if (!BLL.Configuracion.VerificarIntegridadDV())
+            {
+                Application.Exit();
+                return;
+            }
+
             using (var frmLogin = new Login())
             {
                 if (frmLogin.ShowDialog() == DialogResult.OK)
