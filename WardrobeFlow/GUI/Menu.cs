@@ -200,6 +200,8 @@ namespace GUI
             usuariosToolStripMenuItem.Visible = tieneUsuarios;
             perfilesToolStripMenuItem.Visible = tieneUsuarios;
             idiomasToolStripMenuItem.Visible  = tieneUsuarios;   // solo Admin gestiona traducciones
+            historialUsuariosToolStripMenuItem.Visible = tieneUsuarios;
+            backupToolStripMenuItem.Visible            = tieneUsuarios;
             gestionToolStripMenuItem.Visible  = tieneUsuarios;
 
             // ── Bitácora ──────────────────────────────────────────────────────
@@ -315,6 +317,21 @@ namespace GUI
                 if (hijo is FormIdiomas) { hijo.BringToFront(); return; }
             }
             new FormIdiomas { MdiParent = this }.Show();
+        }
+
+        private void historialUsuariosToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Form hijo in this.MdiChildren)
+            {
+                if (hijo is VersionHistorialForm) { hijo.BringToFront(); return; }
+            }
+            new VersionHistorialForm { MdiParent = this }.Show();
+        }
+
+        private void backupToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var form = new BackupForm())
+                form.ShowDialog(this);
         }
 
         /// <summary>
@@ -503,7 +520,9 @@ namespace GUI
             Aplicar(gestionToolStripMenuItem,           t);
             Aplicar(usuariosToolStripMenuItem,          t);
             Aplicar(perfilesToolStripMenuItem,          t);
-            Aplicar(idiomasToolStripMenuItem,           t);
+            Aplicar(idiomasToolStripMenuItem,              t);
+            Aplicar(historialUsuariosToolStripMenuItem, t);
+            Aplicar(backupToolStripMenuItem,            t);
             Aplicar(bitacoraToolStripMenuItem,          t);
             Aplicar(cerrarSesionToolStripMenuItem,      t);
         }

@@ -21,6 +21,11 @@ namespace BLL
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(contraseña))
                 throw new Exception("Usuario y contraseña son obligatorios.");
 
+            if (ContadorSesion.GetInstance().LimiteAlcanzado)
+                throw new Exception(
+                    "Demasiados intentos fallidos en esta sesión.\n" +
+                    "Reiniciá la aplicación para volver a intentarlo.");
+
             BE.Usuario usuario = usuarioDAL.ObtenerPorUsername(username);
             if (usuario == null) return false;
 
@@ -33,6 +38,7 @@ namespace BLL
 
             if (esValido)
             {
+                ContadorSesion.GetInstance().Resetear();
                 usuarioDAL.ResetearIntentosFallidos(username);
                 usuario.Permisos = permisoDAL.ObtenerPorRol(usuario.Rol ?? usuario.Perfil);
                 SessionManager.Login(usuario);
@@ -40,6 +46,7 @@ namespace BLL
             }
             else
             {
+                ContadorSesion.GetInstance().RegistrarIntento();
                 usuarioDAL.IncrementarIntentosFallidos(username);
                 int intentos = usuario.IntentosFallidos + 1;
 
@@ -113,10 +120,12 @@ namespace BLL
             var (valida, mensaje) = Encriptador.ValidarContrasena(nuevaClave);
             if (!valida) throw new Exception(mensaje);
 
-            string claveHasheada = Encriptador.Hash(nuevaClave);
-            usuarioDAL.ResetearClave(idUsuario, claveHasheada);
-
             var admin = SessionManager.GetInstance.Usuario;
+
+            new VersionUsuario().GrabarVersion(idUsuario, admin.Username,
+                $"Snapshot antes de reset de contraseña por '{admin.Username}'.");
+
+            string claveHasheada = Encriptador.Hash(nuevaClave);
             bitacora.RegistrarSinSesion(
                 modulo:     modulo,
                 actividad:  "Reset Contrasena",
@@ -135,6 +144,10 @@ namespace BLL
             string perfil = SessionManager.GetInstance.Usuario.Perfil ?? "";
             if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
                 throw new Exception("Solo un Administrador puede desbloquear cuentas.");
+
+            new VersionUsuario().GrabarVersion(idUsuario,
+                SessionManager.GetInstance.Usuario.Username,
+                $"Snapshot antes de desbloqueo por '{SessionManager.GetInstance.Usuario.Username}'.");
 
             usuarioDAL.Desbloquear(idUsuario);
 

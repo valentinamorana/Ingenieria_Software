@@ -116,11 +116,23 @@
     <Compile Include="Bitacora.Designer.cs">
       <DependentUpon>Bitacora.cs</DependentUpon>
     </Compile>
+    <Compile Include="BackupForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BackupForm.Designer.cs">
+      <DependentUpon>BackupForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="OlvideContrasenaForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="OlvideContrasenaForm.Designer.cs">
       <DependentUpon>OlvideContrasenaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VersionHistorialForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VersionHistorialForm.Designer.cs">
+      <DependentUpon>VersionHistorialForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Prendas.cs">
       <SubType>Form</SubType>

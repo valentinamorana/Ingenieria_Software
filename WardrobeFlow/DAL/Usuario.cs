@@ -170,6 +170,23 @@ namespace DAL
             RecalcularTodosDVH();
         }
 
+        // Aplica el snapshot de una versión histórica a la fila activa del usuario.
+        public void RestaurarVersion(BE.VersionUsuario v)
+        {
+            acceso.Escribir(
+                "UPDATE Usuario SET Clave = @Clave, Estado = @Estado, IntentosFallidos = @Intentos " +
+                "WHERE IdUsuario = @Id",
+                new SqlParameter[]
+                {
+                    new SqlParameter("@Clave",    v.ClaveSnapshot),
+                    new SqlParameter("@Estado",   v.EstadoSnapshot ? 1 : 0),
+                    new SqlParameter("@Intentos", v.IntentosSnapshot),
+                    new SqlParameter("@Id",       v.IdUsuario)
+                });
+
+            RecalcularDVH(v.IdUsuario);
+        }
+
         // Actualiza la contraseña de un usuario existente (ya hasheada por la BLL).
         public void ResetearClave(int idUsuario, string claveHasheada)
         {

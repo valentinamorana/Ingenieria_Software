@@ -47,6 +47,8 @@
             this.usuariosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.perfilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.idiomasToolStripMenuItem  = new System.Windows.Forms.ToolStripMenuItem();
+            this.backupToolStripMenuItem         = new System.Windows.Forms.ToolStripMenuItem();
+            this.historialUsuariosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bitacoraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -171,7 +173,9 @@
             this.gestionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.usuariosToolStripMenuItem,
             this.perfilesToolStripMenuItem,
-            this.idiomasToolStripMenuItem});
+            this.idiomasToolStripMenuItem,
+            this.historialUsuariosToolStripMenuItem,
+            this.backupToolStripMenuItem});
             this.gestionToolStripMenuItem.Name = "gestionToolStripMenuItem";
             this.gestionToolStripMenuItem.Tag = "mnu.administrar";
             this.gestionToolStripMenuItem.Size = new System.Drawing.Size(81, 20);
@@ -201,8 +205,24 @@
             this.idiomasToolStripMenuItem.Text = "Gestión de Idiomas";
             this.idiomasToolStripMenuItem.Click += new System.EventHandler(this.idiomasToolStripMenuItem_Click);
             //
+            // historialUsuariosToolStripMenuItem
+            //
+            this.historialUsuariosToolStripMenuItem.Name = "historialUsuariosToolStripMenuItem";
+            this.historialUsuariosToolStripMenuItem.Tag  = "mnu.historialusr";
+            this.historialUsuariosToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.historialUsuariosToolStripMenuItem.Text = "Historial de Cambios";
+            this.historialUsuariosToolStripMenuItem.Click += new System.EventHandler(this.historialUsuariosToolStripMenuItem_Click);
+            //
+            // backupToolStripMenuItem
+            //
+            this.backupToolStripMenuItem.Name = "backupToolStripMenuItem";
+            this.backupToolStripMenuItem.Tag  = "mnu.backup";
+            this.backupToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.backupToolStripMenuItem.Text = "Backup y Restauración";
+            this.backupToolStripMenuItem.Click += new System.EventHandler(this.backupToolStripMenuItem_Click);
+            //
             // bitacoraToolStripMenuItem
-            // 
+            //
             this.bitacoraToolStripMenuItem.Name = "bitacoraToolStripMenuItem";
             this.bitacoraToolStripMenuItem.Tag = "mnu.bitacora";
             this.bitacoraToolStripMenuItem.Size = new System.Drawing.Size(62, 20);
@@ -237,6 +257,8 @@
         private System.Windows.Forms.ToolStripMenuItem cerrarSesionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem inventarioToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem prendasToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem backupToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem historialUsuariosToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem outfitsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem categoriasToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem bitacoraToolStripMenuItem;

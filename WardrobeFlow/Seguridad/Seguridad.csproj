@@ -44,6 +44,7 @@
     <Compile Include="DigitoVerificador.cs" />
     <Compile Include="Encriptador.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ContadorSesion.cs" />
     <Compile Include="SessionManager.cs" />
   </ItemGroup>
   <ItemGroup>

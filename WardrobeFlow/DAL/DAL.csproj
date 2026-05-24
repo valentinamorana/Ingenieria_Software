@@ -57,7 +57,9 @@
     <Compile Include="PlanSuscripcion.cs" />
     <Compile Include="Prenda.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Backup.cs" />
     <Compile Include="Usuario.cs" />
+    <Compile Include="VersionUsuario.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BE\BE.csproj">

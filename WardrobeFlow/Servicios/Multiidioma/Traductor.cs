@@ -527,6 +527,23 @@ namespace Servicios.Multiidioma
             { "btn.idiomas.activar",     "✔ Activar"                                              },
             { "btn.idiomas.desactivar",  "✕ Desactivar"                                           },
             { "btn.idiomas.guardar",     "💾 Guardar cambios"                                     },
+            // Backup y Restauración
+            { "frm.backup",              "Backup y Restauración"                                  },
+            { "btn.backup.crear",        "Generar Copia de Seguridad (.bak)"                      },
+            { "btn.backup.restaurar",    "Restaurar Copia de Seguridad (.bak)"                    },
+            { "lbl.backup.info",         "Nota: la restauración cierra las conexiones activas y reinicia la aplicación." },
+            { "mnu.backup",              "Backup y Restauración"                                  },
+            // Historial de Cambios de Usuarios (T06)
+            { "frm.historialusr",        "Historial de Cambios de Usuarios"                       },
+            { "lbl.ver.usuario",         "Usuario:"                                               },
+            { "btn.ver.cargar",          "Cargar"                                                 },
+            { "btn.ver.restaurar",       "Restaurar Versión Seleccionada"                         },
+            { "col.ver.id",              "ID"                                                     },
+            { "col.ver.fecha",           "Fecha"                                                  },
+            { "col.ver.actor",           "Modificado por"                                         },
+            { "col.ver.detalle",         "Detalle"                                                },
+            { "col.ver.estado",          "Estado"                                                 },
+            { "mnu.historialusr",        "Historial de Cambios"                                   },
         });
 
         // ── Diccionario English (EN) ──────────────────────────────────────────
@@ -955,6 +972,23 @@ namespace Servicios.Multiidioma
             { "btn.idiomas.activar",     "✔ Activate"                                            },
             { "btn.idiomas.desactivar",  "✕ Deactivate"                                          },
             { "btn.idiomas.guardar",     "💾 Save changes"                                       },
+            // Backup & Restore
+            { "frm.backup",              "Backup & Restore"                                       },
+            { "btn.backup.crear",        "Create Backup (.bak)"                                   },
+            { "btn.backup.restaurar",    "Restore Backup (.bak)"                                  },
+            { "lbl.backup.info",         "Note: restore will close active connections and restart the application." },
+            { "mnu.backup",              "Backup & Restore"                                       },
+            // User Change History (T06)
+            { "frm.historialusr",        "User Change History"                                    },
+            { "lbl.ver.usuario",         "User:"                                                  },
+            { "btn.ver.cargar",          "Load"                                                   },
+            { "btn.ver.restaurar",       "Restore Selected Version"                               },
+            { "col.ver.id",              "ID"                                                     },
+            { "col.ver.fecha",           "Date"                                                   },
+            { "col.ver.actor",           "Modified by"                                            },
+            { "col.ver.detalle",         "Detail"                                                 },
+            { "col.ver.estado",          "Status"                                                 },
+            { "mnu.historialusr",        "Change History"                                         },
         });
 
         // ── Diccionario Русский (RU) ──────────────────────────────────────────
@@ -1383,6 +1417,23 @@ namespace Servicios.Multiidioma
             { "btn.idiomas.activar",     "✔ Включить"                                            },
             { "btn.idiomas.desactivar",  "✕ Отключить"                                           },
             { "btn.idiomas.guardar",     "💾 Сохранить"                                          },
+            // Резервное копирование
+            { "frm.backup",              "Резервное копирование"                                  },
+            { "btn.backup.crear",        "Создать резервную копию (.bak)"                         },
+            { "btn.backup.restaurar",    "Восстановить из копии (.bak)"                           },
+            { "lbl.backup.info",         "Примечание: восстановление закроет активные соединения и перезапустит приложение." },
+            { "mnu.backup",              "Резервная копия"                                        },
+            // История изменений пользователей (T06)
+            { "frm.historialusr",        "История изменений пользователей"                        },
+            { "lbl.ver.usuario",         "Пользователь:"                                          },
+            { "btn.ver.cargar",          "Загрузить"                                              },
+            { "btn.ver.restaurar",       "Восстановить выбранную версию"                          },
+            { "col.ver.id",              "ID"                                                     },
+            { "col.ver.fecha",           "Дата"                                                   },
+            { "col.ver.actor",           "Изменено кем"                                           },
+            { "col.ver.detalle",         "Детали"                                                 },
+            { "col.ver.estado",          "Состояние"                                              },
+            { "mnu.historialusr",        "История изменений"                                      },
         });
 
         // ── Constructor de diccionario ────────────────────────────────────────

@@ -52,7 +52,9 @@
     <Compile Include="Pedido.cs" />
     <Compile Include="PlanSuscripcion.cs" />
     <Compile Include="Prenda.cs" />
+    <Compile Include="Backup.cs" />
     <Compile Include="Usuario.cs" />
+    <Compile Include="VersionUsuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

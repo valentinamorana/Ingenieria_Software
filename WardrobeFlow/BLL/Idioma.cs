@@ -204,6 +204,11 @@ namespace BLL
             if (clave.StartsWith("lbl.permisos.") || clave.StartsWith("btn.permisos.") ||
                 clave.StartsWith("msg.permisos.") || clave.StartsWith("perm."))           return "GestorPermisos";
             if (clave.StartsWith("lbl.idiomas.")  || clave.StartsWith("btn.idiomas."))  return "FormIdiomas";
+            if (clave == "frm.backup"    || clave.StartsWith("btn.backup.") ||
+                clave == "lbl.backup.info" || clave == "mnu.backup")          return "Backup";
+            if (clave == "frm.historialusr" || clave.StartsWith("lbl.ver.") ||
+                clave.StartsWith("btn.ver.")  || clave.StartsWith("col.ver.") ||
+                clave == "mnu.historialusr")                                   return "VersionHistorial";
             if (clave == "lbl.usuario" || clave == "lbl.contrasena" ||
                 clave == "btn.ingresar" || clave == "btn.salir" ||
                 clave == "lnk.olvide"  || clave == "lbl.idioma" || clave == "lbl.subtitulo" ||
