@@ -22,7 +22,7 @@ namespace GUI
     ///   - MostrarError() → heredado, no se redeclara
     ///   - MensajeLabel → sobreescrito para devolver el lblMensaje de este formulario
     /// </summary>
-    public partial class NuevoPedidoForm : FormBase
+    public partial class NuevoPedidoForm : FormBase, IIdiomaObserver
     {
         protected override Label MensajeLabel => lblMensaje;
 
@@ -44,6 +44,27 @@ namespace GUI
             InitializeComponent();
             AplicarIdioma(GestorIdioma.IdiomaActual);
             this.Load += new EventHandler(NuevoPedidoForm_Load);
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            GestorIdioma.SuscribirObservador(this);
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            GestorIdioma.DesuscribirObservador(this);
+            base.OnFormClosing(e);
+        }
+
+        // ── IIdiomaObserver ───────────────────────────────────────────────────
+
+        public void UpdateLanguage(Idioma idioma)
+        {
+            AplicarIdioma(idioma);
+            if (dgvPrendas.Columns.Count > 0)
+                TraducirHeadersGrilla();
         }
 
         // ── Traducción ────────────────────────────────────────────────────────
