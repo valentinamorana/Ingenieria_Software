@@ -256,7 +256,7 @@ namespace GUI
 
                 dgvDetallePrendas.DataSource = tabla;
             }
-            catch { /* No interrumpir si el detalle falla */ }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[PedidosVenta] Error al cargar detalle: {ex.Message}"); }
         }
 
         private string EstadoPrendaLabel(BE.EstadoPrenda estado)

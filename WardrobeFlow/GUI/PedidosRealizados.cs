@@ -373,7 +373,7 @@ namespace GUI
                 dgvDetalle.DataSource = tabla;
                 TraducirHeadersDetalle();
             }
-            catch { /* No interrumpir la UI si falla el detalle */ }
+            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[PedidosRealizados] Error al cargar detalle: {ex.Message}"); }
         }
 
         /// <summary>Traduce los HeaderText de la grilla de detalle de prendas según el idioma activo.</summary>

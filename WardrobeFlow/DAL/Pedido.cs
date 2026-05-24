@@ -48,9 +48,9 @@ namespace DAL
             {
                 DataTable tabla = acceso.Leer(
                     SELECT_BASE +
-                    $" WHERE ped.Estado = {(int)BE.EstadoPedido.Pendiente}" +
+                    " WHERE ped.Estado = @Estado" +
                     " ORDER BY ped.FechaPedido",
-                    null);
+                    new[] { new SqlParameter("@Estado", (int)BE.EstadoPedido.Pendiente) });
 
                 foreach (DataRow row in tabla.Rows)
                     lista.Add(MapearCabecera(row));
@@ -121,12 +121,13 @@ namespace DAL
                     }
 
                     using (var cmdPr = new SqlCommand(
-                        $"UPDATE Prenda SET Estado={(int)BE.EstadoPrenda.EnUso}, IdClienteActual=@IdCliente " +
+                        "UPDATE Prenda SET Estado=@Estado, IdClienteActual=@IdCliente " +
                         "WHERE IdPrenda=@IdPrenda",
                         conexion, tx))
                     {
+                        cmdPr.Parameters.AddWithValue("@Estado",    (int)BE.EstadoPrenda.EnUso);
                         cmdPr.Parameters.AddWithValue("@IdCliente", pedido.IdCliente);
-                        cmdPr.Parameters.AddWithValue("@IdPrenda", prenda.IdPrenda);
+                        cmdPr.Parameters.AddWithValue("@IdPrenda",  prenda.IdPrenda);
                         cmdPr.ExecuteNonQuery();
                     }
                 }
@@ -140,11 +141,12 @@ namespace DAL
         {
             SqlParameter[] p =
             {
+                new SqlParameter("@Estado",        (int)BE.EstadoPedido.Despachado),
                 new SqlParameter("@FechaDespacho", DateTime.Now),
-                new SqlParameter("@IdPedido", idPedido)
+                new SqlParameter("@IdPedido",      idPedido)
             };
             acceso.Escribir(
-                $"UPDATE Pedido SET Estado={(int)BE.EstadoPedido.Despachado}, FechaDespacho=@FechaDespacho " +
+                "UPDATE Pedido SET Estado=@Estado, FechaDespacho=@FechaDespacho " +
                 "WHERE IdPedido=@IdPedido",
                 p);
         }
@@ -154,11 +156,12 @@ namespace DAL
         {
             SqlParameter[] p =
             {
+                new SqlParameter("@Estado",       (int)BE.EstadoPedido.Entregado),
                 new SqlParameter("@FechaEntrega", DateTime.Now),
-                new SqlParameter("@IdPedido", idPedido)
+                new SqlParameter("@IdPedido",     idPedido)
             };
             acceso.Escribir(
-                $"UPDATE Pedido SET Estado={(int)BE.EstadoPedido.Entregado}, FechaEntrega=@FechaEntrega " +
+                "UPDATE Pedido SET Estado=@Estado, FechaEntrega=@FechaEntrega " +
                 "WHERE IdPedido=@IdPedido",
                 p);
         }
@@ -170,11 +173,12 @@ namespace DAL
             {
                 // Prendas del pedido → EnLimpieza, sin cliente asignado
                 using (var cmd = new SqlCommand(
-                    $"UPDATE Prenda SET Estado={(int)BE.EstadoPrenda.EnLimpieza}, IdClienteActual=NULL " +
+                    "UPDATE Prenda SET Estado=@Estado, IdClienteActual=NULL " +
                     "WHERE IdPrenda IN " +
                     "  (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
                     conexion, tx))
                 {
+                    cmd.Parameters.AddWithValue("@Estado",   (int)BE.EstadoPrenda.EnLimpieza);
                     cmd.Parameters.AddWithValue("@IdPedido", idPedido);
                     cmd.ExecuteNonQuery();
                 }
@@ -189,10 +193,11 @@ namespace DAL
             acceso.EjecutarTransaccion((conexion, tx) =>
             {
                 using (var cmdPedido = new SqlCommand(
-                    $"UPDATE Pedido SET Estado={(int)BE.EstadoPedido.Cancelado}, MotivoCancelacion=@Motivo " +
+                    "UPDATE Pedido SET Estado=@Estado, MotivoCancelacion=@Motivo " +
                     "WHERE IdPedido=@IdPedido",
                     conexion, tx))
                 {
+                    cmdPedido.Parameters.AddWithValue("@Estado",   (int)BE.EstadoPedido.Cancelado);
                     cmdPedido.Parameters.AddWithValue("@Motivo",   (object)motivo ?? DBNull.Value);
                     cmdPedido.Parameters.AddWithValue("@IdPedido", idPedido);
                     cmdPedido.ExecuteNonQuery();
@@ -200,10 +205,11 @@ namespace DAL
 
                 // Liberar prendas del pedido → Disponible
                 using (var cmdPrendas = new SqlCommand(
-                    $"UPDATE Prenda SET Estado={(int)BE.EstadoPrenda.Disponible}, IdClienteActual=NULL " +
+                    "UPDATE Prenda SET Estado=@Estado, IdClienteActual=NULL " +
                     "WHERE IdPrenda IN (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
                     conexion, tx))
                 {
+                    cmdPrendas.Parameters.AddWithValue("@Estado",   (int)BE.EstadoPrenda.Disponible);
                     cmdPrendas.Parameters.AddWithValue("@IdPedido", idPedido);
                     cmdPrendas.ExecuteNonQuery();
                 }
@@ -225,9 +231,10 @@ namespace DAL
                     "SELECT COUNT(*) AS Ocupadas " +
                     "FROM PedidoPrenda pp " +
                     "INNER JOIN Prenda pr ON pr.IdPrenda = pp.IdPrenda " +
-                    $"WHERE pp.IdPedido = @IdPedido AND pr.Estado <> {(int)BE.EstadoPrenda.Disponible}",
+                    "WHERE pp.IdPedido = @IdPedido AND pr.Estado <> @Estado",
                     conexion, tx))
                 {
+                    cmdCheck.Parameters.AddWithValue("@Estado",   (int)BE.EstadoPrenda.Disponible);
                     cmdCheck.Parameters.AddWithValue("@IdPedido", idPedido);
                     int ocupadas = Convert.ToInt32(cmdCheck.ExecuteScalar());
                     if (ocupadas > 0)
@@ -238,19 +245,21 @@ namespace DAL
                 }
 
                 using (var cmdPedido = new SqlCommand(
-                    $"UPDATE Pedido SET Estado={(int)BE.EstadoPedido.Pendiente}, MotivoCancelacion=NULL " +
+                    "UPDATE Pedido SET Estado=@Estado, MotivoCancelacion=NULL " +
                     "WHERE IdPedido=@IdPedido",
                     conexion, tx))
                 {
+                    cmdPedido.Parameters.AddWithValue("@Estado",   (int)BE.EstadoPedido.Pendiente);
                     cmdPedido.Parameters.AddWithValue("@IdPedido", idPedido);
                     cmdPedido.ExecuteNonQuery();
                 }
 
                 using (var cmdPrendas = new SqlCommand(
-                    $"UPDATE Prenda SET Estado={(int)BE.EstadoPrenda.EnUso}, IdClienteActual=@IdCliente " +
+                    "UPDATE Prenda SET Estado=@Estado, IdClienteActual=@IdCliente " +
                     "WHERE IdPrenda IN (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
                     conexion, tx))
                 {
+                    cmdPrendas.Parameters.AddWithValue("@Estado",    (int)BE.EstadoPrenda.EnUso);
                     cmdPrendas.Parameters.AddWithValue("@IdCliente", idCliente);
                     cmdPrendas.Parameters.AddWithValue("@IdPedido",  idPedido);
                     cmdPrendas.ExecuteNonQuery();
