@@ -53,9 +53,9 @@ namespace DAL
                     "       p.Categoria, p.Estado, p.IdClienteActual, p.FechaAlta, " +
                     "       NULL AS NombreCliente " +
                     "FROM Prenda p " +
-                    $"WHERE p.Estado = {(int)BE.EstadoPrenda.Disponible} " +
+                    "WHERE p.Estado = @Estado " +
                     "ORDER BY p.Categoria, p.Nombre",
-                    null);
+                    new[] { new SqlParameter("@Estado", (int)BE.EstadoPrenda.Disponible) });
 
                 foreach (DataRow row in tabla.Rows)
                     lista.Add(Mapear(row));
