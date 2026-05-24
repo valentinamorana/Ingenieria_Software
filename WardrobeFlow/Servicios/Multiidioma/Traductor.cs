@@ -109,6 +109,7 @@ namespace Servicios.Multiidioma
             { "btn.ingresar",     "INGRESAR"                       },
             { "btn.salir",        "SALIR"                          },
             { "lnk.olvide",       "Olvidé mi contraseña"           },
+            { "lbl.iniciarsesion","Iniciar sesión"                  },
             // Barra de idioma
             { "lbl.idioma",       "Idioma:"                        },
             // Login — subtítulo
@@ -540,6 +541,7 @@ namespace Servicios.Multiidioma
             { "btn.ingresar",     "Sign In"                         },
             { "btn.salir",        "Exit"                            },
             { "lnk.olvide",       "Forgot your password?"           },
+            { "lbl.iniciarsesion","Sign In"                          },
             // Language bar
             { "lbl.idioma",       "Language:"                       },
             // Login — subtitle
@@ -967,6 +969,7 @@ namespace Servicios.Multiidioma
             { "btn.ingresar",     "Войти"                                  },
             { "btn.salir",        "Выйти"                                  },
             { "lnk.olvide",       "Забыли пароль?"                         },
+            { "lbl.iniciarsesion","Войти в систему"                         },
             // Панель языка
             { "lbl.idioma",       "Язык:"                                  },
             // Вход — подзаголовок

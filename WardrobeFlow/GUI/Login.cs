@@ -1,6 +1,7 @@
 using BLL;
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Servicios.Multiidioma;
 
@@ -33,6 +34,19 @@ namespace GUI
         {
             InitializeComponent();
 
+            pnlLeft.BackgroundImage       = CrearTexturaPanelIzquierdo();
+            pnlLeft.BackgroundImageLayout = ImageLayout.None;
+            // DoubleBuffered en pnlCard: garantiza que los labels Transparent
+            // muestren el BackgroundImage en lugar del BackColor sólido.
+            typeof(System.Windows.Forms.Control)
+                .GetProperty("DoubleBuffered",
+                    System.Reflection.BindingFlags.NonPublic |
+                    System.Reflection.BindingFlags.Instance)
+                ?.SetValue(pnlCard, true, null);
+
+            pnlCard.BackgroundImage       = CrearTexturaPanelDerecho();
+            pnlCard.BackgroundImageLayout = ImageLayout.Stretch;
+
             // Permitir presionar Enter para ingresar (UX de empleados)
             this.AcceptButton = btnIngresar;
 
@@ -62,7 +76,19 @@ namespace GUI
             btnOjo.FlatAppearance.BorderSize = 1;
             btnOjo.FlatAppearance.BorderColor = Color.FromArgb(180, 180, 180);
             btnOjo.Click += (s, e) =>
-                txtContraseña.PasswordChar = txtContraseña.PasswordChar == '\0' ? '●' : '\0';
+            {
+                var b = (Button)s;
+                if (txtContraseña.PasswordChar == '\0')
+                {
+                    txtContraseña.PasswordChar = '●';
+                    b.Font = new Font("Segoe UI Emoji", 9f);
+                }
+                else
+                {
+                    txtContraseña.PasswordChar = '\0';
+                    b.Font = new Font("Segoe UI Emoji", 9f, FontStyle.Strikeout);
+                }
+            };
             pnlCard.Controls.Add(btnOjo);
             btnOjo.BringToFront();
 
@@ -195,6 +221,9 @@ namespace GUI
             // Subtítulo "PORTAL DE EMPLEADOS" — traducción directa por clave fija
             if (t.ContainsKey("lbl.subtitulo"))
                 lblSubtitulo.Text = t["lbl.subtitulo"].Texto;
+
+            if (lblAccent.Tag != null && t.ContainsKey(lblAccent.Tag.ToString()))
+                lblAccent.Text = t[lblAccent.Tag.ToString()].Texto;
         }
 
         // ── Eventos de negocio ────────────────────────────────────────────────
@@ -264,6 +293,58 @@ namespace GUI
                     txtContraseña.Focus();
                 }
             }
+        }
+
+        private Bitmap CrearTexturaPanelDerecho()
+        {
+            int w = pnlCard.Width  > 0 ? pnlCard.Width  : 455;
+            int h = pnlCard.Height > 0 ? pnlCard.Height : 420;
+            var bmp = new Bitmap(w, h);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                // Gradiente vertical: lavanda suave arriba → blanco abajo
+                using (var grad = new LinearGradientBrush(
+                    new Point(0, 0), new Point(0, h),
+                    Color.FromArgb(238, 228, 248),   // lavanda claro
+                    Color.FromArgb(255, 255, 255)))  // blanco
+                {
+                    g.FillRectangle(grad, 0, 0, w, h);
+                }
+                // Puntos sutiles superpuestos al gradiente
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                using (var dot = new SolidBrush(Color.FromArgb(40, 146, 62, 96)))
+                {
+                    const int spacing = 28;
+                    for (int x = spacing; x < w; x += spacing)
+                        for (int y = spacing; y < h; y += spacing)
+                            g.FillEllipse(dot, x - 1, y - 1, 3, 3);
+                }
+            }
+            return bmp;
+        }
+
+        private Bitmap CrearTexturaPanelIzquierdo()
+        {
+            int w = pnlLeft.Width > 0 ? pnlLeft.Width : 265;
+            int h = pnlLeft.Height > 0 ? pnlLeft.Height : 420;
+            var bmp = new Bitmap(w, h);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.FromArgb(146, 62, 96));
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                using (var b1 = new SolidBrush(Color.FromArgb(30, 255, 255, 255)))
+                {
+                    g.FillEllipse(b1, 100, -80, 230, 230);   // top-right
+                    g.FillEllipse(b1, -60, 245, 200, 200);   // bottom-left
+                    g.FillEllipse(b1, 115, 265, 180, 180);   // bottom-right
+                }
+                using (var b2 = new SolidBrush(Color.FromArgb(18, 255, 255, 255)))
+                {
+                    g.FillEllipse(b2, -50,  5, 170, 170);    // top-left
+                    g.FillEllipse(b2,  35, 115, 185, 185);   // center
+                }
+            }
+            return bmp;
         }
 
         /// <summary>

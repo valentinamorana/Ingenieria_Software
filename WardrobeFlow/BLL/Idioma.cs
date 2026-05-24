@@ -206,7 +206,8 @@ namespace BLL
             if (clave.StartsWith("lbl.idiomas.")  || clave.StartsWith("btn.idiomas."))  return "FormIdiomas";
             if (clave == "lbl.usuario" || clave == "lbl.contrasena" ||
                 clave == "btn.ingresar" || clave == "btn.salir" ||
-                clave == "lnk.olvide"  || clave == "lbl.idioma" || clave == "lbl.subtitulo") return "Login";
+                clave == "lnk.olvide"  || clave == "lbl.idioma" || clave == "lbl.subtitulo" ||
+                clave == "lbl.iniciarsesion") return "Login";
             if (clave.StartsWith("msg.modulo.") || clave == "lbl.proximamente") return "Menu";
             return "General";
         }
