@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 
 namespace DAL
 {
@@ -180,7 +181,7 @@ namespace DAL
                     sql = "UPDATE Pedido SET FechaDespacho = @Valor WHERE IdPedido = @IdPedido";
                     object fechaDesp = string.IsNullOrEmpty(valorAnterior)
                         ? (object)DBNull.Value
-                        : DateTime.Parse(valorAnterior);
+                        : DateTime.ParseExact(valorAnterior, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
                     parametros = new[]
                     {
                         new SqlParameter("@Valor",    fechaDesp),
@@ -192,7 +193,7 @@ namespace DAL
                     sql = "UPDATE Pedido SET FechaEntrega = @Valor WHERE IdPedido = @IdPedido";
                     object fechaEntr = string.IsNullOrEmpty(valorAnterior)
                         ? (object)DBNull.Value
-                        : DateTime.Parse(valorAnterior);
+                        : DateTime.ParseExact(valorAnterior, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
                     parametros = new[]
                     {
                         new SqlParameter("@Valor",    fechaEntr),

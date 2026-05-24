@@ -34,7 +34,15 @@ namespace Servicios
                              $"[Criticidad: {criticidad}] desde {ip} a las {DateTime.Now:HH:mm:ss}."
             };
 
-            bitacoraDAL.Registrar(registro);
+            try
+            {
+                bitacoraDAL.Registrar(registro);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[Servicios.Bitacora.Registrar] Error al registrar: {ex.Message}");
+            }
         }
 
         // Registra un evento sin requerir sesión activa (p. ej. intentos de login fallidos).
