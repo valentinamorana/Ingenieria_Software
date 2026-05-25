@@ -9,8 +9,8 @@ namespace BLL
     /// Construye el árbol de permisos en memoria a partir de los datos en BD.
     /// Estructura del árbol:
     ///   BE.Familia (raíz — nombre del rol)
-    ///     BE.Familia (nodo — grupo TipoComponente: "Inventario", "Ventas", ...)
-    ///       BE.Patente (hoja — permiso individual, con Asignado=true si está en el rol)
+    ///     BE.Familia (nodo — grupo/familia de permisos, cargado desde BD con EsFamilia=1)
+    ///       BE.Patente (hoja — permiso individual, Asignado=true si está en RolPermiso)
     ///
     /// La GUI usa esta BLL exclusivamente; nunca toca DAL.Permiso directamente.
     /// </summary>
@@ -25,50 +25,38 @@ namespace BLL
         }
 
         // Construye el árbol Composite completo para el rol dado.
-        // Raíz = Familia con el nombre del rol.
-        // Hijos de la raíz = una Familia por cada TipoComponente.
-        // Hojas = Patente por cada permiso, con Asignado marcado según RolPermiso.
+        // El árbol de Familias y Patentes viene ya estructurado desde DAL (vía PermisoRelacion).
+        // MarcarAsignados recorre el árbol recursivamente y marca Patente.Asignado según RolPermiso.
         public BE.Familia ObtenerArbolPorRol(string rol)
         {
             if (string.IsNullOrWhiteSpace(rol))
                 throw new ArgumentException("El rol no puede estar vacío.");
 
-            List<BE.Permiso> todos     = permisoDAL.ObtenerTodos();
-            List<BE.Permiso> asignados = permisoDAL.ObtenerPorRol(rol);
+            List<BE.Componente> arbol    = permisoDAL.ObtenerArbol();
+            List<BE.Permiso>    asignados = permisoDAL.ObtenerPorRol(rol);
 
             var idsAsignados = new HashSet<int>();
             foreach (var p in asignados)
                 idsAsignados.Add(p.Id);
 
+            MarcarAsignados(arbol, idsAsignados);
+
             var raiz = new BE.Familia { Id = 0, Nombre = rol };
-
-            // Agrupar por TipoComponente preservando el orden de aparición
-            var grupos = new Dictionary<string, BE.Familia>();
-            var ordenGrupos = new List<string>();
-
-            foreach (var perm in todos)
-            {
-                string grupo = string.IsNullOrWhiteSpace(perm.TipoComponente) ? "General" : perm.TipoComponente;
-
-                if (!grupos.ContainsKey(grupo))
-                {
-                    grupos[grupo] = new BE.Familia { Nombre = grupo };
-                    ordenGrupos.Add(grupo);
-                }
-
-                grupos[grupo].AgregarHijo(new BE.Patente
-                {
-                    Id        = perm.Id,
-                    Nombre    = perm.Nombre,
-                    NombreMenu = perm.NombreMenu,
-                    Asignado  = idsAsignados.Contains(perm.Id)
-                });
-            }
-
-            foreach (string g in ordenGrupos)
-                raiz.AgregarHijo(grupos[g]);
+            foreach (var nodo in arbol)
+                raiz.AgregarHijo(nodo);
 
             return raiz;
+        }
+
+        private void MarcarAsignados(IList<BE.Componente> nodos, HashSet<int> ids)
+        {
+            foreach (var nodo in nodos)
+            {
+                if (nodo is BE.Patente patente)
+                    patente.Asignado = ids.Contains(patente.Id);
+                else if (nodo is BE.Familia familia)
+                    MarcarAsignados(familia.Hijos, ids);
+            }
         }
 
         // Asigna un permiso a un rol. Solo Administrador (validación en GUI).
