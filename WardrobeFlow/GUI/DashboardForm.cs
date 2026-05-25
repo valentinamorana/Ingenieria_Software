@@ -390,13 +390,13 @@ namespace GUI
                 Size      = new Size(100, 28),
                 Anchor    = AnchorStyles.Top | AnchorStyles.Right,
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(255, 255, 255, 50),
+                BackColor = Color.FromArgb(210, 100, 135),
                 ForeColor = Color.White,
                 Font      = new Font("Segoe UI", 8.5f),
                 Cursor    = Cursors.Hand,
                 Location  = new Point(_panelHeader.Width - 112, 17)
             };
-            _btnRefrescar.FlatAppearance.BorderColor = Color.FromArgb(180, 255, 255, 255);
+            _btnRefrescar.FlatAppearance.BorderColor = Color.FromArgb(180, 230, 140, 170);
             _btnRefrescar.FlatAppearance.BorderSize  = 1;
             _btnRefrescar.Click += (s, e) => { ActualizarMetricas(); CargarActividadReciente(); CargarMiniStats(); };
 
