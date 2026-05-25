@@ -85,8 +85,12 @@ namespace GUI
         private void Traducir(Idioma idioma)
         {
             var t = Traductor.ObtenerTraducciones(idioma);
+            string Tv(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
             if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
                 this.Text = t[this.Tag.ToString()].Texto;
+            lblBitTitulo.Text    = Tv("frm.bitacora",          "Auditoría — Bitácoras");
+            lblBitSubtitulo.Text = Tv("frm.bitacora.subtitulo","Registro de eventos del sistema y operaciones de negocio");
             // Tabs
             if (t.ContainsKey("tab.sistema")) tabPageSistema.Text = t["tab.sistema"].Texto;
             if (t.ContainsKey("tab.negocio")) tabPageNegocio.Text = t["tab.negocio"].Texto;

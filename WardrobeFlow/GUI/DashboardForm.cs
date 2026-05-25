@@ -95,7 +95,11 @@ namespace GUI
 
         // ── IIdiomaObserver ───────────────────────────────────────────────────
 
-        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+        public void UpdateLanguage(Idioma idioma)
+        {
+            Traducir(idioma);
+            ActualizarMetricas();
+        }
 
         private string T(string key, string fallback)
         {

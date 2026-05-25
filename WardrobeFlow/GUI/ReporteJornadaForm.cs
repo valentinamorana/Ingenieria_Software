@@ -48,7 +48,11 @@ namespace GUI
 
         // ── IIdiomaObserver ───────────────────────────────────────────────────
 
-        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+        public void UpdateLanguage(Idioma idioma)
+        {
+            Traducir(idioma);
+            GenerarReporte();
+        }
 
         private void Traducir(Idioma idioma)
         {
@@ -287,7 +291,7 @@ namespace GUI
                             lineIndex = 0;
                             pageNum   = 0;
                             pd.Print();
-                            lblStatus.Text = "Impresión enviada.";
+                            lblStatus.Text = ConstruirLblReporte()["impresionenv"];
                         }
                     }
                 }
@@ -320,10 +324,11 @@ namespace GUI
         {
             try
             {
+                var lbl = ConstruirLblReporte();
                 string texto = _servicio.GenerarComparacion(
-                    dtpJornada.Value.Date, dtpJornada2.Value.Date);
+                    dtpJornada.Value.Date, dtpJornada2.Value.Date, lbl);
                 rtbReporte.Text = texto;
-                lblStatus.Text  = $"Comparación generada — {DateTime.Now:HH:mm:ss}";
+                lblStatus.Text  = $"{lbl["compgenerada"]} — {DateTime.Now:HH:mm:ss}";
             }
             catch (Exception ex)
             {
@@ -331,13 +336,47 @@ namespace GUI
             }
         }
 
+        private IDictionary<string, string> ConstruirLblReporte()
+        {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string Tv(string key, string fb) => t.ContainsKey(key) ? t[key].Texto : fb;
+            return new Dictionary<string, string>
+            {
+                { "titulo",        Tv("rpt.txt.titulo",       "REPORTE DE JORNADA")                                    },
+                { "resumen",       Tv("rpt.txt.resumen",      "RESUMEN DEL SISTEMA")                                   },
+                { "prendas",       Tv("rpt.txt.prendas",      "Prendas disponibles")                                   },
+                { "clientes",      Tv("rpt.txt.clientes",     "Clientes registrados")                                  },
+                { "diassinbkp",    Tv("rpt.txt.diassinbkp",   "Días sin backup")                                       },
+                { "sinbackups",    Tv("rpt.txt.sinbackups",   "Sin backups")                                           },
+                { "eventos",       Tv("rpt.txt.eventos",      "EVENTOS DE NEGOCIO DEL DÍA")                            },
+                { "sinevt",        Tv("rpt.txt.sinevt",       "(sin eventos registrados para esta jornada)")            },
+                { "usuario",       Tv("rpt.txt.usuario",      "Usuario")                                               },
+                { "cliente",       Tv("rpt.txt.cliente",      "Cliente")                                               },
+                { "totalevt",      Tv("rpt.txt.totalevt",     "TOTAL EVENTOS")                                         },
+                { "generado",      Tv("rpt.txt.generado",     "Generado")                                              },
+                { "comparacion",   Tv("rpt.txt.comparacion",  "COMPARACIÓN DE JORNADAS")                               },
+                { "jornada",       Tv("rpt.txt.jornada",      "JORNADA")                                               },
+                { "sinevtjorn",    Tv("rpt.txt.sinevtjorn",   "(sin eventos registrados en esta jornada)")              },
+                { "comparfinal",   Tv("rpt.txt.comparfinal",  "COMPARATIVO FINAL")                                     },
+                { "fecha",         Tv("rpt.txt.fecha",        "Fecha")                                                 },
+                { "eventostot",    Tv("rpt.txt.eventostot",   "Eventos totales")                                       },
+                { "masmasa",       Tv("rpt.txt.masmasa",      "tuvo más actividad")                                    },
+                { "ninguna",       Tv("rpt.txt.ninguna",      "Ninguna jornada tuvo eventos registrados.")              },
+                { "iguales",       Tv("rpt.txt.iguales",      "Ambas jornadas tuvieron la misma cantidad de eventos.") },
+                { "rptoegenerado", Tv("rpt.txt.rptoegenerado","Reporte generado")                                      },
+                { "compgenerada",  Tv("rpt.txt.compgenerada", "Comparación generada")                                  },
+                { "impresionenv",  Tv("rpt.txt.impresionenv", "Impresión enviada")                                     },
+            };
+        }
+
         private void GenerarReporte()
         {
             try
             {
                 DateTime fecha = dtpJornada.Value.Date;
-                rtbReporte.Text = _servicio.Generar(fecha);
-                lblStatus.Text  = $"Reporte generado — {DateTime.Now:HH:mm:ss}";
+                var lbl = ConstruirLblReporte();
+                rtbReporte.Text = _servicio.Generar(fecha, lbl);
+                lblStatus.Text  = $"{lbl["rptoegenerado"]} — {DateTime.Now:HH:mm:ss}";
                 if (_kpiPrendasVal != null) ActualizarKPIs(fecha);
             }
             catch (Exception ex)
