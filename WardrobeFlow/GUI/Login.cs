@@ -239,67 +239,61 @@ namespace GUI
             try
             {
                 bool esValido = usuarioBLL.Login(this.Text, txtUsuario.Text, txtContraseña.Text);
-
                 if (esValido)
                 {
-                    // Login exitoso → el formulario desaparece y Program.Main() abre el Menú
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
-                // No hay else: credenciales inválidas y bloqueos son manejados
-                // por excepciones en BLL.Usuario.Login() → caen al catch de abajo
             }
-            catch (Exception ex)
+            catch (BE.LoginException ex) when (ex.Tipo == BE.LoginException.TipoError.LimiteAlcanzado)
             {
-                if (ex.Message.Contains("Demasiados intentos"))
+                MessageBox.Show(ex.Message + "\n\nLa aplicación se cerrará.",
+                    "Sesión terminada", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                Application.Exit();
+            }
+            catch (BE.LoginException ex) when (ex.Tipo == BE.LoginException.TipoError.CuentaBloqueada)
+            {
+                MostrarErrorLogin(ex.Message, bloqueado: true);
+            }
+            catch (BE.LoginException ex)
+            {
+                MostrarErrorLogin(ex.Message, bloqueado: false);
+            }
+        }
+
+        private void MostrarErrorLogin(string mensaje, bool bloqueado)
+        {
+            lblError.Text      = mensaje;
+            lblError.ForeColor = bloqueado
+                ? Color.FromArgb(140, 0, 0)
+                : Color.FromArgb(180, 50, 50);
+
+            // Expandir el card si el mensaje necesita más espacio (bloqueos son multi-línea).
+            using (var g = lblError.CreateGraphics())
+            {
+                var tamano      = g.MeasureString(lblError.Text, lblError.Font, lblError.Width);
+                int diferencia  = Math.Max(0, (int)tamano.Height + 4 - lblError.Height);
+                if (diferencia > 0)
                 {
-                    MessageBox.Show(ex.Message + "\n\nLa aplicación se cerrará.",
-                        "Sesión terminada", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                    Application.Exit();
-                    return;
+                    lblError.Height  += diferencia;
+                    btnIngresar.Top  += diferencia;
+                    lnkOlvidaste.Top += diferencia;
+                    btnSalir.Top     += diferencia;
+                    pnlCard.Height   += diferencia;
                 }
+            }
 
-                bool bloqueado = ex.Message.Contains("bloqueada");
-
-                lblError.Text      = ex.Message;
-                lblError.ForeColor = bloqueado
-                    ? Color.FromArgb(140, 0, 0)
-                    : Color.FromArgb(180, 50, 50);
-
-                // Expandir el card dinámicamente solo si el mensaje necesita más espacio
-                // (mensajes de bloqueo son multi-línea). Calculamos cuánto espacio extra
-                // requiere el texto y desplazamos los controles de abajo.
-                using (var g = lblError.CreateGraphics())
-                {
-                    var tamano = g.MeasureString(lblError.Text, lblError.Font,
-                                                 lblError.Width);
-                    int alturaTexto  = (int)tamano.Height + 4;
-                    int alturaActual = lblError.Height;
-                    int diferencia   = Math.Max(0, alturaTexto - alturaActual);
-
-                    if (diferencia > 0)
-                    {
-                        lblError.Height       += diferencia;
-                        btnIngresar.Top       += diferencia;
-                        lnkOlvidaste.Top      += diferencia;
-                        btnSalir.Top          += diferencia;
-                        pnlCard.Height        += diferencia;
-                    }
-                }
-
-                if (bloqueado)
-                {
-                    // Cuenta bloqueada: deshabilitar todo para que no siga intentando
-                    txtUsuario.Enabled    = false;
-                    txtContraseña.Enabled = false;
-                    btnIngresar.Enabled   = false;
-                    this.AcceptButton     = null;
-                }
-                else
-                {
-                    txtContraseña.Clear();
-                    txtContraseña.Focus();
-                }
+            if (bloqueado)
+            {
+                txtUsuario.Enabled    = false;
+                txtContraseña.Enabled = false;
+                btnIngresar.Enabled   = false;
+                this.AcceptButton     = null;
+            }
+            else
+            {
+                txtContraseña.Clear();
+                txtContraseña.Focus();
             }
         }
 

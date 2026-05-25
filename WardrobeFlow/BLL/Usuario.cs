@@ -19,10 +19,11 @@ namespace BLL
         public bool Login(string modulo, string username, string contraseña)
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(contraseña))
-                throw new Exception("Usuario y contraseña son obligatorios.");
+                throw new BE.LoginException(BE.LoginException.TipoError.CamposVacios,
+                    "Usuario y contraseña son obligatorios.");
 
             if (ContadorSesion.GetInstance().LimiteAlcanzado)
-                throw new Exception(
+                throw new BE.LoginException(BE.LoginException.TipoError.LimiteAlcanzado,
                     "Demasiados intentos fallidos en esta sesión.\n" +
                     "Reiniciá la aplicación para volver a intentarlo.");
 
@@ -30,7 +31,7 @@ namespace BLL
             if (usuario == null) return false;
 
             if (usuario.Bloqueado)
-                throw new Exception(
+                throw new BE.LoginException(BE.LoginException.TipoError.CuentaBloqueada,
                     $"La cuenta '{username}' está bloqueada.\n" +
                     "Contactá al Administrador para que la reactive desde Administrar → Usuarios.");
 
@@ -57,14 +58,14 @@ namespace BLL
                     usuarioDAL.Bloquear(usuario.Id);
                     RegistrarBloqueo(modulo, username, usuario.Id);
 
-                    throw new Exception(
+                    throw new BE.LoginException(BE.LoginException.TipoError.CuentaBloqueada,
                         $"La cuenta '{username}' ha sido bloqueada tras {MaxIntentosFallidos} " +
                         "intentos fallidos consecutivos.\n" +
                         "Contactá al Administrador para reactivarla.");
                 }
 
                 int restantes = MaxIntentosFallidos - intentos;
-                throw new Exception(
+                throw new BE.LoginException(BE.LoginException.TipoError.CredencialesInvalidas,
                     $"Usuario o contraseña incorrectos.\n" +
                     $"Intentos restantes antes del bloqueo: {restantes}.");
             }
