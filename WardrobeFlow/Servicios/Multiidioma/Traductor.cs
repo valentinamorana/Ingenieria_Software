@@ -727,6 +727,20 @@ namespace Servicios.Multiidioma
             { "bit.pdf.vistaprevia",     "Vista Previa"                                          },
             { "dash.backup.hoy",         "Hoy"                                                   },
             { "dash.sesion.iniciada",    "Sesión iniciada:"                                      },
+            // Dashboard — avisos de backup y diálogo de configuración
+            { "dash.aviso.sinbackup",   "⚠  Sin backups. Generá uno desde Administrar → Backup."           },
+            { "dash.aviso.vencido",     "⚠  Hace {0} día(s) sin backup — recordatorio cada {1} días."      },
+            { "dash.cfg.titulo",        "Recordatorio de Backup"                                            },
+            { "dash.cfg.recada",        "Recordarme cada:"                                                  },
+            { "dash.cfg.dias",          "días"                                                              },
+            { "dash.cfg.guardar",       "Guardar"                                                           },
+            // Reporte de Jornada — menús de exportación y diálogos
+            { "rpt.menu.guardartxt",    "Guardar como .TXT"                                                 },
+            { "rpt.menu.imprimir",      "Imprimir / Exportar PDF"                                           },
+            { "rpt.menu.guardarcmp",    "Guardar comparación como .TXT"                                     },
+            { "rpt.dlg.guardartxt",     "Guardar como TXT"                                                  },
+            { "rpt.dlg.exito.titulo",   "Éxito"                                                             },
+            { "rpt.dlg.exito.msg",      "Archivo guardado:\n{0}"                                            },
             // Historial de Cambios de Usuarios (T06)
             { "frm.historialusr",        "Historial de Cambios de Usuarios"                       },
             { "lbl.ver.usuario",         "Usuario:"                                               },
@@ -1254,6 +1268,20 @@ namespace Servicios.Multiidioma
             { "bit.pdf.vistaprevia",     "Print Preview"                                         },
             { "dash.backup.hoy",         "Today"                                                 },
             { "dash.sesion.iniciada",    "Session started:"                                      },
+            // Dashboard — backup notices and config dialog
+            { "dash.aviso.sinbackup",   "⚠  No backups. Generate one from Administration → Backup."        },
+            { "dash.aviso.vencido",     "⚠  {0} day(s) without backup — reminder every {1} days."          },
+            { "dash.cfg.titulo",        "Backup Reminder"                                                   },
+            { "dash.cfg.recada",        "Remind me every:"                                                  },
+            { "dash.cfg.dias",          "days"                                                              },
+            { "dash.cfg.guardar",       "Save"                                                              },
+            // Daily Report — export menus and dialogs
+            { "rpt.menu.guardartxt",    "Save as .TXT"                                                      },
+            { "rpt.menu.imprimir",      "Print / Export PDF"                                                },
+            { "rpt.menu.guardarcmp",    "Save comparison as .TXT"                                           },
+            { "rpt.dlg.guardartxt",     "Save as TXT"                                                       },
+            { "rpt.dlg.exito.titulo",   "Success"                                                           },
+            { "rpt.dlg.exito.msg",      "File saved:\n{0}"                                                  },
             // User Change History (T06)
             { "frm.historialusr",        "User Change History"                                    },
             { "lbl.ver.usuario",         "User:"                                                  },
@@ -1781,6 +1809,20 @@ namespace Servicios.Multiidioma
             { "bit.pdf.vistaprevia",     "Предварительный просмотр"                             },
             { "dash.backup.hoy",         "Сегодня"                                              },
             { "dash.sesion.iniciada",    "Сеанс начат:"                                         },
+            // Панель управления — уведомления о резервной копии и диалог настройки
+            { "dash.aviso.sinbackup",   "⚠  Резервных копий нет. Создайте через Администрирование → Резервная копия." },
+            { "dash.aviso.vencido",     "⚠  {0} дней без резервной копии — напоминание каждые {1} дней."  },
+            { "dash.cfg.titulo",        "Напоминание о резервной копии"                                    },
+            { "dash.cfg.recada",        "Напоминать каждые:"                                               },
+            { "dash.cfg.dias",          "дней"                                                             },
+            { "dash.cfg.guardar",       "Сохранить"                                                        },
+            // Отчёт за день — меню экспорта и диалоги
+            { "rpt.menu.guardartxt",    "Сохранить как .TXT"                                               },
+            { "rpt.menu.imprimir",      "Печать / Экспорт PDF"                                             },
+            { "rpt.menu.guardarcmp",    "Сохранить сравнение как .TXT"                                     },
+            { "rpt.dlg.guardartxt",     "Сохранить как TXT"                                               },
+            { "rpt.dlg.exito.titulo",   "Успех"                                                            },
+            { "rpt.dlg.exito.msg",      "Файл сохранён:\n{0}"                                              },
             // История изменений пользователей (T06)
             { "frm.historialusr",        "История изменений пользователей"                        },
             { "lbl.ver.usuario",         "Пользователь:"                                          },

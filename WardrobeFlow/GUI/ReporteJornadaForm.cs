@@ -74,6 +74,17 @@ namespace GUI
             if (_kpiClientesLbl != null) _kpiClientesLbl.Text = T("rpt.kpi.clientes", "Clientes registrados");
             if (_kpiEventosLbl != null) _kpiEventosLbl.Text = T("rpt.kpi.eventos",  "Eventos del día");
             if (_kpiBackupLbl != null) _kpiBackupLbl.Text = T("rpt.kpi.backup",   "días sin backup");
+
+            if (_menuExportar != null && _menuExportar.Items.Count >= 2)
+            {
+                _menuExportar.Items[0].Text = T("rpt.menu.guardartxt",  "Guardar como .TXT");
+                _menuExportar.Items[1].Text = T("rpt.menu.imprimir",    "Imprimir / Exportar PDF");
+            }
+            if (_menuExportarComp != null && _menuExportarComp.Items.Count >= 2)
+            {
+                _menuExportarComp.Items[0].Text = T("rpt.menu.guardarcmp", "Guardar comparación como .TXT");
+                _menuExportarComp.Items[1].Text = T("rpt.menu.imprimir",   "Imprimir / Exportar PDF");
+            }
         }
 
         // ── KPI Banner ────────────────────────────────────────────────────────
@@ -170,16 +181,19 @@ namespace GUI
 
         private void ConfigurarMenusExportar()
         {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string Tv(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
             _menuExportar = new ContextMenuStrip();
-            _menuExportar.Items.Add("Guardar como .TXT", null,
+            _menuExportar.Items.Add(Tv("rpt.menu.guardartxt", "Guardar como .TXT"), null,
                 (s, e) => ExportarContenido(esComparacion: false));
-            _menuExportar.Items.Add("Imprimir / Exportar PDF", null,
+            _menuExportar.Items.Add(Tv("rpt.menu.imprimir", "Imprimir / Exportar PDF"), null,
                 (s, e) => ImprimirReporte());
 
             _menuExportarComp = new ContextMenuStrip();
-            _menuExportarComp.Items.Add("Guardar comparación como .TXT", null,
+            _menuExportarComp.Items.Add(Tv("rpt.menu.guardarcmp", "Guardar comparación como .TXT"), null,
                 (s, e) => ExportarContenido(esComparacion: true));
-            _menuExportarComp.Items.Add("Imprimir / Exportar PDF", null,
+            _menuExportarComp.Items.Add(Tv("rpt.menu.imprimir", "Imprimir / Exportar PDF"), null,
                 (s, e) => ImprimirReporte());
         }
 
@@ -187,13 +201,16 @@ namespace GUI
         {
             try
             {
+                var lbl = ConstruirLblReporte();
                 string nombreBase = esComparacion
                     ? $"Comparacion_{dtpJornada.Value:yyyyMMdd}_vs_{dtpJornada2.Value:yyyyMMdd}"
                     : $"ReporteJornada_{dtpJornada.Value:yyyyMMdd}";
 
+                string T(string k, string fb) { var t2 = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual); return t2.ContainsKey(k) ? t2[k].Texto : fb; }
+
                 using (var dlg = new SaveFileDialog())
                 {
-                    dlg.Title            = "Guardar como TXT";
+                    dlg.Title            = T("rpt.dlg.guardartxt", "Guardar como TXT");
                     dlg.Filter           = "Archivo de texto (*.txt)|*.txt";
                     dlg.FileName         = $"{nombreBase}.txt";
                     dlg.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -202,8 +219,10 @@ namespace GUI
 
                     File.WriteAllText(dlg.FileName, rtbReporte.Text, Encoding.UTF8);
 
-                    lblStatus.Text = $"Exportado: {Path.GetFileName(dlg.FileName)}";
-                    MessageBox.Show($"Archivo guardado:\n{dlg.FileName}", "Éxito",
+                    lblStatus.Text = $"{lbl["rptoegenerado"]}: {Path.GetFileName(dlg.FileName)}";
+                    MessageBox.Show(
+                        string.Format(T("rpt.dlg.exito.msg", "Archivo guardado:\n{0}"), dlg.FileName),
+                        T("rpt.dlg.exito.titulo", "Éxito"),
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }

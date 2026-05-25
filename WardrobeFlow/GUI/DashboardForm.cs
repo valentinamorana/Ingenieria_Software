@@ -181,7 +181,7 @@ namespace GUI
                     _numBackup.ForeColor         = Color.FromArgb(160, 20, 20);
                     _txtBackup.ForeColor         = Color.FromArgb(160, 20, 20);
                     _cardBackupPanel.Invalidate();
-                    MostrarAviso("⚠  Sin backups generados. Generá uno desde Administrar → Backup.", Color.FromArgb(180, 30, 30));
+                    MostrarAviso(T("dash.aviso.sinbackup", "⚠  Sin backups. Generá uno desde Administrar → Backup."), Color.FromArgb(180, 30, 30));
                     return;
                 }
 
@@ -224,7 +224,7 @@ namespace GUI
 
                 if (dias > umbral)
                     MostrarAviso(
-                        $"⚠  Hace {dias} día(s) sin backup — recordatorio configurado cada {umbral} días.",
+                        string.Format(T("dash.aviso.vencido", "⚠  Hace {0} día(s) sin backup — recordatorio cada {1} días."), dias, umbral),
                         Color.FromArgb(160, 60, 0));
                 else
                     OcultarAviso();
@@ -271,7 +271,7 @@ namespace GUI
 
             using (var dlg = new Form())
             {
-                dlg.Text            = "Recordatorio de Backup";
+                dlg.Text            = T("dash.cfg.titulo", "Recordatorio de Backup");
                 dlg.ClientSize      = new Size(300, 150);
                 dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
                 dlg.StartPosition   = FormStartPosition.CenterParent;
@@ -281,7 +281,7 @@ namespace GUI
 
                 var lbl = new Label
                 {
-                    Text     = "Recordarme cada:",
+                    Text     = T("dash.cfg.recada", "Recordarme cada:"),
                     Left     = 16, Top = 22, Width = 268, Height = 20,
                     Font     = new Font("Segoe UI", 9f)
                 };
@@ -295,13 +295,13 @@ namespace GUI
 
                 var lblDias = new Label
                 {
-                    Text = "días", Left = 104, Top = 52, Width = 60, Height = 20,
+                    Text = T("dash.cfg.dias", "días"), Left = 104, Top = 52, Width = 60, Height = 20,
                     Font = new Font("Segoe UI", 9f)
                 };
 
                 var btnOk = new Button
                 {
-                    Text = "Guardar", Left = 80, Top = 104, Width = 90, Height = 30,
+                    Text = T("dash.cfg.guardar", "Guardar"), Left = 80, Top = 104, Width = 90, Height = 30,
                     DialogResult = DialogResult.OK,
                     BackColor    = Color.FromArgb(146, 62, 96),
                     ForeColor    = Color.White, FlatStyle = FlatStyle.Flat
@@ -310,7 +310,7 @@ namespace GUI
 
                 var btnCancelar = new Button
                 {
-                    Text = "Cancelar", Left = 184, Top = 104, Width = 100, Height = 30,
+                    Text = T("btn.cancelar", "Cancelar"), Left = 184, Top = 104, Width = 100, Height = 30,
                     DialogResult = DialogResult.Cancel, FlatStyle = FlatStyle.Flat
                 };
 
