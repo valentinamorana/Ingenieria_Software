@@ -156,21 +156,21 @@ namespace GUI
 
             // Ojito mostrar/ocultar contraseña — se posiciona a la derecha del textbox
             // una vez que el layout ya tiene las medidas escaladas.
-            txtContraseña.Width -= 28;
+            txtContraseña.Width -= 26;
             var btnOjo = new Button
             {
                 Text      = "👁",
-                Font      = new Font("Segoe UI", 11f),
-                Size      = new Size(28, txtContraseña.Height),
+                Font      = new Font("Segoe UI Emoji", 9.5f),
+                Size      = new Size(24, txtContraseña.Height),
                 Location  = new Point(txtContraseña.Right + 2, txtContraseña.Top),
                 FlatStyle = FlatStyle.Flat,
                 BackColor = txtContraseña.BackColor,
                 ForeColor = Color.FromArgb(80, 80, 80),
                 Cursor    = Cursors.Hand,
-                TabStop   = false
+                TabStop   = false,
+                Padding   = new Padding(0)
             };
-            btnOjo.FlatAppearance.BorderSize = 1;
-            btnOjo.FlatAppearance.BorderColor = Color.FromArgb(180, 180, 180);
+            btnOjo.FlatAppearance.BorderSize  = 0;
             btnOjo.Click += (s, e2) =>
                 txtContraseña.PasswordChar = txtContraseña.PasswordChar == '\0' ? '●' : '\0';
             panelAlta.Controls.Add(btnOjo);

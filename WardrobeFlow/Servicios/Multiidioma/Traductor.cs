@@ -357,6 +357,7 @@ namespace Servicios.Multiidioma
             { "stat.intlogin",     "Int.Login"                     },
             { "stat.recupclave",   "Recup.Clave"                   },
             { "stat.bloqueos",     "Bloqueos"                      },
+            { "stat.sindatos",     "Sin datos de criticidad"       },
             // Historial de cambios de Pedido
             { "frm.historial",        "Historial de Cambios — Pedido"      },
             { "lbl.hist.pedido",      "Pedido #"                           },
@@ -661,6 +662,11 @@ namespace Servicios.Multiidioma
             { "msg.backup.titulorestaura","Confirmar Restauración"                                },
             { "msg.backup.confirmrestaura","¿Restaurar la base de datos desde:\n\"{0}\"?\n\nEsta operación sobrescribirá todos los datos actuales\ny reiniciará la aplicación." },
             { "mnu.backup",              "Backup y Restauración"                                  },
+            { "msg.backup.creadoexito",  "Copia de seguridad generada con éxito:\n{0}"           },
+            { "msg.backup.restauradaexito","Base de datos restaurada con éxito.\nLa aplicación se reiniciará." },
+            { "msg.backup.restauradatitulo","Restauración Exitosa"                                },
+            { "lbl.backup.sincopias",    "Sin copias de seguridad generadas aún."                 },
+            { "lbl.backup.conteo",       "{0} copia(s) disponible(s). La más reciente: {1}"      },
             // RestauracionForm (Integridad DV)
             { "frm.restauracion",        "Integridad del Sistema"                                 },
             { "lbl.rest.titulo",         "Integridad del Sistema Comprometida"                    },
@@ -902,6 +908,7 @@ namespace Servicios.Multiidioma
             { "stat.intlogin",     "Login Att."                    },
             { "stat.recupclave",   "Pwd Reset"                     },
             { "stat.bloqueos",     "Lockouts"                      },
+            { "stat.sindatos",     "No severity data"              },
             // Order Change History
             { "frm.historial",        "Order Change History"               },
             { "lbl.hist.pedido",      "Order #"                            },
@@ -1202,6 +1209,11 @@ namespace Servicios.Multiidioma
             { "msg.backup.titulorestaura","Confirm Restore"                                       },
             { "msg.backup.confirmrestaura","Restore the database from:\n\"{0}\"?\n\nThis will overwrite all current data\nand restart the application." },
             { "mnu.backup",              "Backup & Restore"                                       },
+            { "msg.backup.creadoexito",  "Backup created successfully:\n{0}"                     },
+            { "msg.backup.restauradaexito","Database restored successfully.\nThe application will restart." },
+            { "msg.backup.restauradatitulo","Restore Successful"                                  },
+            { "lbl.backup.sincopias",    "No backups created yet."                               },
+            { "lbl.backup.conteo",       "{0} backup(s) available. Most recent: {1}"             },
             // RestauracionForm (DV Integrity)
             { "frm.restauracion",        "System Integrity"                                       },
             { "lbl.rest.titulo",         "System Integrity Compromised"                           },
@@ -1445,6 +1457,7 @@ namespace Servicios.Multiidioma
             { "stat.intlogin",     "Попытки входа"                         },
             { "stat.recupclave",   "Сброс пароля"                          },
             { "stat.bloqueos",     "Блокировки"                            },
+            { "stat.sindatos",     "Нет данных критичности"                },
             // История изменений заказа
             { "frm.historial",        "История изменений заказа"           },
             { "lbl.hist.pedido",      "Заказ #"                            },
@@ -1743,6 +1756,11 @@ namespace Servicios.Multiidioma
             { "msg.backup.titulorestaura","Подтверждение восстановления"                         },
             { "msg.backup.confirmrestaura","Восстановить базу данных из:\n\"{0}\"?\n\nЭто перезапишет все текущие данные\nи перезапустит приложение." },
             { "mnu.backup",              "Резервная копия"                                        },
+            { "msg.backup.creadoexito",  "Резервная копия создана успешно:\n{0}"                 },
+            { "msg.backup.restauradaexito","База данных успешно восстановлена.\nПриложение перезапустится." },
+            { "msg.backup.restauradatitulo","Восстановление выполнено"                            },
+            { "lbl.backup.sincopias",    "Резервных копий нет."                                  },
+            { "lbl.backup.conteo",       "{0} резервная(ых) копия(й). Последняя: {1}"            },
             // RestauracionForm (Целостность ЦК)
             { "frm.restauracion",        "Целостность системы"                                    },
             { "lbl.rest.titulo",         "Целостность системы нарушена"                           },

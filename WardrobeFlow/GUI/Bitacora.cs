@@ -77,9 +77,36 @@ namespace GUI
         public void UpdateLanguage(Idioma idioma)
         {
             Traducir(idioma);   // includes RellenarComboCriticidad
-            // Refrescar headers de las grillas actualmente visibles
             TraducirHeadersGrilla(dgvSistema, idioma, esSistema: true);
             TraducirHeadersGrilla(dgvNegocio, idioma, esSistema: false);
+            ActualizarLabelEstadisticas(dgvSistema, lblResultadosSistema);
+            ActualizarLabelEstadisticas(dgvNegocio, lblResultadosNegocio);
+        }
+
+        private void ActualizarLabelEstadisticas(DataGridView dgv, Label lbl)
+        {
+            var datos = dgv?.DataSource as DataTable;
+            if (datos == null) return;
+            var tR = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string linea1 = string.Format(
+                tR.ContainsKey("msg.bit.registros") ? tR["msg.bit.registros"].Texto : "  {0} registro(s)",
+                datos.Rows.Count);
+            if (dgv == dgvSistema && datos.Columns.Contains("criticidad"))
+            {
+                lbl.Height = 44;
+                lbl.Text   = linea1 + "\r\n  " + ComputarEstadisticasCriticidad(datos, GestorIdioma.IdiomaActual);
+            }
+            else if (dgv == dgvNegocio && datos.Columns.Contains("Tipo"))
+            {
+                lbl.Height = 44;
+                string resumen = ComputarEstadisticasTipoEvento(datos, GestorIdioma.IdiomaActual);
+                lbl.Text = string.IsNullOrEmpty(resumen) ? linea1 : linea1 + "\r\n  " + resumen;
+            }
+            else
+            {
+                lbl.Height = 44;
+                lbl.Text   = linea1;
+            }
         }
 
         private void Traducir(Idioma idioma)
@@ -592,7 +619,7 @@ namespace GUI
 
             return partes.Count > 0
                 ? string.Join("   |   ", partes)
-                : "Sin datos de criticidad";
+                : (t.ContainsKey("stat.sindatos") ? t["stat.sindatos"].Texto : "Sin datos de criticidad");
         }
 
         private string ComputarEstadisticasTipoEvento(DataTable datos, Idioma idioma)

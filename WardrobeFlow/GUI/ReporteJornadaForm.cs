@@ -22,6 +22,8 @@ namespace GUI
         private ContextMenuStrip _menuExportar;
         private ContextMenuStrip _menuExportarComp;
 
+        private bool _esComparacion = false;
+
         public ReporteJornadaForm(List<BE.Permiso> permisos)
         {
             InitializeComponent();
@@ -35,6 +37,7 @@ namespace GUI
             dtpJornada.Value  = DateTime.Today;
             dtpJornada2.Value = DateTime.Today.AddDays(-1);
 
+            btnExportarComp.Visible = false;
             CrearBannerKPIs();
             ConfigurarMenusExportar();
             GenerarReporte();
@@ -51,7 +54,10 @@ namespace GUI
         public void UpdateLanguage(Idioma idioma)
         {
             Traducir(idioma);
-            GenerarReporte();
+            if (_esComparacion)
+                btnComparar_Click(null, EventArgs.Empty);
+            else
+                GenerarReporte();
         }
 
         private void Traducir(Idioma idioma)
@@ -348,6 +354,8 @@ namespace GUI
                     dtpJornada.Value.Date, dtpJornada2.Value.Date, lbl);
                 rtbReporte.Text = texto;
                 lblStatus.Text  = $"{lbl["compgenerada"]} — {DateTime.Now:HH:mm:ss}";
+                _esComparacion = true;
+                btnExportarComp.Visible = true;
             }
             catch (Exception ex)
             {
@@ -396,6 +404,8 @@ namespace GUI
                 var lbl = ConstruirLblReporte();
                 rtbReporte.Text = _servicio.Generar(fecha, lbl);
                 lblStatus.Text  = $"{lbl["rptoegenerado"]} — {DateTime.Now:HH:mm:ss}";
+                _esComparacion = false;
+                btnExportarComp.Visible = false;
                 if (_kpiPrendasVal != null) ActualizarKPIs(fecha);
             }
             catch (Exception ex)

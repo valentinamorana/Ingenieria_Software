@@ -33,7 +33,11 @@ namespace GUI
             base.OnFormClosing(e);
         }
 
-        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+        public void UpdateLanguage(Idioma idioma)
+        {
+            Traducir(idioma);
+            CargarLista();
+        }
 
         private string T(string key, string fallback)
         {
@@ -66,7 +70,7 @@ namespace GUI
 
             if (!Directory.Exists(DirBackups))
             {
-                lblConteo.Text = "Sin copias de seguridad generadas aún.";
+                lblConteo.Text = T("lbl.backup.sincopias", "Sin copias de seguridad generadas aún.");
                 return;
             }
 
@@ -87,8 +91,9 @@ namespace GUI
             }
 
             lblConteo.Text = archivos.Length == 0
-                ? "Sin copias de seguridad generadas aún."
-                : $"{archivos.Length} copia(s) disponible(s). La más reciente: {archivos[0].LastWriteTime:dd/MM/yyyy HH:mm}";
+                ? T("lbl.backup.sincopias", "Sin copias de seguridad generadas aún.")
+                : string.Format(T("lbl.backup.conteo", "{0} copia(s) disponible(s). La más reciente: {1}"),
+                    archivos.Length, archivos[0].LastWriteTime.ToString("dd/MM/yyyy HH:mm"));
         }
 
         // Extrae el autor del nombre del archivo.
@@ -126,8 +131,8 @@ namespace GUI
 
                 string filename = _bll.RealizarBackup(this.Text, DirBackups);
                 MessageBox.Show(
-                    $"Copia de seguridad generada con éxito:\n{filename}",
-                    "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string.Format(T("msg.backup.creadoexito", "Copia de seguridad generada con éxito:\n{0}"), filename),
+                    T("rpt.dlg.exito.titulo", "Éxito"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 CargarLista();
             }
             catch (Exception ex)
@@ -202,8 +207,8 @@ namespace GUI
             {
                 _bll.RestaurarBackup(this.Text, ruta);
                 MessageBox.Show(
-                    "Base de datos restaurada con éxito.\nLa aplicación se reiniciará.",
-                    "Restauración Exitosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    T("msg.backup.restauradaexito", "Base de datos restaurada con éxito.\nLa aplicación se reiniciará."),
+                    T("msg.backup.restauradatitulo", "Restauración Exitosa"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Application.Restart();
             }
             catch (Exception ex)
