@@ -9,6 +9,9 @@ namespace GUI
     {
         private readonly BLL.Backup _bll = new BLL.Backup();
 
+        private static readonly string DirBackups =
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups");
+
         public BackupForm()
         {
             InitializeComponent();
@@ -19,6 +22,8 @@ namespace GUI
             base.OnLoad(e);
             GestorIdioma.SuscribirObservador(this);
             Traducir(GestorIdioma.IdiomaActual);
+            lblRuta.Text = DirBackups;
+            CargarLista();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -34,28 +39,69 @@ namespace GUI
             var t = Traductor.ObtenerTraducciones(idioma);
             string T(string key, string fallback) => t.ContainsKey(key) ? t[key].Texto : fallback;
 
-            this.Text       = T("frm.backup",           "Backup y Restauración");
-            lblTitulo.Text  = T("frm.backup",           "Backup y Restauración");
-            btnCrear.Text   = T("btn.backup.crear",     "Generar Copia de Seguridad (.bak)");
-            btnRestore.Text = T("btn.backup.restaurar", "Restaurar Copia de Seguridad (.bak)");
-            lblInfo.Text    = T("lbl.backup.info",      "Nota: la restauración cierra las conexiones activas y reinicia la aplicación.");
+            this.Text          = T("frm.backup",           "Backup y Restauración");
+            lblTitulo.Text     = T("frm.backup",           "Backup y Restauración");
+            btnCrear.Text      = T("btn.backup.crear",     "Generar Copia de Seguridad");
+            btnRestaurar.Text  = T("btn.backup.restaurar", "Restaurar seleccionado");
+            btnExterno.Text    = T("btn.backup.externo",   "Desde archivo...");
+            lblInfo.Text       = T("lbl.backup.info",      "Nota: la restauración cierra las conexiones activas y reinicia la aplicación.");
+            colArchivo.Text    = T("col.backup.archivo",   "Archivo");
+            colFecha.Text      = T("col.backup.fecha",     "Fecha");
+            colTamanio.Text    = T("col.backup.tamanio",   "Tamaño");
+        }
+
+        // Carga los .bak de la carpeta Backups/ ordenados por fecha descendente (más reciente primero).
+        private void CargarLista()
+        {
+            lstBackups.Items.Clear();
+            btnRestaurar.Enabled = false;
+
+            if (!Directory.Exists(DirBackups))
+            {
+                lblConteo.Text = "Sin copias de seguridad generadas aún.";
+                return;
+            }
+
+            var archivos = new DirectoryInfo(DirBackups).GetFiles("*.bak");
+            Array.Sort(archivos, (a, b) => b.LastWriteTime.CompareTo(a.LastWriteTime));
+
+            foreach (var fi in archivos)
+            {
+                string tamanio = fi.Length >= 1_048_576
+                    ? $"{fi.Length / 1_048_576.0:F1} MB"
+                    : $"{fi.Length / 1024.0:F0} KB";
+
+                var item = new ListViewItem(fi.Name) { Tag = fi.FullName };
+                item.SubItems.Add(fi.LastWriteTime.ToString("dd/MM/yyyy HH:mm"));
+                item.SubItems.Add(tamanio);
+                lstBackups.Items.Add(item);
+            }
+
+            lblConteo.Text = archivos.Length == 0
+                ? "Sin copias de seguridad generadas aún."
+                : $"{archivos.Length} copia(s) disponible(s). La más reciente: {archivos[0].LastWriteTime:dd/MM/yyyy HH:mm}";
+        }
+
+        private void lstBackups_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            btnRestaurar.Enabled = lstBackups.SelectedItems.Count > 0;
         }
 
         private void btnCrear_Click(object sender, EventArgs e)
         {
             try
             {
-                string dirBackups = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups");
-                if (!Directory.Exists(dirBackups))
-                    Directory.CreateDirectory(dirBackups);
+                if (!Directory.Exists(DirBackups))
+                    Directory.CreateDirectory(DirBackups);
 
                 string filename = $"WardrobeFlow_Backup_{DateTime.Now:yyyyMMdd_HHmmss}.bak";
-                string fullPath = Path.Combine(dirBackups, filename);
+                string fullPath = Path.Combine(DirBackups, filename);
 
                 _bll.RealizarBackup(this.Text, fullPath);
                 MessageBox.Show(
-                    $"Copia de seguridad generada con éxito en:\n{fullPath}",
+                    $"Copia de seguridad generada con éxito:\n{filename}",
                     "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CargarLista();
             }
             catch (Exception ex)
             {
@@ -65,42 +111,54 @@ namespace GUI
             }
         }
 
-        private void btnRestore_Click(object sender, EventArgs e)
+        // Restaura el archivo seleccionado en la lista.
+        private void btnRestaurar_Click(object sender, EventArgs e)
+        {
+            if (lstBackups.SelectedItems.Count == 0) return;
+            Restaurar(lstBackups.SelectedItems[0].Tag as string);
+        }
+
+        // Restaura un archivo elegido manualmente (útil para backups en USB u otra ubicación).
+        private void btnExterno_Click(object sender, EventArgs e)
         {
             using (var ofd = new OpenFileDialog())
             {
                 ofd.Filter = "Copia de Seguridad SQL (*.bak)|*.bak";
                 ofd.Title  = "Seleccionar Copia de Seguridad para Restaurar";
-
-                string dirBackups = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups");
-                if (Directory.Exists(dirBackups))
-                    ofd.InitialDirectory = dirBackups;
+                if (Directory.Exists(DirBackups))
+                    ofd.InitialDirectory = DirBackups;
 
                 if (ofd.ShowDialog() != DialogResult.OK) return;
+                Restaurar(ofd.FileName);
+            }
+        }
 
-                string msg =
-                    "¿Está seguro de restaurar la base de datos?\n\n" +
-                    "Esta operación sobrescribirá todos los datos actuales\n" +
-                    "y reiniciará la aplicación.";
+        private void Restaurar(string ruta)
+        {
+            if (string.IsNullOrEmpty(ruta)) return;
 
-                if (MessageBox.Show(msg, "Confirmar Restauración",
-                        MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
-                    return;
+            string msg =
+                $"¿Restaurar la base de datos desde:\n\"{Path.GetFileName(ruta)}\"?\n\n" +
+                "Esta operación sobrescribirá todos los datos actuales\n" +
+                "y reiniciará la aplicación.";
 
-                try
-                {
-                    _bll.RestaurarBackup(this.Text, ofd.FileName);
-                    MessageBox.Show(
-                        "Base de datos restaurada con éxito.\nLa aplicación se reiniciará.",
-                        "Restauración Exitosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    Application.Restart();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(
-                        $"Error al restaurar la base de datos:\n{ex.Message}",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+            if (MessageBox.Show(msg, "Confirmar Restauración",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                _bll.RestaurarBackup(this.Text, ruta);
+                MessageBox.Show(
+                    "Base de datos restaurada con éxito.\nLa aplicación se reiniciará.",
+                    "Restauración Exitosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Application.Restart();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Error al restaurar:\n{ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

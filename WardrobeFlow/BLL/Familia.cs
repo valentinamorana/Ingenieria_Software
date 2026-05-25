@@ -16,7 +16,8 @@ namespace BLL
     /// </summary>
     public class Familia
     {
-        private readonly DAL.Permiso permisoDAL = new DAL.Permiso();
+        private readonly DAL.Permiso       permisoDAL = new DAL.Permiso();
+        private readonly Servicios.Bitacora _bitacora  = new Servicios.Bitacora();
 
         // Retorna la lista de roles disponibles en el sistema.
         public List<string> ObtenerRoles()
@@ -63,12 +64,18 @@ namespace BLL
         public void AsignarPermiso(string rol, int idPermiso)
         {
             permisoDAL.AsignarPermiso(rol, idPermiso);
+            _bitacora.Registrar("Gestión de Perfiles",
+                $"Permiso {idPermiso} asignado al rol '{rol}'",
+                BE.Criticidad.Alta);
         }
 
         // Quita un permiso de un rol. Solo Administrador (validación en GUI).
         public void QuitarPermiso(string rol, int idPermiso)
         {
             permisoDAL.QuitarPermiso(rol, idPermiso);
+            _bitacora.Registrar("Gestión de Perfiles",
+                $"Permiso {idPermiso} quitado del rol '{rol}'",
+                BE.Criticidad.Alta);
         }
     }
 }
