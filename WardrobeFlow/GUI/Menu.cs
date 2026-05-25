@@ -473,6 +473,9 @@ namespace GUI
                 // Sin conexión: usa fallback hardcodeado
                 Traducir(GestorIdioma.IdiomaActual);
             }
+
+            // Abrir Panel de Control al iniciar sesión
+            new DashboardForm { MdiParent = this }.Show();
         }
 
         /// <summary>

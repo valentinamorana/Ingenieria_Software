@@ -190,6 +190,13 @@ namespace BLL
             return SessionManager.GetInstance.Usuario;
         }
 
+        // Retorna la fecha/hora de inicio de la sesión activa, o null si no hay sesión.
+        public DateTime? ObtenerFechaInicioSesion()
+        {
+            if (!SessionManager.IsLoggedIn) return null;
+            return SessionManager.GetInstance.FechaInicio;
+        }
+
         // Lista todos los usuarios del sistema (sin contraseñas).
         public List<BE.Usuario> ObtenerTodos()
         {
