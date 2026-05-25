@@ -19,6 +19,17 @@ namespace BLL
         private readonly DAL.Permiso       permisoDAL = new DAL.Permiso();
         private readonly Servicios.Bitacora _bitacora  = new Servicios.Bitacora();
 
+        private const string RolAdministrador = "Administrador";
+
+        private static void VerificarAdmin()
+        {
+            if (!Seguridad.SessionManager.IsLoggedIn)
+                throw new Exception("No hay sesión activa.");
+            string perfil = Seguridad.SessionManager.GetInstance.Usuario.Perfil ?? "";
+            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
+                throw new Exception("Solo un Administrador puede modificar permisos de roles.");
+        }
+
         // Retorna la lista de roles disponibles en el sistema.
         public List<string> ObtenerRoles()
         {
@@ -60,18 +71,20 @@ namespace BLL
             }
         }
 
-        // Asigna un permiso a un rol. Solo Administrador (validación en GUI).
+        // Asigna un permiso a un rol. Requiere sesión activa con rol Administrador.
         public void AsignarPermiso(string rol, int idPermiso)
         {
+            VerificarAdmin();
             permisoDAL.AsignarPermiso(rol, idPermiso);
             _bitacora.Registrar("Gestión de Perfiles",
                 $"Permiso {idPermiso} asignado al rol '{rol}'",
                 BE.Criticidad.Alta);
         }
 
-        // Quita un permiso de un rol. Solo Administrador (validación en GUI).
+        // Quita un permiso de un rol. Requiere sesión activa con rol Administrador.
         public void QuitarPermiso(string rol, int idPermiso)
         {
+            VerificarAdmin();
             permisoDAL.QuitarPermiso(rol, idPermiso);
             _bitacora.Registrar("Gestión de Perfiles",
                 $"Permiso {idPermiso} quitado del rol '{rol}'",

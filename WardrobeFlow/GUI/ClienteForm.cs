@@ -123,24 +123,6 @@ namespace GUI
         {
             lblMensaje.Text = string.Empty;
 
-            var tG = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
-            string T_g(string k, string fb) => tG.ContainsKey(k) ? tG[k].Texto : fb;
-
-            // Validación de DNI en la UI antes de llamar a BLL
-            string dniInput = txtDNI.Text.Trim();
-            if (!string.IsNullOrWhiteSpace(dniInput))
-            {
-                foreach (char c in dniInput)
-                {
-                    if (!char.IsDigit(c))
-                    {
-                        lblMensaje.Text = T_g("err.cli.dni.numeros", "✗ El DNI solo puede contener números.");
-                        txtDNI.Focus();
-                        return;
-                    }
-                }
-            }
-
             try
             {
                 // Determinar plan seleccionado

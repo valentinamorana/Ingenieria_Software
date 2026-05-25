@@ -158,15 +158,8 @@ namespace GUI
             string nueva     = txtNuevaClave.Text;
             string confirmar = txtConfirmar.Text;
 
-            // Validar longitud mínima
-            if (string.IsNullOrWhiteSpace(nueva) || nueva.Length < 6)
-            {
-                lblError.Text = T_v("err.clave.longitud", "La contraseña debe tener al menos 6 caracteres.");
-                txtNuevaClave.Focus();
-                return;
-            }
-
-            // Validar que ambas coincidan
+            // Solo verifica que ambas contraseñas coincidan — UX puro.
+            // La validación de reglas (longitud, complejidad) la hace BLL vía Encriptador.
             if (nueva != confirmar)
             {
                 lblError.Text = T_v("err.clave.nomatch", "Las contraseñas no coinciden.");

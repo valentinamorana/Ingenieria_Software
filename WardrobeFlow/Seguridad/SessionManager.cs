@@ -4,7 +4,7 @@ using BE;
 namespace Seguridad
 {
     /// <summary>Singleton que gestiona la sesión del usuario autenticado.</summary>
-    public class SessionManager
+    public sealed class SessionManager
     {
         private static object _lock    = new object();
         private static SessionManager _session;
