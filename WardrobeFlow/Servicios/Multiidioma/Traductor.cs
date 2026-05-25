@@ -97,6 +97,109 @@ namespace Servicios.Multiidioma
             }
         }
 
+        // Asigna el módulo/formulario a cada clave de traducción según su prefijo.
+        // Vive aquí (Servicios) porque es metadata de las claves — no lógica de negocio.
+        public static string InferirFormulario(string clave)
+        {
+            if (clave.StartsWith("mnu.")) return "Menu";
+            if (clave.StartsWith("frm."))
+            {
+                var s = clave.Substring(4);
+                if (s.StartsWith("login"))          return "Login";
+                if (s.StartsWith("clientes"))       return "Clientes";
+                if (s.StartsWith("prendas"))        return "Prendas";
+                if (s.StartsWith("gestion"))        return "GestionUsuarios";
+                if (s.StartsWith("planes"))         return "Planes";
+                if (s.StartsWith("bitacora"))       return "Bitacora";
+                if (s.StartsWith("pedidosventa"))   return "PedidosVenta";
+                if (s.StartsWith("pedidosreal"))    return "PedidosRealizados";
+                if (s.StartsWith("historial"))      return "Historial";
+                if (s.StartsWith("nuevocliente") || s.StartsWith("editarcliente")) return "NuevoCliente";
+                if (s.StartsWith("nuevaprenda")  || s.StartsWith("editarprenda"))  return "NuevaPrenda";
+                if (s.StartsWith("nuevopedido"))    return "NuevoPedido";
+                if (s.StartsWith("resetclave"))     return "ResetClave";
+                if (s.StartsWith("cambioestado"))   return "CambioEstado";
+                if (s.StartsWith("olvidepass"))     return "RecuperarClave";
+                if (s.StartsWith("gestorpermisos")) return "GestorPermisos";
+                if (s.StartsWith("idiomas"))        return "FormIdiomas";
+            }
+            if (clave.StartsWith("col.cli.") || clave.StartsWith("msg.cli.") ||
+                clave == "lbl.sinplan" || clave == "lbl.buscar")              return "Clientes";
+            if (clave.StartsWith("lbl.cli.")  || clave.StartsWith("combo.cli.") ||
+                clave.StartsWith("err.cli."))                                  return "NuevoCliente";
+            if (clave.StartsWith("col.prenda.") || clave.StartsWith("msg.prenda.") ||
+                clave.StartsWith("prenda.")     || clave.StartsWith("combo.prenda.") ||
+                clave.StartsWith("opt.")        || clave.StartsWith("err.prenda."))  return "Prendas";
+            if (clave.StartsWith("lbl.prenda.") || clave == "btn.agregar.prenda")   return "NuevaPrenda";
+            if (clave.StartsWith("lbl.cambioest.") || clave.StartsWith("msg.cambioest.") ||
+                clave.StartsWith("conf.baja.") || clave == "lbl.nuevoestado" ||
+                clave == "btn.confirmar.cambio")                               return "CambioEstado";
+            if (clave.StartsWith("col.usr.")  || clave.StartsWith("usr.") ||
+                clave.StartsWith("msg.usr.")  || clave.StartsWith("err.usr.") ||
+                clave.StartsWith("conf.desbloquear.") || clave.StartsWith("conf.resetmasivo.") ||
+                clave.StartsWith("dlg.resetclave.") || clave == "btn.refrescar") return "GestionUsuarios";
+            if (clave.StartsWith("err.clave.") || clave == "lbl.nueva.clave" ||
+                clave == "lbl.confirmar.clave" || clave == "btn.confirmar.reset") return "ResetClave";
+            if (clave.StartsWith("col.plan.")  || clave.StartsWith("plan.") ||
+                clave.StartsWith("msg.planes.") ||
+                clave == "lbl.nuevopla" || clave == "lbl.nombreplan" || clave == "lbl.limiteprendas" ||
+                clave == "lbl.preciomensual" || clave == "btn.guardarplan" || clave == "btn.limpiar" ||
+                clave == "lbl.acciones" || clave == "btn.desactivar" || clave == "btn.activar" ||
+                clave == "lbl.planesreg" || clave == "lbl.editplan")           return "Planes";
+            if (clave.StartsWith("tab.")  || clave.StartsWith("col.bit.") ||
+                clave.StartsWith("col.neg.") || clave.StartsWith("stat.") ||
+                clave.StartsWith("crit.")  || clave.StartsWith("tevt.") ||
+                clave.StartsWith("msg.bit.") || clave.StartsWith("err.pdf.") ||
+                clave == "btn.buscar" || clave == "btn.limpiarfiltro" ||
+                clave == "btn.exportar" || clave == "btn.exportar.pdf" ||
+                clave == "btn.ver" || clave == "lbl.exportarpdf" ||
+                clave == "lbl.ultimos" || clave == "lbl.dias" ||
+                clave == "lbl.usuarioid" || clave == "lbl.actividad" ||
+                clave == "lbl.criticidad" || clave == "lbl.tipoevento" ||
+                clave == "lbl.idpedido"  || clave == "lbl.idcliente")         return "Bitacora";
+            if (clave.StartsWith("msg.ped.")  || clave.StartsWith("conf.cancelped.") ||
+                clave.StartsWith("conf.descancelar.") || clave.StartsWith("conf.despachar.") ||
+                clave.StartsWith("conf.entrega.") || clave.StartsWith("conf.devolucion.") ||
+                clave.StartsWith("dlg.cancelped.") || clave == "msg.cancelped.req" ||
+                clave == "btn.nuevopedido" || clave == "btn.cancelarpedido" ||
+                clave == "btn.descancelar" || clave == "lbl.prendaspedido" ||
+                clave == "btn.historial"  || clave == "col.ped.motivo" ||
+                clave == "lbl.ped.seleccionado" || clave == "lbl.motivo")     return "PedidosVenta";
+            if (clave.StartsWith("paso") || clave == "lbl.ped.selcliente" ||
+                clave.StartsWith("combo.ped.") || clave == "lbl.ped.selprendas" ||
+                clave == "btn.siguiente" || clave == "btn.volver" ||
+                clave == "btn.confirmar.pedido" || clave == "btn.procesando" ||
+                clave == "lbl.ped.infoplan" || clave == "err.ped.sinplan" ||
+                clave == "err.ped.sinprendas")                                 return "NuevoPedido";
+            if (clave.StartsWith("col.ped.") || clave.StartsWith("urg.") ||
+                clave.StartsWith("est.")     || clave.StartsWith("col.det.") ||
+                clave == "btn.despachar" || clave == "btn.entregado" ||
+                clave == "btn.vernotificacion" || clave == "btn.devolucion" ||
+                clave == "lbl.detallepedido" || clave == "lbl.ped.detalletitulo") return "PedidosRealizados";
+            if (clave.StartsWith("lbl.hist.") || clave.StartsWith("combo.hist.") ||
+                clave.StartsWith("btn.hist.") || clave.StartsWith("col.hist.") ||
+                clave.StartsWith("accion.")   || clave == "err.hist.restaurar") return "Historial";
+            if (clave.StartsWith("notif.") || clave.StartsWith("btn.copiar.") ||
+                clave == "btn.copiado")                                         return "Notificacion";
+            if (clave.StartsWith("lbl.recup.") || clave.StartsWith("err.recup.") ||
+                clave.StartsWith("msg.recup.") || clave == "btn.enviar.solicitud") return "RecuperarClave";
+            if (clave.StartsWith("lbl.permisos.") || clave.StartsWith("btn.permisos.") ||
+                clave.StartsWith("msg.permisos.") || clave.StartsWith("perm."))    return "GestorPermisos";
+            if (clave.StartsWith("lbl.idiomas.")  || clave.StartsWith("btn.idiomas."))  return "FormIdiomas";
+            if (clave == "frm.backup"    || clave.StartsWith("btn.backup.") ||
+                clave.StartsWith("col.backup.") ||
+                clave == "lbl.backup.info" || clave == "mnu.backup")           return "Backup";
+            if (clave == "frm.historialusr" || clave.StartsWith("lbl.ver.") ||
+                clave.StartsWith("btn.ver.")  || clave.StartsWith("col.ver.") ||
+                clave == "mnu.historialusr")                                   return "VersionHistorial";
+            if (clave == "lbl.usuario" || clave == "lbl.contrasena" ||
+                clave == "btn.ingresar" || clave == "btn.salir" ||
+                clave == "lnk.olvide"  || clave == "lbl.idioma" || clave == "lbl.subtitulo" ||
+                clave == "lbl.iniciarsesion") return "Login";
+            if (clave.StartsWith("msg.modulo.") || clave == "lbl.proximamente") return "Menu";
+            return "General";
+        }
+
         // ── Diccionario Español (ES) ───────────────────────────────────────────
 
         private static readonly IDictionary<string, Traduccion> _es =
