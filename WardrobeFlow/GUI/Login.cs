@@ -251,6 +251,14 @@ namespace GUI
             }
             catch (Exception ex)
             {
+                if (ex.Message.Contains("Demasiados intentos"))
+                {
+                    MessageBox.Show(ex.Message + "\n\nLa aplicación se cerrará.",
+                        "Sesión terminada", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    Application.Exit();
+                    return;
+                }
+
                 bool bloqueado = ex.Message.Contains("bloqueada");
 
                 lblError.Text      = ex.Message;

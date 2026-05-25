@@ -18,11 +18,15 @@ namespace GUI
             }
 
             // T07 — Verificar integridad DVH/DVV antes de mostrar el Login.
-            // Si se detecta manipulación externa, bloquea el acceso al sistema.
+            // Si se detecta manipulación, abre RestauracionForm para que el admin pueda reparar.
             if (!BLL.Configuracion.VerificarIntegridadDV(out string errIntegridad))
             {
-                MessageBox.Show(errIntegridad, "Integridad comprometida — Acceso bloqueado", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                using (var restForm = new RestauracionForm(errIntegridad))
+                {
+                    Application.Run(restForm);
+                    if (!restForm.RestauradoExitosamente)
+                        return;
+                }
             }
 
             using (var frmLogin = new Login())

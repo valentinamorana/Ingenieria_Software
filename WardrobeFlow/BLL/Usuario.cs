@@ -238,6 +238,23 @@ namespace BLL
             return Encriptador.ValidarContrasena(contrasena);
         }
 
+        // Valida credenciales sin abrir sesión — para operaciones que requieren confirmación de admin.
+        // Retorna true solo si el usuario existe, no está bloqueado, la clave es correcta y tiene rol Administrador.
+        public bool ValidarCredencialesAdmin(string username, string password)
+        {
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+                return false;
+
+            var usuario = usuarioDAL.ObtenerPorUsername(username);
+            if (usuario == null) return false;
+            if (usuario.Bloqueado) return false;
+
+            if (!Encriptador.VerificarContrasena(password, usuario.Contraseña)) return false;
+
+            string perfil = usuario.Perfil ?? "";
+            return perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase);
+        }
+
         // Convierte el nombre visible del perfil al código interno usado en BD.
         private static string NormalizarPerfil(string perfil)
         {

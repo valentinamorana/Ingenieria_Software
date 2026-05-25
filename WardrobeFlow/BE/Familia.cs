@@ -11,7 +11,7 @@ namespace BE
     {
         private readonly List<Componente> _hijos = new List<Componente>();
 
-        public override IList<Componente> Hijos => _hijos;
+        public override IList<Componente> Hijos => _hijos.ToArray();
 
         public override void AgregarHijo(Componente c)
         {
