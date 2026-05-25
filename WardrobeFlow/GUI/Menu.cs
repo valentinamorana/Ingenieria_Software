@@ -474,8 +474,8 @@ namespace GUI
                 Traducir(GestorIdioma.IdiomaActual);
             }
 
-            // Abrir Panel de Control al iniciar sesión
-            new DashboardForm { MdiParent = this }.Show();
+            // Abrir Panel de Control al iniciar sesión (permisos filtran las tarjetas visibles)
+            new DashboardForm(_usuarioActivo?.Permisos) { MdiParent = this }.Show();
         }
 
         /// <summary>
