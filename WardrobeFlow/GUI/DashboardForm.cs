@@ -69,7 +69,7 @@ namespace GUI
             this.Text            = "Panel de Control";
             this.Size            = new Size(660, 340);
             this.MinimumSize     = new Size(380, 280);
-            this.BackColor       = Color.White;
+            this.BackColor       = Color.FromArgb(250, 240, 246);
             this.FormBorderStyle = FormBorderStyle.Sizable;
             this.StartPosition   = FormStartPosition.Manual;
             this.Location        = new Point(10, 10);
@@ -97,14 +97,20 @@ namespace GUI
 
         public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
 
+        private string T(string key, string fallback)
+        {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            return t.ContainsKey(key) ? t[key].Texto : fallback;
+        }
+
         private void Traducir(Idioma idioma)
         {
             var t = Traductor.ObtenerTraducciones(idioma);
             string T(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
 
-            this.Text          = T("frm.dashboard",  "Panel de Control");
-            _lblTitulo.Text    = T("frm.dashboard",  "Panel de Control");
-            _btnRefrescar.Text = T("btn.refrescar",  "Actualizar");
+            this.Text          = T("frm.dashboard",      "Panel de Control");
+            _lblTitulo.Text    = T("frm.dashboard",      "Panel de Control");
+            _btnRefrescar.Text = T("dash.btn.refrescar", "↻ Actualizar");
 
             if (_txtPrendas  != null) _txtPrendas.Text  = T("dash.prendas",  "Prendas\ndisponibles");
             if (_txtClientes != null) _txtClientes.Text = T("dash.clientes", "Clientes\nregistrados");
@@ -145,7 +151,7 @@ namespace GUI
                 if (u != null)
                     _lblSesion.Text =
                         $"{u.Username}  ·  {u.Perfil ?? "—"}" +
-                        (hora.HasValue ? $"  ·  Sesión iniciada: {hora.Value:HH:mm}" : "");
+                        (hora.HasValue ? $"  ·  {T("dash.sesion.iniciada", "Sesión iniciada:")} {hora.Value:HH:mm}" : "");
             }
             catch { _lblSesion.Text = ""; }
         }
@@ -180,7 +186,7 @@ namespace GUI
                 // Número grande: días transcurridos (o "Hoy")
                 if (dias == 0)
                 {
-                    _numBackup.Text = "Hoy";
+                    _numBackup.Text = T("dash.backup.hoy", "Hoy");
                     _numBackup.Font = new Font("Segoe UI", 20f, FontStyle.Bold);
                 }
                 else
@@ -358,17 +364,17 @@ namespace GUI
             // Agregar solo tarjetas permitidas por rol
             if (_verPrendas)
                 _flowCards.Controls.Add(CrearTarjeta(
-                    Color.FromArgb(238, 228, 248), Color.FromArgb(70, 20, 100),
+                    Color.FromArgb(252, 228, 235), Color.FromArgb(80, 28, 52),
                     out _numPrendas, out _txtPrendas, out _));
 
             if (_verClientes)
                 _flowCards.Controls.Add(CrearTarjeta(
-                    Color.FromArgb(220, 238, 255), Color.FromArgb(15, 55, 115),
+                    Color.FromArgb(244, 212, 226), Color.FromArgb(110, 42, 74),
                     out _numClientes, out _txtClientes, out _));
 
             if (_verPedidos)
                 _flowCards.Controls.Add(CrearTarjeta(
-                    Color.FromArgb(255, 235, 215), Color.FromArgb(130, 60, 10),
+                    Color.FromArgb(236, 196, 215), Color.FromArgb(146, 62, 96),
                     out _numPedidos, out _txtPedidos, out _));
 
             if (_verBackup)

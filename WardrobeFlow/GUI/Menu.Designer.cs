@@ -34,6 +34,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.usuarioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cerrarSesionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.panelControlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.inventarioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.prendasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.outfitsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -50,6 +51,10 @@
             this.backupToolStripMenuItem         = new System.Windows.Forms.ToolStripMenuItem();
             this.historialUsuariosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bitacoraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bitSistemaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bitNegocioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sepBitacoraToolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.reporteJornadaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -63,6 +68,7 @@
             this.menuStrip1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(100)))), ((int)(((byte)(135)))));
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.usuarioToolStripMenuItem,
+            this.panelControlToolStripMenuItem,
             this.inventarioToolStripMenuItem,
             this.ventasToolStripMenuItem,
             this.gestionToolStripMenuItem,
@@ -72,9 +78,9 @@
             this.menuStrip1.Size = new System.Drawing.Size(1100, 24);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
-            // 
+            //
             // usuarioToolStripMenuItem
-            // 
+            //
             this.usuarioToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cerrarSesionToolStripMenuItem});
             this.usuarioToolStripMenuItem.Image = global::GUI.Properties.Resources._3106921_1_;
@@ -82,6 +88,14 @@
             this.usuarioToolStripMenuItem.Tag = "mnu.perfil";
             this.usuarioToolStripMenuItem.Size = new System.Drawing.Size(62, 20);
             this.usuarioToolStripMenuItem.Text = "Perfil";
+            //
+            // panelControlToolStripMenuItem
+            //
+            this.panelControlToolStripMenuItem.Name = "panelControlToolStripMenuItem";
+            this.panelControlToolStripMenuItem.Tag = "mnu.dashboard";
+            this.panelControlToolStripMenuItem.Size = new System.Drawing.Size(120, 20);
+            this.panelControlToolStripMenuItem.Text = "Panel de Control";
+            this.panelControlToolStripMenuItem.Click += new System.EventHandler(this.panelControlToolStripMenuItem_Click);
             // 
             // cerrarSesionToolStripMenuItem
             // 
@@ -223,11 +237,44 @@
             //
             // bitacoraToolStripMenuItem
             //
+            this.bitacoraToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.bitSistemaToolStripMenuItem,
+            this.bitNegocioToolStripMenuItem,
+            this.sepBitacoraToolStripSeparator,
+            this.reporteJornadaToolStripMenuItem});
             this.bitacoraToolStripMenuItem.Name = "bitacoraToolStripMenuItem";
             this.bitacoraToolStripMenuItem.Tag = "mnu.bitacora";
-            this.bitacoraToolStripMenuItem.Size = new System.Drawing.Size(62, 20);
+            this.bitacoraToolStripMenuItem.Size = new System.Drawing.Size(70, 20);
             this.bitacoraToolStripMenuItem.Text = "Bitácora";
-            this.bitacoraToolStripMenuItem.Click += new System.EventHandler(this.bitacoraToolStripMenuItem_Click);
+            //
+            // bitSistemaToolStripMenuItem
+            //
+            this.bitSistemaToolStripMenuItem.Name = "bitSistemaToolStripMenuItem";
+            this.bitSistemaToolStripMenuItem.Tag = "mnu.bitacora.sistema";
+            this.bitSistemaToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.bitSistemaToolStripMenuItem.Text = "🔐  Bitácora del Sistema";
+            this.bitSistemaToolStripMenuItem.Click += new System.EventHandler(this.bitSistemaToolStripMenuItem_Click);
+            //
+            // bitNegocioToolStripMenuItem
+            //
+            this.bitNegocioToolStripMenuItem.Name = "bitNegocioToolStripMenuItem";
+            this.bitNegocioToolStripMenuItem.Tag = "mnu.bitacora.negocio";
+            this.bitNegocioToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.bitNegocioToolStripMenuItem.Text = "📦  Bitácora de Negocio";
+            this.bitNegocioToolStripMenuItem.Click += new System.EventHandler(this.bitNegocioToolStripMenuItem_Click);
+            //
+            // sepBitacoraToolStripSeparator
+            //
+            this.sepBitacoraToolStripSeparator.Name = "sepBitacoraToolStripSeparator";
+            this.sepBitacoraToolStripSeparator.Size = new System.Drawing.Size(197, 6);
+            //
+            // reporteJornadaToolStripMenuItem
+            //
+            this.reporteJornadaToolStripMenuItem.Name = "reporteJornadaToolStripMenuItem";
+            this.reporteJornadaToolStripMenuItem.Tag = "mnu.reportejornada";
+            this.reporteJornadaToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.reporteJornadaToolStripMenuItem.Text = "📊  Reporte de Jornada";
+            this.reporteJornadaToolStripMenuItem.Click += new System.EventHandler(this.reporteJornadaToolStripMenuItem_Click);
             // 
             // Menu
             // 
@@ -255,6 +302,7 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem usuarioToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cerrarSesionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem panelControlToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem inventarioToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem prendasToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem backupToolStripMenuItem;
@@ -262,6 +310,10 @@
         private System.Windows.Forms.ToolStripMenuItem outfitsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem categoriasToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem bitacoraToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem bitSistemaToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem bitNegocioToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator sepBitacoraToolStripSeparator;
+        private System.Windows.Forms.ToolStripMenuItem reporteJornadaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem gestionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem usuariosToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem perfilesToolStripMenuItem;

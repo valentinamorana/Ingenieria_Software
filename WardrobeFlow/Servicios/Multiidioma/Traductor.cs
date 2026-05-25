@@ -146,10 +146,12 @@ namespace Servicios.Multiidioma
                 clave == "lbl.preciomensual" || clave == "btn.guardarplan" || clave == "btn.limpiar" ||
                 clave == "lbl.acciones" || clave == "btn.desactivar" || clave == "btn.activar" ||
                 clave == "lbl.planesreg" || clave == "lbl.editplan")           return "Planes";
-            if (clave.StartsWith("tab.")  || clave.StartsWith("col.bit.") ||
+            if (clave == "frm.bitacora" ||
+                clave.StartsWith("tab.")  || clave.StartsWith("col.bit.") ||
                 clave.StartsWith("col.neg.") || clave.StartsWith("stat.") ||
                 clave.StartsWith("crit.")  || clave.StartsWith("tevt.") ||
                 clave.StartsWith("msg.bit.") || clave.StartsWith("err.pdf.") ||
+                clave.StartsWith("bit.pdf.") ||
                 clave == "btn.buscar" || clave == "btn.limpiarfiltro" ||
                 clave == "btn.exportar" || clave == "btn.exportar.pdf" ||
                 clave == "btn.ver" || clave == "lbl.exportarpdf" ||
@@ -187,15 +189,22 @@ namespace Servicios.Multiidioma
                 clave.StartsWith("msg.permisos.") || clave.StartsWith("perm."))    return "GestorPermisos";
             if (clave.StartsWith("lbl.idiomas.")  || clave.StartsWith("btn.idiomas."))  return "FormIdiomas";
             if (clave == "frm.backup"    || clave.StartsWith("btn.backup.") ||
-                clave.StartsWith("col.backup.") ||
-                clave == "lbl.backup.info" || clave == "mnu.backup")           return "Backup";
+                clave.StartsWith("col.backup.") || clave.StartsWith("msg.backup.") ||
+                clave == "lbl.backup.info" || clave == "lbl.backup.ubicacion" ||
+                clave == "mnu.backup")                                          return "Backup";
+            if (clave == "frm.restauracion" || clave.StartsWith("lbl.rest.") ||
+                clave.StartsWith("btn.rest."))                                  return "Restauracion";
+            if (clave == "frm.dashboard" || clave.StartsWith("dash."))           return "Dashboard";
+            if (clave.StartsWith("rpt."))                                       return "ReporteJornada";
             if (clave == "frm.historialusr" || clave.StartsWith("lbl.ver.") ||
                 clave.StartsWith("btn.ver.")  || clave.StartsWith("col.ver.") ||
                 clave == "mnu.historialusr")                                   return "VersionHistorial";
-            if (clave == "lbl.usuario" || clave == "lbl.contrasena" ||
-                clave == "btn.ingresar" || clave == "btn.salir" ||
-                clave == "lnk.olvide"  || clave == "lbl.idioma" || clave == "lbl.subtitulo" ||
-                clave == "lbl.iniciarsesion") return "Login";
+            if (clave == "lbl.usuario"    || clave == "lbl.contrasena"  ||
+                clave == "btn.ingresar"   || clave == "btn.salir"       ||
+                clave == "lnk.olvide"     || clave == "lbl.idioma"      ||
+                clave == "lbl.subtitulo"  || clave == "lbl.iniciarsesion" ||
+                clave == "lbl.bienvenido" || clave == "lbl.credenciales" ||
+                clave == "lbl.divider"    || clave == "lbl.brand.desc") return "Login";
             if (clave.StartsWith("msg.modulo.") || clave == "lbl.proximamente") return "Menu";
             return "General";
         }
@@ -217,6 +226,10 @@ namespace Servicios.Multiidioma
             { "lbl.idioma",       "Idioma:"                        },
             // Login — subtítulo
             { "lbl.subtitulo",    "PORTAL DE EMPLEADOS"            },
+            { "lbl.bienvenido",   "Bienvenido de nuevo"            },
+            { "lbl.credenciales", "Ingresá tus credenciales para continuar" },
+            { "lbl.divider",      "o"                              },
+            { "lbl.brand.desc",   "Acceso seguro y centralizado\na todos los módulos del sistema." },
             // Menú principal
             { "mnu.perfil",       "Perfil"                         },
             { "mnu.inventario",   "Inventario"                     },
@@ -634,8 +647,60 @@ namespace Servicios.Multiidioma
             { "frm.backup",              "Backup y Restauración"                                  },
             { "btn.backup.crear",        "Generar Copia de Seguridad (.bak)"                      },
             { "btn.backup.restaurar",    "Restaurar Copia de Seguridad (.bak)"                    },
+            { "btn.backup.eliminar",     "Eliminar"                                               },
+            { "btn.backup.externo",      "Desde archivo..."                                       },
+            { "col.backup.archivo",      "Archivo"                                                },
+            { "col.backup.fecha",        "Fecha"                                                  },
+            { "col.backup.autor",        "Autor"                                                  },
+            { "col.backup.tamanio",      "Tamaño"                                                 },
             { "lbl.backup.info",         "Nota: la restauración cierra las conexiones activas y reinicia la aplicación." },
+            { "lbl.backup.ubicacion",    "Ubicación de copias:"                                   },
+            { "msg.backup.tituloeliminar","Confirmar Eliminación"                                 },
+            { "msg.backup.confirmeliminar","¿Eliminar la copia de seguridad?\n\"{0}\"\n\nEsta acción no se puede deshacer." },
+            { "msg.backup.titulorestaura","Confirmar Restauración"                                },
+            { "msg.backup.confirmrestaura","¿Restaurar la base de datos desde:\n\"{0}\"?\n\nEsta operación sobrescribirá todos los datos actuales\ny reiniciará la aplicación." },
             { "mnu.backup",              "Backup y Restauración"                                  },
+            // RestauracionForm (Integridad DV)
+            { "frm.restauracion",        "Integridad del Sistema"                                 },
+            { "lbl.rest.titulo",         "Integridad del Sistema Comprometida"                    },
+            { "lbl.rest.subtitulo",      "Se detectaron discrepancias en los dígitos verificadores. El acceso está bloqueado." },
+            { "lbl.rest.detalle",        "Detalle del error:"                                     },
+            { "btn.rest.recalcular",     "Recalcular Dígitos Verificadores"                       },
+            { "btn.rest.backup",         "Restaurar desde Backup"                                 },
+            { "btn.rest.salir",          "Salir"                                                  },
+            // Menú — Panel de Control + Bitácoras divididas
+            { "mnu.dashboard",           "Panel de Control"                                       },
+            { "mnu.bitacora.sistema",    "Bitácora del Sistema"                                   },
+            { "mnu.bitacora.negocio",    "Bitácora de Negocio"                                    },
+            { "mnu.reportejornada",      "Reporte de Jornada"                                     },
+            // Dashboard — Panel de Control
+            { "frm.dashboard",           "Panel de Control"                                       },
+            { "dash.prendas",            "Prendas\ndisponibles"                                   },
+            { "dash.clientes",           "Clientes\nregistrados"                                  },
+            { "dash.pedidos",            "Pedidos\npendientes"                                    },
+            { "dash.backup",             "días sin\nbackup"                                       },
+            { "dash.btn.refrescar",      "↻ Actualizar"                                           },
+            // Reporte de Jornada
+            { "frm.reportejornada",      "Reporte de Jornada — WardrobeFlow"                      },
+            { "rpt.generar",             "Generar"                                                },
+            { "rpt.comparar",            "Comparar jornadas"                                      },
+            { "rpt.exportartxt",         "Exportar TXT"                                           },
+            { "rpt.exportarpdf",         "Exportar PDF"                                           },
+            { "rpt.fecha",               "Jornada:"                                               },
+            { "rpt.fecha2",              "Comparar con:"                                          },
+            { "rpt.kpi.prendas",         "Prendas disponibles"                                    },
+            { "rpt.kpi.clientes",        "Clientes registrados"                                   },
+            { "rpt.kpi.eventos",         "Eventos del día"                                        },
+            { "rpt.kpi.backup",          "días sin backup"                                        },
+            { "rpt.sinDatos",            "Sin eventos registrados para la jornada seleccionada."  },
+            { "rpt.limpiar",             "Limpiar"                                                },
+            { "rpt.subtitulo",           "Eventos de negocio por jornada con exportación a TXT"  },
+            { "bit.pdf.titulosistema",   "Bitácora del Sistema — WardrobeFlow"                   },
+            { "bit.pdf.titulonegocio",   "Bitácora de Negocio — WardrobeFlow"                   },
+            { "bit.pdf.pagina",          "WardrobeFlow — Página {0}"                             },
+            { "bit.pdf.vistaprevia",     "Vista Previa"                                          },
+            { "dash.backup.hoy",         "Hoy"                                                   },
+            { "dash.sesion.iniciada",    "Sesión iniciada:"                                      },
             // Historial de Cambios de Usuarios (T06)
             { "frm.historialusr",        "Historial de Cambios de Usuarios"                       },
             { "lbl.ver.usuario",         "Usuario:"                                               },
@@ -666,6 +731,10 @@ namespace Servicios.Multiidioma
             { "lbl.idioma",       "Language:"                       },
             // Login — subtitle
             { "lbl.subtitulo",    "EMPLOYEE PORTAL"                 },
+            { "lbl.bienvenido",   "Welcome back"                    },
+            { "lbl.credenciales", "Enter your credentials to continue" },
+            { "lbl.divider",      "or"                              },
+            { "lbl.brand.desc",   "Secure and centralized access\nto all system modules." },
             // Main menu
             { "mnu.perfil",       "Profile"                         },
             { "mnu.inventario",   "Inventory"                       },
@@ -1079,8 +1148,60 @@ namespace Servicios.Multiidioma
             { "frm.backup",              "Backup & Restore"                                       },
             { "btn.backup.crear",        "Create Backup (.bak)"                                   },
             { "btn.backup.restaurar",    "Restore Backup (.bak)"                                  },
+            { "btn.backup.eliminar",     "Delete"                                                 },
+            { "btn.backup.externo",      "From file..."                                           },
+            { "col.backup.archivo",      "File"                                                   },
+            { "col.backup.fecha",        "Date"                                                   },
+            { "col.backup.autor",        "Author"                                                 },
+            { "col.backup.tamanio",      "Size"                                                   },
             { "lbl.backup.info",         "Note: restore will close active connections and restart the application." },
+            { "lbl.backup.ubicacion",    "Backup location:"                                       },
+            { "msg.backup.tituloeliminar","Confirm Deletion"                                      },
+            { "msg.backup.confirmeliminar","Delete the backup file?\n\"{0}\"\n\nThis action cannot be undone." },
+            { "msg.backup.titulorestaura","Confirm Restore"                                       },
+            { "msg.backup.confirmrestaura","Restore the database from:\n\"{0}\"?\n\nThis will overwrite all current data\nand restart the application." },
             { "mnu.backup",              "Backup & Restore"                                       },
+            // RestauracionForm (DV Integrity)
+            { "frm.restauracion",        "System Integrity"                                       },
+            { "lbl.rest.titulo",         "System Integrity Compromised"                           },
+            { "lbl.rest.subtitulo",      "Discrepancies were found in the check digits. Access is blocked." },
+            { "lbl.rest.detalle",        "Error detail:"                                          },
+            { "btn.rest.recalcular",     "Recalculate Check Digits"                               },
+            { "btn.rest.backup",         "Restore from Backup"                                    },
+            { "btn.rest.salir",          "Exit"                                                   },
+            // Menu — Dashboard + split Audit Logs
+            { "mnu.dashboard",           "Dashboard"                                              },
+            { "mnu.bitacora.sistema",    "System Log"                                             },
+            { "mnu.bitacora.negocio",    "Business Log"                                           },
+            // Dashboard — Control Panel
+            { "frm.dashboard",           "Control Panel"                                          },
+            { "dash.prendas",            "Garments\navailable"                                    },
+            { "dash.clientes",           "Clients\nregistered"                                    },
+            { "dash.pedidos",            "Orders\npending"                                        },
+            { "dash.backup",             "days without\nbackup"                                   },
+            { "dash.btn.refrescar",      "↻ Refresh"                                              },
+            { "mnu.reportejornada",      "Daily Report"                                           },
+            // Daily Report
+            { "frm.reportejornada",      "Daily Report — WardrobeFlow"                            },
+            { "rpt.generar",             "Generate"                                               },
+            { "rpt.comparar",            "Compare shifts"                                         },
+            { "rpt.exportartxt",         "Export TXT"                                             },
+            { "rpt.exportarpdf",         "Export PDF"                                             },
+            { "rpt.fecha",               "Shift:"                                                 },
+            { "rpt.fecha2",              "Compare with:"                                          },
+            { "rpt.kpi.prendas",         "Available garments"                                     },
+            { "rpt.kpi.clientes",        "Registered clients"                                     },
+            { "rpt.kpi.eventos",         "Events today"                                           },
+            { "rpt.kpi.backup",          "days since backup"                                      },
+            { "rpt.sinDatos",            "No events recorded for the selected shift."             },
+            { "rpt.limpiar",             "Clear"                                                  },
+            { "rpt.subtitulo",           "Business events per day with TXT export"               },
+            { "bit.pdf.titulosistema",   "System Log — WardrobeFlow"                            },
+            { "bit.pdf.titulonegocio",   "Business Log — WardrobeFlow"                         },
+            { "bit.pdf.pagina",          "WardrobeFlow — Page {0}"                              },
+            { "bit.pdf.vistaprevia",     "Print Preview"                                         },
+            { "dash.backup.hoy",         "Today"                                                 },
+            { "dash.sesion.iniciada",    "Session started:"                                      },
             // User Change History (T06)
             { "frm.historialusr",        "User Change History"                                    },
             { "lbl.ver.usuario",         "User:"                                                  },
@@ -1111,6 +1232,10 @@ namespace Servicios.Multiidioma
             { "lbl.idioma",       "Язык:"                                  },
             // Вход — подзаголовок
             { "lbl.subtitulo",    "ПОРТАЛ СОТРУДНИКОВ"                     },
+            { "lbl.bienvenido",   "Добро пожаловать"                       },
+            { "lbl.credenciales", "Введите данные для входа"               },
+            { "lbl.divider",      "или"                                     },
+            { "lbl.brand.desc",   "Безопасный доступ\nко всем модулям системы." },
             // Главное меню
             { "mnu.perfil",       "Профиль"                                },
             { "mnu.inventario",   "Склад"                                  },
@@ -1524,8 +1649,60 @@ namespace Servicios.Multiidioma
             { "frm.backup",              "Резервное копирование"                                  },
             { "btn.backup.crear",        "Создать резервную копию (.bak)"                         },
             { "btn.backup.restaurar",    "Восстановить из копии (.bak)"                           },
+            { "btn.backup.eliminar",     "Удалить"                                                },
+            { "btn.backup.externo",      "Из файла..."                                            },
+            { "col.backup.archivo",      "Файл"                                                   },
+            { "col.backup.fecha",        "Дата"                                                   },
+            { "col.backup.autor",        "Автор"                                                  },
+            { "col.backup.tamanio",      "Размер"                                                 },
             { "lbl.backup.info",         "Примечание: восстановление закроет активные соединения и перезапустит приложение." },
+            { "lbl.backup.ubicacion",    "Расположение копий:"                                   },
+            { "msg.backup.tituloeliminar","Подтверждение удаления"                               },
+            { "msg.backup.confirmeliminar","Удалить резервную копию?\n\"{0}\"\n\nЭто действие нельзя отменить." },
+            { "msg.backup.titulorestaura","Подтверждение восстановления"                         },
+            { "msg.backup.confirmrestaura","Восстановить базу данных из:\n\"{0}\"?\n\nЭто перезапишет все текущие данные\nи перезапустит приложение." },
             { "mnu.backup",              "Резервная копия"                                        },
+            // RestauracionForm (Целостность ЦК)
+            { "frm.restauracion",        "Целостность системы"                                    },
+            { "lbl.rest.titulo",         "Целостность системы нарушена"                           },
+            { "lbl.rest.subtitulo",      "Обнаружены расхождения в контрольных цифрах. Доступ заблокирован." },
+            { "lbl.rest.detalle",        "Детали ошибки:"                                        },
+            { "btn.rest.recalcular",     "Пересчитать контрольные цифры"                         },
+            { "btn.rest.backup",         "Восстановить из резервной копии"                        },
+            { "btn.rest.salir",          "Выйти"                                                  },
+            // Меню — Панель управления + разделённые журналы
+            { "mnu.dashboard",           "Панель управления"                                      },
+            { "mnu.bitacora.sistema",    "Системный журнал"                                       },
+            { "mnu.bitacora.negocio",    "Бизнес-журнал"                                         },
+            // Панель управления — Dashboard
+            { "frm.dashboard",           "Панель управления"                                      },
+            { "dash.prendas",            "Товаров\nдоступно"                                      },
+            { "dash.clientes",           "Клиентов\nзарегистрировано"                             },
+            { "dash.pedidos",            "Заказов\nв ожидании"                                    },
+            { "dash.backup",             "дней без\nрезервной копии"                              },
+            { "dash.btn.refrescar",      "↻ Обновить"                                             },
+            { "mnu.reportejornada",      "Отчёт за день"                                          },
+            // Отчёт за день
+            { "frm.reportejornada",      "Отчёт за день — WardrobeFlow"                           },
+            { "rpt.generar",             "Создать"                                                },
+            { "rpt.comparar",            "Сравнить дни"                                           },
+            { "rpt.exportartxt",         "Экспорт TXT"                                            },
+            { "rpt.exportarpdf",         "Экспорт PDF"                                            },
+            { "rpt.fecha",               "День:"                                                  },
+            { "rpt.fecha2",              "Сравнить с:"                                            },
+            { "rpt.kpi.prendas",         "Доступная одежда"                                       },
+            { "rpt.kpi.clientes",        "Клиентов"                                              },
+            { "rpt.kpi.eventos",         "Событий за день"                                        },
+            { "rpt.kpi.backup",          "дней без резервной копии"                               },
+            { "rpt.sinDatos",            "Нет событий за выбранный день."                         },
+            { "rpt.limpiar",             "Очистить"                                              },
+            { "rpt.subtitulo",           "Бизнес-события за день с экспортом в TXT"             },
+            { "bit.pdf.titulosistema",   "Системный журнал — WardrobeFlow"                      },
+            { "bit.pdf.titulonegocio",   "Бизнес-журнал — WardrobeFlow"                        },
+            { "bit.pdf.pagina",          "WardrobeFlow — Страница {0}"                          },
+            { "bit.pdf.vistaprevia",     "Предварительный просмотр"                             },
+            { "dash.backup.hoy",         "Сегодня"                                              },
+            { "dash.sesion.iniciada",    "Сеанс начат:"                                         },
             // История изменений пользователей (T06)
             { "frm.historialusr",        "История изменений пользователей"                        },
             { "lbl.ver.usuario",         "Пользователь:"                                          },

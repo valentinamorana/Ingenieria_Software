@@ -2,6 +2,8 @@ using BLL;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
+using System.Reflection;
 using System.Windows.Forms;
 using Servicios.Multiidioma;
 
@@ -10,56 +12,37 @@ namespace GUI
     /// <summary>
     /// WardrobeFlow — Formulario de Login para Empleados.
     ///
-    /// Pantalla de acceso exclusiva para empleados del sistema.
-    /// Se muestra como diálogo modal al iniciar la aplicación.
-    ///
-    /// FLUJO:
-    ///   Empleado ingresa credenciales → BLL.Usuario.Login() → verifica en BD con PBKDF2
-    ///   → Si OK: el formulario desaparece (DialogResult.OK) y se abre el sistema
-    ///   → Si falla: muestra mensaje de error sin cerrar el formulario
-    ///   → Botón Salir: cierra la aplicación directamente
-    ///
     /// PATRÓN OBSERVER — T05 Gestión de Múltiples Idiomas:
     ///   Implementa IIdiomaObserver. Se suscribe al GestorIdioma en Load
     ///   y se desuscribe en FormClosing. Al recibir UpdateLanguage() aplica
     ///   las traducciones del nuevo idioma a todos sus controles.
-    ///   El Login tiene sus propios botones 🇦🇷 ES / 🇬🇧 EN / 🇷🇺 RU en la esquina inferior.
+    ///   Las pastillas de idioma (ES / EN / RU) viven en el panel izquierdo.
     ///   Al cambiar el idioma acá, el Menu ya abre traducido cuando el usuario ingresa.
     /// </summary>
     public partial class Login : Form, IIdiomaObserver
     {
         private readonly Usuario usuarioBLL = new Usuario();
 
+        // Referencias a los botones-pastilla de idioma (necesarias para marcar el activo)
+        private Button _loginBtnES, _loginBtnEN, _loginBtnRU;
+        // Etiqueta de descripción de marca (creada en código para ser traducible)
+        private Label _lblBrandDesc;
+
         public Login()
         {
             InitializeComponent();
 
-            pnlLeft.BackgroundImage       = CrearTexturaPanelIzquierdo();
-            pnlLeft.BackgroundImageLayout = ImageLayout.None;
-            // DoubleBuffered en pnlCard: garantiza que los labels Transparent
-            // muestren el BackgroundImage en lugar del BackColor sólido.
-            typeof(System.Windows.Forms.Control)
-                .GetProperty("DoubleBuffered",
-                    System.Reflection.BindingFlags.NonPublic |
-                    System.Reflection.BindingFlags.Instance)
-                ?.SetValue(pnlCard, true, null);
+            // ── Decoraciones dibujadas mediante eventos Paint ─────────────────────
+            // Evita BackgroundImage bitmaps y permite que los controles transparentes
+            // muestren correctamente el fondo #FBF0F6 del panel derecho.
+            pnlLeft.Paint += PnlLeft_Paint;
+            pnlCard.Paint += PnlCard_Paint;
 
-            pnlCard.BackgroundImage       = CrearTexturaPanelDerecho();
-            pnlCard.BackgroundImageLayout = ImageLayout.Stretch;
+            // ── Elementos de marca en el panel izquierdo ──────────────────────────
+            AgregarBrandElements();
 
-            // Permitir presionar Enter para ingresar (UX de empleados)
-            this.AcceptButton = btnIngresar;
-
-            // Efecto de hover manual en el botón Ingresar para cambiar color de texto
-            btnIngresar.MouseEnter += (s, e) => btnIngresar.ForeColor = Color.FromArgb(18, 18, 30);
-            btnIngresar.MouseLeave += (s, e) => btnIngresar.ForeColor = Color.White;
-
-            // lblError: habilitar wrapping para mensajes largos (bloqueo).
-            // No se expande en constructor — el form arranca igual que en el Designer.
-            lblError.AutoSize  = false;
-            lblError.MaximumSize = new Size(lblError.Width, 0);
-
-            // Ojito mostrar/ocultar contraseña — se achica el textbox para que el botón quede afuera del borde
+            // ── Ojito mostrar/ocultar contraseña ─────────────────────────────────
+            // Se achica el textbox para que el botón quede en el borde derecho.
             txtContraseña.Width -= 28;
             var btnOjo = new Button
             {
@@ -68,13 +51,12 @@ namespace GUI
                 Size      = new Size(26, txtContraseña.Height),
                 Location  = new Point(txtContraseña.Right + 2, txtContraseña.Top),
                 FlatStyle = FlatStyle.Flat,
-                BackColor = txtContraseña.BackColor,
-                ForeColor = Color.FromArgb(100, 100, 100),
+                BackColor = Color.White,
+                ForeColor = Color.FromArgb(192, 168, 180),
                 Cursor    = Cursors.Hand,
                 TabStop   = false
             };
-            btnOjo.FlatAppearance.BorderSize = 1;
-            btnOjo.FlatAppearance.BorderColor = Color.FromArgb(180, 180, 180);
+            btnOjo.FlatAppearance.BorderSize = 0;
             btnOjo.Click += (s, e) =>
             {
                 var b = (Button)s;
@@ -92,49 +74,204 @@ namespace GUI
             pnlCard.Controls.Add(btnOjo);
             btnOjo.BringToFront();
 
-            // ── Botones de idioma — esquina inferior del formulario ───────────
-            // Permiten cambiar el idioma antes de hacer login, igual que en el Menu.
-            // Al clickear notifican al GestorIdioma → todos los observers se traducen.
+            // ── Líneas del separador "o" dibujadas vía Paint ──────────────────────
+            lblDivider.Paint += LblDivider_Paint;
+
+            // ── Pastillas de idioma en el panel izquierdo ─────────────────────────
             AgregarBotonesIdioma();
+
+            this.AcceptButton = btnIngresar;
+
+            lblError.AutoSize    = false;
+            lblError.MaximumSize = new Size(lblError.Width, 0);
         }
 
-        // Referencia a los botones para poder marcar el activo
-        private Button _loginBtnES, _loginBtnEN, _loginBtnRU;
+        // ── Pintura decorativa del panel izquierdo ────────────────────────────────
+        // Fondo blanco + círculos rosados suaves (equivalente al SVG del HTML de referencia).
+
+        private void PnlLeft_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
+        {
+            var g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Círculo relleno superior-derecho  #F9EEF4
+            using (var b = new SolidBrush(Color.FromArgb(249, 238, 244)))
+                g.FillEllipse(b, 120, -30, 220, 220);
+
+            // Círculo relleno inferior-izquierdo  #F5E6EF
+            using (var b = new SolidBrush(Color.FromArgb(245, 230, 239)))
+                g.FillEllipse(b, -65, 295, 260, 260);
+
+            // Círculos de contorno suaves
+            using (var pen = new Pen(Color.FromArgb(232, 197, 216), 1f))
+                g.DrawEllipse(pen, 145, 218, 110, 110);
+            using (var pen = new Pen(Color.FromArgb(237, 213, 229), 0.8f))
+                g.DrawEllipse(pen, 30, 100, 60, 60);
+
+            // Puntos decorativos
+            foreach (var (dx, dy, a) in new[] { (80, 80, 80), (110, 60, 60), (210, 200, 90), (150, 380, 90) })
+                using (var b = new SolidBrush(Color.FromArgb(a, 192, 130, 168)))
+                    g.FillEllipse(b, dx - 3, dy - 3, 7, 7);
+        }
+
+        // ── Pintura decorativa del panel derecho ──────────────────────────────────
+        // Fondo #FBF0F6 + círculos vino muy sutiles (alpha ≈ 5-10%).
+
+        private void PnlCard_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
+        {
+            var g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            int w = pnlCard.Width, h = pnlCard.Height;
+
+            // Círculo superior-derecho
+            using (var b = new SolidBrush(Color.FromArgb(14, 146, 62, 96)))
+                g.FillEllipse(b, w - 170, -90, 180, 180);
+
+            // Círculo inferior-izquierdo
+            using (var b = new SolidBrush(Color.FromArgb(11, 146, 62, 96)))
+                g.FillEllipse(b, -80, h - 150, 200, 200);
+
+            // Círculo de contorno
+            using (var pen = new Pen(Color.FromArgb(25, 146, 62, 96), 0.8f))
+                g.DrawEllipse(pen, w - 100, 220, 80, 80);
+        }
+
+        // ── Líneas horizontales del separador "o" ─────────────────────────────────
+
+        private void LblDivider_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
+        {
+            var lbl = (Label)sender;
+            int midY = lbl.Height / 2;
+            using (var pen = new Pen(Color.FromArgb(224, 200, 216), 0.8f))
+            {
+                var sz = e.Graphics.MeasureString(lbl.Text, lbl.Font);
+                float cx = lbl.Width / 2f;
+                float hw = sz.Width / 2f + 10;
+                e.Graphics.DrawLine(pen, 0, midY, cx - hw, midY);
+                e.Graphics.DrawLine(pen, cx + hw, midY, lbl.Width, midY);
+            }
+        }
+
+        // ── Elementos de marca en pnlLeft ─────────────────────────────────────────
+
+        private void AgregarBrandElements()
+        {
+            // 1. Ícono-logo (cuadrado vino redondeado 36×36 con "W" blanca)
+            var pnlLogo = new Panel { Location = new Point(20, 24), Size = new Size(36, 36), BackColor = Color.White };
+            pnlLogo.Paint += (s, e) =>
+            {
+                var g = e.Graphics;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+
+                // Fondo vino redondeado
+                using (var path = BuildRoundedRect(new Rectangle(0, 0, 35, 35), 8))
+                using (var br   = new SolidBrush(Color.FromArgb(146, 62, 96)))
+                    g.FillPath(br, path);
+
+                // Ícono de percha blanca (equivalente a ti-hanger de Tabler Icons)
+                using (var pen = new Pen(Color.White, 1.8f) {
+                    StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round })
+                {
+                    // Círculo / anillo superior (la argolla de la percha)
+                    g.DrawEllipse(pen, 14.5f, 6f, 6f, 6f);
+                    // Arco del gancho: sale de la argolla hacia la derecha (el gancho sobre el caño)
+                    g.DrawArc(pen, 17.5f, 5f, 5f, 5f, 180, -200);
+                    // Brazo izquierdo
+                    g.DrawLine(pen, 17.5f, 12f, 9f, 26f);
+                    // Brazo derecho
+                    g.DrawLine(pen, 17.5f, 12f, 26f, 26f);
+                    // Barra inferior (se extiende más allá de los brazos)
+                    g.DrawLine(pen, 5.5f, 26f, 29.5f, 26f);
+                }
+            };
+            pnlLeft.Controls.Add(pnlLogo);
+            pnlLogo.BringToFront();
+
+            // lblTitle ya está en pnlLeft (del Designer): solo reposicionar si es necesario
+            lblTitle.BringToFront();
+
+            // 2. Wordmark "Wardrobe" + "Flow" en dos colores (panel con Paint)
+            var pnlWordmark = new Panel { Location = new Point(18, 200), Size = new Size(244, 40), BackColor = Color.White };
+            pnlWordmark.Paint += (s, e) =>
+            {
+                e.Graphics.SmoothingMode     = SmoothingMode.AntiAlias;
+                e.Graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
+                using (var fnt = new Font("Segoe UI", 19f))
+                {
+                    using (var bDark = new SolidBrush(Color.FromArgb(44, 26, 36)))
+                        e.Graphics.DrawString("Wardrobe", fnt, bDark, 0, 0);
+                    // Posicionar "Flow" inmediatamente después de "Wardrobe"
+                    var sz = e.Graphics.MeasureString("Wardrobe", fnt);
+                    using (var bVino = new SolidBrush(Color.FromArgb(146, 62, 96)))
+                        e.Graphics.DrawString("Flow", fnt, bVino, sz.Width - 4f, 0);
+                }
+            };
+            pnlLeft.Controls.Add(pnlWordmark);
+            pnlWordmark.BringToFront();
+
+            // 3. Descripción de marca (traducible vía tag)
+            _lblBrandDesc = new Label
+            {
+                Location   = new Point(20, 246),
+                Size       = new Size(240, 38),
+                Font       = new Font("Segoe UI", 9f),
+                ForeColor  = Color.FromArgb(160, 136, 152),
+                BackColor  = Color.White,
+                Text       = "Acceso seguro y centralizado\na todos los módulos del sistema.",
+                Tag        = "lbl.brand.desc",
+                AutoSize   = false
+            };
+            pnlLeft.Controls.Add(_lblBrandDesc);
+            _lblBrandDesc.BringToFront();
+        }
+
+        // Construye un GraphicsPath de rectángulo redondeado.
+        private static GraphicsPath BuildRoundedRect(Rectangle rect, int r)
+        {
+            var path = new GraphicsPath();
+            path.AddArc(rect.Left,            rect.Top,             r * 2, r * 2, 180, 90);
+            path.AddArc(rect.Right - r * 2,   rect.Top,             r * 2, r * 2, 270, 90);
+            path.AddArc(rect.Right - r * 2,   rect.Bottom - r * 2, r * 2, r * 2, 0,   90);
+            path.AddArc(rect.Left,            rect.Bottom - r * 2, r * 2, r * 2, 90,  90);
+            path.CloseFigure();
+            return path;
+        }
+
+        // ── Pastillas de idioma en pnlLeft ────────────────────────────────────────
 
         private void AgregarBotonesIdioma()
         {
-            int y      = 6;
-            int startX = this.ClientSize.Width - 10;
+            int y = pnlLeft.Height - 54;
+            int x = 22;
 
-            // Se crean de derecha a izquierda: RU | EN | ES
-            foreach (var (codigo, texto) in new[] {
-                ("RU", "Русский"), ("EN", "English"), ("ES", "Español") })
+            foreach (var (codigo, texto) in new[] { ("ES", "ES"), ("EN", "EN"), ("RU", "RU") })
             {
                 var btn = new Button
                 {
                     Text      = texto,
-                    Size      = new Size(62, 20),
+                    Size      = new Size(40, 22),
+                    Location  = new Point(x, y),
                     FlatStyle = FlatStyle.Flat,
-                    BackColor = Color.FromArgb(100, 40, 65),
-                    ForeColor = Color.FromArgb(200, 200, 210),
-                    Font      = new Font("Segoe UI", 7.5f),
+                    BackColor = Color.White,
+                    ForeColor = Color.FromArgb(176, 136, 152),
+                    Font      = new Font("Segoe UI", 8f),
                     Cursor    = Cursors.Hand,
                     TabStop   = false
                 };
-                btn.FlatAppearance.BorderSize  = 0;
-                startX -= btn.Width + 3;
-                btn.Location = new Point(startX, y);
+                btn.FlatAppearance.BorderSize  = 1;
+                btn.FlatAppearance.BorderColor = Color.FromArgb(224, 200, 216);
+                x += 46;
 
-                string cod = codigo; // captura para el closure
+                string cod = codigo;
                 btn.Click += (s, e) =>
                 {
-                    foreach (var idioma in Servicios.Multiidioma.Traductor.ObtenerIdiomas())
+                    foreach (var idioma in Traductor.ObtenerIdiomas())
                         if (idioma.Id == cod)
-                        { Servicios.Multiidioma.GestorIdioma.CambiarIdioma(idioma); break; }
+                        { GestorIdioma.CambiarIdioma(idioma); break; }
                     MarcarIdiomaActivoLogin(cod);
                 };
 
-                this.Controls.Add(btn);
+                pnlLeft.Controls.Add(btn);
                 btn.BringToFront();
 
                 if (codigo == "ES") _loginBtnES = btn;
@@ -147,42 +284,43 @@ namespace GUI
 
         private void MarcarIdiomaActivoLogin(string codigo)
         {
-            var activo  = new Font("Segoe UI", 8f, FontStyle.Bold);
-            var normal  = new Font("Segoe UI", 8f, FontStyle.Regular);
-            var cActivo = Color.White;
-            var cNormal = Color.FromArgb(170, 170, 180);
-
-            if (_loginBtnES != null) { _loginBtnES.Font = codigo=="ES"?activo:normal; _loginBtnES.ForeColor = codigo=="ES"?cActivo:cNormal; }
-            if (_loginBtnEN != null) { _loginBtnEN.Font = codigo=="EN"?activo:normal; _loginBtnEN.ForeColor = codigo=="EN"?cActivo:cNormal; }
-            if (_loginBtnRU != null) { _loginBtnRU.Font = codigo=="RU"?activo:normal; _loginBtnRU.ForeColor = codigo=="RU"?cActivo:cNormal; }
+            void Marcar(Button b, bool activo)
+            {
+                if (b == null) return;
+                b.Font      = new Font("Segoe UI", 8f, activo ? FontStyle.Bold : FontStyle.Regular);
+                b.ForeColor = activo ? Color.FromArgb(146, 62, 96) : Color.FromArgb(176, 136, 152);
+                b.BackColor = activo ? Color.FromArgb(243, 234, 240) : Color.White;
+                b.FlatAppearance.BorderColor = activo
+                    ? Color.FromArgb(201, 160, 186)
+                    : Color.FromArgb(224, 200, 216);
+            }
+            Marcar(_loginBtnES, codigo == "ES");
+            Marcar(_loginBtnEN, codigo == "EN");
+            Marcar(_loginBtnRU, codigo == "RU");
         }
 
-        // ── Eventos del ciclo de vida ─────────────────────────────────────────
+        // ── Ciclo de vida ─────────────────────────────────────────────────────────
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            // Suscribirse al Observer de idioma — equivalente a frmLogin_Load del ejemplo de cátedra
             GestorIdioma.SuscribirObservador(this);
-            // Aplicar el idioma activo en el momento en que se abre el formulario
             Traducir(GestorIdioma.IdiomaActual);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            // Desuscribirse al cerrar — equivalente a frmLogin_FormClosing del ejemplo de cátedra
             GestorIdioma.DesuscribirObservador(this);
             base.OnFormClosing(e);
         }
 
-        // ══════════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════════════════
         // PATRÓN OBSERVER — T05 Gestión de Múltiples Idiomas
-        // ══════════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════════════════
 
         /// <summary>
         /// Recibe la notificación del GestorIdioma cuando el idioma cambia.
         /// Equivalente a UpdateLanguage(IIdioma idioma) del ejemplo de cátedra.
-        /// El formulario se traduce al instante sin reinicios ni ventanas adicionales.
         /// </summary>
         public void UpdateLanguage(Idioma idioma)
         {
@@ -192,46 +330,54 @@ namespace GUI
         /// <summary>
         /// Reasigna el .Text de cada control leyendo su propiedad Tag como clave
         /// de traducción — exactamente igual que en el ejemplo de cátedra (frmLogin).
-        /// Los Tags se asignan en el Designer; el código no hardcodea ninguna clave.
         /// </summary>
         private void Traducir(Idioma idioma)
         {
             var t = Traductor.ObtenerTraducciones(idioma);
+            string Tx(string tag) => (tag != null && t.ContainsKey(tag)) ? t[tag].Texto : null;
 
-            // Título del formulario — Tag asignado en el Designer: "frm.login"
-            if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
-                this.Text = t[this.Tag.ToString()].Texto;
+            // Título del formulario
+            var tituloForm = Tx(this.Tag?.ToString());
+            if (tituloForm != null) this.Text = tituloForm;
 
-            // Controles — cada uno lee su propio Tag para obtener la clave
-            if (lblUsuario.Tag   != null && t.ContainsKey(lblUsuario.Tag.ToString()))
-                lblUsuario.Text   = t[lblUsuario.Tag.ToString()].Texto;
+            // Panel izquierdo
+            var sub = Tx(lblSubtitulo.Tag?.ToString());
+            if (sub != null) lblSubtitulo.Text = sub;
 
-            if (lblContraseña.Tag != null && t.ContainsKey(lblContraseña.Tag.ToString()))
-                lblContraseña.Text = t[lblContraseña.Tag.ToString()].Texto;
+            var desc = Tx(_lblBrandDesc?.Tag?.ToString());
+            if (desc != null && _lblBrandDesc != null) _lblBrandDesc.Text = desc;
 
-            if (btnIngresar.Tag  != null && t.ContainsKey(btnIngresar.Tag.ToString()))
-                btnIngresar.Text  = t[btnIngresar.Tag.ToString()].Texto;
+            // Panel derecho — título y subtítulo
+            var bienvenido = Tx(lblAccent.Tag?.ToString());
+            if (bienvenido != null) lblAccent.Text = bienvenido;
 
-            if (btnSalir.Tag     != null && t.ContainsKey(btnSalir.Tag.ToString()))
-                btnSalir.Text     = t[btnSalir.Tag.ToString()].Texto;
+            var cred = Tx(lblLoginSub.Tag?.ToString());
+            if (cred != null) lblLoginSub.Text = cred;
 
-            if (lnkOlvidaste.Tag != null && t.ContainsKey(lnkOlvidaste.Tag.ToString()))
-                lnkOlvidaste.Text = t[lnkOlvidaste.Tag.ToString()].Texto;
+            // Campos
+            var usr = Tx(lblUsuario.Tag?.ToString());
+            if (usr != null) lblUsuario.Text = usr;
 
-            // Subtítulo "PORTAL DE EMPLEADOS" — traducción directa por clave fija
-            if (t.ContainsKey("lbl.subtitulo"))
-                lblSubtitulo.Text = t["lbl.subtitulo"].Texto;
+            var pwd = Tx(lblContraseña.Tag?.ToString());
+            if (pwd != null) lblContraseña.Text = pwd;
 
-            if (lblAccent.Tag != null && t.ContainsKey(lblAccent.Tag.ToString()))
-                lblAccent.Text = t[lblAccent.Tag.ToString()].Texto;
+            // Botones y link
+            var ingresar = Tx(btnIngresar.Tag?.ToString());
+            if (ingresar != null) btnIngresar.Text = ingresar;
+
+            var salir = Tx(btnSalir.Tag?.ToString());
+            if (salir != null) btnSalir.Text = salir;
+
+            var olvide = Tx(lnkOlvidaste.Tag?.ToString());
+            if (olvide != null) lnkOlvidaste.Text = olvide;
+
+            // Separador
+            var divider = Tx(lblDivider.Tag?.ToString());
+            if (divider != null) lblDivider.Text = divider;
         }
 
-        // ── Eventos de negocio ────────────────────────────────────────────────
+        // ── Eventos de negocio ────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Autentica al empleado. Si las credenciales son válidas,
-        /// el formulario se cierra (desaparece) y se abre el sistema.
-        /// </summary>
         private void btnIngresar_Click(object sender, EventArgs e)
         {
             lblError.Text = string.Empty;
@@ -268,21 +414,6 @@ namespace GUI
                 ? Color.FromArgb(140, 0, 0)
                 : Color.FromArgb(180, 50, 50);
 
-            // Expandir el card si el mensaje necesita más espacio (bloqueos son multi-línea).
-            using (var g = lblError.CreateGraphics())
-            {
-                var tamano      = g.MeasureString(lblError.Text, lblError.Font, lblError.Width);
-                int diferencia  = Math.Max(0, (int)tamano.Height + 4 - lblError.Height);
-                if (diferencia > 0)
-                {
-                    lblError.Height  += diferencia;
-                    btnIngresar.Top  += diferencia;
-                    lnkOlvidaste.Top += diferencia;
-                    btnSalir.Top     += diferencia;
-                    pnlCard.Height   += diferencia;
-                }
-            }
-
             if (bloqueado)
             {
                 txtUsuario.Enabled    = false;
@@ -297,77 +428,15 @@ namespace GUI
             }
         }
 
-        private Bitmap CrearTexturaPanelDerecho()
-        {
-            int w = pnlCard.Width  > 0 ? pnlCard.Width  : 455;
-            int h = pnlCard.Height > 0 ? pnlCard.Height : 420;
-            var bmp = new Bitmap(w, h);
-            using (var g = Graphics.FromImage(bmp))
-            {
-                // Gradiente vertical: lavanda suave arriba → blanco abajo
-                using (var grad = new LinearGradientBrush(
-                    new Point(0, 0), new Point(0, h),
-                    Color.FromArgb(238, 228, 248),   // lavanda claro
-                    Color.FromArgb(255, 255, 255)))  // blanco
-                {
-                    g.FillRectangle(grad, 0, 0, w, h);
-                }
-                // Puntos sutiles superpuestos al gradiente
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                using (var dot = new SolidBrush(Color.FromArgb(40, 146, 62, 96)))
-                {
-                    const int spacing = 28;
-                    for (int x = spacing; x < w; x += spacing)
-                        for (int y = spacing; y < h; y += spacing)
-                            g.FillEllipse(dot, x - 1, y - 1, 3, 3);
-                }
-            }
-            return bmp;
-        }
-
-        private Bitmap CrearTexturaPanelIzquierdo()
-        {
-            int w = pnlLeft.Width > 0 ? pnlLeft.Width : 265;
-            int h = pnlLeft.Height > 0 ? pnlLeft.Height : 420;
-            var bmp = new Bitmap(w, h);
-            using (var g = Graphics.FromImage(bmp))
-            {
-                g.Clear(Color.FromArgb(146, 62, 96));
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                using (var b1 = new SolidBrush(Color.FromArgb(30, 255, 255, 255)))
-                {
-                    g.FillEllipse(b1, 100, -80, 230, 230);   // top-right
-                    g.FillEllipse(b1, -60, 245, 200, 200);   // bottom-left
-                    g.FillEllipse(b1, 115, 265, 180, 180);   // bottom-right
-                }
-                using (var b2 = new SolidBrush(Color.FromArgb(18, 255, 255, 255)))
-                {
-                    g.FillEllipse(b2, -50,  5, 170, 170);    // top-left
-                    g.FillEllipse(b2,  35, 115, 185, 185);   // center
-                }
-            }
-            return bmp;
-        }
-
-        /// <summary>
-        /// Cierra la aplicación completamente al presionar Salir.
-        /// </summary>
         private void btnSalir_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
-        /// <summary>
-        /// Abre el formulario de recuperación de contraseña.
-        /// Permite al usuario ingresar su username para que el administrador
-        /// pueda resetear su clave desde el módulo de Usuarios.
-        /// </summary>
         private void lnkOlvidaste_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             using (var form = new OlvideContrasenaForm())
-            {
                 form.ShowDialog(this);
-            }
         }
     }
 }

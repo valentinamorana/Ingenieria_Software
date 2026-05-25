@@ -43,9 +43,20 @@ namespace GUI
         private Font        _fuenteCelda;
         private Font        _fuenteTitulo;
 
-        public Bitacora()
+        private readonly string _tabInicial;
+
+        public Bitacora(string tabInicial = null)
         {
             InitializeComponent();
+            _tabInicial = tabInicial;
+        }
+
+        public void SeleccionarTab(string nombre)
+        {
+            if (nombre == "negocio" && tabControl.TabPages.Contains(tabPageNegocio))
+                tabControl.SelectedTab = tabPageNegocio;
+            else if (nombre == "sistema" && tabControl.TabPages.Contains(tabPageSistema))
+                tabControl.SelectedTab = tabPageSistema;
         }
 
         // ── Observer de idioma ────────────────────────────────────────────────
@@ -182,6 +193,7 @@ namespace GUI
                 CargarSistema();
 
             CargarNegocio();
+            SeleccionarTab(_tabInicial);
         }
 
         private void BtnUltimosDias_Click(object sender, EventArgs e)
@@ -208,9 +220,15 @@ namespace GUI
             CargarSistema();
         }
 
+        private string T(string key, string fallback)
+        {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            return t.ContainsKey(key) ? t[key].Texto : fallback;
+        }
+
         private void BtnExportSistema_Click(object sender, EventArgs e)
         {
-            ExportarPdf(dgvSistema, "Bitácora del Sistema — WardrobeFlow");
+            ExportarPdf(dgvSistema, T("bit.pdf.titulosistema", "Bitácora del Sistema — WardrobeFlow"));
         }
 
         private void DgvSistema_DataBindingComplete(object sender,
@@ -242,7 +260,7 @@ namespace GUI
 
         private void BtnExportNegocio_Click(object sender, EventArgs e)
         {
-            ExportarPdf(dgvNegocio, "Bitácora de Negocio — WardrobeFlow");
+            ExportarPdf(dgvNegocio, T("bit.pdf.titulonegocio", "Bitácora de Negocio — WardrobeFlow"));
         }
 
         // ── Carga ─────────────────────────────────────────────────────────────
@@ -353,7 +371,7 @@ namespace GUI
                 preview.Document = doc;
                 preview.Width    = 1050;
                 preview.Height   = 780;
-                preview.Text     = $"Vista Previa — {titulo}";
+                preview.Text     = $"{T("bit.pdf.vistaprevia", "Vista Previa")} — {titulo}";
                 preview.ShowDialog(this);
             }
         }
@@ -372,47 +390,50 @@ namespace GUI
             float xIzq       = margen.Left;
             float anchoTotal = margen.Width;
 
+            var vinoOscuro = Color.FromArgb(146, 62, 96);
+            var vinoClaro  = Color.FromArgb(252, 228, 235);
+            var vinoMedio  = Color.FromArgb(110, 40, 70);
+
             // ── Título (solo en la primera página) ───────────────────────────
             if (_paginaActual == 1)
             {
-                g.DrawString(_tituloImpresion, _fuenteTitulo, Brushes.DarkSlateBlue,
-                    xIzq, y);
+                using (var brTitulo = new SolidBrush(vinoOscuro))
+                    g.DrawString(_tituloImpresion, _fuenteTitulo, brTitulo, xIzq, y);
                 y += _fuenteTitulo.GetHeight(g) + 4;
 
-                g.DrawString(
-                    $"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}   |   " +
-                    $"{_tablaImpresion.Rows.Count} registro(s)",
-                    _fuenteCelda, Brushes.Gray, xIzq, y);
-                y += _fuenteCelda.GetHeight(g) + 8;
+                using (var brSub = new SolidBrush(vinoMedio))
+                    g.DrawString(
+                        $"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}   |   " +
+                        $"{_tablaImpresion.Rows.Count} registro(s)",
+                        _fuenteCelda, brSub, xIzq, y);
+                y += _fuenteCelda.GetHeight(g) + 6;
 
-                // Línea separadora bajo el título
-                g.DrawLine(Pens.DarkSlateBlue, xIzq, y, xIzq + anchoTotal, y);
-                y += 4;
+                using (var penLinea = new Pen(vinoOscuro, 1.5f))
+                    g.DrawLine(penLinea, xIzq, y, xIzq + anchoTotal, y);
+                y += 5;
             }
 
             // ── Calcular anchos de columna ────────────────────────────────────
-            int nCols     = _tablaImpresion.Columns.Count;
+            int nCols      = _tablaImpresion.Columns.Count;
             float colAncho = anchoTotal / nCols;
 
             // ── Encabezados ───────────────────────────────────────────────────
-            float alturaHeader = _fuenteHeader.GetHeight(g) + 6;
+            float alturaHeader = _fuenteHeader.GetHeight(g) + 8;
 
-            using (var brushHeader = new SolidBrush(Color.FromArgb(60, 60, 120)))
-            using (var brushHeaderBg = new SolidBrush(Color.FromArgb(220, 220, 240)))
+            using (var brushHeaderBg = new SolidBrush(vinoOscuro))
+            using (var brushHeaderFg = new SolidBrush(Color.White))
             {
-                g.FillRectangle(brushHeaderBg,
-                    xIzq, y, anchoTotal, alturaHeader);
+                g.FillRectangle(brushHeaderBg, xIzq, y, anchoTotal, alturaHeader);
 
                 for (int col = 0; col < nCols; col++)
                 {
-                    // Usar el HeaderText traducido capturado del DataGridView
                     string nombre = (_headersImpresion != null && col < _headersImpresion.Length)
                         ? _headersImpresion[col]
                         : _tablaImpresion.Columns[col].ColumnName;
                     var rect = new RectangleF(
-                        xIzq + col * colAncho + 2, y + 2,
-                        colAncho - 4, alturaHeader - 4);
-                    g.DrawString(nombre, _fuenteHeader, brushHeader, rect,
+                        xIzq + col * colAncho + 3, y + 3,
+                        colAncho - 6, alturaHeader - 6);
+                    g.DrawString(nombre, _fuenteHeader, brushHeaderFg, rect,
                         new StringFormat { Trimming = StringTrimming.EllipsisCharacter });
                 }
             }
@@ -422,44 +443,46 @@ namespace GUI
             float alturaCelda = _fuenteCelda.GetHeight(g) + 5;
             bool  alternar    = false;
 
-            while (_filaImpresion < _tablaImpresion.Rows.Count)
+            using (var brushAlternar  = new SolidBrush(vinoClaro))
+            using (var brushTexto     = new SolidBrush(Color.FromArgb(40, 15, 28)))
+            using (var penSeparador   = new Pen(Color.FromArgb(220, 180, 200), 0.5f))
             {
-                // Verificar si cabe otra fila en la página
-                if (y + alturaCelda > margen.Bottom - 20) break;
-
-                DataRow fila = _tablaImpresion.Rows[_filaImpresion];
-
-                // Fondo alternado
-                if (alternar)
-                    g.FillRectangle(new SolidBrush(Color.FromArgb(248, 248, 255)),
-                        xIzq, y, anchoTotal, alturaCelda);
-
-                for (int col = 0; col < nCols; col++)
+                while (_filaImpresion < _tablaImpresion.Rows.Count)
                 {
-                    string valor = fila[col]?.ToString() ?? "";
-                    var rect = new RectangleF(
-                        xIzq + col * colAncho + 2, y + 1,
-                        colAncho - 4, alturaCelda - 2);
-                    g.DrawString(valor, _fuenteCelda, Brushes.Black, rect,
-                        new StringFormat { Trimming = StringTrimming.EllipsisCharacter });
+                    if (y + alturaCelda > margen.Bottom - 20) break;
+
+                    DataRow fila = _tablaImpresion.Rows[_filaImpresion];
+
+                    if (alternar)
+                        g.FillRectangle(brushAlternar, xIzq, y, anchoTotal, alturaCelda);
+
+                    for (int col = 0; col < nCols; col++)
+                    {
+                        string valor = fila[col]?.ToString() ?? "";
+                        var rect = new RectangleF(
+                            xIzq + col * colAncho + 3, y + 1,
+                            colAncho - 6, alturaCelda - 2);
+                        g.DrawString(valor, _fuenteCelda, brushTexto, rect,
+                            new StringFormat { Trimming = StringTrimming.EllipsisCharacter });
+                    }
+
+                    g.DrawLine(penSeparador, xIzq, y + alturaCelda, xIzq + anchoTotal, y + alturaCelda);
+
+                    y        += alturaCelda;
+                    alternar  = !alternar;
+                    _filaImpresion++;
                 }
-
-                // Línea de separación fina
-                g.DrawLine(Pens.LightGray,
-                    xIzq, y + alturaCelda, xIzq + anchoTotal, y + alturaCelda);
-
-                y        += alturaCelda;
-                alternar  = !alternar;
-                _filaImpresion++;
             }
 
             // ── Pie de página ─────────────────────────────────────────────────
-            g.DrawLine(Pens.DarkSlateBlue,
-                xIzq, margen.Bottom - 14, xIzq + anchoTotal, margen.Bottom - 14);
-            g.DrawString(
-                $"WardrobeFlow — Página {_paginaActual}",
-                _fuenteCelda, Brushes.Gray,
-                xIzq, margen.Bottom - 12);
+            using (var penPie  = new Pen(vinoOscuro, 1f))
+            using (var brPie   = new SolidBrush(vinoMedio))
+            {
+                g.DrawLine(penPie, xIzq, margen.Bottom - 16, xIzq + anchoTotal, margen.Bottom - 16);
+                g.DrawString(
+                    string.Format(T("bit.pdf.pagina", "WardrobeFlow — Página {0}"), _paginaActual),
+                    _fuenteCelda, brPie, xIzq, margen.Bottom - 14);
+            }
 
             // ¿Hay más filas? Entonces hay más páginas
             e.HasMorePages = _filaImpresion < _tablaImpresion.Rows.Count;
@@ -487,9 +510,15 @@ namespace GUI
                 lbl.Height = 44;
                 lbl.Text   = linea1 + "\r\n  " + ComputarEstadisticasCriticidad(datos, GestorIdioma.IdiomaActual);
             }
+            else if (dgv == dgvNegocio && datos.Columns.Contains("Tipo"))
+            {
+                lbl.Height = 44;
+                string resumen = ComputarEstadisticasTipoEvento(datos, GestorIdioma.IdiomaActual);
+                lbl.Text = string.IsNullOrEmpty(resumen) ? linea1 : linea1 + "\r\n  " + resumen;
+            }
             else
             {
-                lbl.Height = 24;
+                lbl.Height = 44;
                 lbl.Text   = linea1;
             }
         }
@@ -560,6 +589,43 @@ namespace GUI
             return partes.Count > 0
                 ? string.Join("   |   ", partes)
                 : "Sin datos de criticidad";
+        }
+
+        private string ComputarEstadisticasTipoEvento(DataTable datos, Idioma idioma)
+        {
+            var conteos = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (DataRow row in datos.Rows)
+            {
+                string tipo = row["Tipo"]?.ToString() ?? "";
+                if (string.IsNullOrEmpty(tipo)) continue;
+                if (!conteos.ContainsKey(tipo)) conteos[tipo] = 0;
+                conteos[tipo]++;
+            }
+
+            var t = Traductor.ObtenerTraducciones(idioma);
+            var mapa = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "Venta",               "tevt.venta"          },
+                { "Cancelacion",         "tevt.cancelacion"    },
+                { "Despacho",            "tevt.despacho"       },
+                { "Entrega",             "tevt.entrega"        },
+                { "AltaPrenda",          "tevt.altaprenda"     },
+                { "ModificacionPrenda",  "tevt.modprenda"      },
+                { "CambioEstadoPrenda",  "tevt.cambiostprenda" },
+                { "AltaCliente",         "tevt.altacliente"    },
+                { "ModificacionCliente", "tevt.modcliente"     },
+                { "BajaCliente",         "tevt.bajacliente"    },
+            };
+
+            var partes = new List<string>();
+            foreach (var kv in conteos)
+            {
+                if (mapa.TryGetValue(kv.Key, out string clave) && t.ContainsKey(clave))
+                    partes.Add($"{t[clave].Texto}: {kv.Value}");
+                else
+                    partes.Add($"{kv.Key}: {kv.Value}");
+            }
+            return string.Join("   |   ", partes);
         }
 
         private void ColorearPorCriticidad(DataGridView dgv)

@@ -157,6 +157,9 @@ namespace GUI
         /// </summary>
         private void AplicarPermisos(List<BE.Permiso> permisos)
         {
+            // Panel de Control visible para todos los usuarios autenticados
+            panelControlToolStripMenuItem.Visible = true;
+
             // Ocultar todo por defecto
             inventarioToolStripMenuItem.Visible = false;
             ventasToolStripMenuItem.Visible     = false;
@@ -205,7 +208,11 @@ namespace GUI
             gestionToolStripMenuItem.Visible  = tieneUsuarios;
 
             // ── Bitácora ──────────────────────────────────────────────────────
-            bitacoraToolStripMenuItem.Visible = nombresMenu.Contains("mnuAuditoria");
+            bool tieneAuditoria = nombresMenu.Contains("mnuAuditoria");
+            bitacoraToolStripMenuItem.Visible        = tieneAuditoria;
+            bitSistemaToolStripMenuItem.Visible      = tieneAuditoria;
+            bitNegocioToolStripMenuItem.Visible      = tieneAuditoria;
+            reporteJornadaToolStripMenuItem.Visible  = tieneAuditoria;
         }
 
         /// <summary>
@@ -273,16 +280,40 @@ namespace GUI
             }
         }
 
-        /// <summary>
-        /// Abre Bitácora como hijo MDI. Accesible para Administrador y Supervisor.
-        /// </summary>
-        private void bitacoraToolStripMenuItem_Click(object sender, EventArgs e)
+        private void panelControlToolStripMenuItem_Click(object sender, EventArgs e)
         {
             foreach (Form hijo in this.MdiChildren)
             {
-                if (hijo is Bitacora) { hijo.BringToFront(); return; }
+                if (hijo is DashboardForm) { hijo.BringToFront(); return; }
             }
-            new Bitacora { MdiParent = this }.Show();
+            new DashboardForm(_usuarioActivo?.Permisos) { MdiParent = this }.Show();
+        }
+
+        private void bitSistemaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Form hijo in this.MdiChildren)
+            {
+                if (hijo is Bitacora b) { b.SeleccionarTab("sistema"); b.BringToFront(); return; }
+            }
+            new Bitacora("sistema") { MdiParent = this }.Show();
+        }
+
+        private void bitNegocioToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Form hijo in this.MdiChildren)
+            {
+                if (hijo is Bitacora b) { b.SeleccionarTab("negocio"); b.BringToFront(); return; }
+            }
+            new Bitacora("negocio") { MdiParent = this }.Show();
+        }
+
+        private void reporteJornadaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Form hijo in this.MdiChildren)
+            {
+                if (hijo is ReporteJornadaForm) { hijo.BringToFront(); return; }
+            }
+            new ReporteJornadaForm(_usuarioActivo?.Permisos) { MdiParent = this }.Show();
         }
 
         /// <summary>
@@ -513,6 +544,7 @@ namespace GUI
                 _lblIdioma.Text = t["lbl.idioma"].Texto;
 
             Aplicar(usuarioToolStripMenuItem,           t);
+            Aplicar(panelControlToolStripMenuItem,      t);
             Aplicar(inventarioToolStripMenuItem,        t);
             Aplicar(prendasToolStripMenuItem,           t);
             Aplicar(ventasToolStripMenuItem,            t);
@@ -523,10 +555,13 @@ namespace GUI
             Aplicar(gestionToolStripMenuItem,           t);
             Aplicar(usuariosToolStripMenuItem,          t);
             Aplicar(perfilesToolStripMenuItem,          t);
-            Aplicar(idiomasToolStripMenuItem,              t);
+            Aplicar(idiomasToolStripMenuItem,           t);
             Aplicar(historialUsuariosToolStripMenuItem, t);
             Aplicar(backupToolStripMenuItem,            t);
             Aplicar(bitacoraToolStripMenuItem,          t);
+            Aplicar(bitSistemaToolStripMenuItem,        t);
+            Aplicar(bitNegocioToolStripMenuItem,        t);
+            Aplicar(reporteJornadaToolStripMenuItem,    t);
             Aplicar(cerrarSesionToolStripMenuItem,      t);
         }
 

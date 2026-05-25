@@ -119,6 +119,12 @@
     <Compile Include="Bitacora.Designer.cs">
       <DependentUpon>Bitacora.cs</DependentUpon>
     </Compile>
+    <Compile Include="ReporteJornadaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReporteJornadaForm.Designer.cs">
+      <DependentUpon>ReporteJornadaForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="BackupForm.cs">
       <SubType>Form</SubType>
     </Compile>

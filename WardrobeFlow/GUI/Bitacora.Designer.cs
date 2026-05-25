@@ -91,7 +91,7 @@ namespace GUI
             // 
             this.dgvSistema.AllowUserToAddRows = false;
             this.dgvSistema.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(255)))));
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(248)))), ((int)(((byte)(252)))));
             this.dgvSistema.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvSistema.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvSistema.BackgroundColor = System.Drawing.Color.White;
@@ -116,7 +116,7 @@ namespace GUI
             // 
             // lblResultadosSistema
             // 
-            this.lblResultadosSistema.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(230)))), ((int)(((byte)(240)))));
+            this.lblResultadosSistema.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(220)))), ((int)(((byte)(228)))));
             this.lblResultadosSistema.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.lblResultadosSistema.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblResultadosSistema.Location = new System.Drawing.Point(0, 570);
@@ -128,7 +128,7 @@ namespace GUI
             // 
             // panelFiltrosSistema
             // 
-            this.panelFiltrosSistema.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.panelFiltrosSistema.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(220)))), ((int)(((byte)(230)))));
             this.panelFiltrosSistema.Controls.Add(this.lblUltimosSistema);
             this.panelFiltrosSistema.Controls.Add(this.nudDias);
             this.panelFiltrosSistema.Controls.Add(this.lblDiasSistema);
@@ -316,7 +316,7 @@ namespace GUI
             // 
             this.dgvNegocio.AllowUserToAddRows = false;
             this.dgvNegocio.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(255)))));
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(248)))), ((int)(((byte)(252)))));
             this.dgvNegocio.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
             this.dgvNegocio.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvNegocio.BackgroundColor = System.Drawing.Color.White;
@@ -340,18 +340,19 @@ namespace GUI
             // 
             // lblResultadosNegocio
             // 
-            this.lblResultadosNegocio.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(235)))), ((int)(((byte)(220)))));
+            this.lblResultadosNegocio.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(220)))), ((int)(((byte)(228)))));
             this.lblResultadosNegocio.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.lblResultadosNegocio.Location = new System.Drawing.Point(0, 590);
+            this.lblResultadosNegocio.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.lblResultadosNegocio.Location = new System.Drawing.Point(0, 570);
             this.lblResultadosNegocio.Name = "lblResultadosNegocio";
-            this.lblResultadosNegocio.Padding = new System.Windows.Forms.Padding(4, 0, 0, 0);
-            this.lblResultadosNegocio.Size = new System.Drawing.Size(1012, 24);
+            this.lblResultadosNegocio.Padding = new System.Windows.Forms.Padding(6, 2, 0, 2);
+            this.lblResultadosNegocio.Size = new System.Drawing.Size(1012, 44);
             this.lblResultadosNegocio.TabIndex = 2;
             this.lblResultadosNegocio.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // panelFiltrosNegocio
             // 
-            this.panelFiltrosNegocio.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(245)))), ((int)(((byte)(238)))));
+            this.panelFiltrosNegocio.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(220)))), ((int)(((byte)(230)))));
             this.panelFiltrosNegocio.Controls.Add(this.lblUltimosNegocio);
             this.panelFiltrosNegocio.Controls.Add(this.nudNegDias);
             this.panelFiltrosNegocio.Controls.Add(this.lblDiasNegocio);

@@ -1,10 +1,11 @@
 using BLL;
+using Servicios.Multiidioma;
 using System;
 using System.Windows.Forms;
 
 namespace GUI
 {
-    public partial class RestauracionForm : Form
+    public partial class RestauracionForm : Form, IIdiomaObserver
     {
         private readonly string _detalle;
 
@@ -19,7 +20,31 @@ namespace GUI
 
         private void RestauracionForm_Load(object sender, EventArgs e)
         {
+            GestorIdioma.SuscribirObservador(this);
+            Traducir(GestorIdioma.IdiomaActual);
             txtDetalle.Text = _detalle;
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            GestorIdioma.DesuscribirObservador(this);
+            base.OnFormClosing(e);
+        }
+
+        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+
+        private void Traducir(Idioma idioma)
+        {
+            var t = Servicios.Multiidioma.Traductor.ObtenerTraducciones(idioma);
+            string T(string key, string fb) => t.ContainsKey(key) ? t[key].Texto : fb;
+
+            this.Text              = T("frm.restauracion",   "Integridad del Sistema");
+            lblTitulo.Text         = T("lbl.rest.titulo",    "Integridad del Sistema Comprometida");
+            lblSubtitulo.Text      = T("lbl.rest.subtitulo", "Se detectaron discrepancias en los dígitos verificadores. El acceso está bloqueado.");
+            lblDetalle.Text        = T("lbl.rest.detalle",   "Detalle del error:");
+            btnRecalcular.Text     = T("btn.rest.recalcular","Recalcular Dígitos Verificadores");
+            btnRestaurarBackup.Text= T("btn.rest.backup",    "Restaurar desde Backup");
+            btnSalir.Text          = T("btn.rest.salir",     "Salir");
         }
 
         private void btnRecalcular_Click(object sender, EventArgs e)

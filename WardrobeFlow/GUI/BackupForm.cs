@@ -35,13 +35,17 @@ namespace GUI
 
         public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
 
+        private string T(string key, string fallback)
+        {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            return t.ContainsKey(key) ? t[key].Texto : fallback;
+        }
+
         private void Traducir(Idioma idioma)
         {
-            var t = Traductor.ObtenerTraducciones(idioma);
-            string T(string key, string fallback) => t.ContainsKey(key) ? t[key].Texto : fallback;
-
             this.Text         = T("frm.backup",           "Backup y Restauración");
             lblTitulo.Text    = T("frm.backup",           "Backup y Restauración");
+            lblRutaLabel.Text = T("lbl.backup.ubicacion", "Ubicación de copias:");
             btnCrear.Text     = T("btn.backup.crear",     "Generar Copia de Seguridad");
             btnRestaurar.Text = T("btn.backup.restaurar", "Restaurar seleccionado");
             btnEliminar.Text  = T("btn.backup.eliminar",  "Eliminar");
@@ -148,8 +152,9 @@ namespace GUI
             string filename = Path.GetFileName(ruta);
 
             if (MessageBox.Show(
-                    $"¿Eliminar la copia de seguridad?\n\"{filename}\"\n\nEsta acción no se puede deshacer.",
-                    "Confirmar Eliminación",
+                    string.Format(T("msg.backup.confirmeliminar",
+                        "¿Eliminar la copia de seguridad?\n\"{0}\"\n\nEsta acción no se puede deshacer."), filename),
+                    T("msg.backup.tituloeliminar", "Confirmar Eliminación"),
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 return;
 
@@ -184,12 +189,12 @@ namespace GUI
         {
             if (string.IsNullOrEmpty(ruta)) return;
 
-            string msg =
-                $"¿Restaurar la base de datos desde:\n\"{Path.GetFileName(ruta)}\"?\n\n" +
-                "Esta operación sobrescribirá todos los datos actuales\n" +
-                "y reiniciará la aplicación.";
+            string msg = string.Format(
+                T("msg.backup.confirmrestaura",
+                    "¿Restaurar la base de datos desde:\n\"{0}\"?\n\nEsta operación sobrescribirá todos los datos actuales\ny reiniciará la aplicación."),
+                Path.GetFileName(ruta));
 
-            if (MessageBox.Show(msg, "Confirmar Restauración",
+            if (MessageBox.Show(msg, T("msg.backup.titulorestaura", "Confirmar Restauración"),
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 return;
 
