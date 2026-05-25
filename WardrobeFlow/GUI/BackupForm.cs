@@ -1,6 +1,7 @@
 using Servicios.Multiidioma;
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace GUI
@@ -39,15 +40,17 @@ namespace GUI
             var t = Traductor.ObtenerTraducciones(idioma);
             string T(string key, string fallback) => t.ContainsKey(key) ? t[key].Texto : fallback;
 
-            this.Text          = T("frm.backup",           "Backup y Restauración");
-            lblTitulo.Text     = T("frm.backup",           "Backup y Restauración");
-            btnCrear.Text      = T("btn.backup.crear",     "Generar Copia de Seguridad");
-            btnRestaurar.Text  = T("btn.backup.restaurar", "Restaurar seleccionado");
-            btnExterno.Text    = T("btn.backup.externo",   "Desde archivo...");
-            lblInfo.Text       = T("lbl.backup.info",      "Nota: la restauración cierra las conexiones activas y reinicia la aplicación.");
-            colArchivo.Text    = T("col.backup.archivo",   "Archivo");
-            colFecha.Text      = T("col.backup.fecha",     "Fecha");
-            colTamanio.Text    = T("col.backup.tamanio",   "Tamaño");
+            this.Text         = T("frm.backup",           "Backup y Restauración");
+            lblTitulo.Text    = T("frm.backup",           "Backup y Restauración");
+            btnCrear.Text     = T("btn.backup.crear",     "Generar Copia de Seguridad");
+            btnRestaurar.Text = T("btn.backup.restaurar", "Restaurar seleccionado");
+            btnEliminar.Text  = T("btn.backup.eliminar",  "Eliminar");
+            btnExterno.Text   = T("btn.backup.externo",   "Desde archivo...");
+            lblInfo.Text      = T("lbl.backup.info",      "Nota: la restauración cierra las conexiones activas y reinicia la aplicación.");
+            colArchivo.Text   = T("col.backup.archivo",   "Archivo");
+            colFecha.Text     = T("col.backup.fecha",     "Fecha");
+            colAutor.Text     = T("col.backup.autor",     "Autor");
+            colTamanio.Text   = T("col.backup.tamanio",   "Tamaño");
         }
 
         // Carga los .bak de la carpeta Backups/ ordenados por fecha descendente (más reciente primero).
@@ -55,6 +58,7 @@ namespace GUI
         {
             lstBackups.Items.Clear();
             btnRestaurar.Enabled = false;
+            btnEliminar.Enabled  = false;
 
             if (!Directory.Exists(DirBackups))
             {
@@ -73,6 +77,7 @@ namespace GUI
 
                 var item = new ListViewItem(fi.Name) { Tag = fi.FullName };
                 item.SubItems.Add(fi.LastWriteTime.ToString("dd/MM/yyyy HH:mm"));
+                item.SubItems.Add(ExtraerAutor(fi.Name));
                 item.SubItems.Add(tamanio);
                 lstBackups.Items.Add(item);
             }
@@ -82,9 +87,30 @@ namespace GUI
                 : $"{archivos.Length} copia(s) disponible(s). La más reciente: {archivos[0].LastWriteTime:dd/MM/yyyy HH:mm}";
         }
 
+        // Extrae el autor del nombre del archivo.
+        // Formato nuevo: WardrobeFlow_Backup_yyyyMMddHHmmss_USUARIO.bak
+        // Formato viejo (sin autor): muestra "—"
+        private static string ExtraerAutor(string nombreArchivo)
+        {
+            const string prefix = "WardrobeFlow_Backup_";
+            if (!nombreArchivo.StartsWith(prefix) || nombreArchivo.Length <= prefix.Length + 15)
+                return "—";
+
+            string rest = nombreArchivo.Substring(prefix.Length);
+            bool isNewFormat = rest.Length >= 15
+                && rest.Substring(0, 14).All(char.IsDigit)
+                && rest[14] == '_';
+
+            if (!isNewFormat) return "—";
+
+            return Path.GetFileNameWithoutExtension(rest.Substring(15));
+        }
+
         private void lstBackups_SelectedIndexChanged(object sender, EventArgs e)
         {
-            btnRestaurar.Enabled = lstBackups.SelectedItems.Count > 0;
+            bool seleccionado    = lstBackups.SelectedItems.Count > 0;
+            btnRestaurar.Enabled = seleccionado;
+            btnEliminar.Enabled  = seleccionado;
         }
 
         private void btnCrear_Click(object sender, EventArgs e)
@@ -94,10 +120,7 @@ namespace GUI
                 if (!Directory.Exists(DirBackups))
                     Directory.CreateDirectory(DirBackups);
 
-                string filename = $"WardrobeFlow_Backup_{DateTime.Now:yyyyMMdd_HHmmss}.bak";
-                string fullPath = Path.Combine(DirBackups, filename);
-
-                _bll.RealizarBackup(this.Text, fullPath);
+                string filename = _bll.RealizarBackup(this.Text, DirBackups);
                 MessageBox.Show(
                     $"Copia de seguridad generada con éxito:\n{filename}",
                     "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -111,11 +134,35 @@ namespace GUI
             }
         }
 
-        // Restaura el archivo seleccionado en la lista.
         private void btnRestaurar_Click(object sender, EventArgs e)
         {
             if (lstBackups.SelectedItems.Count == 0) return;
             Restaurar(lstBackups.SelectedItems[0].Tag as string);
+        }
+
+        private void btnEliminar_Click(object sender, EventArgs e)
+        {
+            if (lstBackups.SelectedItems.Count == 0) return;
+
+            string ruta     = lstBackups.SelectedItems[0].Tag as string;
+            string filename = Path.GetFileName(ruta);
+
+            if (MessageBox.Show(
+                    $"¿Eliminar la copia de seguridad?\n\"{filename}\"\n\nEsta acción no se puede deshacer.",
+                    "Confirmar Eliminación",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                _bll.EliminarBackup(this.Text, ruta);
+                CargarLista();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al eliminar:\n{ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         // Restaura un archivo elegido manualmente (útil para backups en USB u otra ubicación).
@@ -156,9 +203,8 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Error al restaurar:\n{ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al restaurar:\n{ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
