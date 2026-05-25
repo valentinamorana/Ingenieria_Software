@@ -31,6 +31,18 @@ namespace GUI
 
         private void ReporteJornadaForm_Load(object sender, EventArgs e)
         {
+            try { string ico = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (System.IO.File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
+            // Gradient on header panel
+            panelTop.Paint += (s, pe) =>
+            {
+                using (var br = new System.Drawing.Drawing2D.LinearGradientBrush(
+                    panelTop.ClientRectangle,
+                    System.Drawing.Color.FromArgb(176, 62, 96),
+                    System.Drawing.Color.FromArgb(242, 114, 153),
+                    System.Drawing.Drawing2D.LinearGradientMode.Horizontal))
+                    pe.Graphics.FillRectangle(br, panelTop.ClientRectangle);
+            };
+            panelTop.Invalidate();
             GestorIdioma.SuscribirObservador(this);
             Traducir(GestorIdioma.IdiomaActual);
 

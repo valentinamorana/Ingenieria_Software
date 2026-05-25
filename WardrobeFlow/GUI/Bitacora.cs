@@ -66,6 +66,125 @@ namespace GUI
             base.OnLoad(e);
             GestorIdioma.SuscribirObservador(this);
             Traducir(GestorIdioma.IdiomaActual);  // calls RellenarComboCriticidad internally
+            InicializarDisenoMockup();
+        }
+
+        private void InicializarDisenoMockup()
+        {
+            // ── Gradient en panelTop ──────────────────────────────────────────
+            panelTop.Paint += (s, pe) =>
+            {
+                using (var br = new System.Drawing.Drawing2D.LinearGradientBrush(
+                    panelTop.ClientRectangle,
+                    Color.FromArgb(176, 62, 96),
+                    Color.FromArgb(242, 114, 153),
+                    System.Drawing.Drawing2D.LinearGradientMode.Horizontal))
+                    pe.Graphics.FillRectangle(br, panelTop.ClientRectangle);
+            };
+            panelTop.Invalidate();
+
+            // ── Colores de headers DGV ────────────────────────────────────────
+            foreach (var dgv in new[] { dgvSistema, dgvNegocio })
+            {
+                dgv.EnableHeadersVisualStyles = false;
+                dgv.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(176, 62, 96);
+                dgv.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+                dgv.ColumnHeadersDefaultCellStyle.Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold);
+                dgv.GridColor = Color.FromArgb(230, 210, 220);
+            }
+
+            // ── Leyenda de criticidad en tab Sistema ──────────────────────────
+            var leyenda = new Panel
+            {
+                Dock      = DockStyle.Top,
+                Height    = 28,
+                BackColor = Color.FromArgb(245, 238, 242)
+            };
+            leyenda.Paint += (s, pe) =>
+            {
+                var g = pe.Graphics;
+                int x = 10;
+                // (crit, label, back, fore)
+                var niveles = new (int crit, string lbl, Color back, Color fore)[]
+                {
+                    (0, "Ninguno",       Color.FromArgb(245,245,245), Color.Gray),
+                    (1, "Baja",          Color.FromArgb(220,255,220), Color.DarkGreen),
+                    (2, "Media",         Color.FromArgb(255,255,200), Color.DarkGoldenrod),
+                    (3, "Alta",          Color.FromArgb(255,220,170), Color.DarkOrange),
+                    (4, "Int.Login",     Color.FromArgb(255,205,205), Color.DarkRed),
+                    (5, "Recup.Clave",   Color.FromArgb(210,225,255), Color.DarkBlue),
+                    (6, "Bloqueos",      Color.FromArgb(200,0,20),    Color.White),
+                };
+                using (var fnt = new Font("Segoe UI", 7.5f))
+                {
+                    foreach (var n in niveles)
+                    {
+                        using (var br = new SolidBrush(n.back))
+                            g.FillRectangle(br, x, 7, 10, 10);
+                        g.DrawRectangle(Pens.Gray, x, 7, 10, 10);
+                        x += 13;
+                        using (var br = new SolidBrush(Color.FromArgb(60,40,50)))
+                            g.DrawString(n.lbl, fnt, br, x, 6);
+                        x += (int)g.MeasureString(n.lbl, fnt).Width + 6;
+                    }
+                }
+            };
+
+            // Insertar leyenda DEBAJO del panelFiltrosSistema dentro de tabPageSistema
+            tabPageSistema.Controls.Add(leyenda);
+            tabPageSistema.Controls.SetChildIndex(leyenda, tabPageSistema.Controls.IndexOf(panelFiltrosSistema));
+
+            // ── Row coloring para Negocio ─────────────────────────────────────
+            dgvNegocio.DataBindingComplete += (s, e2) => ColorearPorTipoNegocio();
+
+            // ── Status bar inferior ───────────────────────────────────────────
+            var sbar = new Panel
+            {
+                Dock      = DockStyle.Bottom,
+                Height    = 26,
+                BackColor = Color.FromArgb(64, 0, 64)
+            };
+            var lblSb = new Label
+            {
+                Dock      = DockStyle.Fill,
+                ForeColor = Color.FromArgb(200, 180, 210),
+                Font      = new Font("Segoe UI", 8f),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding   = new Padding(10, 0, 0, 0)
+            };
+            try
+            {
+                var u = new BLL.Usuario().ObtenerUsuarioActivo();
+                lblSb.Text = u != null ? $"{u.Username}  ·  {u.Perfil ?? "—"}" : "";
+            }
+            catch { }
+            sbar.Controls.Add(lblSb);
+            this.Controls.Add(sbar);
+        }
+
+        private void ColorearPorTipoNegocio()
+        {
+            foreach (DataGridViewRow fila in dgvNegocio.Rows)
+            {
+                if (fila.IsNewRow) continue;
+                string tipo = fila.Cells["Tipo"]?.Value?.ToString() ?? "";
+                Color back, fore;
+                switch (tipo)
+                {
+                    case "Venta":               back = Color.FromArgb(225, 240, 255); fore = Color.FromArgb(30,100,170);  break;
+                    case "Despacho":            back = Color.FromArgb(225, 240, 255); fore = Color.FromArgb(30,100,170);  break;
+                    case "Entrega":             back = Color.FromArgb(220, 248, 220); fore = Color.FromArgb(30,130,30);   break;
+                    case "Cancelacion":         back = Color.FromArgb(255, 225, 225); fore = Color.FromArgb(160,50,50);   break;
+                    case "AltaCliente":         back = Color.FromArgb(225, 248, 225); fore = Color.FromArgb(30,130,30);   break;
+                    case "ModificacionCliente": back = Color.FromArgb(240, 232, 255); fore = Color.FromArgb(100,80,160);  break;
+                    case "AltaPrenda":          back = Color.FromArgb(225, 248, 225); fore = Color.FromArgb(30,130,30);   break;
+                    case "ModificacionPrenda":  back = Color.FromArgb(255, 240, 225); fore = Color.FromArgb(160,100,20);  break;
+                    case "CambioEstadoPrenda":  back = Color.FromArgb(225, 240, 255); fore = Color.FromArgb(30,100,170);  break;
+                    default: continue;
+                }
+                fila.DefaultCellStyle.BackColor = back;
+                fila.DefaultCellStyle.ForeColor = fore;
+            }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

@@ -274,6 +274,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\3106921[1].png" />
+    <Content Include="icon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

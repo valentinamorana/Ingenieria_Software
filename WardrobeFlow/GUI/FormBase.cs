@@ -1,4 +1,6 @@
+using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace GUI
@@ -30,6 +32,18 @@ namespace GUI
     /// </summary>
     public class FormBase : Form
     {
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            try
+            {
+                string ico = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico");
+                if (File.Exists(ico))
+                    this.Icon = new Icon(ico);
+            }
+            catch { }
+        }
+
         /// <summary>
         /// Label donde se muestra el feedback al usuario.
         /// Cada formulario hijo sobreescribe esta propiedad devolviendo

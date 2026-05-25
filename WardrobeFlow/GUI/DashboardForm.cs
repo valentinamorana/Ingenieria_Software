@@ -32,10 +32,11 @@ namespace GUI
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", "recordatorio.cfg");
 
         // ── Dependencias BLL ──────────────────────────────────────────────────
-        private readonly BLL.Prenda  _bllPrenda  = new BLL.Prenda();
-        private readonly BLL.Cliente _bllCliente = new BLL.Cliente();
-        private readonly BLL.Pedido  _bllPedido  = new BLL.Pedido();
-        private readonly BLL.Usuario _bllUsuario = new BLL.Usuario();
+        private readonly BLL.Prenda   _bllPrenda   = new BLL.Prenda();
+        private readonly BLL.Cliente  _bllCliente  = new BLL.Cliente();
+        private readonly BLL.Pedido   _bllPedido   = new BLL.Pedido();
+        private readonly BLL.Usuario  _bllUsuario  = new BLL.Usuario();
+        private readonly BLL.Bitacora _bllBitacora = new BLL.Bitacora();
 
         // ── Visibilidad por rol ───────────────────────────────────────────────
         private readonly bool _verPrendas, _verClientes, _verPedidos, _verBackup;
@@ -53,6 +54,10 @@ namespace GUI
         private Label           _lblAviso;
         private Button          _btnRefrescar;
         private FlowLayoutPanel _flowCards;
+        private Panel           _panelHeader;
+        private Panel           _panelActividad;
+        private Panel           _panelMiniStats;
+        private Panel           _panelSbar;
 
         public DashboardForm(List<BE.Permiso> permisos)
         {
@@ -67,9 +72,9 @@ namespace GUI
             _verBackup   = nombres.Contains("mnuUsuarios");
 
             this.Text            = "Panel de Control";
-            this.Size            = new Size(660, 340);
-            this.MinimumSize     = new Size(380, 280);
-            this.BackColor       = Color.FromArgb(250, 240, 246);
+            this.Size            = new Size(870, 570);
+            this.MinimumSize     = new Size(600, 400);
+            this.BackColor       = Color.FromArgb(240, 240, 245);
             this.FormBorderStyle = FormBorderStyle.Sizable;
             this.StartPosition   = FormStartPosition.Manual;
             this.Location        = new Point(10, 10);
@@ -82,9 +87,12 @@ namespace GUI
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            try { string ico = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
             GestorIdioma.SuscribirObservador(this);
             Traducir(GestorIdioma.IdiomaActual);
             ActualizarMetricas();
+            CargarActividadReciente();
+            CargarMiniStats();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -236,10 +244,15 @@ namespace GUI
         {
             _lblAviso.Text      = msg;
             _lblAviso.ForeColor = color;
+            _lblAviso.Height    = 24;
             _lblAviso.Visible   = true;
         }
 
-        private void OcultarAviso() => _lblAviso.Visible = false;
+        private void OcultarAviso()
+        {
+            _lblAviso.Visible = false;
+            _lblAviso.Height  = 0;
+        }
 
         // ── Recordatorio: config en archivo ──────────────────────────────────
 
@@ -330,42 +343,75 @@ namespace GUI
 
         private void ConstruirUI()
         {
+            // ── Header con gradiente ──────────────────────────────────────────
+            _panelHeader = new Panel
+            {
+                Dock      = DockStyle.Top,
+                Height    = 62,
+                BackColor = Color.FromArgb(176, 62, 96)
+            };
+            _panelHeader.Paint += (s, pe) =>
+            {
+                using (var br = new System.Drawing.Drawing2D.LinearGradientBrush(
+                    _panelHeader.ClientRectangle,
+                    Color.FromArgb(64, 0, 64),
+                    Color.FromArgb(176, 62, 96),
+                    System.Drawing.Drawing2D.LinearGradientMode.Horizontal))
+                    pe.Graphics.FillRectangle(br, _panelHeader.ClientRectangle);
+            };
+
             _lblTitulo = new Label
             {
                 Text      = "Panel de Control",
-                Font      = new Font("Segoe UI", 13f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(80, 30, 55),
+                Font      = new Font("Segoe UI", 14f, FontStyle.Bold),
+                ForeColor = Color.White,
                 AutoSize  = true,
-                Location  = new Point(16, 14)
+                Location  = new Point(14, 8),
+                BackColor = Color.Transparent
             };
 
             _btnRefrescar = new Button
             {
-                Text      = "Actualizar",
-                Size      = new Size(92, 28),
+                Text      = "↻  Actualizar",
+                Size      = new Size(100, 28),
                 Anchor    = AnchorStyles.Top | AnchorStyles.Right,
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(146, 62, 96),
+                BackColor = Color.FromArgb(255, 255, 255, 50),
                 ForeColor = Color.White,
                 Font      = new Font("Segoe UI", 8.5f),
-                Cursor    = Cursors.Hand
+                Cursor    = Cursors.Hand,
+                Location  = new Point(_panelHeader.Width - 112, 17)
             };
-            _btnRefrescar.FlatAppearance.BorderSize = 0;
-            _btnRefrescar.Click   += (s, e) => ActualizarMetricas();
-            _btnRefrescar.Location = new Point(this.ClientSize.Width - 104, 12);
+            _btnRefrescar.FlatAppearance.BorderColor = Color.FromArgb(180, 255, 255, 255);
+            _btnRefrescar.FlatAppearance.BorderSize  = 1;
+            _btnRefrescar.Click += (s, e) => { ActualizarMetricas(); CargarActividadReciente(); CargarMiniStats(); };
 
+            var lblSub = new Label
+            {
+                Text      = "WardrobeFlow",
+                Font      = new Font("Segoe UI", 8f, FontStyle.Italic),
+                ForeColor = Color.FromArgb(200, 255, 200, 220),
+                AutoSize  = true,
+                Location  = new Point(14, 36),
+                BackColor = Color.Transparent
+            };
+
+            _panelHeader.Controls.Add(_lblTitulo);
+            _panelHeader.Controls.Add(lblSub);
+            _panelHeader.Controls.Add(_btnRefrescar);
+            _panelHeader.Resize += (s, e) => _btnRefrescar.Left = _panelHeader.Width - 112;
+
+            // ── Cards area (scroll de tarjetas KPI) ──────────────────────────
             _flowCards = new FlowLayoutPanel
             {
-                Location      = new Point(12, 52),
                 Height        = 168,
-                Anchor        = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                BackColor     = Color.Transparent,
+                Dock          = DockStyle.Top,
+                Padding       = new Padding(10, 10, 10, 4),
+                BackColor     = Color.FromArgb(240, 240, 245),
                 FlowDirection = FlowDirection.LeftToRight,
                 WrapContents  = false
             };
-            _flowCards.Width = this.ClientSize.Width - 24;
 
-            // Agregar solo tarjetas permitidas por rol
             if (_verPrendas)
                 _flowCards.Controls.Add(CrearTarjeta(
                     Color.FromArgb(252, 228, 235), Color.FromArgb(80, 28, 52),
@@ -386,8 +432,6 @@ namespace GUI
                 var tarjeta = CrearTarjeta(
                     Color.FromArgb(215, 240, 220), Color.FromArgb(15, 85, 35),
                     out _numBackup, out _txtBackup, out _cardBackupPanel);
-
-                // Botón ⚙ para configurar recordatorio (superpuesto en esquina superior derecha)
                 var btnConfig = new Button
                 {
                     Text      = "⚙",
@@ -405,72 +449,227 @@ namespace GUI
                 btnConfig.Click += (s, e) => ConfigurarRecordatorio();
                 tarjeta.Controls.Add(btnConfig);
                 btnConfig.BringToFront();
-
                 _flowCards.Controls.Add(tarjeta);
             }
 
-            // Aviso de recordatorio vencido (oculto por defecto)
+            // ── Aviso de backup vencido ───────────────────────────────────────
             _lblAviso = new Label
             {
                 Text      = "",
                 Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold),
                 AutoSize  = false,
-                Height    = 22,
-                Anchor    = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Left      = 12,
-                Top       = 228,
-                Visible   = false
+                Dock      = DockStyle.Top,
+                Height    = 0,
+                Visible   = false,
+                Padding   = new Padding(12, 0, 0, 0)
             };
-            _lblAviso.Width = this.ClientSize.Width - 24;
 
-            var sep = new Panel
+            // ── Panel Actividad Reciente ──────────────────────────────────────
+            _panelActividad = new Panel
             {
-                BackColor = Color.FromArgb(220, 215, 225),
-                Height    = 1,
-                Anchor    = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
-                Left      = 0,
-                Top       = this.ClientSize.Height - 38
+                Dock      = DockStyle.Left,
+                Width     = 0,      // se calcula en Resize
+                BackColor = Color.White,
+                Padding   = new Padding(0)
             };
-            sep.Width = this.ClientSize.Width;
 
+            var lblActTitulo = new Label
+            {
+                Text      = "Actividad reciente",
+                Font      = new Font("Segoe UI", 9f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(146, 62, 96),
+                Dock      = DockStyle.Top,
+                Height    = 28,
+                Padding   = new Padding(10, 6, 0, 0),
+                BackColor = Color.FromArgb(252, 240, 248)
+            };
+
+            var dgvAct = new DataGridView
+            {
+                Name                        = "dgvActividad",
+                Dock                        = DockStyle.Fill,
+                BackgroundColor             = Color.White,
+                BorderStyle                 = BorderStyle.None,
+                RowHeadersVisible           = false,
+                AllowUserToAddRows          = false,
+                AllowUserToResizeRows       = false,
+                AllowUserToResizeColumns    = false,
+                ReadOnly                    = true,
+                SelectionMode               = DataGridViewSelectionMode.FullRowSelect,
+                EnableHeadersVisualStyles   = false,
+                Font                        = new Font("Segoe UI", 8f),
+                AutoSizeColumnsMode         = DataGridViewAutoSizeColumnsMode.Fill,
+                CellBorderStyle             = DataGridViewCellBorderStyle.SingleHorizontal,
+                GridColor                   = Color.FromArgb(235, 225, 232)
+            };
+            dgvAct.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(176, 62, 96);
+            dgvAct.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvAct.ColumnHeadersDefaultCellStyle.Font      = new Font("Segoe UI", 8f, FontStyle.Bold);
+            dgvAct.Columns.Add(new DataGridViewTextBoxColumn { Name = "colFecha", HeaderText = "Fecha",   FillWeight = 28 });
+            dgvAct.Columns.Add(new DataGridViewTextBoxColumn { Name = "colTipo",  HeaderText = "Evento",  FillWeight = 36 });
+            dgvAct.Columns.Add(new DataGridViewTextBoxColumn { Name = "colUser",  HeaderText = "Usuario", FillWeight = 36 });
+
+            _panelActividad.Controls.Add(dgvAct);
+            _panelActividad.Controls.Add(lblActTitulo);
+            _panelActividad.Tag = dgvAct;
+
+            // ── Panel Mini-Stats ──────────────────────────────────────────────
+            _panelMiniStats = new Panel
+            {
+                Dock      = DockStyle.Fill,
+                BackColor = Color.FromArgb(248, 244, 250),
+                Padding   = new Padding(8)
+            };
+
+            var lblStTitulo = new Label
+            {
+                Text      = "Resumen de eventos",
+                Font      = new Font("Segoe UI", 9f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(64, 0, 64),
+                Dock      = DockStyle.Top,
+                Height    = 28,
+                Padding   = new Padding(4, 6, 0, 0),
+                BackColor = Color.FromArgb(240, 232, 248)
+            };
+
+            var flStats = new FlowLayoutPanel
+            {
+                Name          = "flStats",
+                Dock          = DockStyle.Fill,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents  = false,
+                BackColor     = Color.Transparent,
+                Padding       = new Padding(6, 4, 6, 4)
+            };
+
+            _panelMiniStats.Controls.Add(flStats);
+            _panelMiniStats.Controls.Add(lblStTitulo);
+            _panelMiniStats.Tag = flStats;
+
+            // ── Session bar ───────────────────────────────────────────────────
+            _panelSbar = new Panel
+            {
+                Dock      = DockStyle.Bottom,
+                Height    = 26,
+                BackColor = Color.FromArgb(64, 0, 64)
+            };
             _lblSesion = new Label
             {
-                Text      = "",
-                Font      = new Font("Segoe UI", 8.5f, FontStyle.Italic),
-                ForeColor = Color.DimGray,
-                AutoSize  = false,
-                Height    = 20,
-                Anchor    = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
-                Left      = 16,
-                Top       = this.ClientSize.Height - 30
+                Dock      = DockStyle.Fill,
+                ForeColor = Color.FromArgb(200, 180, 210),
+                Font      = new Font("Segoe UI", 8f),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding   = new Padding(10, 0, 0, 0)
             };
-            _lblSesion.Width = this.ClientSize.Width - 32;
+            _panelSbar.Controls.Add(_lblSesion);
 
-            this.Controls.Add(_lblTitulo);
-            this.Controls.Add(_btnRefrescar);
-            this.Controls.Add(_flowCards);
-            this.Controls.Add(_lblAviso);
-            this.Controls.Add(sep);
-            this.Controls.Add(_lblSesion);
+            // ── Área central (actividad + mini-stats) ─────────────────────────
+            var panelCentro = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(240, 240, 245) };
+            panelCentro.Controls.Add(_panelMiniStats);
+            panelCentro.Controls.Add(_panelActividad);
 
-            this.Resize += (s, e) =>
+            // Ajustar anchuras al arrancar y en resize
+            void AjustarAnchuras()
             {
-                _flowCards.Width   = this.ClientSize.Width - 24;
-                _lblAviso.Width    = this.ClientSize.Width - 24;
-                sep.Width          = this.ClientSize.Width;
-                sep.Top            = this.ClientSize.Height - 38;
-                _lblSesion.Width   = this.ClientSize.Width - 32;
-                _lblSesion.Top     = this.ClientSize.Height - 30;
-                _btnRefrescar.Left = this.ClientSize.Width - 104;
+                int w = panelCentro.ClientSize.Width;
+                _panelActividad.Width = (int)(w * 0.55);
+            }
+            panelCentro.Resize += (s, e) => AjustarAnchuras();
 
+            // ── Ensamblar controles al formulario (orden: Dock procesa al revés)
+            // Bottom → Top → Fill
+            this.Controls.Add(panelCentro);
+            this.Controls.Add(_lblAviso);
+            this.Controls.Add(_flowCards);
+            this.Controls.Add(_panelHeader);
+            this.Controls.Add(_panelSbar);
+
+            // Recalcular tarjetas al resize
+            _flowCards.Resize += (s, e) =>
+            {
                 int count = _flowCards.Controls.Count;
                 if (count > 0)
                 {
-                    int cardW = Math.Max(100, (_flowCards.Width - count * 8) / count);
+                    int avail = _flowCards.ClientSize.Width - _flowCards.Padding.Horizontal - count * 8;
+                    int cardW = Math.Max(100, avail / count);
                     foreach (Control card in _flowCards.Controls)
                         card.Width = cardW;
                 }
             };
+        }
+
+        private void CargarActividadReciente()
+        {
+            var dgv = _panelActividad?.Tag as DataGridView;
+            if (dgv == null) return;
+            dgv.Rows.Clear();
+            try
+            {
+                var dt = _bllBitacora.ObtenerUltimosNDiasSistema(7);
+                if (dt == null) return;
+                int n = 0;
+                foreach (System.Data.DataRow row in dt.Rows)
+                {
+                    if (n >= 8) break;
+                    string fecha = row["fecha"]?.ToString() ?? "";
+                    string activ = row["actividad"]?.ToString() ?? "";
+                    string user  = row["usuario"]?.ToString() ?? "";
+                    dgv.Rows.Add(fecha, activ, user);
+                    n++;
+                }
+            }
+            catch { }
+        }
+
+        private void CargarMiniStats()
+        {
+            var fl = _panelMiniStats?.Tag as FlowLayoutPanel;
+            if (fl == null) return;
+            fl.Controls.Clear();
+            try
+            {
+                // Negocio: últimos 30 días
+                var dtN = _bllBitacora.ObtenerUltimosNDiasSistema(30);
+                int totalSistema = dtN?.Rows.Count ?? 0;
+
+                var statsItems = new[]
+                {
+                    ("Sistema (30d)", totalSistema.ToString(), Color.FromArgb(64, 0, 64)),
+                };
+
+                foreach (var (etiqueta, valor, color) in statsItems)
+                    fl.Controls.Add(CrearMiniStatRow(etiqueta, valor, color));
+            }
+            catch { }
+
+            try
+            {
+                var dtNeg = _bllBitacora.ObtenerTodosNegocio();
+                if (dtNeg != null)
+                {
+                    var conteos = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                    foreach (System.Data.DataRow r in dtNeg.Rows)
+                    {
+                        string tipo = r["Tipo"]?.ToString() ?? "";
+                        if (string.IsNullOrEmpty(tipo)) continue;
+                        if (!conteos.ContainsKey(tipo)) conteos[tipo] = 0;
+                        conteos[tipo]++;
+                    }
+                    foreach (var kv in conteos)
+                        fl.Controls.Add(CrearMiniStatRow(kv.Key, kv.Value.ToString(), Color.FromArgb(146, 62, 96)));
+                }
+            }
+            catch { }
+        }
+
+        private static Panel CrearMiniStatRow(string label, string valor, Color color)
+        {
+            var row = new Panel { Height = 26, Dock = DockStyle.Top, BackColor = Color.Transparent, Width = 200 };
+            var lv = new Label { Text = valor, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = color, AutoSize = true, Location = new Point(0, 4) };
+            var ll = new Label { Text = label, Font = new Font("Segoe UI", 8f), ForeColor = Color.FromArgb(100, 80, 100), AutoSize = true, Location = new Point(34, 6) };
+            row.Controls.Add(lv);
+            row.Controls.Add(ll);
+            return row;
         }
 
         private static Panel CrearTarjeta(Color fondo, Color tinta,
