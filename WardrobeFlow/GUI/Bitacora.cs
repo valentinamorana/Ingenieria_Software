@@ -44,6 +44,7 @@ namespace GUI
         private Font        _fuenteTitulo;
 
         private readonly string _tabInicial;
+        private Panel _leyendaCriticidad;
 
         public Bitacora(string tabInicial = null)
         {
@@ -104,16 +105,18 @@ namespace GUI
             {
                 var g = pe.Graphics;
                 int x = 10;
-                // (crit, label, back, fore)
-                var niveles = new (int crit, string lbl, Color back, Color fore)[]
+                var tr = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string Tl(string key, string fb) => tr.ContainsKey(key) ? tr[key].Texto : fb;
+                // (trad-key, fallback, back, fore)
+                var niveles = new (string key, string fb, Color back, Color fore)[]
                 {
-                    (0, "Ninguno",       Color.FromArgb(245,245,245), Color.Gray),
-                    (1, "Baja",          Color.FromArgb(220,255,220), Color.DarkGreen),
-                    (2, "Media",         Color.FromArgb(255,255,200), Color.DarkGoldenrod),
-                    (3, "Alta",          Color.FromArgb(255,220,170), Color.DarkOrange),
-                    (4, "Int.Login",     Color.FromArgb(255,205,205), Color.DarkRed),
-                    (5, "Recup.Clave",   Color.FromArgb(210,225,255), Color.DarkBlue),
-                    (6, "Bloqueos",      Color.FromArgb(200,0,20),    Color.White),
+                    ("stat.ninguno",    "Ninguno",     Color.FromArgb(245,245,245), Color.Gray),
+                    ("stat.baja",       "Baja",        Color.FromArgb(220,255,220), Color.DarkGreen),
+                    ("stat.media",      "Media",       Color.FromArgb(255,255,200), Color.DarkGoldenrod),
+                    ("stat.alta",       "Alta",        Color.FromArgb(255,220,170), Color.DarkOrange),
+                    ("stat.intlogin",   "Int.Login",   Color.FromArgb(255,205,205), Color.DarkRed),
+                    ("stat.recupclave", "Recup.Clave", Color.FromArgb(210,225,255), Color.DarkBlue),
+                    ("stat.bloqueos",   "Bloqueos",    Color.FromArgb(200,0,20),    Color.White),
                 };
                 using (var fnt = new Font("Segoe UI", 7.5f))
                 {
@@ -123,14 +126,16 @@ namespace GUI
                             g.FillRectangle(br, x, 7, 10, 10);
                         g.DrawRectangle(Pens.Gray, x, 7, 10, 10);
                         x += 13;
+                        string etiqueta = Tl(n.key, n.fb);
                         using (var br = new SolidBrush(Color.FromArgb(60,40,50)))
-                            g.DrawString(n.lbl, fnt, br, x, 6);
-                        x += (int)g.MeasureString(n.lbl, fnt).Width + 6;
+                            g.DrawString(etiqueta, fnt, br, x, 6);
+                        x += (int)g.MeasureString(etiqueta, fnt).Width + 6;
                     }
                 }
             };
 
             // Insertar leyenda DEBAJO del panelFiltrosSistema dentro de tabPageSistema
+            _leyendaCriticidad = leyenda;
             tabPageSistema.Controls.Add(leyenda);
             tabPageSistema.Controls.SetChildIndex(leyenda, tabPageSistema.Controls.IndexOf(panelFiltrosSistema));
 
@@ -200,6 +205,7 @@ namespace GUI
             TraducirHeadersGrilla(dgvNegocio, idioma, esSistema: false);
             ActualizarLabelEstadisticas(dgvSistema, lblResultadosSistema);
             ActualizarLabelEstadisticas(dgvNegocio, lblResultadosNegocio);
+            _leyendaCriticidad?.Invalidate();   // repinta leyenda con nuevo idioma
         }
 
         private void ActualizarLabelEstadisticas(DataGridView dgv, Label lbl)
@@ -504,9 +510,6 @@ namespace GUI
             _headersImpresion = new string[dgv.Columns.Count];
             for (int i = 0; i < dgv.Columns.Count; i++)
                 _headersImpresion[i] = dgv.Columns[i].HeaderText;
-            _paginaActual    = 1;
-            _filaImpresion   = 0;
-
             _fuenteTitulo = new Font("Segoe UI", 13, FontStyle.Bold);
             _fuenteHeader = new Font("Segoe UI", 8,  FontStyle.Bold);
             _fuenteCelda  = new Font("Segoe UI", 7.5f);
@@ -514,7 +517,8 @@ namespace GUI
             var doc = new PrintDocument();
             doc.DefaultPageSettings.Landscape = true;
             doc.DefaultPageSettings.Margins   = new Margins(40, 40, 40, 40);
-            doc.PrintPage += ImprimirPagina;
+            doc.BeginPrint += (s2, e2) => { _filaImpresion = 0; _paginaActual = 1; };
+            doc.PrintPage  += ImprimirPagina;
 
             using (var preview = new PrintPreviewDialog())
             {

@@ -58,6 +58,9 @@ namespace GUI
         private Panel           _panelActividad;
         private Panel           _panelMiniStats;
         private Panel           _panelSbar;
+        private Label        _lblActTitulo;
+        private Label        _lblStTitulo;
+        private DataGridView _dgvActividad;
 
         public DashboardForm(List<BE.Permiso> permisos)
         {
@@ -107,6 +110,8 @@ namespace GUI
         {
             Traducir(idioma);
             ActualizarMetricas();
+            CargarActividadReciente();
+            CargarMiniStats();
         }
 
         private string T(string key, string fallback)
@@ -128,6 +133,15 @@ namespace GUI
             if (_txtClientes != null) _txtClientes.Text = T("dash.clientes", "Clientes\nregistrados");
             if (_txtPedidos  != null) _txtPedidos.Text  = T("dash.pedidos",  "Pedidos\npendientes");
             if (_txtBackup   != null) _txtBackup.Text   = T("dash.backup",   "días sin\nbackup");
+
+            if (_lblActTitulo != null) _lblActTitulo.Text = T("dash.actividad.titulo", "Actividad reciente");
+            if (_lblStTitulo  != null) _lblStTitulo.Text  = T("dash.stats.titulo",     "Resumen de eventos");
+            if (_dgvActividad != null && _dgvActividad.Columns.Count >= 3)
+            {
+                _dgvActividad.Columns["colFecha"].HeaderText = T("dash.col.fecha",   "Fecha");
+                _dgvActividad.Columns["colTipo"].HeaderText  = T("dash.col.evento",  "Evento");
+                _dgvActividad.Columns["colUser"].HeaderText  = T("dash.col.usuario", "Usuario");
+            }
         }
 
         // ── Métricas ──────────────────────────────────────────────────────────
@@ -473,7 +487,7 @@ namespace GUI
                 Padding   = new Padding(0)
             };
 
-            var lblActTitulo = new Label
+            _lblActTitulo = new Label
             {
                 Text      = "Actividad reciente",
                 Font      = new Font("Segoe UI", 9f, FontStyle.Bold),
@@ -484,7 +498,7 @@ namespace GUI
                 BackColor = Color.FromArgb(252, 240, 248)
             };
 
-            var dgvAct = new DataGridView
+            _dgvActividad = new DataGridView
             {
                 Name                        = "dgvActividad",
                 Dock                        = DockStyle.Fill,
@@ -502,16 +516,16 @@ namespace GUI
                 CellBorderStyle             = DataGridViewCellBorderStyle.SingleHorizontal,
                 GridColor                   = Color.FromArgb(235, 225, 232)
             };
-            dgvAct.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(176, 62, 96);
-            dgvAct.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvAct.ColumnHeadersDefaultCellStyle.Font      = new Font("Segoe UI", 8f, FontStyle.Bold);
-            dgvAct.Columns.Add(new DataGridViewTextBoxColumn { Name = "colFecha", HeaderText = "Fecha",   FillWeight = 28 });
-            dgvAct.Columns.Add(new DataGridViewTextBoxColumn { Name = "colTipo",  HeaderText = "Evento",  FillWeight = 36 });
-            dgvAct.Columns.Add(new DataGridViewTextBoxColumn { Name = "colUser",  HeaderText = "Usuario", FillWeight = 36 });
+            _dgvActividad.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(176, 62, 96);
+            _dgvActividad.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            _dgvActividad.ColumnHeadersDefaultCellStyle.Font      = new Font("Segoe UI", 8f, FontStyle.Bold);
+            _dgvActividad.Columns.Add(new DataGridViewTextBoxColumn { Name = "colFecha", HeaderText = "Fecha",   FillWeight = 28 });
+            _dgvActividad.Columns.Add(new DataGridViewTextBoxColumn { Name = "colTipo",  HeaderText = "Evento",  FillWeight = 36 });
+            _dgvActividad.Columns.Add(new DataGridViewTextBoxColumn { Name = "colUser",  HeaderText = "Usuario", FillWeight = 36 });
 
-            _panelActividad.Controls.Add(dgvAct);
-            _panelActividad.Controls.Add(lblActTitulo);
-            _panelActividad.Tag = dgvAct;
+            _panelActividad.Controls.Add(_dgvActividad);
+            _panelActividad.Controls.Add(_lblActTitulo);
+            _panelActividad.Tag = _dgvActividad;
 
             // ── Panel Mini-Stats ──────────────────────────────────────────────
             _panelMiniStats = new Panel
@@ -521,7 +535,7 @@ namespace GUI
                 Padding   = new Padding(8)
             };
 
-            var lblStTitulo = new Label
+            _lblStTitulo = new Label
             {
                 Text      = "Resumen de eventos",
                 Font      = new Font("Segoe UI", 9f, FontStyle.Bold),
@@ -543,7 +557,7 @@ namespace GUI
             };
 
             _panelMiniStats.Controls.Add(flStats);
-            _panelMiniStats.Controls.Add(lblStTitulo);
+            _panelMiniStats.Controls.Add(_lblStTitulo);
             _panelMiniStats.Tag = flStats;
 
             // ── Session bar ───────────────────────────────────────────────────
@@ -600,7 +614,7 @@ namespace GUI
 
         private void CargarActividadReciente()
         {
-            var dgv = _panelActividad?.Tag as DataGridView;
+            var dgv = _dgvActividad;
             if (dgv == null) return;
             dgv.Rows.Clear();
             try

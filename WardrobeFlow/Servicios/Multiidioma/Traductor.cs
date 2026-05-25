@@ -733,6 +733,12 @@ namespace Servicios.Multiidioma
             { "bit.pdf.vistaprevia",     "Vista Previa"                                          },
             { "dash.backup.hoy",         "Hoy"                                                   },
             { "dash.sesion.iniciada",    "Sesión iniciada:"                                      },
+            // Dashboard — actividad reciente y mini-stats
+            { "dash.actividad.titulo",  "Actividad reciente"                                    },
+            { "dash.stats.titulo",      "Resumen de eventos"                                    },
+            { "dash.col.fecha",         "Fecha"                                                 },
+            { "dash.col.evento",        "Evento"                                                },
+            { "dash.col.usuario",       "Usuario"                                               },
             // Dashboard — avisos de backup y diálogo de configuración
             { "dash.aviso.sinbackup",   "⚠  Sin backups. Generá uno desde Administrar → Backup."           },
             { "dash.aviso.vencido",     "⚠  Hace {0} día(s) sin backup — recordatorio cada {1} días."      },
@@ -1280,6 +1286,12 @@ namespace Servicios.Multiidioma
             { "bit.pdf.vistaprevia",     "Print Preview"                                         },
             { "dash.backup.hoy",         "Today"                                                 },
             { "dash.sesion.iniciada",    "Session started:"                                      },
+            // Dashboard — recent activity and mini-stats
+            { "dash.actividad.titulo",  "Recent activity"                                       },
+            { "dash.stats.titulo",      "Event summary"                                         },
+            { "dash.col.fecha",         "Date"                                                  },
+            { "dash.col.evento",        "Event"                                                 },
+            { "dash.col.usuario",       "User"                                                  },
             // Dashboard — backup notices and config dialog
             { "dash.aviso.sinbackup",   "⚠  No backups. Generate one from Administration → Backup."        },
             { "dash.aviso.vencido",     "⚠  {0} day(s) without backup — reminder every {1} days."          },
@@ -1827,6 +1839,12 @@ namespace Servicios.Multiidioma
             { "bit.pdf.vistaprevia",     "Предварительный просмотр"                             },
             { "dash.backup.hoy",         "Сегодня"                                              },
             { "dash.sesion.iniciada",    "Сеанс начат:"                                         },
+            // Панель управления — последние события и мини-статистика
+            { "dash.actividad.titulo",  "Последние события"                                    },
+            { "dash.stats.titulo",      "Сводка событий"                                       },
+            { "dash.col.fecha",         "Дата"                                                 },
+            { "dash.col.evento",        "Событие"                                              },
+            { "dash.col.usuario",       "Пользователь"                                         },
             // Панель управления — уведомления о резервной копии и диалог настройки
             { "dash.aviso.sinbackup",   "⚠  Резервных копий нет. Создайте через Администрирование → Резервная копия." },
             { "dash.aviso.vencido",     "⚠  {0} дней без резервной копии — напоминание каждые {1} дней."  },
