@@ -1,0 +1,186 @@
+
+<style>
+:root{
+  --rosa:#D26487;--rosa-l:#F27299;--rosa-d:#B03E60;--purp:#400040;
+  --bg:#F0F0F5;--panel:#E6E6F0;--lat:#F5F5FA;
+  --pdf:#4664A0;--hist:#6450A0;--ok:#3C8C3C;--entr:#1E821E;--limp:#A06400;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+
+.win{background:var(--bg);border:1px solid #ccc;border-radius:6px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10)}
+.titlebar{background:linear-gradient(90deg,var(--purp) 0%,var(--rosa-d) 100%);padding:7px 12px;display:flex;align-items:center;justify-content:space-between}
+.titlebar-title{color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;gap:6px}
+.titlebar-controls{display:flex;gap:5px}
+.ctrl{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,0.25)}
+
+.header{background:linear-gradient(135deg,var(--rosa-d) 0%,var(--rosa) 60%,var(--rosa-l) 100%);padding:16px 18px 14px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:18px;font-weight:700;color:#fff}
+.header p{font-size:11px;color:rgba(255,255,255,0.72);margin-top:2px}
+.hbtns{display:flex;gap:6px}
+.hbtn{border-radius:5px;padding:7px 13px;font-size:11px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;border:none}
+.hbtn.white{background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.35)}
+.hbtn.solid{background:#fff;color:var(--rosa-d)}
+
+.fbar{background:var(--panel);padding:10px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid rgba(210,100,135,0.12)}
+.flbl{font-size:11px;color:#777;white-space:nowrap}
+.fi{border:0.5px solid rgba(210,100,135,0.28);border-radius:4px;padding:4px 8px;font-size:11px;background:#fff;color:#333}
+.bb{border:none;border-radius:4px;padding:5px 12px;font-size:11px;font-weight:500;color:#fff;cursor:pointer;display:flex;align-items:center;gap:4px}
+
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px}
+.kpi{background:#fff;border-radius:8px;border:0.5px solid rgba(210,100,135,0.2);padding:14px 12px;text-align:center}
+.kval{font-size:26px;font-weight:700;line-height:1;margin-bottom:4px}
+.klbl{font-size:10px;text-transform:uppercase;letter-spacing:0.04em;color:#aaa}
+
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 12px}
+.col{background:#fff;border-radius:8px;border:0.5px solid rgba(210,100,135,0.2);overflow:hidden}
+.col-hdr{padding:8px 14px;font-size:11px;font-weight:600;border-bottom:0.5px solid rgba(210,100,135,0.12)}
+.col-hdr.a{background:rgba(210,100,135,0.08);color:var(--rosa-d)}
+.col-hdr.b{background:rgba(64,0,64,0.06);color:var(--purp)}
+.crow{display:flex;justify-content:space-between;padding:5px 14px;font-size:11px;border-bottom:0.5px solid rgba(240,240,245,0.9)}
+.crow:last-child{border-bottom:none}
+.crow .l{color:#888}
+.crow .v{font-weight:600;color:#444}
+
+.report-box{margin:0 14px 14px;background:#fff;border-radius:8px;border:0.5px solid rgba(210,100,135,0.2);overflow:hidden}
+.rb-hdr{background:rgba(210,100,135,0.07);padding:9px 14px;border-bottom:0.5px solid rgba(210,100,135,0.12);font-size:11px;font-weight:600;color:var(--rosa-d);display:flex;align-items:center;gap:6px}
+.rb-hdr::before{content:'';display:inline-block;width:3px;height:12px;background:var(--rosa);border-radius:2px}
+
+.rsec{padding:10px 14px;border-bottom:0.5px solid rgba(210,100,135,0.08)}
+.rsec:last-child{border-bottom:none}
+.rsec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--rosa-d);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.rsec-title::before{content:'▎';color:var(--rosa);font-size:14px}
+.rrow{display:flex;justify-content:space-between;font-size:11px;padding:3px 0;color:#555}
+.rrow span:last-child{font-weight:600;color:#333}
+.empty-state{text-align:center;padding:24px;color:#ccc;font-size:12px;font-style:italic}
+
+.txt-preview{margin:0 14px 14px;background:var(--lat);border-radius:8px;border:0.5px solid rgba(210,100,135,0.2);overflow:hidden}
+.txt-hdr{background:rgba(64,0,64,0.06);padding:7px 14px;border-bottom:0.5px solid rgba(210,100,135,0.1);font-size:10px;font-weight:600;color:var(--purp);display:flex;align-items:center;justify-content:space-between}
+.txt-body{padding:10px 14px;font-family:'Consolas','Courier New',monospace;font-size:10px;color:#555;line-height:1.7}
+.txt-sep{color:#bbb}
+.txt-title{color:var(--rosa-d);font-weight:700}
+.txt-section{color:var(--rosa);font-weight:600;margin-top:4px}
+.txt-note{color:#999;font-style:italic}
+
+.sbar{background:var(--purp);padding:5px 14px;display:flex;gap:20px;font-size:10px;color:rgba(255,255,255,0.65)}
+.sv{color:#fff;font-weight:600}
+</style>
+
+<div style="padding:1rem 0">
+<h2 class="sr-only">WardrobeFlow — Pantalla 4: Reporte de Jornada</h2>
+<div class="win">
+  <div class="titlebar">
+    <div class="titlebar-title">
+      <span style="background:var(--rosa-l);color:#fff;border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700">WF</span>
+      Reporte de Jornada — WardrobeFlow
+    </div>
+    <div class="titlebar-controls"><div class="ctrl"></div><div class="ctrl"></div><div class="ctrl" style="background:rgba(255,255,255,0.5)"></div></div>
+  </div>
+
+  <div class="header">
+    <div>
+      <h1>Reporte de Jornada — WardrobeFlow</h1>
+      <p>Eventos de negocio por jornada con exportación a TXT</p>
+    </div>
+    <div class="hbtns">
+      <button class="hbtn white"><i class="ti ti-refresh" aria-hidden="true"></i> Generar</button>
+      <button class="hbtn solid"><i class="ti ti-download" aria-hidden="true"></i> Exportar TXT…</button>
+    </div>
+  </div>
+
+  <div class="fbar">
+    <div style="display:flex;align-items:center;gap:6px">
+      <span class="flbl">Jornada:</span>
+      <input class="fi" value="25/05/2026" style="width:96px">
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;margin-left:10px;padding-left:10px;border-left:1px solid rgba(210,100,135,0.2)">
+      <span class="flbl" style="color:var(--rosa-d);font-weight:500">Comparar con:</span>
+      <input class="fi" value="24/05/2026" style="width:96px">
+      <button class="bb" style="background:var(--hist)"><i class="ti ti-arrows-diff" aria-hidden="true"></i> Comparar jornadas</button>
+      <button class="bb" style="background:var(--pdf)"><i class="ti ti-download" aria-hidden="true"></i> Exportar TXT…</button>
+      <button class="bb" style="background:#aaa"><i class="ti ti-eraser" aria-hidden="true"></i> Limpiar</button>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kval" style="color:var(--rosa-d)">0</div>
+      <div class="klbl">Prendas disponibles</div>
+    </div>
+    <div class="kpi">
+      <div class="kval" style="color:var(--purp)">9</div>
+      <div class="klbl">Clientes registrados</div>
+    </div>
+    <div class="kpi">
+      <div class="kval" style="color:var(--limp)">0</div>
+      <div class="klbl">Eventos del día</div>
+    </div>
+    <div class="kpi">
+      <div class="kval" style="color:var(--entr)">0</div>
+      <div class="klbl">Días sin backup</div>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="col">
+      <div class="col-hdr a"><i class="ti ti-calendar-event" aria-hidden="true"></i> Jornada 25/05/2026</div>
+      <div class="crow"><span class="l">Prendas disponibles</span><span class="v">0</span></div>
+      <div class="crow"><span class="l">Clientes registrados</span><span class="v">9</span></div>
+      <div class="crow"><span class="l">Eventos del día</span><span class="v">0</span></div>
+      <div class="crow"><span class="l">Días sin backup</span><span class="v">0</span></div>
+    </div>
+    <div class="col">
+      <div class="col-hdr b"><i class="ti ti-calendar" aria-hidden="true"></i> Jornada 24/05/2026</div>
+      <div class="crow"><span class="l">Prendas disponibles</span><span class="v">—</span></div>
+      <div class="crow"><span class="l">Clientes registrados</span><span class="v">9</span></div>
+      <div class="crow"><span class="l">Eventos del día</span><span class="v">—</span></div>
+      <div class="crow"><span class="l">Días sin backup</span><span class="v">—</span></div>
+    </div>
+  </div>
+
+  <div class="report-box">
+    <div class="rb-hdr">Vista previa del reporte</div>
+    <div class="rsec">
+      <div class="rsec-title">Resumen del sistema</div>
+      <div class="rrow"><span>Prendas disponibles</span><span>0</span></div>
+      <div class="rrow"><span>Clientes registrados</span><span>9</span></div>
+      <div class="rrow"><span>Días sin backup</span><span>0</span></div>
+    </div>
+    <div class="rsec">
+      <div class="rsec-title">Eventos de negocio del día</div>
+      <div class="empty-state">
+        <i class="ti ti-inbox" style="font-size:26px;display:block;margin-bottom:6px" aria-hidden="true"></i>
+        Sin eventos registrados para esta jornada
+      </div>
+    </div>
+  </div>
+
+  <div class="txt-preview">
+    <div class="txt-hdr">
+      <span><i class="ti ti-file-text" aria-hidden="true"></i> Exportación TXT — previa</span>
+      <span style="opacity:0.6">Generado: 25/05/2026 12:03:24</span>
+    </div>
+    <div class="txt-body">
+      <span class="txt-sep">================================================</span><br>
+      <span class="txt-title">REPORTE DE JORNADA — 25/05/2026</span><br>
+      <span>WardrobeFlow</span><br>
+      <span class="txt-sep">================================================</span><br><br>
+      <span class="txt-section">■ RESUMEN DEL SISTEMA</span><br>
+      <span class="txt-sep">————————————————————————————</span><br>
+      <span>  Prendas disponibles  : 0</span><br>
+      <span>  Clientes registrados : 9</span><br>
+      <span>  Días sin backup      : 0</span><br><br>
+      <span class="txt-section">■ EVENTOS DE NEGOCIO DEL DÍA</span><br>
+      <span class="txt-sep">————————————————————————————</span><br>
+      <span class="txt-note">  (sin eventos registrados para esta jornada)</span><br><br>
+      <span class="txt-note">  Generado: 25/05/2026 12:03:24</span><br>
+      <span class="txt-sep">================================================</span>
+    </div>
+  </div>
+
+  <div class="sbar">
+    <span>admin · <span class="sv">Administrador</span></span>
+    <span>Sesión: <span class="sv">12:03</span></span>
+    <span style="margin-left:auto;opacity:0.4">WardrobeFlow</span>
+  </div>
+</div>
+</div>

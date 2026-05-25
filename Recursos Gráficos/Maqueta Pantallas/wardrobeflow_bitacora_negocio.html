@@ -1,0 +1,143 @@
+
+<style>
+:root{
+  --rosa:#D26487;--rosa-l:#F27299;--rosa-d:#B03E60;--purp:#400040;
+  --bg:#F0F0F5;--panel:#E6E6F0;--lat:#F5F5FA;--alt:#FFF8FC;--sel:#FFB6C1;
+  --pdf:#4664A0;--danger:#C83C3C;--ok:#3C8C3C;--hist:#6450A0;--rst:#B4641E;
+  --uso:#1E64AA;--limp:#A06400;--entr:#1E821E;--baja:#A03232;
+  --fc:#FFE1E1;--fp:#FFFAD2;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+
+.win{background:var(--bg);border:1px solid #ccc;border-radius:6px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10)}
+.titlebar{background:linear-gradient(90deg,var(--purp) 0%,var(--rosa-d) 100%);padding:7px 12px;display:flex;align-items:center;justify-content:space-between}
+.titlebar-title{color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;gap:6px}
+.titlebar-controls{display:flex;gap:5px}
+.ctrl{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,0.25)}
+
+.header{background:linear-gradient(135deg,var(--rosa-d) 0%,var(--rosa) 60%,var(--rosa-l) 100%);padding:16px 18px 14px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:18px;font-weight:700;color:#fff}
+.header p{font-size:11px;color:rgba(255,255,255,0.72);margin-top:2px}
+.btn-pdf{background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.35);border-radius:5px;padding:7px 14px;font-size:11px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:5px}
+
+.tabs{display:flex;background:var(--panel);border-bottom:1px solid rgba(210,100,135,0.18)}
+.tab{padding:9px 18px;font-size:11px;font-weight:500;cursor:pointer;border:none;background:transparent;color:#888;border-bottom:2px solid transparent}
+.tab.on{color:var(--rosa-d);border-bottom-color:var(--rosa);background:rgba(210,100,135,0.06)}
+
+.fbar{background:var(--panel);padding:9px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid rgba(210,100,135,0.12)}
+.flbl{font-size:11px;color:#777;white-space:nowrap}
+.fi{border:0.5px solid rgba(210,100,135,0.28);border-radius:4px;padding:4px 8px;font-size:11px;background:#fff;color:#333}
+.fs{border:0.5px solid rgba(210,100,135,0.28);border-radius:4px;padding:4px 20px 4px 8px;font-size:11px;background:#fff;color:#333;appearance:none}
+.bb{border:none;border-radius:4px;padding:5px 12px;font-size:11px;font-weight:500;color:#fff;cursor:pointer}
+
+.grid-wrap{overflow-x:auto;max-height:360px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:var(--rosa-d);color:#fff;padding:7px 10px;text-align:left;font-weight:500;white-space:nowrap;position:sticky;top:0;z-index:2}
+td{padding:6px 10px;border-bottom:0.5px solid rgba(210,100,135,0.07);white-space:nowrap;color:#333}
+tr:nth-child(even) td{background:var(--alt)}
+tr:hover td{background:var(--sel)!important}
+tr.rcancel td{background:var(--fc)}
+tr.rpend td{background:var(--fp)}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;white-space:nowrap}
+.bv{background:rgba(30,100,170,0.12);color:var(--uso)}
+.bd{background:rgba(30,100,170,0.12);color:var(--uso)}
+.be{background:rgba(30,130,30,0.12);color:var(--entr)}
+.bc{background:rgba(160,50,50,0.12);color:var(--baja)}
+.bac{background:rgba(30,130,30,0.1);color:var(--ok)}
+.bmc{background:rgba(100,80,160,0.12);color:var(--hist)}
+.bcp{background:rgba(30,100,170,0.1);color:var(--uso)}
+
+.footer{padding:8px 14px;background:var(--panel);border-top:0.5px solid rgba(210,100,135,0.15);font-size:10px;color:#666;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fs2{display:flex;align-items:center;gap:3px}
+.fd{width:8px;height:8px;border-radius:2px}
+.fct{font-weight:600;color:#444}
+.sbar{background:var(--purp);padding:5px 14px;display:flex;gap:20px;font-size:10px;color:rgba(255,255,255,0.65)}
+.sv{color:#fff;font-weight:600}
+</style>
+
+<div style="padding:1rem 0">
+<h2 class="sr-only">WardrobeFlow — Pantalla 3: Bitácora de Negocio</h2>
+<div class="win">
+  <div class="titlebar">
+    <div class="titlebar-title">
+      <span style="background:var(--rosa-l);color:#fff;border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700">WF</span>
+      Auditoría — Bitácoras del Sistema
+    </div>
+    <div class="titlebar-controls"><div class="ctrl"></div><div class="ctrl"></div><div class="ctrl" style="background:rgba(255,255,255,0.5)"></div></div>
+  </div>
+
+  <div class="header">
+    <div>
+      <h1>Auditoría — Bitácoras del Sistema</h1>
+      <p>Registro de eventos del sistema y operaciones de negocio</p>
+    </div>
+    <button class="btn-pdf"><i class="ti ti-file-export" aria-hidden="true"></i> Exportar PDF</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab"><i class="ti ti-shield-check" aria-hidden="true"></i> Bitácora del Sistema</button>
+    <button class="tab on"><i class="ti ti-briefcase" aria-hidden="true"></i> Bitácora de Negocio</button>
+  </div>
+
+  <div class="fbar">
+    <span class="flbl">Últimos</span>
+    <input class="fi" value="7" style="width:46px">
+    <span class="flbl">días (0 = todos)</span>
+    <span class="flbl" style="margin-left:8px">Tipo:</span>
+    <select class="fs"><option>Todos</option><option>Venta</option><option>Despacho</option><option>Entrega</option><option>Cancelacion</option><option>AltaCliente</option><option>AltaPrenda</option></select>
+    <span class="flbl" style="margin-left:8px">ID Pedido:</span>
+    <input class="fi" value="0" style="width:46px">
+    <span class="flbl">ID Cliente:</span>
+    <input class="fi" value="0" style="width:46px">
+    <button class="bb" style="background:var(--rosa);margin-left:4px"><i class="ti ti-search" aria-hidden="true"></i> Buscar</button>
+    <button class="bb" style="background:#aaa"><i class="ti ti-x" aria-hidden="true"></i> Limpiar</button>
+  </div>
+
+  <div class="grid-wrap">
+    <table>
+      <thead>
+        <tr><th>Id Evento</th><th>Fecha</th><th>Tipo</th><th>Usuario</th><th>Cliente</th><th>Id Pedido</th><th>Id Prenda</th><th>Id Cliente</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr style="background:var(--sel)"><td><b>44</b></td><td>30/4/2026 01:17</td><td><span class="badge bcp">CambioEstadoPrenda</span></td><td>admin</td><td></td><td></td><td>2</td><td></td><td>Prenda 'Blazer clasi…</td></tr>
+        <tr><td>43</td><td>30/4/2026 01:17</td><td><span class="badge bcp">CambioEstadoPrenda</span></td><td>admin</td><td></td><td></td><td>2</td><td></td><td>Prenda 'Blazer clasi…</td></tr>
+        <tr><td>42</td><td>30/4/2026 01:16</td><td><span class="badge bac">AltaPrenda</span></td><td>admin</td><td></td><td></td><td>26</td><td></td><td>Nueva prenda: Top…</td></tr>
+        <tr><td>41</td><td>26/4/2026 17:19</td><td><span class="badge bmc">ModificacionCliente</span></td><td>admin</td><td>Ignacio León</td><td></td><td></td><td>9</td><td>Modificación cliente…</td></tr>
+        <tr><td>40</td><td>26/4/2026 17:01</td><td><span class="badge bac">AltaCliente</span></td><td>admin</td><td>Ignacio León</td><td></td><td></td><td>9</td><td>Nuevo cliente: v vv…</td></tr>
+        <tr><td>27</td><td>25/4/2026 16:55</td><td><span class="badge bv">Venta</span></td><td>vendedor</td><td>Marina Gomez</td><td>8</td><td>7</td><td></td><td>Pedido #8 – Marina…</td></tr>
+        <tr><td>26</td><td>24/4/2026 16:55</td><td><span class="badge bv">Venta</span></td><td>vendedor</td><td>Julieta Medina</td><td>5</td><td>5</td><td></td><td>Pedido #5 – Julieta…</td></tr>
+        <tr><td>32</td><td>23/4/2026 16:55</td><td><span class="badge bd">Despacho</span></td><td>operador</td><td>Camila Rodriguez</td><td>4</td><td>4</td><td></td><td>Pedido #4 despach…</td></tr>
+        <tr><td>25</td><td>21/4/2026 16:55</td><td><span class="badge bv">Venta</span></td><td>vendedor</td><td>Camila Rodriguez</td><td>4</td><td>4</td><td></td><td>Pedido #4 – Camila…</td></tr>
+        <tr><td>24</td><td>16/4/2026 16:55</td><td><span class="badge bv">Venta</span></td><td>vendedor</td><td>Daniela Ruiz</td><td>7</td><td>8</td><td></td><td>Pedido #7 – Daniel…</td></tr>
+        <tr class="rcancel"><td>37</td><td>16/4/2026 16:55</td><td><span class="badge bc">Cancelacion</span></td><td>vendedor</td><td>Daniela Ruiz</td><td>7</td><td>8</td><td></td><td>Pedido #7 cancela…</td></tr>
+        <tr><td>38</td><td>11/4/2026 16:55</td><td><span class="badge bcp">CambioEstadoPrenda</span></td><td>operador</td><td></td><td></td><td>20</td><td></td><td>Prenda 'Top bordad…</td></tr>
+        <tr><td>36</td><td>11/4/2026 16:55</td><td><span class="badge be">Entrega</span></td><td>operador</td><td>Valentina Torres</td><td>2</td><td>2</td><td></td><td>Pedido #2 entregad…</td></tr>
+        <tr><td>18</td><td>11/4/2026 16:55</td><td><span class="badge bac">AltaCliente</span></td><td>vendedor</td><td>Daniela Ruiz</td><td></td><td></td><td>8</td><td>Nuevo cliente: Dani…</td></tr>
+        <tr><td>31</td><td>8/4/2026 16:55</td><td><span class="badge bd">Despacho</span></td><td>operador</td><td>Valentina Torres</td><td>2</td><td>2</td><td></td><td>Pedido #2 despach…</td></tr>
+        <tr><td>33</td><td>6/4/2026 16:55</td><td><span class="badge be">Entrega</span></td><td>operador</td><td>Sofia Ramirez</td><td>1</td><td>1</td><td></td><td>Pedido #1 entregad…</td></tr>
+        <tr><td>20</td><td>1/4/2026 16:55</td><td><span class="badge bv">Venta</span></td><td>vendedor</td><td>Sofia Ramirez</td><td>1</td><td>1</td><td></td><td>Pedido #1 – Sofia…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <b style="color:#555">44 registros</b>
+    <div class="fs2"><div class="fd" style="background:rgba(30,100,170,0.3)"></div>CambioEstadoPrenda: <span class="fct">5</span></div>
+    <div class="fs2"><div class="fd" style="background:rgba(30,130,30,0.3)"></div>Alta Prenda: <span class="fct">9</span></div>
+    <div class="fs2"><div class="fd" style="background:rgba(100,80,160,0.3)"></div>Mod.Cliente: <span class="fct">2</span></div>
+    <div class="fs2"><div class="fd" style="background:rgba(30,130,30,0.3)"></div>Alta Cliente: <span class="fct">9</span></div>
+    <div class="fs2"><div class="fd" style="background:rgba(30,100,170,0.4)"></div>Venta: <span class="fct">8</span></div>
+    <div class="fs2"><div class="fd" style="background:rgba(30,100,170,0.4)"></div>Despacho: <span class="fct">5</span></div>
+    <div class="fs2"><div class="fd" style="background:rgba(160,50,50,0.3)"></div>Cancelación: <span class="fct">1</span></div>
+    <div class="fs2"><div class="fd" style="background:rgba(30,130,30,0.3)"></div>Entrega: <span class="fct">4</span></div>
+    <div class="fs2"><div class="fd" style="background:rgba(210,100,135,0.4)"></div>Mod.Prenda: <span class="fct">1</span></div>
+  </div>
+
+  <div class="sbar">
+    <span>admin · <span class="sv">Administrador</span></span>
+    <span>Sesión: <span class="sv">12:03</span></span>
+    <span style="margin-left:auto;opacity:0.4">WardrobeFlow</span>
+  </div>
+</div>
+</div>

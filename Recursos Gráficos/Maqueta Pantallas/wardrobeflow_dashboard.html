@@ -1,0 +1,338 @@
+
+<style>
+:root {
+  --rosa: #D26487; --rosa-l: #F27299; --rosa-d: #B03E60; --purp: #400040;
+  --bg: #F0F0F5; --panel: #E6E6F0; --lat: #F5F5FA; --alt: #FFF8FC; --sel: #FFB6C1;
+  --danger: #C83C3C; --ok: #3C8C3C; --unlock: #1E824C; --pdf: #4664A0;
+  --hist: #6450A0; --rst: #B4641E; --uso: #1E64AA; --limp: #A06400;
+  --entr: #1E821E; --baja: #A03232;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+
+.win {
+  background: var(--bg);
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+}
+.titlebar {
+  background: linear-gradient(90deg, var(--purp) 0%, var(--rosa-d) 100%);
+  padding: 7px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.titlebar-title { color: #fff; font-size: 12px; font-weight: 500; display:flex;align-items:center;gap:6px }
+.titlebar-controls { display:flex;gap:5px }
+.ctrl { width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,0.25) }
+
+.menubar {
+  background: var(--rosa);
+  display: flex;
+  gap: 0;
+}
+.menu-item {
+  padding: 7px 16px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border-right: 1px solid rgba(255,255,255,0.15);
+  display:flex;align-items:center;gap:5px;
+}
+.menu-item:first-child { background: rgba(0,0,0,0.15); }
+.menu-item:hover { background: rgba(255,255,255,0.12); }
+
+.lang-bar {
+  background: var(--panel);
+  padding: 5px 12px;
+  display:flex;align-items:center;gap:8px;
+  border-bottom: 1px solid rgba(210,100,135,0.18);
+  font-size: 11px;
+  color: #666;
+}
+.lang-btn {
+  padding: 2px 10px;
+  border-radius: 3px;
+  border: 0.5px solid rgba(210,100,135,0.3);
+  font-size: 11px;
+  cursor:pointer;
+  background:#fff;
+  color:#444;
+}
+.lang-btn.active { background: var(--rosa); color:#fff; border-color:var(--rosa); }
+
+.mdi-area {
+  background: var(--bg);
+  padding: 14px;
+  position: relative;
+  min-height: 340px;
+}
+.wf-watermark {
+  position:absolute;inset:0;
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);
+  align-items:center;justify-items:center;
+  opacity:0.04;pointer-events:none;user-select:none;
+  font-size:48px;font-weight:900;color:var(--rosa-d);letter-spacing:-1px;
+}
+
+.mdi-win {
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.08);
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+.mdi-titlebar {
+  background: var(--panel);
+  padding: 5px 8px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom: 1px solid rgba(210,100,135,0.15);
+}
+.mdi-title { font-size: 11px; color: #555; display:flex;align-items:center;gap:5px }
+.mdi-ctrl { display:flex;gap:3px }
+.mc { width:11px;height:11px;border-radius:50%;border:0.5px solid rgba(0,0,0,0.15) }
+
+.dash-header {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid rgba(210,100,135,0.12);
+  display:flex;align-items:center;justify-content:space-between;
+  background: linear-gradient(135deg,rgba(176,62,96,0.04) 0%,rgba(242,114,153,0.06) 100%);
+}
+.dash-title { font-size: 20px; font-weight: 700; color: var(--rosa-d); }
+.btn-act {
+  background: var(--rosa);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor:pointer;
+  display:flex;align-items:center;gap:5px;
+}
+
+.kpi-grid {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  padding:14px;
+}
+.kpi {
+  border-radius: 8px;
+  padding: 16px 12px;
+  text-align: center;
+  position: relative;
+  border: 0.5px solid rgba(0,0,0,0.06);
+}
+.kpi-ico {
+  width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 10px;font-size:18px;
+}
+.kpi-val { font-size:30px;font-weight:700;line-height:1;margin-bottom:5px }
+.kpi-lbl { font-size:10px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;color:#999 }
+.kpi-tag {
+  position:absolute;top:8px;right:8px;
+  font-size:9px;font-weight:600;
+  padding:2px 7px;border-radius:10px;
+}
+
+.k1 { background:rgba(210,100,135,0.07) }
+.k1 .kpi-ico { background:rgba(210,100,135,0.15);color:var(--rosa) }
+.k1 .kpi-val { color:var(--rosa-d) }
+.k2 { background:rgba(64,0,64,0.06) }
+.k2 .kpi-ico { background:rgba(64,0,64,0.12);color:var(--purp) }
+.k2 .kpi-val { color:var(--purp) }
+.k3 { background:rgba(160,100,0,0.06) }
+.k3 .kpi-ico { background:rgba(160,100,0,0.12);color:var(--limp) }
+.k3 .kpi-val { color:var(--limp) }
+.k4 { background:rgba(30,130,30,0.07) }
+.k4 .kpi-ico { background:rgba(30,130,30,0.13);color:var(--entr) }
+.k4 .kpi-val { color:var(--entr);font-size:18px;padding-top:4px }
+
+.two-col { display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px }
+
+.inner-card {
+  background: var(--lat);
+  border-radius: 7px;
+  border: 0.5px solid rgba(210,100,135,0.18);
+  overflow:hidden;
+}
+.ic-head {
+  padding:9px 12px;
+  background:rgba(210,100,135,0.07);
+  border-bottom:0.5px solid rgba(210,100,135,0.14);
+  font-size:11px;font-weight:600;
+  color:var(--rosa-d);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.see-all {
+  font-size:10px;background:rgba(210,100,135,0.12);
+  color:var(--rosa);border:none;border-radius:8px;
+  padding:2px 8px;cursor:pointer;
+}
+
+.act-list { }
+.act-r {
+  display:flex;align-items:center;gap:8px;
+  padding:7px 12px;
+  border-bottom:0.5px solid rgba(210,100,135,0.07);
+  font-size:11px;
+}
+.act-r:last-child{border-bottom:none}
+.adot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.at{flex:1;color:#444}
+.atime{color:#bbb;font-size:10px}
+
+.qa-grid { display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px }
+.qa {
+  border:none;border-radius:6px;padding:9px 8px;
+  font-size:11px;font-weight:500;color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+}
+
+.mini-stats { display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 10px 10px }
+.ms { border-radius:6px;padding:9px;text-align:center }
+.ms-val{font-size:20px;font-weight:700}
+.ms-lbl{font-size:9px;text-transform:uppercase;letter-spacing:0.05em;margin-top:1px}
+
+.sbar {
+  background:var(--purp);
+  padding:5px 14px;
+  display:flex;gap:20px;
+  font-size:10px;color:rgba(255,255,255,0.65);
+}
+.sv{color:#fff;font-weight:600}
+</style>
+
+<div style="padding:1rem 0">
+<h2 class="sr-only">WardrobeFlow — Pantalla 1: Dashboard / Panel de Control</h2>
+
+<div class="win">
+  <div class="titlebar">
+    <div class="titlebar-title">
+      <span style="background:var(--rosa-l);color:#fff;border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700">WF</span>
+      WardrobeFlow — admin [Administrador]
+    </div>
+    <div class="titlebar-controls"><div class="ctrl"></div><div class="ctrl"></div><div class="ctrl" style="background:rgba(255,255,255,0.5)"></div></div>
+  </div>
+
+  <div class="menubar">
+    <div class="menu-item"><i class="ti ti-user" aria-hidden="true"></i>Perfil</div>
+    <div class="menu-item" style="background:rgba(255,255,255,0.18);font-weight:700"><i class="ti ti-layout-dashboard" aria-hidden="true"></i>Panel de Control</div>
+    <div class="menu-item"><i class="ti ti-hanger" aria-hidden="true"></i>Inventario</div>
+    <div class="menu-item"><i class="ti ti-shopping-cart" aria-hidden="true"></i>Ventas</div>
+    <div class="menu-item"><i class="ti ti-settings" aria-hidden="true"></i>Administrar</div>
+    <div class="menu-item"><i class="ti ti-clipboard-list" aria-hidden="true"></i>Bitácora</div>
+  </div>
+
+  <div class="lang-bar">
+    <span>Idioma:</span>
+    <button class="lang-btn active">Español</button>
+    <button class="lang-btn">English</button>
+    <button class="lang-btn">Русский</button>
+  </div>
+
+  <div class="mdi-area">
+    <div class="wf-watermark">
+      <span>W</span><span>F</span><span>W</span><span>F</span><span>W</span><span>F</span>
+      <span>W</span><span>F</span><span>W</span><span>F</span><span>W</span><span>F</span>
+    </div>
+
+    <div class="mdi-win">
+      <div class="mdi-titlebar">
+        <div class="mdi-title">
+          <span style="background:var(--rosa);color:#fff;border-radius:2px;padding:0 4px;font-size:9px">WF</span>
+          Panel de Control
+        </div>
+        <div class="mdi-ctrl">
+          <div class="mc" style="background:#f0c040"></div>
+          <div class="mc" style="background:#50c050"></div>
+          <div class="mc" style="background:#e05050"></div>
+        </div>
+      </div>
+
+      <div class="dash-header">
+        <div>
+          <div class="dash-title">Panel de Control</div>
+          <div style="font-size:11px;color:#aaa;margin-top:2px">Resumen general del sistema</div>
+        </div>
+        <button class="btn-act"><i class="ti ti-refresh" aria-hidden="true"></i> Actualizar</button>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi k1">
+          <div class="kpi-ico"><i class="ti ti-hanger" aria-hidden="true"></i></div>
+          <div class="kpi-val">—</div>
+          <div class="kpi-lbl">Prendas disponibles</div>
+        </div>
+        <div class="kpi k2">
+          <div class="kpi-ico"><i class="ti ti-users" aria-hidden="true"></i></div>
+          <div class="kpi-val">9</div>
+          <div class="kpi-lbl">Clientes registrados</div>
+          <span class="kpi-tag" style="background:rgba(30,130,30,0.12);color:var(--entr)">+1 hoy</span>
+        </div>
+        <div class="kpi k3">
+          <div class="kpi-ico"><i class="ti ti-clock" aria-hidden="true"></i></div>
+          <div class="kpi-val">—</div>
+          <div class="kpi-lbl">Pedidos pendientes</div>
+        </div>
+        <div class="kpi k4">
+          <div class="kpi-ico"><i class="ti ti-database" aria-hidden="true"></i></div>
+          <div class="kpi-val">Hoy</div>
+          <div class="kpi-lbl">días sin backup</div>
+          <span class="kpi-tag" style="background:rgba(30,130,30,0.12);color:var(--entr)">✓ OK</span>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="inner-card">
+          <div class="ic-head">
+            <span><i class="ti ti-activity" aria-hidden="true"></i> Actividad reciente</span>
+            <button class="see-all">Ver todo</button>
+          </div>
+          <div class="act-list">
+            <div class="act-r"><div class="adot" style="background:var(--danger)"></div><div class="at">Intento fallido login #1/3</div><div class="atime">12:02</div></div>
+            <div class="act-r"><div class="adot" style="background:var(--rosa)"></div><div class="at">Inicio de sesión — admin</div><div class="atime">12:03</div></div>
+            <div class="act-r"><div class="adot" style="background:var(--rst)"></div><div class="at">Base de datos restaurada</div><div class="atime">11:59</div></div>
+            <div class="act-r"><div class="adot" style="background:var(--rst)"></div><div class="at">Backup generado — WardrobeFlow</div><div class="atime">11:58</div></div>
+            <div class="act-r"><div class="adot" style="background:var(--entr)"></div><div class="at">Pedido #2 entregado — Valentina T.</div><div class="atime">11/4</div></div>
+            <div class="act-r"><div class="adot" style="background:var(--uso)"></div><div class="at">Pedido #8 despachado — Marina G.</div><div class="atime">25/4</div></div>
+          </div>
+        </div>
+
+        <div class="inner-card">
+          <div class="ic-head"><span><i class="ti ti-bolt" aria-hidden="true"></i> Acciones rápidas</span></div>
+          <div class="qa-grid">
+            <button class="qa" style="background:var(--ok)"><i class="ti ti-plus" aria-hidden="true"></i> Nuevo pedido</button>
+            <button class="qa" style="background:var(--uso)"><i class="ti ti-hanger" aria-hidden="true"></i> Alta prenda</button>
+            <button class="qa" style="background:var(--pdf)"><i class="ti ti-file-text" aria-hidden="true"></i> Exportar PDF</button>
+            <button class="qa" style="background:var(--hist)"><i class="ti ti-history" aria-hidden="true"></i> Historial</button>
+            <button class="qa" style="background:var(--rst);grid-column:span 2"><i class="ti ti-key" aria-hidden="true"></i> Resetear contraseña</button>
+          </div>
+          <div class="mini-stats">
+            <div class="ms" style="background:rgba(210,100,135,0.08)">
+              <div class="ms-val" style="color:var(--rosa-d)">180</div>
+              <div class="ms-lbl" style="color:#aaa">eventos sistema</div>
+            </div>
+            <div class="ms" style="background:rgba(64,0,64,0.07)">
+              <div class="ms-val" style="color:var(--purp)">44</div>
+              <div class="ms-lbl" style="color:#aaa">eventos negocio</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sbar">
+        <span>admin · <span class="sv">Administrador</span></span>
+        <span>Sesión iniciada: <span class="sv">12:03</span></span>
+        <span style="margin-left:auto;opacity:0.5">WardrobeFlow</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

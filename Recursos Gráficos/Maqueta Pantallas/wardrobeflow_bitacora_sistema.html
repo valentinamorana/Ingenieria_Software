@@ -1,0 +1,155 @@
+
+<style>
+:root{
+  --rosa:#D26487;--rosa-l:#F27299;--rosa-d:#B03E60;--purp:#400040;
+  --bg:#F0F0F5;--panel:#E6E6F0;--lat:#F5F5FA;--alt:#FFF8FC;--sel:#FFB6C1;
+  --pdf:#4664A0;--danger:#C83C3C;--rst:#B4641E;
+  --bn:#F5F5F5;--bb:#DCFFDC;--bm:#FFFFC8;--ba:#FFDCAA;--bl:#FFCDCD;--br:#D2E1FF;--bbq:#C80014;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+
+.win{background:var(--bg);border:1px solid #ccc;border-radius:6px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10)}
+.titlebar{background:linear-gradient(90deg,var(--purp) 0%,var(--rosa-d) 100%);padding:7px 12px;display:flex;align-items:center;justify-content:space-between}
+.titlebar-title{color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;gap:6px}
+.titlebar-controls{display:flex;gap:5px}
+.ctrl{width:13px;height:13px;border-radius:50%;background:rgba(255,255,255,0.25)}
+
+.header{
+  background:linear-gradient(135deg,var(--rosa-d) 0%,var(--rosa) 60%,var(--rosa-l) 100%);
+  padding:16px 18px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.header h1{font-size:18px;font-weight:700;color:#fff}
+.header p{font-size:11px;color:rgba(255,255,255,0.72);margin-top:2px}
+.btn-pdf{background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.35);border-radius:5px;padding:7px 14px;font-size:11px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:5px}
+.btn-pdf:hover{background:rgba(255,255,255,0.28)}
+
+.tabs{display:flex;background:var(--panel);border-bottom:1px solid rgba(210,100,135,0.18)}
+.tab{padding:9px 18px;font-size:11px;font-weight:500;cursor:pointer;border:none;background:transparent;color:#888;border-bottom:2px solid transparent}
+.tab.on{color:var(--rosa-d);border-bottom-color:var(--rosa);background:rgba(210,100,135,0.06)}
+
+.fbar{background:var(--panel);padding:9px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:1px solid rgba(210,100,135,0.12)}
+.flbl{font-size:11px;color:#777;white-space:nowrap}
+.fi{border:0.5px solid rgba(210,100,135,0.28);border-radius:4px;padding:4px 8px;font-size:11px;background:#fff;color:#333}
+.fs{border:0.5px solid rgba(210,100,135,0.28);border-radius:4px;padding:4px 22px 4px 8px;font-size:11px;background:#fff;color:#333;appearance:none}
+.bb{border:none;border-radius:4px;padding:5px 12px;font-size:11px;font-weight:500;color:#fff;cursor:pointer}
+
+.legend{display:flex;gap:6px;padding:7px 14px;background:#fff;border-bottom:0.5px solid rgba(210,100,135,0.1);flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:4px;font-size:10px;color:#666}
+.ldot{width:10px;height:10px;border-radius:2px;border:0.5px solid rgba(0,0,0,0.1);flex-shrink:0}
+
+.grid-wrap{overflow-x:auto;max-height:340px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{background:var(--rosa-d);color:#fff;padding:7px 10px;text-align:left;font-weight:500;white-space:nowrap;position:sticky;top:0;z-index:2}
+td{padding:6px 10px;border-bottom:0.5px solid rgba(210,100,135,0.07);white-space:nowrap;color:#333}
+
+.r0 td{background:var(--bn)}
+.r1 td{background:var(--bb)}
+.r2 td{background:var(--bm)}
+.r3 td{background:var(--ba)}
+.r4 td{background:var(--bl)}
+.r5 td{background:var(--br)}
+.r6 td{background:var(--bbq);color:#fff}
+
+.cb{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+
+.footer{padding:8px 14px;background:var(--panel);border-top:0.5px solid rgba(210,100,135,0.15);font-size:10px;color:#666;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fs2{display:flex;align-items:center;gap:4px}
+.fd{width:8px;height:8px;border-radius:2px}
+.fc{font-weight:600;color:#444}
+.sbar{background:var(--purp);padding:5px 14px;display:flex;gap:20px;font-size:10px;color:rgba(255,255,255,0.65)}
+.sv{color:#fff;font-weight:600}
+</style>
+
+<div style="padding:1rem 0">
+<h2 class="sr-only">WardrobeFlow — Pantalla 2: Bitácora del Sistema</h2>
+<div class="win">
+  <div class="titlebar">
+    <div class="titlebar-title">
+      <span style="background:var(--rosa-l);color:#fff;border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700">WF</span>
+      Auditoría — Bitácoras del Sistema
+    </div>
+    <div class="titlebar-controls"><div class="ctrl"></div><div class="ctrl"></div><div class="ctrl" style="background:rgba(255,255,255,0.5)"></div></div>
+  </div>
+
+  <div class="header">
+    <div>
+      <h1>Auditoría — Bitácoras del Sistema</h1>
+      <p>Registro de eventos del sistema y operaciones de negocio</p>
+    </div>
+    <button class="btn-pdf"><i class="ti ti-file-export" aria-hidden="true"></i> Exportar PDF</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on"><i class="ti ti-shield-check" aria-hidden="true"></i> Bitácora del Sistema</button>
+    <button class="tab"><i class="ti ti-briefcase" aria-hidden="true"></i> Bitácora de Negocio</button>
+  </div>
+
+  <div class="fbar">
+    <span class="flbl">Últimos</span>
+    <input class="fi" value="7" style="width:46px">
+    <span class="flbl">días (0 = todos)</span>
+    <span class="flbl" style="margin-left:8px">Usuario ID:</span>
+    <input class="fi" value="0" style="width:46px">
+    <span class="flbl" style="margin-left:8px">Actividad:</span>
+    <input class="fi" style="width:130px" placeholder="filtrar actividad…">
+    <span class="flbl" style="margin-left:8px">Criticidad:</span>
+    <select class="fs"><option>Todas</option><option>Alta (3)</option><option>Media (2)</option><option>Baja (1)</option></select>
+    <button class="bb" style="background:var(--rosa);margin-left:4px"><i class="ti ti-search" aria-hidden="true"></i> Buscar</button>
+    <button class="bb" style="background:#aaa"><i class="ti ti-x" aria-hidden="true"></i> Limpiar</button>
+  </div>
+
+  <div class="legend">
+    <div class="leg"><div class="ldot" style="background:var(--bn)"></div>Ninguno (0)</div>
+    <div class="leg"><div class="ldot" style="background:var(--bb)"></div>Baja (1)</div>
+    <div class="leg"><div class="ldot" style="background:var(--bm)"></div>Media (2)</div>
+    <div class="leg"><div class="ldot" style="background:var(--ba)"></div>Alta (3)</div>
+    <div class="leg"><div class="ldot" style="background:var(--bl)"></div>Int.Login (4)</div>
+    <div class="leg"><div class="ldot" style="background:var(--br)"></div>Recup.Clave (5)</div>
+    <div class="leg"><div class="ldot" style="background:var(--bbq);border-color:transparent"></div><span style="color:#fff;background:var(--bbq);padding:0 5px;border-radius:2px">Bloqueo (6)</span></div>
+  </div>
+
+  <div class="grid-wrap">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Fecha</th><th>Usuario</th><th>Módulo</th><th>Actividad</th><th>Detalle</th><th>Crit.</th><th>IP</th></tr>
+      </thead>
+      <tbody>
+        <tr class="r0"><td><b>186</b></td><td>25/5/2026 12:03</td><td>1</td><td>WardrobeFlow</td><td>Inicio Sesion</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:#e0e0e0;color:#666">0</span></td><td>192.168.100.10</td></tr>
+        <tr class="r4"><td><b>185</b></td><td>25/5/2026 12:02</td><td>1</td><td>WardrobeFlow</td><td><b>Intento Fallido Login</b></td><td>Intento fallido #1/3 par…</td><td><span class="cb" style="background:rgba(200,60,60,0.2);color:var(--danger)">4</span></td><td>192.168.100.10</td></tr>
+        <tr class="r0"><td>184</td><td>25/5/2026 12:00</td><td>1</td><td>WardrobeFlow</td><td>Inicio Sesion</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:#e0e0e0;color:#666">0</span></td><td>192.168.100.10</td></tr>
+        <tr class="r3"><td><b>183</b></td><td>25/5/2026 11:59</td><td>1</td><td>Backup &amp; Restore</td><td>Base de datos restaur…</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:rgba(180,100,30,0.2);color:var(--rst)">3</span></td><td>192.168.100.10</td></tr>
+        <tr class="r3"><td><b>182</b></td><td>25/5/2026 11:58</td><td>1</td><td>Backup &amp; Restore</td><td>Backup generado: W…</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:rgba(180,100,30,0.2);color:var(--rst)">3</span></td><td>192.168.100.10</td></tr>
+        <tr class="r0"><td>181</td><td>25/5/2026 11:54</td><td>1</td><td>WardrobeFlow</td><td>Inicio Sesion</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:#e0e0e0;color:#666">0</span></td><td>192.168.100.10</td></tr>
+        <tr class="r0"><td>180</td><td>25/5/2026 03:03</td><td>1</td><td>WardrobeFlow</td><td>Inicio Sesion</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:#e0e0e0;color:#666">0</span></td><td>192.168.100.10</td></tr>
+        <tr class="r0"><td>179</td><td>25/5/2026 02:51</td><td>1</td><td>WardrobeFlow</td><td>Inicio Sesion</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:#e0e0e0;color:#666">0</span></td><td>192.168.100.10</td></tr>
+        <tr class="r0"><td>178</td><td>25/5/2026 02:49</td><td>1</td><td>WardrobeFlow</td><td>Inicio Sesion</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:#e0e0e0;color:#666">0</span></td><td>192.168.100.10</td></tr>
+        <tr class="r3"><td><b>173</b></td><td>25/5/2026 01:45</td><td>1</td><td>Backup y Restauración</td><td>Backup eliminado: W…</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:rgba(180,100,30,0.2);color:var(--rst)">3</span></td><td>192.168.100.10</td></tr>
+        <tr class="r3"><td><b>172</b></td><td>25/5/2026 01:45</td><td>1</td><td>Backup y Restauración</td><td>Archivo eliminado: W…</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:rgba(180,100,30,0.2);color:var(--rst)">3</span></td><td>192.168.100.10</td></tr>
+        <tr class="r3"><td><b>171</b></td><td>25/5/2026 01:45</td><td>1</td><td>Backup y Restauración</td><td>Backup generado: W…</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:rgba(180,100,30,0.2);color:var(--rst)">3</span></td><td>192.168.100.10</td></tr>
+        <tr class="r0"><td>170</td><td>25/5/2026 01:45</td><td>1</td><td>WardrobeFlow</td><td>Inicio Sesion</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:#e0e0e0;color:#666">0</span></td><td>192.168.100.10</td></tr>
+        <tr class="r0"><td>168</td><td>24/5/2026 22:14</td><td>1</td><td>WardrobeFlow</td><td>Inicio Sesion</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:#e0e0e0;color:#666">0</span></td><td>192.168.100.10</td></tr>
+        <tr class="r4"><td><b>167</b></td><td>24/5/2026 22:14</td><td>1</td><td>WardrobeFlow</td><td><b>Intento Fallido Login</b></td><td>Intento fallido #1/3 par…</td><td><span class="cb" style="background:rgba(200,60,60,0.2);color:var(--danger)">4</span></td><td>192.168.100.10</td></tr>
+        <tr class="r0"><td>165</td><td>24/5/2026 22:05</td><td>1</td><td>WardrobeFlow</td><td>Inicio Sesion</td><td>Usuario 'admin' (ID:1)…</td><td><span class="cb" style="background:#e0e0e0;color:#666">0</span></td><td>192.168.100.10</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <b style="color:#555">180 registros</b>
+    <div class="fs2"><div class="fd" style="background:var(--bn);border:0.5px solid #ccc"></div>Ninguno: <span class="fc">124</span></div>
+    <div class="fs2"><div class="fd" style="background:var(--bb)"></div>Baja: <span class="fc">7</span></div>
+    <div class="fs2"><div class="fd" style="background:var(--bm)"></div>Media: <span class="fc">10</span></div>
+    <div class="fs2"><div class="fd" style="background:var(--ba)"></div>Alta: <span class="fc">7</span></div>
+    <div class="fs2"><div class="fd" style="background:var(--bl)"></div>Int.Login: <span class="fc">20</span></div>
+    <div class="fs2"><div class="fd" style="background:var(--br)"></div>Recup.Clave: <span class="fc">11</span></div>
+    <div class="fs2"><div class="fd" style="background:var(--bbq)"></div>Bloqueos: <span class="fc">1</span></div>
+  </div>
+
+  <div class="sbar">
+    <span>admin · <span class="sv">Administrador</span></span>
+    <span>Sesión: <span class="sv">12:03</span></span>
+    <span style="margin-left:auto;opacity:0.4">WardrobeFlow</span>
+  </div>
+</div>
+</div>

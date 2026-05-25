@@ -1,0 +1,243 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.login-wrap {
+  display: flex;
+  min-height: 520px;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  border: 0.5px solid #E8D0DF;
+  background: #fff;
+}
+.login-left {
+  width: 280px;
+  flex-shrink: 0;
+  background: #fff;
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  border-right: 0.5px solid #F0E0EA;
+}
+.login-right {
+  flex: 1;
+  padding: 2.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #FBF0F6;
+  position: relative;
+  overflow: hidden;
+}
+.login-right::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: rgba(123,34,82,0.06);
+}
+.login-right::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; left: -40px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: rgba(123,34,82,0.05);
+}
+.brand-logo { display: flex; align-items: center; gap: 8px; z-index: 2; }
+.brand-logo-icon {
+  width: 34px; height: 34px;
+  background: #7B2252;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+}
+.brand-logo-icon i { font-size: 17px; color: #fff; }
+.brand-name { font-size: 14px; font-weight: 500; color: #2C1A24; }
+.brand-body { z-index: 2; }
+.brand-sub {
+  font-size: 10.5px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: #C9A0BA; margin-bottom: 10px;
+}
+.brand-wordmark {
+  font-size: 28px;
+  font-weight: 500;
+  color: #2C1A24;
+  line-height: 1.2;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.brand-wordmark span { color: #7B2252; }
+.brand-desc { font-size: 12.5px; color: #A08898; line-height: 1.6; }
+.lang-pills { display: flex; gap: 6px; z-index: 2; }
+.lang-pill {
+  font-size: 11px; padding: 4px 10px;
+  border-radius: 20px; border: 0.5px solid #E0C8D8;
+  color: #B08898; cursor: pointer; background: transparent;
+}
+.lang-pill.active { background: #F3EAF0; color: #7B2252; border-color: #C9A0BA; }
+.form-wrap { position: relative; z-index: 2; }
+.login-title { font-size: 22px; font-weight: 500; color: #2C1A24; margin-bottom: 4px; }
+.login-subtitle { font-size: 13px; color: #A08898; margin-bottom: 2rem; }
+.field { margin-bottom: 1.1rem; }
+.field label {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  color: #A08898; margin-bottom: 6px;
+}
+.field label i { font-size: 12px; }
+.field-wrap { position: relative; }
+.field input {
+  width: 100%; height: 42px; padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #E8D0DF;
+  background: #fff;
+  font-size: 14px; color: #2C1A24; outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field input:focus {
+  border-color: #7B2252;
+  box-shadow: 0 0 0 3px rgba(123,34,82,0.09);
+}
+.eye-btn {
+  position: absolute; right: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: #C0A8B8; font-size: 16px; padding: 0;
+}
+.eye-btn:hover { color: #7B2252; }
+.forgot { text-align: right; margin-top: 6px; }
+.forgot a { font-size: 12px; color: #7B2252; text-decoration: none; opacity: 0.8; }
+.forgot a:hover { opacity: 1; text-decoration: underline; }
+.btn-primary {
+  width: 100%; height: 44px; margin-top: 1.5rem;
+  background: #7B2252; color: #fff;
+  border: none; border-radius: 10px;
+  font-size: 14px; font-weight: 500; letter-spacing: 0.04em;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.87; }
+.btn-primary i { font-size: 16px; }
+.divider { display: flex; align-items: center; gap: 12px; margin: 1.25rem 0; }
+.divider hr { flex: 1; border: none; border-top: 0.5px solid #E8D0DF; }
+.divider span { font-size: 11px; color: #C0A8B8; text-transform: uppercase; letter-spacing: 0.06em; }
+.btn-secondary {
+  width: 100%; height: 40px;
+  background: #fff; border: 0.5px solid #E0C8D8;
+  border-radius: 10px; font-size: 13px; color: #A08898;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background 0.15s;
+}
+.btn-secondary:hover { background: #F8EDF4; }
+.btn-secondary i { font-size: 16px; }
+</style>
+
+<div style="padding: 1rem 0;">
+  <div class="login-wrap">
+
+    <div class="login-left">
+      <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;" viewBox="0 0 280 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="230" cy="80" r="110" fill="#F9EEF4"/>
+        <circle cx="-20" cy="420" r="130" fill="#F5E6EF"/>
+        <circle cx="200" cy="300" r="55" fill="none" stroke="#E8C5D8" stroke-width="1"/>
+        <circle cx="60" cy="160" r="30" fill="none" stroke="#EDD5E5" stroke-width="0.8"/>
+        <circle cx="80" cy="80" r="3.5" fill="#E0B8D0"/>
+        <circle cx="110" cy="60" r="2.5" fill="#E8CDE0"/>
+        <circle cx="55" cy="100" r="2" fill="#E8CDE0"/>
+        <circle cx="210" cy="200" r="3" fill="#DDB0CA"/>
+        <circle cx="240" cy="225" r="2" fill="#E8CDE0"/>
+        <circle cx="185" cy="230" r="2.5" fill="#E0B8D0"/>
+        <circle cx="150" cy="380" r="3.5" fill="#DDB0CA"/>
+        <circle cx="175" cy="400" r="2" fill="#E8CDE0"/>
+        <circle cx="125" cy="400" r="2.5" fill="#E0B8D0"/>
+        <path d="M 0 200 Q 80 170 140 220 T 280 200" fill="none" stroke="#EDD5E5" stroke-width="0.8"/>
+        <path d="M 0 320 Q 100 290 180 340 T 280 310" fill="none" stroke="#EDD5E5" stroke-width="0.8"/>
+        <g opacity="0.07">
+          <path d="M140 120 C140 112 148 106 156 110 C160 112 162 116 162 120 L190 148 C196 154 192 164 184 164 L96 164 C88 164 84 154 90 148 Z" fill="#7B2252"/>
+          <line x1="140" y1="120" x2="140" y2="106" stroke="#7B2252" stroke-width="4" stroke-linecap="round"/>
+          <path d="M136 106 C136 100 144 100 144 106" fill="none" stroke="#7B2252" stroke-width="4" stroke-linecap="round"/>
+        </g>
+        <rect x="245" y="370" width="8" height="8" rx="1" transform="rotate(45 249 374)" fill="#E8C5D8"/>
+        <rect x="30" y="280" width="6" height="6" rx="1" transform="rotate(45 33 283)" fill="#EDD5E5"/>
+        <rect x="220" y="450" width="7" height="7" rx="1" transform="rotate(45 223 453)" fill="#E0B8D0"/>
+      </svg>
+
+      <div class="brand-logo">
+        <div class="brand-logo-icon"><i class="ti ti-hanger" aria-hidden="true"></i></div>
+        <span class="brand-name">WardrobeFlow</span>
+      </div>
+
+      <div class="brand-body">
+        <p class="brand-sub">Portal de empleados</p>
+        <p class="brand-wordmark">Wardrobe<span>Flow</span></p>
+        <p class="brand-desc">Acceso seguro y centralizado a todos los módulos del sistema.</p>
+      </div>
+
+      <div class="lang-pills">
+        <button class="lang-pill active">ES</button>
+        <button class="lang-pill">EN</button>
+        <button class="lang-pill">RU</button>
+      </div>
+    </div>
+
+    <div class="login-right">
+      <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;" viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="370" cy="60" r="90" fill="rgba(123,34,82,0.055)"/>
+        <circle cx="30" cy="460" r="100" fill="rgba(123,34,82,0.045)"/>
+        <circle cx="350" cy="300" r="40" fill="none" stroke="rgba(123,34,82,0.1)" stroke-width="0.8"/>
+        <circle cx="60" cy="200" r="25" fill="none" stroke="rgba(123,34,82,0.08)" stroke-width="0.8"/>
+        <circle cx="310" cy="180" r="3" fill="rgba(123,34,82,0.2)"/>
+        <circle cx="340" cy="200" r="2" fill="rgba(123,34,82,0.15)"/>
+        <circle cx="280" cy="195" r="2.5" fill="rgba(123,34,82,0.18)"/>
+        <circle cx="70" cy="350" r="3" fill="rgba(123,34,82,0.18)"/>
+        <circle cx="45" cy="370" r="2" fill="rgba(123,34,82,0.13)"/>
+        <circle cx="90" cy="375" r="2.5" fill="rgba(123,34,82,0.15)"/>
+        <path d="M 0 140 Q 100 120 200 150 T 400 135" fill="none" stroke="rgba(123,34,82,0.07)" stroke-width="1"/>
+        <path d="M 0 390 Q 120 365 220 395 T 400 378" fill="none" stroke="rgba(123,34,82,0.07)" stroke-width="1"/>
+        <rect x="355" y="400" width="7" height="7" rx="1" transform="rotate(45 358 403)" fill="rgba(123,34,82,0.18)"/>
+        <rect x="20" y="100" width="6" height="6" rx="1" transform="rotate(45 23 103)" fill="rgba(123,34,82,0.15)"/>
+      </svg>
+
+      <div class="form-wrap">
+        <div style="margin-bottom:2rem;">
+          <h1 class="login-title">Bienvenido de nuevo</h1>
+          <p class="login-subtitle">Ingresá tus credenciales para continuar</p>
+        </div>
+
+        <div class="field">
+          <label><i class="ti ti-user" aria-hidden="true"></i> Usuario</label>
+          <div class="field-wrap">
+            <input type="text" placeholder="tu.usuario" value="A" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label><i class="ti ti-lock" aria-hidden="true"></i> Contraseña</label>
+          <div class="field-wrap">
+            <input type="password" placeholder="••••••••" style="padding-right:40px;" />
+            <button class="eye-btn" aria-label="Mostrar contraseña"><i class="ti ti-eye"></i></button>
+          </div>
+          <div class="forgot"><a href="#">¿Olvidaste tu contraseña?</a></div>
+        </div>
+
+        <button class="btn-primary">
+          <i class="ti ti-login" aria-hidden="true"></i>
+          Ingresar
+        </button>
+
+        <div class="divider"><hr /><span>o</span><hr /></div>
+
+        <button class="btn-secondary">
+          <i class="ti ti-door-exit" aria-hidden="true"></i>
+          Salir
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
