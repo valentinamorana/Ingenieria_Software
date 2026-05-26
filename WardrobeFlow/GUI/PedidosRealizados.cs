@@ -228,39 +228,26 @@ namespace GUI
         }
 
         /// <summary>
-        /// Calcula el nivel de urgencia según el tiempo transcurrido desde la fecha del pedido.
-        /// 🔴 Urgente: Pendiente > 3 días o Despachado > 5 días
-        /// 🟡 Normal:  1–3 días pendiente
-        /// 🟢 Reciente: menos de 1 día
+        /// Mapea el NivelUrgencia (calculado en BLL) a emoji + texto traducido.
         /// El prefijo emoji queda fijo (lo usa ColorearFilas); el texto se traduce.
         /// </summary>
         private string ComputarUrgencia(BE.Pedido p)
         {
-            if (p.Estado == BE.EstadoPedido.Entregado || p.Estado == BE.EstadoPedido.Cancelado)
-                return "—";
+            var nivel = pedidoBLL.CalcularNivelUrgencia(p);
+            if (nivel == BE.NivelUrgencia.NoAplica) return "—";
 
             var t      = Traductor.ObtenerTraducciones(_idioma);
             string urg = t.ContainsKey("urg.urgente")  ? t["urg.urgente"].Texto  : "Urgente";
             string nor = t.ContainsKey("urg.normal")   ? t["urg.normal"].Texto   : "Normal";
             string rec = t.ContainsKey("urg.reciente") ? t["urg.reciente"].Texto : "Reciente";
 
-            double dias = (DateTime.Now - p.FechaPedido).TotalDays;
-
-            if (p.Estado == BE.EstadoPedido.Pendiente)
+            switch (nivel)
             {
-                if (dias > 3) return $"🔴 {urg}";
-                if (dias > 1) return $"🟡 {nor}";
-                return $"🟢 {rec}";
+                case BE.NivelUrgencia.Urgente:  return $"🔴 {urg}";
+                case BE.NivelUrgencia.Normal:   return $"🟡 {nor}";
+                case BE.NivelUrgencia.Reciente: return $"🟢 {rec}";
+                default:                        return "—";
             }
-            if (p.Estado == BE.EstadoPedido.Despachado)
-            {
-                double diasDespacho = p.FechaDespacho.HasValue
-                    ? (DateTime.Now - p.FechaDespacho.Value).TotalDays : dias;
-                if (diasDespacho > 5) return $"🔴 {urg}";
-                if (diasDespacho > 2) return $"🟡 {nor}";
-                return $"🟢 {rec}";
-            }
-            return "—";
         }
 
         /// <summary>
