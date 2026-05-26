@@ -88,8 +88,10 @@ namespace GUI
                 var bllPlan = new BLL.PlanSuscripcion();
                 _planes = bllPlan.ObtenerActivos();
 
+                var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string sinPlan = t.ContainsKey("combo.cli.sinplan") ? t["combo.cli.sinplan"].Texto : "— Sin plan —";
                 cmbPlan.Items.Clear();
-                cmbPlan.Items.Add("— Sin plan —");
+                cmbPlan.Items.Add(sinPlan);
                 foreach (var p in _planes)
                     cmbPlan.Items.Add($"{p.Nombre}  ({p.LimitePrendas} prendas — ${p.Precio:N2})");
 
@@ -97,7 +99,9 @@ namespace GUI
             }
             catch
             {
-                cmbPlan.Items.Add("— Error al cargar planes —");
+                var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string errPlanes = t.ContainsKey("err.cli.errorplanes") ? t["err.cli.errorplanes"].Texto : "— Error al cargar planes —";
+                cmbPlan.Items.Add(errPlanes);
                 cmbPlan.SelectedIndex = 0;
             }
         }

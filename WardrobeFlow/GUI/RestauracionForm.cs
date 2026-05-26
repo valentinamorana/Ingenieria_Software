@@ -57,9 +57,11 @@ namespace GUI
                 try
                 {
                     Configuracion.RecalcularIntegridadDV();
+                    var tR = Servicios.Multiidioma.Traductor.ObtenerTraducciones(Servicios.Multiidioma.GestorIdioma.IdiomaActual);
+                    string TR(string k, string fb) => tR.ContainsKey(k) ? tR[k].Texto : fb;
                     MessageBox.Show(
-                        "Dígitos verificadores recalculados con éxito.\nYa puede ingresar al sistema.",
-                        "Integridad restaurada",
+                        TR("msg.rest.dvexito",  "Dígitos verificadores recalculados con éxito.\nYa puede ingresar al sistema."),
+                        TR("msg.rest.dvtitulo", "Integridad restaurada"),
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
                     RestauradoExitosamente = true;
@@ -67,8 +69,10 @@ namespace GUI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error al recalcular: {ex.Message}", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    var tE = Servicios.Multiidioma.Traductor.ObtenerTraducciones(Servicios.Multiidioma.GestorIdioma.IdiomaActual);
+                    string titulo = tE.ContainsKey("msg.error.titulo") ? tE["msg.error.titulo"].Texto : "Error";
+                    string fmt    = tE.ContainsKey("msg.rest.errorrecalcular") ? tE["msg.rest.errorrecalcular"].Texto : "Error al recalcular: {0}";
+                    MessageBox.Show(string.Format(fmt, ex.Message), titulo, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -86,9 +90,11 @@ namespace GUI
 
                     if (ofd.ShowDialog() != DialogResult.OK) return;
 
+                    var tC = Servicios.Multiidioma.Traductor.ObtenerTraducciones(Servicios.Multiidioma.GestorIdioma.IdiomaActual);
+                    string TC(string k, string fb) => tC.ContainsKey(k) ? tC[k].Texto : fb;
                     if (MessageBox.Show(
-                        "¿Está seguro? Esta operación sobrescribirá todos los datos actuales y reiniciará la aplicación.",
-                        "Confirmar Restauración",
+                        TC("conf.rest.sobreescribir", "¿Está seguro? Esta operación sobrescribirá todos los datos actuales y reiniciará la aplicación."),
+                        TC("msg.backup.titulorestaura", "Confirmar Restauración"),
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Warning) != DialogResult.Yes) return;
 
@@ -103,8 +109,10 @@ namespace GUI
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error al restaurar: {ex.Message}", "Error",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        var tEx = Servicios.Multiidioma.Traductor.ObtenerTraducciones(Servicios.Multiidioma.GestorIdioma.IdiomaActual);
+                        string titulo2 = tEx.ContainsKey("msg.error.titulo") ? tEx["msg.error.titulo"].Texto : "Error";
+                        string fmt2    = tEx.ContainsKey("msg.rest.errorrestaurar") ? tEx["msg.rest.errorrestaurar"].Texto : "Error al restaurar: {0}";
+                        MessageBox.Show(string.Format(fmt2, ex.Message), titulo2, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }

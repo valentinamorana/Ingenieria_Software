@@ -367,14 +367,16 @@ namespace GUI
 
         private void BtnRecalcularDV_Click(object sender, EventArgs e)
         {
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            string T(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
             try
             {
                 BLL.Configuracion.RecalcularIntegridadDV();
-                MostrarOk("DVH y DVV recalculados correctamente para todos los usuarios.");
+                MostrarOk(T("msg.usr.dvrecalculados", "DVH y DVV recalculados correctamente para todos los usuarios."));
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al recalcular DV: {ex.Message}");
+                MostrarError(string.Format(T("msg.usr.errordv", "Error al recalcular DV: {0}"), ex.Message));
             }
         }
 

@@ -213,7 +213,8 @@ namespace GUI
             try
             {
                 _bllIdioma.ActivarIdioma(_idIdiomaSeleccionado);
-                MostrarOk("Idioma activado.");
+                var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                MostrarOk(t.ContainsKey("msg.idiomas.activado") ? t["msg.idiomas.activado"].Texto : "Idioma activado.");
                 CargarIdiomas();
             }
             catch (Exception ex) { MostrarError(ex.Message); }
@@ -222,16 +223,20 @@ namespace GUI
         private void BtnDesactivar_Click(object sender, EventArgs e)
         {
             if (_idIdiomaSeleccionado == 0) return;
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string T(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
             var confirm = MessageBox.Show(
-                "¿Desactivar este idioma? Los usuarios no podrán seleccionarlo.",
-                "Confirmar",
+                T("conf.idiomas.desactivar", "¿Desactivar este idioma? Los usuarios no podrán seleccionarlo."),
+                T("conf.idiomas.titulo", "Confirmar"),
                 MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
                 MessageBoxDefaultButton.Button2);
             if (confirm != DialogResult.Yes) return;
             try
             {
                 _bllIdioma.DesactivarIdioma(_idIdiomaSeleccionado);
-                MostrarOk("Idioma desactivado.");
+                var t2 = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                MostrarOk(t2.ContainsKey("msg.idiomas.desactivado") ? t2["msg.idiomas.desactivado"].Texto : "Idioma desactivado.");
                 CargarIdiomas();
             }
             catch (Exception ex) { MostrarError(ex.Message); }

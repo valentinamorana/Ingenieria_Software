@@ -219,7 +219,9 @@ namespace GUI
                 try
                 {
                     clienteBLL.Alta(this.Text, form.ClienteEditado);
-                    MostrarOk($"Cliente '{form.ClienteEditado.NombreCompleto}' registrado correctamente.");
+                    var t = Traductor.ObtenerTraducciones(_idioma);
+                    string fmt = t.ContainsKey("msg.cli.registrado") ? t["msg.cli.registrado"].Texto : "Cliente '{0}' registrado correctamente.";
+                    MostrarOk(string.Format(fmt, form.ClienteEditado.NombreCompleto));
                     CargarClientes();
                 }
                 catch (Exception ex)
@@ -243,7 +245,9 @@ namespace GUI
                     form.ClienteEditado.StockUtilizado = cliente.StockUtilizado;
 
                     clienteBLL.Modificar(this.Text, form.ClienteEditado);
-                    MostrarOk($"Cliente '{form.ClienteEditado.NombreCompleto}' actualizado.");
+                    var t = Traductor.ObtenerTraducciones(_idioma);
+                    string fmt = t.ContainsKey("msg.cli.actualizado") ? t["msg.cli.actualizado"].Texto : "Cliente '{0}' actualizado.";
+                    MostrarOk(string.Format(fmt, form.ClienteEditado.NombreCompleto));
                     CargarClientes();
                 }
                 catch (Exception ex)
@@ -258,10 +262,13 @@ namespace GUI
             var cliente = ObtenerClienteSeleccionado();
             if (cliente == null) return;
 
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            string T(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
             var confirmacion = MessageBox.Show(
-                $"¿Dar de baja a {cliente.NombreCompleto} (DNI {cliente.DNI})?\n\n" +
-                "Esta acción no se puede deshacer.",
-                "Confirmar Baja",
+                string.Format(T("conf.baja.cli.msg", "¿Dar de baja a {0} (DNI {1})?\n\nEsta acción no se puede deshacer."),
+                    cliente.NombreCompleto, cliente.DNI),
+                T("conf.baja.cli.titulo", "Confirmar Baja"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning,
                 MessageBoxDefaultButton.Button2);
@@ -271,7 +278,8 @@ namespace GUI
             try
             {
                 clienteBLL.Baja(this.Text, cliente);
-                MostrarOk($"Cliente '{cliente.NombreCompleto}' eliminado.");
+                string fmt = T("msg.cli.eliminado", "Cliente '{0}' eliminado.");
+                MostrarOk(string.Format(fmt, cliente.NombreCompleto));
                 CargarClientes();
             }
             catch (Exception ex)

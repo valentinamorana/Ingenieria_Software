@@ -221,13 +221,14 @@ namespace GUI
             int idOperacion = Convert.ToInt32(row["IdOperacion"]);
             string accion   = row["Accion"].ToString();
 
-            string advertencia =
-                $"¿Restaurar el pedido #{_idPedido} al estado anterior a '{accion}' (op. #{idOperacion})?\n\n" +
-                "⚠ Nota: esta operación modifica el estado del Pedido en la base de datos.\n" +
-                "El estado de las Prendas asociadas NO se revierte automáticamente.\n\n" +
-                "¿Confirmar?";
+            var tH = Traductor.ObtenerTraducciones(_idioma);
+            string TH(string k, string fb) => tH.ContainsKey(k) ? tH[k].Texto : fb;
 
-            if (MessageBox.Show(advertencia, "Confirmar Restauración",
+            string tpl = TH("conf.hist.restaurar.msg",
+                "¿Restaurar el pedido #{0} al estado anterior a '{1}' (op. #{2})?\n\n⚠ Nota: esta operación modifica el estado del Pedido en la base de datos.\nEl estado de las Prendas asociadas NO se revierte automáticamente.\n\n¿Confirmar?");
+            string advertencia = string.Format(tpl, _idPedido, accion, idOperacion);
+
+            if (MessageBox.Show(advertencia, TH("msg.backup.titulorestaura", "Confirmar Restauración"),
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
                     MessageBoxDefaultButton.Button2) != DialogResult.Yes)
                 return;
@@ -235,7 +236,7 @@ namespace GUI
             try
             {
                 _pedidoBLL.RestaurarOperacion(this.Text, _idPedido, idOperacion);
-                MostrarOk($"Pedido #{_idPedido} restaurado correctamente.");
+                MostrarOk(string.Format(TH("msg.hist.restaurado", "Pedido #{0} restaurado correctamente."), _idPedido));
                 Buscar();   // Recargar historial para ver el evento RESTAURAR
             }
             catch (Exception ex)

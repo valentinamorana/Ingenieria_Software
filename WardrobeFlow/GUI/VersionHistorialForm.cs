@@ -83,8 +83,10 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar historial:\n{ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var tErr = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string titErr = tErr.ContainsKey("msg.error.titulo") ? tErr["msg.error.titulo"].Texto : "Error";
+                string fmtErr = tErr.ContainsKey("msg.historial.errorcargar") ? tErr["msg.historial.errorcargar"].Texto : "Error al cargar historial:\n{0}";
+                MessageBox.Show(string.Format(fmtErr, ex.Message), titErr, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -141,8 +143,10 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al restaurar versión:\n{ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var tErr = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string titErr = tErr.ContainsKey("msg.error.titulo") ? tErr["msg.error.titulo"].Texto : "Error";
+                string fmtErr = tErr.ContainsKey("msg.historial.errorrestaur") ? tErr["msg.historial.errorrestaur"].Texto : "Error al restaurar versión:\n{0}";
+                MessageBox.Show(string.Format(fmtErr, ex.Message), titErr, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

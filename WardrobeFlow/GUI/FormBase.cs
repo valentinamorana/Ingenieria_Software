@@ -1,3 +1,4 @@
+using Servicios.Multiidioma;
 using System;
 using System.Drawing;
 using System.IO;
@@ -77,8 +78,9 @@ namespace GUI
         {
             if (MensajeLabel == null)
             {
-                MessageBox.Show($"Error: {msg}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string titulo = t.ContainsKey("msg.error.titulo") ? t["msg.error.titulo"].Texto : "Error";
+                MessageBox.Show(msg, titulo, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             MensajeLabel.ForeColor = Color.DarkRed;

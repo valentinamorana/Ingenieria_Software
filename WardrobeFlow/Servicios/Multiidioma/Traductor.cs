@@ -124,6 +124,7 @@ namespace Servicios.Multiidioma
                 if (s.StartsWith("idiomas"))        return "FormIdiomas";
             }
             if (clave.StartsWith("col.cli.") || clave.StartsWith("msg.cli.") ||
+                clave.StartsWith("conf.baja.cli.") ||
                 clave == "lbl.sinplan" || clave == "lbl.buscar")              return "Clientes";
             if (clave.StartsWith("lbl.cli.")  || clave.StartsWith("combo.cli.") ||
                 clave.StartsWith("err.cli."))                                  return "NuevoCliente";
@@ -141,7 +142,7 @@ namespace Servicios.Multiidioma
             if (clave.StartsWith("err.clave.") || clave == "lbl.nueva.clave" ||
                 clave == "lbl.confirmar.clave" || clave == "btn.confirmar.reset") return "ResetClave";
             if (clave.StartsWith("col.plan.")  || clave.StartsWith("plan.") ||
-                clave.StartsWith("msg.planes.") ||
+                clave.StartsWith("msg.planes.") || clave.StartsWith("conf.planes.") ||
                 clave == "lbl.nuevopla" || clave == "lbl.nombreplan" || clave == "lbl.limiteprendas" ||
                 clave == "lbl.preciomensual" || clave == "btn.guardarplan" || clave == "btn.limpiar" ||
                 clave == "lbl.acciones" || clave == "btn.desactivar" || clave == "btn.activar" ||
@@ -180,6 +181,7 @@ namespace Servicios.Multiidioma
                 clave == "lbl.detallepedido" || clave == "lbl.ped.detalletitulo") return "PedidosRealizados";
             if (clave.StartsWith("lbl.hist.") || clave.StartsWith("combo.hist.") ||
                 clave.StartsWith("btn.hist.") || clave.StartsWith("col.hist.") ||
+                clave.StartsWith("msg.hist.") || clave.StartsWith("conf.hist.") ||
                 clave.StartsWith("accion.")   || clave == "err.hist.restaurar") return "Historial";
             if (clave.StartsWith("notif.") || clave.StartsWith("btn.copiar.") ||
                 clave == "btn.copiado")                                         return "Notificacion";
@@ -187,13 +189,15 @@ namespace Servicios.Multiidioma
                 clave.StartsWith("msg.recup.") || clave == "btn.enviar.solicitud") return "RecuperarClave";
             if (clave.StartsWith("lbl.permisos.") || clave.StartsWith("btn.permisos.") ||
                 clave.StartsWith("msg.permisos.") || clave.StartsWith("perm."))    return "GestorPermisos";
-            if (clave.StartsWith("lbl.idiomas.")  || clave.StartsWith("btn.idiomas."))  return "FormIdiomas";
+            if (clave.StartsWith("lbl.idiomas.")  || clave.StartsWith("btn.idiomas.") ||
+                clave.StartsWith("msg.idiomas.")  || clave.StartsWith("conf.idiomas."))  return "FormIdiomas";
             if (clave == "frm.backup"    || clave.StartsWith("btn.backup.") ||
                 clave.StartsWith("col.backup.") || clave.StartsWith("msg.backup.") ||
                 clave == "lbl.backup.info" || clave == "lbl.backup.ubicacion" ||
                 clave == "mnu.backup")                                          return "Backup";
             if (clave == "frm.restauracion" || clave.StartsWith("lbl.rest.") ||
-                clave.StartsWith("btn.rest."))                                  return "Restauracion";
+                clave.StartsWith("btn.rest.") || clave.StartsWith("msg.rest.") ||
+                clave.StartsWith("conf.rest."))                                  return "Restauracion";
             if (clave == "frm.dashboard" || clave.StartsWith("dash."))           return "Dashboard";
             if (clave.StartsWith("rpt."))                                       return "ReporteJornada";
             if (clave == "frm.historialusr" || clave.StartsWith("lbl.ver.") ||
@@ -773,6 +777,48 @@ namespace Servicios.Multiidioma
             { "msg.historial.atencion",      "Atención"                                                                  },
             { "msg.historial.confirmar",     "¿Restaurar al usuario '{0}' al estado del {1}?\n\nDetalle del snapshot: {2}\n\nEsta acción es reversible (se graba un nuevo snapshot antes de restaurar)." },
             { "msg.historial.restaurado",    "Versión restaurada correctamente."                                         },
+            // Clientes — operación y confirmación de baja
+            { "msg.cli.registrado",          "Cliente '{0}' registrado correctamente."                                  },
+            { "msg.cli.actualizado",         "Cliente '{0}' actualizado."                                               },
+            { "msg.cli.eliminado",           "Cliente '{0}' eliminado."                                                 },
+            { "conf.baja.cli.msg",           "¿Dar de baja a {0} (DNI {1})?\n\nEsta acción no se puede deshacer."      },
+            { "conf.baja.cli.titulo",        "Confirmar Baja"                                                           },
+            { "err.cli.errorplanes",         "— Error al cargar planes —"                                              },
+            // Planes — operación y confirmaciones
+            { "msg.planes.creado",           "Plan '{0}' creado."                                                       },
+            { "msg.planes.actualizado",      "Plan '{0}' actualizado."                                                  },
+            { "msg.planes.desactivado",      "Plan '{0}' desactivado."                                                  },
+            { "msg.planes.reactivado",       "Plan '{0}' reactivado."                                                   },
+            { "conf.planes.desat.msg",       "¿Desactivar el plan '{0}'?\n\nLos clientes con este plan no serán afectados." },
+            { "conf.planes.desat.tit",       "Confirmar Desactivación"                                                  },
+            { "conf.planes.act.msg",         "¿Reactivar el plan '{0}'?\n\nEl plan volverá a estar disponible para nuevas suscripciones." },
+            { "conf.planes.act.tit",         "Confirmar Activación"                                                     },
+            // FormIdiomas — mensajes
+            { "msg.idiomas.activado",        "Idioma activado."                                                         },
+            { "msg.idiomas.desactivado",     "Idioma desactivado."                                                      },
+            { "conf.idiomas.desactivar",     "¿Desactivar este idioma? Los usuarios no podrán seleccionarlo."          },
+            { "conf.idiomas.titulo",         "Confirmar"                                                                 },
+            // PedidoHistorialForm — restauración
+            { "msg.hist.restaurado",         "Pedido #{0} restaurado correctamente."                                    },
+            { "conf.hist.restaurar.msg",     "¿Restaurar el pedido #{0} al estado anterior a '{1}' (op. #{2})?\n\n⚠ Nota: esta operación modifica el estado del Pedido en la base de datos.\nEl estado de las Prendas asociadas NO se revierte automáticamente.\n\n¿Confirmar?" },
+            // Usuarios — DV
+            { "msg.usr.dvrecalculados",      "DVH y DVV recalculados correctamente para todos los usuarios."            },
+            { "msg.usr.errordv",             "Error al recalcular DV: {0}"                                              },
+            // RestauracionForm — mensajes adicionales
+            { "msg.rest.dvexito",            "Dígitos verificadores recalculados con éxito.\nYa puede ingresar al sistema." },
+            { "msg.rest.dvtitulo",           "Integridad restaurada"                                                    },
+            { "conf.rest.sobreescribir",     "¿Está seguro? Esta operación sobrescribirá todos los datos actuales y reiniciará la aplicación." },
+            { "msg.rest.errorrecalcular",    "Error al recalcular: {0}"                                                 },
+            { "msg.rest.errorrestaurar",     "Error al restaurar: {0}"                                                  },
+            // BackupForm — errores en catch
+            { "msg.backup.errorgenerar",     "Error al generar copia de seguridad:\n{0}"                               },
+            { "msg.backup.erroreliminar",    "Error al eliminar:\n{0}"                                                  },
+            { "msg.backup.errorrestaurar",   "Error al restaurar:\n{0}"                                                 },
+            // VersionHistorialForm — errores en catch
+            { "msg.historial.errorcargar",   "Error al cargar historial:\n{0}"                                          },
+            { "msg.historial.errorrestaur",  "Error al restaurar versión:\n{0}"                                         },
+            // Título genérico de error
+            { "msg.error.titulo",            "Error"                                                                     },
         });
 
         // ── Diccionario English (EN) ──────────────────────────────────────────
@@ -1339,6 +1385,48 @@ namespace Servicios.Multiidioma
             { "msg.historial.atencion",      "Attention"                                                                 },
             { "msg.historial.confirmar",     "Restore user '{0}' to the state from {1}?\n\nSnapshot detail: {2}\n\nThis action is reversible (a new snapshot is saved before restoring)." },
             { "msg.historial.restaurado",    "Version restored successfully."                                            },
+            // Clients — operation and deletion confirmation
+            { "msg.cli.registrado",          "Client '{0}' registered successfully."                                    },
+            { "msg.cli.actualizado",         "Client '{0}' updated."                                                    },
+            { "msg.cli.eliminado",           "Client '{0}' deleted."                                                    },
+            { "conf.baja.cli.msg",           "Deactivate {0} (DNI {1})?\n\nThis action cannot be undone."              },
+            { "conf.baja.cli.titulo",        "Confirm Deletion"                                                          },
+            { "err.cli.errorplanes",         "— Error loading plans —"                                                  },
+            // Plans — operation and confirmations
+            { "msg.planes.creado",           "Plan '{0}' created."                                                      },
+            { "msg.planes.actualizado",      "Plan '{0}' updated."                                                      },
+            { "msg.planes.desactivado",      "Plan '{0}' deactivated."                                                  },
+            { "msg.planes.reactivado",       "Plan '{0}' reactivated."                                                  },
+            { "conf.planes.desat.msg",       "Deactivate plan '{0}'?\n\nExisting clients with this plan will not be affected." },
+            { "conf.planes.desat.tit",       "Confirm Deactivation"                                                     },
+            { "conf.planes.act.msg",         "Reactivate plan '{0}'?\n\nThe plan will be available for new subscriptions again." },
+            { "conf.planes.act.tit",         "Confirm Activation"                                                       },
+            // Language management — messages
+            { "msg.idiomas.activado",        "Language activated."                                                       },
+            { "msg.idiomas.desactivado",     "Language deactivated."                                                     },
+            { "conf.idiomas.desactivar",     "Deactivate this language? Users will no longer be able to select it."    },
+            { "conf.idiomas.titulo",         "Confirm"                                                                   },
+            // Order history — restore
+            { "msg.hist.restaurado",         "Order #{0} successfully restored."                                        },
+            { "conf.hist.restaurar.msg",     "Restore order #{0} to the state before '{1}' (op. #{2})?\n\n⚠ Note: this operation modifies the Order status in the database.\nThe status of associated Garments is NOT automatically reverted.\n\nConfirm?" },
+            // Users — DV
+            { "msg.usr.dvrecalculados",      "DVH and DVV successfully recalculated for all users."                     },
+            { "msg.usr.errordv",             "Error recalculating DV: {0}"                                              },
+            // RestauracionForm — additional messages
+            { "msg.rest.dvexito",            "Check digits successfully recalculated.\nYou can now log in to the system." },
+            { "msg.rest.dvtitulo",           "Integrity Restored"                                                        },
+            { "conf.rest.sobreescribir",     "Are you sure? This operation will overwrite all current data and restart the application." },
+            { "msg.rest.errorrecalcular",    "Error recalculating: {0}"                                                  },
+            { "msg.rest.errorrestaurar",     "Error restoring: {0}"                                                      },
+            // BackupForm — catch errors
+            { "msg.backup.errorgenerar",     "Error creating backup:\n{0}"                                              },
+            { "msg.backup.erroreliminar",    "Error deleting:\n{0}"                                                      },
+            { "msg.backup.errorrestaurar",   "Error restoring:\n{0}"                                                     },
+            // VersionHistorialForm — catch errors
+            { "msg.historial.errorcargar",   "Error loading history:\n{0}"                                              },
+            { "msg.historial.errorrestaur",  "Error restoring version:\n{0}"                                            },
+            // Generic error title
+            { "msg.error.titulo",            "Error"                                                                     },
         });
 
         // ── Diccionario Русский (RU) ──────────────────────────────────────────
@@ -1905,6 +1993,48 @@ namespace Servicios.Multiidioma
             { "msg.historial.atencion",      "Внимание"                                                                  },
             { "msg.historial.confirmar",     "Восстановить пользователя '{0}' к состоянию от {1}?\n\nДетали снимка: {2}\n\nЭто действие обратимо (новый снимок сохраняется перед восстановлением)." },
             { "msg.historial.restaurado",    "Версия успешно восстановлена."                                             },
+            // Клиенты — операция и подтверждение удаления
+            { "msg.cli.registrado",          "Клиент '{0}' успешно зарегистрирован."                                    },
+            { "msg.cli.actualizado",         "Клиент '{0}' обновлён."                                                   },
+            { "msg.cli.eliminado",           "Клиент '{0}' удалён."                                                     },
+            { "conf.baja.cli.msg",           "Удалить клиента {0} (ИНН {1})?\n\nЭто действие нельзя отменить."         },
+            { "conf.baja.cli.titulo",        "Подтверждение удаления"                                                   },
+            { "err.cli.errorplanes",         "— Ошибка загрузки планов —"                                              },
+            // Планы — операция и подтверждения
+            { "msg.planes.creado",           "План '{0}' создан."                                                       },
+            { "msg.planes.actualizado",      "План '{0}' обновлён."                                                     },
+            { "msg.planes.desactivado",      "План '{0}' деактивирован."                                                },
+            { "msg.planes.reactivado",       "План '{0}' реактивирован."                                                },
+            { "conf.planes.desat.msg",       "Деактивировать план '{0}'?\n\nКлиенты с этим планом не пострадают."      },
+            { "conf.planes.desat.tit",       "Подтверждение деактивации"                                               },
+            { "conf.planes.act.msg",         "Реактивировать план '{0}'?\n\nПлан снова станет доступен для новых подписок." },
+            { "conf.planes.act.tit",         "Подтверждение активации"                                                  },
+            // Управление языками — сообщения
+            { "msg.idiomas.activado",        "Язык активирован."                                                        },
+            { "msg.idiomas.desactivado",     "Язык деактивирован."                                                      },
+            { "conf.idiomas.desactivar",     "Деактивировать этот язык? Пользователи не смогут его выбрать."           },
+            { "conf.idiomas.titulo",         "Подтверждение"                                                            },
+            // История заказов — восстановление
+            { "msg.hist.restaurado",         "Заказ #{0} успешно восстановлен."                                         },
+            { "conf.hist.restaurar.msg",     "Восстановить заказ #{0} к состоянию до '{1}' (оп. #{2})?\n\n⚠ Примечание: эта операция изменяет статус Заказа в базе данных.\nСтатус связанных Предметов одежды НЕ откатывается автоматически.\n\nПодтвердить?" },
+            // Пользователи — ЦК
+            { "msg.usr.dvrecalculados",      "DVH и DVV успешно пересчитаны для всех пользователей."                   },
+            { "msg.usr.errordv",             "Ошибка при пересчёте ЦК: {0}"                                            },
+            // RestauracionForm — дополнительные сообщения
+            { "msg.rest.dvexito",            "Контрольные цифры успешно пересчитаны.\nТеперь вы можете войти в систему." },
+            { "msg.rest.dvtitulo",           "Целостность восстановлена"                                                },
+            { "conf.rest.sobreescribir",     "Вы уверены? Эта операция перезапишет все текущие данные и перезапустит приложение." },
+            { "msg.rest.errorrecalcular",    "Ошибка при пересчёте: {0}"                                               },
+            { "msg.rest.errorrestaurar",     "Ошибка при восстановлении: {0}"                                          },
+            // BackupForm — ошибки в catch
+            { "msg.backup.errorgenerar",     "Ошибка при создании резервной копии:\n{0}"                               },
+            { "msg.backup.erroreliminar",    "Ошибка при удалении:\n{0}"                                               },
+            { "msg.backup.errorrestaurar",   "Ошибка при восстановлении:\n{0}"                                         },
+            // VersionHistorialForm — ошибки в catch
+            { "msg.historial.errorcargar",   "Ошибка загрузки истории:\n{0}"                                           },
+            { "msg.historial.errorrestaur",  "Ошибка восстановления версии:\n{0}"                                      },
+            // Заголовок общей ошибки
+            { "msg.error.titulo",            "Ошибка"                                                                   },
         });
 
         // ── Constructor de diccionario ────────────────────────────────────────

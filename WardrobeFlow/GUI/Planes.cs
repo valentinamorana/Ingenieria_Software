@@ -233,15 +233,18 @@ namespace GUI
                     Estado        = true
                 };
 
+                var t = Traductor.ObtenerTraducciones(_idioma);
+                string T(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
                 if (_idEnEdicion == 0)
                 {
                     planBLL.Alta(plan);
-                    MostrarOk($"Plan '{plan.Nombre}' creado.");
+                    MostrarOk(string.Format(T("msg.planes.creado", "Plan '{0}' creado."), plan.Nombre));
                 }
                 else
                 {
                     planBLL.Modificar(plan);
-                    MostrarOk($"Plan '{plan.Nombre}' actualizado.");
+                    MostrarOk(string.Format(T("msg.planes.actualizado", "Plan '{0}' actualizado."), plan.Nombre));
                 }
 
                 LimpiarFormulario();
@@ -260,9 +263,12 @@ namespace GUI
             var plan = _planes.Find(p => p.IdPlan == id);
             if (plan == null) return;
 
+            var td = Traductor.ObtenerTraducciones(_idioma);
+            string Td(string k, string fb) => td.ContainsKey(k) ? td[k].Texto : fb;
+
             var confirm = MessageBox.Show(
-                $"¿Desactivar el plan '{plan.Nombre}'?\n\nLos clientes con este plan no serán afectados.",
-                "Confirmar Desactivación",
+                string.Format(Td("conf.planes.desat.msg", "¿Desactivar el plan '{0}'?\n\nLos clientes con este plan no serán afectados."), plan.Nombre),
+                Td("conf.planes.desat.tit", "Confirmar Desactivación"),
                 MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
                 MessageBoxDefaultButton.Button2);
 
@@ -271,7 +277,7 @@ namespace GUI
             try
             {
                 planBLL.Desactivar(id);
-                MostrarOk($"Plan '{plan.Nombre}' desactivado.");
+                MostrarOk(string.Format(Td("msg.planes.desactivado", "Plan '{0}' desactivado."), plan.Nombre));
                 LimpiarFormulario();
                 CargarPlanes();
             }
@@ -285,9 +291,12 @@ namespace GUI
             var plan = _planes.Find(p => p.IdPlan == id);
             if (plan == null) return;
 
+            var ta = Traductor.ObtenerTraducciones(_idioma);
+            string Ta(string k, string fb) => ta.ContainsKey(k) ? ta[k].Texto : fb;
+
             var confirm = MessageBox.Show(
-                $"¿Reactivar el plan '{plan.Nombre}'?\n\nEl plan volverá a estar disponible para nuevas suscripciones.",
-                "Confirmar Activación",
+                string.Format(Ta("conf.planes.act.msg", "¿Reactivar el plan '{0}'?\n\nEl plan volverá a estar disponible para nuevas suscripciones."), plan.Nombre),
+                Ta("conf.planes.act.tit", "Confirmar Activación"),
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button1);
 
@@ -296,7 +305,7 @@ namespace GUI
             try
             {
                 planBLL.Activar(id);
-                MostrarOk($"Plan '{plan.Nombre}' reactivado.");
+                MostrarOk(string.Format(Ta("msg.planes.reactivado", "Plan '{0}' reactivado."), plan.Nombre));
                 LimpiarFormulario();
                 CargarPlanes();
             }
