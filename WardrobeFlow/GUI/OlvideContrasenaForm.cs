@@ -113,7 +113,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al verificar el usuario: {ex.Message}");
+                MostrarError(string.Format(T_o("err.recup.verificar", "Error al verificar el usuario: {0}"), ex.Message));
             }
         }
 

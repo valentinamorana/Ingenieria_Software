@@ -598,6 +598,7 @@ namespace Servicios.Multiidioma
             { "err.recup.nousername",    "Ingresá tu nombre de usuario."                          },
             { "err.recup.nousuario",     "No se encontró el usuario '{0}'.\nVerificá que escribiste tu nombre correctamente." },
             { "msg.recup.exito",         "Usuario '{0}' encontrado.\nContacta al administrador para que resetee\ntu contrasena desde Administrar -> Usuarios." },
+            { "err.recup.verificar",     "Error al verificar el usuario: {0}"                    },
             // Usuarios — mensajes de operación
             { "msg.usr.creado",          "Usuario '{0}' [{1}] creado correctamente."              },
             { "err.usr.selecciona",      "Seleccioná un usuario de la lista."                     },
@@ -1013,6 +1014,11 @@ namespace Servicios.Multiidioma
             { "lbl.recup.desc",       "Enter your username. An administrator\ncan reset your password from the system." },
             { "lbl.recup.usuario",    "Username:"                          },
             { "btn.enviar.solicitud", "Submit request"                     },
+            // Password recovery — messages
+            { "err.recup.nousername",    "Enter your username."                                                           },
+            { "err.recup.nousuario",     "User '{0}' not found.\nCheck that you typed your username correctly."          },
+            { "msg.recup.exito",         "User '{0}' found.\nContact the administrator to reset\nyour password from Manage → Users." },
+            { "err.recup.verificar",     "Error verifying user: {0}"                                                     },
             // Order detail — garment columns
             { "col.det.prenda",       "Garment"                            },
             // PrendaForm — titles and labels
@@ -1576,6 +1582,11 @@ namespace Servicios.Multiidioma
             { "lbl.recup.desc",       "Введите имя пользователя. Администратор\nсможет сбросить ваш пароль через систему." },
             { "lbl.recup.usuario",    "Имя пользователя:"                  },
             { "btn.enviar.solicitud", "Отправить запрос"                   },
+            // Восстановление пароля — сообщения
+            { "err.recup.nousername",    "Введите имя пользователя."                                                      },
+            { "err.recup.nousuario",     "Пользователь '{0}' не найден.\nПроверьте правильность написания имени."        },
+            { "msg.recup.exito",         "Пользователь '{0}' найден.\nОбратитесь к администратору для сброса\nпароля через Управление → Пользователи." },
+            { "err.recup.verificar",     "Ошибка при проверке пользователя: {0}"                                         },
             // Детали заказа — столбцы одежды
             { "col.det.prenda",       "Одежда"                             },
             // PrendaForm — заголовки и метки
