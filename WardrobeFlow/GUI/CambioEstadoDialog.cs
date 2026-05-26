@@ -21,6 +21,7 @@ namespace GUI
         {
             InitializeComponent();
             _opciones = opciones;
+            try { string ico = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (System.IO.File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
 
             var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
             string T_ce(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;

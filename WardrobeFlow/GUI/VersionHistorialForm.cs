@@ -105,10 +105,15 @@ namespace GUI
 
         private void btnRestaurar_Click(object sender, EventArgs e)
         {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string T(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
             if (dgv.CurrentRow == null)
             {
-                MessageBox.Show("Seleccioná una versión de la grilla.",
-                    "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(
+                    T("msg.historial.sinseleccion", "Seleccioná una versión de la grilla."),
+                    T("msg.historial.atencion",     "Atención"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -116,19 +121,21 @@ namespace GUI
             var ver = _versiones.Find(v => v.Id == idVersion);
             if (ver == null) return;
 
-            string msg = $"¿Restaurar al usuario '{ver.UsernameSnapshot}' al estado del {ver.Fecha:dd/MM/yyyy HH:mm}?\n\n" +
-                         $"Detalle del snapshot: {ver.Detalle}\n\n" +
-                         "Esta acción es reversible (se graba un nuevo snapshot antes de restaurar).";
+            string tpl = T("msg.historial.confirmar",
+                "¿Restaurar al usuario '{0}' al estado del {1}?\n\nDetalle del snapshot: {2}\n\nEsta acción es reversible (se graba un nuevo snapshot antes de restaurar).");
+            string msg = string.Format(tpl, ver.UsernameSnapshot, ver.Fecha.ToString("dd/MM/yyyy HH:mm"), ver.Detalle);
 
-            if (MessageBox.Show(msg, "Confirmar Restauración",
+            if (MessageBox.Show(msg, T("msg.backup.titulorestaura", "Confirmar Restauración"),
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 return;
 
             try
             {
                 _bll.RestaurarVersion(this.Text, idVersion);
-                MessageBox.Show("Versión restaurada correctamente.",
-                    "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(
+                    T("msg.historial.restaurado",  "Versión restaurada correctamente."),
+                    T("rpt.dlg.exito.titulo",       "Éxito"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 btnCargar_Click(null, EventArgs.Empty);
             }

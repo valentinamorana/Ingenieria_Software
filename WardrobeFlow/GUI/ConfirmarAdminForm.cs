@@ -1,4 +1,5 @@
 using BLL;
+using Servicios.Multiidioma;
 using System;
 using System.Windows.Forms;
 
@@ -14,15 +15,19 @@ namespace GUI
         {
             InitializeComponent();
             Autorizado = false;
+            try { string ico = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (System.IO.File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
         }
 
         private void btnConfirmar_Click(object sender, EventArgs e)
         {
             lblError.Text = string.Empty;
 
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string T(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
             if (string.IsNullOrWhiteSpace(txtUsuario.Text) || string.IsNullOrWhiteSpace(txtClave.Text))
             {
-                lblError.Text = "Ingrese usuario y contraseña.";
+                lblError.Text = T("msg.confirmar.vacio", "Ingrese usuario y contraseña.");
                 return;
             }
 
@@ -30,7 +35,7 @@ namespace GUI
             {
                 if (!_usuarioBLL.ValidarCredencialesAdmin(txtUsuario.Text.Trim(), txtClave.Text))
                 {
-                    lblError.Text = "Credenciales inválidas o el usuario no es Administrador.";
+                    lblError.Text = T("msg.confirmar.invalido", "Credenciales inválidas o el usuario no es Administrador.");
                     txtClave.Clear();
                     txtClave.Focus();
                     return;

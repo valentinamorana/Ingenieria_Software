@@ -20,6 +20,7 @@ namespace GUI
 
         private void RestauracionForm_Load(object sender, EventArgs e)
         {
+            try { string ico = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (System.IO.File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
             GestorIdioma.SuscribirObservador(this);
             Traducir(GestorIdioma.IdiomaActual);
             txtDetalle.Text = _detalle;
@@ -94,8 +95,10 @@ namespace GUI
                     try
                     {
                         new Backup().RestaurarBackup("RestauracionIntegridad", ofd.FileName);
-                        MessageBox.Show("Base de datos restaurada. La aplicación se reiniciará.",
-                            "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        var t2 = Servicios.Multiidioma.Traductor.ObtenerTraducciones(Servicios.Multiidioma.GestorIdioma.IdiomaActual);
+                        string T2(string k, string fb) => t2.ContainsKey(k) ? t2[k].Texto : fb;
+                        MessageBox.Show(T2("msg.backup.restauradaexito", "Base de datos restaurada con éxito.\nLa aplicación se reiniciará."),
+                            T2("rpt.dlg.exito.titulo", "Éxito"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                         Application.Restart();
                     }
                     catch (Exception ex)

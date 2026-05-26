@@ -32,6 +32,7 @@ namespace GUI
         public ClienteForm(BE.Cliente cliente)
         {
             InitializeComponent();
+            try { string ico = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (System.IO.File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
 
             _esEdicion       = cliente != null;
             _clienteOriginal = cliente;

@@ -39,6 +39,7 @@ namespace GUI
         public ResetClaveDialog(string username)
         {
             InitializeComponent();
+            try { string ico = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (System.IO.File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
 
             // ── Traducciones ──────────────────────────────────────────────────
             var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);

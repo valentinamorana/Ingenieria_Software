@@ -198,7 +198,7 @@ namespace Servicios.Multiidioma
             if (clave.StartsWith("rpt."))                                       return "ReporteJornada";
             if (clave == "frm.historialusr" || clave.StartsWith("lbl.ver.") ||
                 clave.StartsWith("btn.ver.")  || clave.StartsWith("col.ver.") ||
-                clave == "mnu.historialusr")                                   return "VersionHistorial";
+                clave.StartsWith("msg.historial.") || clave == "mnu.historialusr") return "VersionHistorial";
             if (clave == "lbl.usuario"    || clave == "lbl.contrasena"  ||
                 clave == "btn.ingresar"   || clave == "btn.salir"       ||
                 clave == "lnk.olvide"     || clave == "lbl.idioma"      ||
@@ -764,6 +764,14 @@ namespace Servicios.Multiidioma
             { "col.ver.detalle",         "Detalle"                                                },
             { "col.ver.estado",          "Estado"                                                 },
             { "mnu.historialusr",        "Historial de Cambios"                                   },
+            // Mensajes ConfirmarAdminForm
+            { "msg.confirmar.vacio",         "Ingrese usuario y contraseña."                                              },
+            { "msg.confirmar.invalido",      "Credenciales inválidas o el usuario no es Administrador."                  },
+            // Mensajes VersionHistorialForm
+            { "msg.historial.sinseleccion",  "Seleccioná una versión de la grilla."                                      },
+            { "msg.historial.atencion",      "Atención"                                                                  },
+            { "msg.historial.confirmar",     "¿Restaurar al usuario '{0}' al estado del {1}?\n\nDetalle del snapshot: {2}\n\nEsta acción es reversible (se graba un nuevo snapshot antes de restaurar)." },
+            { "msg.historial.restaurado",    "Versión restaurada correctamente."                                         },
         });
 
         // ── Diccionario English (EN) ──────────────────────────────────────────
@@ -1317,6 +1325,14 @@ namespace Servicios.Multiidioma
             { "col.ver.detalle",         "Detail"                                                 },
             { "col.ver.estado",          "Status"                                                 },
             { "mnu.historialusr",        "Change History"                                         },
+            // ConfirmarAdmin messages
+            { "msg.confirmar.vacio",         "Enter username and password."                                               },
+            { "msg.confirmar.invalido",      "Invalid credentials or the user is not an Administrator."                  },
+            // VersionHistorial messages
+            { "msg.historial.sinseleccion",  "Select a version from the grid."                                           },
+            { "msg.historial.atencion",      "Attention"                                                                 },
+            { "msg.historial.confirmar",     "Restore user '{0}' to the state from {1}?\n\nSnapshot detail: {2}\n\nThis action is reversible (a new snapshot is saved before restoring)." },
+            { "msg.historial.restaurado",    "Version restored successfully."                                            },
         });
 
         // ── Diccionario Русский (RU) ──────────────────────────────────────────
@@ -1870,6 +1886,14 @@ namespace Servicios.Multiidioma
             { "col.ver.detalle",         "Детали"                                                 },
             { "col.ver.estado",          "Состояние"                                              },
             { "mnu.historialusr",        "История изменений"                                      },
+            // Сообщения ConfirmarAdmin
+            { "msg.confirmar.vacio",         "Введите имя пользователя и пароль."                                        },
+            { "msg.confirmar.invalido",      "Неверные учётные данные или пользователь не является Администратором."    },
+            // Сообщения VersionHistorial
+            { "msg.historial.sinseleccion",  "Выберите версию из таблицы."                                               },
+            { "msg.historial.atencion",      "Внимание"                                                                  },
+            { "msg.historial.confirmar",     "Восстановить пользователя '{0}' к состоянию от {1}?\n\nДетали снимка: {2}\n\nЭто действие обратимо (новый снимок сохраняется перед восстановлением)." },
+            { "msg.historial.restaurado",    "Версия успешно восстановлена."                                             },
         });
 
         // ── Constructor de diccionario ────────────────────────────────────────
