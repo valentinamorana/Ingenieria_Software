@@ -355,7 +355,7 @@ namespace GUI
                         p.Categoria ?? "—",
                         p.Talle     ?? "—",
                         p.Color     ?? "—",
-                        p.Estado.ToString());
+                        EstadoPrendaLabel(p.Estado));
 
                 dgvDetalle.DataSource = tabla;
                 TraducirHeadersDetalle();
@@ -542,6 +542,19 @@ namespace GUI
                 case BE.EstadoPedido.Despachado: return t.ContainsKey("est.despachado") ? t["est.despachado"].Texto : "Despachado";
                 case BE.EstadoPedido.Entregado:  return t.ContainsKey("est.entregado")  ? t["est.entregado"].Texto  : "Entregado";
                 case BE.EstadoPedido.Cancelado:  return t.ContainsKey("est.cancelado")  ? t["est.cancelado"].Texto  : "Cancelado";
+                default: return estado.ToString();
+            }
+        }
+
+        private string EstadoPrendaLabel(BE.EstadoPrenda estado)
+        {
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            switch (estado)
+            {
+                case BE.EstadoPrenda.Disponible:  return t.ContainsKey("prenda.disponible")  ? t["prenda.disponible"].Texto  : "Disponible";
+                case BE.EstadoPrenda.EnUso:       return t.ContainsKey("prenda.enuso")       ? t["prenda.enuso"].Texto       : "En Uso";
+                case BE.EstadoPrenda.EnLimpieza:  return t.ContainsKey("prenda.enlimpieza")  ? t["prenda.enlimpieza"].Texto  : "En Limpieza";
+                case BE.EstadoPrenda.Baja:        return t.ContainsKey("prenda.baja")        ? t["prenda.baja"].Texto        : "Baja";
                 default: return estado.ToString();
             }
         }
