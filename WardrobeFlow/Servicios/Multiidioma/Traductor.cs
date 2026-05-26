@@ -117,6 +117,7 @@ namespace Servicios.Multiidioma
                 if (s.StartsWith("nuevocliente") || s.StartsWith("editarcliente")) return "NuevoCliente";
                 if (s.StartsWith("nuevaprenda")  || s.StartsWith("editarprenda"))  return "NuevaPrenda";
                 if (s.StartsWith("nuevopedido"))    return "NuevoPedido";
+                if (s.StartsWith("mantenimiento")) return "MantenimientoHistorial";
                 if (s.StartsWith("resetclave"))     return "ResetClave";
                 if (s.StartsWith("cambioestado"))   return "CambioEstado";
                 if (s.StartsWith("olvidepass"))     return "RecuperarClave";
@@ -173,7 +174,12 @@ namespace Servicios.Multiidioma
                 clave == "btn.siguiente" || clave == "btn.volver" ||
                 clave == "btn.confirmar.pedido" || clave == "btn.procesando" ||
                 clave == "lbl.ped.infoplan" || clave == "err.ped.sinplan" ||
-                clave == "err.ped.sinprendas")                                 return "NuevoPedido";
+                clave == "err.ped.sinprendas" || clave == "err.ped.suscvencida" ||
+                clave.StartsWith("lbl.ped.res.") ||
+                clave == "conf.ped.titulo" || clave == "conf.ped.msg")         return "NuevoPedido";
+            if (clave == "frm.mantenimiento" || clave == "btn.mantenimiento" ||
+                clave.StartsWith("col.mant.")  || clave.StartsWith("mant.")  ||
+                clave.StartsWith("msg.mant."))                                 return "MantenimientoHistorial";
             if (clave.StartsWith("col.ped.") || clave.StartsWith("urg.") ||
                 clave.StartsWith("est.")     || clave.StartsWith("col.det.") ||
                 clave == "btn.despachar" || clave == "btn.entregado" ||
@@ -819,6 +825,32 @@ namespace Servicios.Multiidioma
             { "msg.historial.errorrestaur",  "Error al restaurar versión:\n{0}"                                         },
             // Título genérico de error
             { "msg.error.titulo",            "Error"                                                                     },
+            // Clientes — fecha de vencimiento de suscripción
+            { "lbl.cli.vencimiento",         "Fecha de Vencimiento"                                                      },
+            { "col.cli.vencimiento",         "Vencimiento"                                                               },
+            { "msg.cli.sinvenc",             "Sin vencimiento"                                                           },
+            { "msg.cli.vencido",             "Vencido"                                                                   },
+            { "msg.cli.vigente",             "Vigente"                                                                   },
+            // NuevoPedido — suscripción vencida + resumen traducido
+            { "err.ped.suscvencida",         "⚠ La suscripción de {0} venció el {1}.\nRenovar en el módulo de Clientes." },
+            { "lbl.ped.res.linea1",          "Seleccionadas: {0}  |  Ya en uso: {1}  |  Total: {2}"                     },
+            { "lbl.ped.res.limite",          "✗ El plan '{0}' permite {1} prenda(s). Estás superando el límite por {2}." },
+            { "lbl.ped.res.vacio",           "Podés agregar hasta {0} prenda(s) (plan {1})."                            },
+            { "lbl.ped.res.parcial",         "ℹ El plan '{0}' permite {1}. Estás eligiendo {2} de {3} posibles — podés agregar más." },
+            { "lbl.ped.res.lleno",           "✓ Alcanzás el máximo del plan '{0}' ({1} prendas)."                       },
+            { "conf.ped.titulo",             "Confirmar Pedido"                                                          },
+            { "conf.ped.msg",                "Confirmar pedido para {0}:\n\n  • {1}\n\nTotal: {2} prenda(s)\nMétodo de pago: {3}" },
+            // Mantenimiento — historial de limpieza de prendas
+            { "frm.mantenimiento",           "Historial de Mantenimiento"                                                },
+            { "btn.mantenimiento",           "🔧 Mantenimiento"                                                         },
+            { "col.mant.entrada",            "Entrada"                                                                   },
+            { "col.mant.salida",             "Salida"                                                                    },
+            { "col.mant.duracion",           "Duración (días)"                                                           },
+            { "col.mant.actor",              "Responsable"                                                               },
+            { "col.mant.estado",             "Estado"                                                                    },
+            { "mant.abierto",                "En limpieza"                                                               },
+            { "mant.cerrado",                "Finalizado"                                                                },
+            { "msg.mant.sinregistros",       "Esta prenda no tiene historial de mantenimiento."                         },
         });
 
         // ── Diccionario English (EN) ──────────────────────────────────────────
@@ -1427,6 +1459,32 @@ namespace Servicios.Multiidioma
             { "msg.historial.errorrestaur",  "Error restoring version:\n{0}"                                            },
             // Generic error title
             { "msg.error.titulo",            "Error"                                                                     },
+            // Clients — subscription expiry date
+            { "lbl.cli.vencimiento",         "Expiry Date"                                                               },
+            { "col.cli.vencimiento",         "Expiry"                                                                    },
+            { "msg.cli.sinvenc",             "No expiry"                                                                 },
+            { "msg.cli.vencido",             "Expired"                                                                   },
+            { "msg.cli.vigente",             "Active"                                                                    },
+            // New Order — expired subscription + translated summary
+            { "err.ped.suscvencida",         "⚠ {0}'s subscription expired on {1}.\nUpdate in the Clients module."      },
+            { "lbl.ped.res.linea1",          "Selected: {0}  |  Already in use: {1}  |  Total: {2}"                     },
+            { "lbl.ped.res.limite",          "✗ Plan '{0}' allows {1} garment(s). You are exceeding the limit by {2}."  },
+            { "lbl.ped.res.vacio",           "You can add up to {0} garment(s) (plan {1})."                             },
+            { "lbl.ped.res.parcial",         "ℹ Plan '{0}' allows {1}. You are choosing {2} of {3} available — you can add more." },
+            { "lbl.ped.res.lleno",           "✓ You reached the plan maximum '{0}' ({1} garments)."                     },
+            { "conf.ped.titulo",             "Confirm Order"                                                             },
+            { "conf.ped.msg",                "Confirm order for {0}:\n\n  • {1}\n\nTotal: {2} garment(s)\nPayment method: {3}" },
+            // Maintenance — garment cleaning history
+            { "frm.mantenimiento",           "Maintenance History"                                                       },
+            { "btn.mantenimiento",           "🔧 Maintenance"                                                           },
+            { "col.mant.entrada",            "Check-in"                                                                  },
+            { "col.mant.salida",             "Check-out"                                                                 },
+            { "col.mant.duracion",           "Duration (days)"                                                           },
+            { "col.mant.actor",              "Handler"                                                                   },
+            { "col.mant.estado",             "Status"                                                                    },
+            { "mant.abierto",                "In Cleaning"                                                               },
+            { "mant.cerrado",                "Completed"                                                                 },
+            { "msg.mant.sinregistros",       "This garment has no maintenance history."                                  },
         });
 
         // ── Diccionario Русский (RU) ──────────────────────────────────────────
@@ -2035,6 +2093,32 @@ namespace Servicios.Multiidioma
             { "msg.historial.errorrestaur",  "Ошибка восстановления версии:\n{0}"                                      },
             // Заголовок общей ошибки
             { "msg.error.titulo",            "Ошибка"                                                                   },
+            // Клиенты — дата истечения подписки
+            { "lbl.cli.vencimiento",         "Дата истечения"                                                           },
+            { "col.cli.vencimiento",         "Истекает"                                                                  },
+            { "msg.cli.sinvenc",             "Без ограничений"                                                          },
+            { "msg.cli.vencido",             "Истекло"                                                                   },
+            { "msg.cli.vigente",             "Активно"                                                                   },
+            // Новый заказ — истёкшая подписка + переведённое резюме
+            { "err.ped.suscvencida",         "⚠ Подписка {0} истекла {1}.\nОбновите в модуле Клиентов."               },
+            { "lbl.ped.res.linea1",          "Выбрано: {0}  |  Уже в использовании: {1}  |  Всего: {2}"               },
+            { "lbl.ped.res.limite",          "✗ План '{0}' допускает {1} ед. Вы превышаете лимит на {2}."              },
+            { "lbl.ped.res.vacio",           "Вы можете добавить до {0} ед. (план {1})."                              },
+            { "lbl.ped.res.parcial",         "ℹ План '{0}' допускает {1}. Вы выбираете {2} из {3} — можно добавить ещё." },
+            { "lbl.ped.res.lleno",           "✓ Вы достигли максимума плана '{0}' ({1} ед.)."                          },
+            { "conf.ped.titulo",             "Подтвердить заказ"                                                        },
+            { "conf.ped.msg",                "Подтвердить заказ для {0}:\n\n  • {1}\n\nВсего: {2} ед.\nМетод оплаты: {3}" },
+            // Обслуживание — история чистки одежды
+            { "frm.mantenimiento",           "История обслуживания"                                                     },
+            { "btn.mantenimiento",           "🔧 Обслуживание"                                                         },
+            { "col.mant.entrada",            "Поступление"                                                              },
+            { "col.mant.salida",             "Выдача"                                                                   },
+            { "col.mant.duracion",           "Длительность (дн.)"                                                       },
+            { "col.mant.actor",              "Ответственный"                                                            },
+            { "col.mant.estado",             "Статус"                                                                   },
+            { "mant.abierto",                "На чистке"                                                                },
+            { "mant.cerrado",                "Завершено"                                                                },
+            { "msg.mant.sinregistros",       "У этой вещи нет истории обслуживания."                                   },
         });
 
         // ── Constructor de diccionario ────────────────────────────────────────

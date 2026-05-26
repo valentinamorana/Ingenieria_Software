@@ -86,10 +86,11 @@ namespace GUI
                 this.Text = t[this.Tag.ToString()].Texto;
             Aplicar(lblEstado,        t);
             Aplicar(lblBuscar,        t);
-            Aplicar(btnNueva,         t);
-            Aplicar(btnEditar,        t);
-            Aplicar(btnCambiarEstado, t);
-            Aplicar(lblDetalleTitulo, t);
+            Aplicar(btnNueva,          t);
+            Aplicar(btnEditar,         t);
+            Aplicar(btnCambiarEstado,  t);
+            Aplicar(btnMantenimiento,  t);
+            Aplicar(lblDetalleTitulo,  t);
             RellenarComboEstado(idioma);
             TraducirHeadersGrilla();
         }
@@ -276,6 +277,7 @@ namespace GUI
                 btnEditar.Enabled        = hay;
                 btnCambiarEstado.Enabled = hay;
             }
+            btnMantenimiento.Enabled = hay;
 
             // Mostrar panel detalle si la prenda está en uso
             panelDetalle.Visible = false;
@@ -375,6 +377,15 @@ namespace GUI
                 }
                 catch (Exception ex) { MostrarError(ex.Message); }
             }
+        }
+
+        private void BtnMantenimiento_Click(object sender, EventArgs e)
+        {
+            var prenda = ObtenerPrendaSeleccionada();
+            if (prenda == null) return;
+
+            using (var form = new MantenimientoHistorialForm(prenda, prendaBLL))
+                form.ShowDialog(this);
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────

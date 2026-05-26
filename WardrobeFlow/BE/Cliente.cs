@@ -39,5 +39,16 @@ namespace BE
         // Cantidad de prendas adicionales que el plan aún permite.
         public int PrendasDisponiblesEnPlan()
             => TienePlan() ? Math.Max(0, LimitePrendas - StockUtilizado) : 0;
+
+        // Fecha opcional de vencimiento de la suscripción (null = sin límite).
+        public DateTime? FechaVencimiento { get; set; }
+
+        // True si el cliente tiene plan Y (sin fecha de vencimiento O la fecha no pasó).
+        public bool SuscripcionVigente()
+        {
+            if (!TienePlan()) return false;
+            if (!FechaVencimiento.HasValue) return true;
+            return FechaVencimiento.Value.Date >= DateTime.Today;
+        }
     }
 }

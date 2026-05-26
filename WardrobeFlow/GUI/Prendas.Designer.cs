@@ -23,6 +23,7 @@ namespace GUI
             this.btnNueva           = new System.Windows.Forms.Button();
             this.btnEditar          = new System.Windows.Forms.Button();
             this.btnCambiarEstado   = new System.Windows.Forms.Button();
+            this.btnMantenimiento   = new System.Windows.Forms.Button();
             this.btnRefrescar       = new System.Windows.Forms.Button();
             this.lblConteo          = new System.Windows.Forms.Label();
             this.panelDetalle       = new System.Windows.Forms.Panel();
@@ -49,6 +50,7 @@ namespace GUI
             this.panelTop.Controls.Add(this.btnNueva);
             this.panelTop.Controls.Add(this.btnEditar);
             this.panelTop.Controls.Add(this.btnCambiarEstado);
+            this.panelTop.Controls.Add(this.btnMantenimiento);
             this.panelTop.Controls.Add(this.btnRefrescar);
             this.panelTop.Controls.Add(this.lblConteo);
             this.panelTop.Name      = "panelTop";
@@ -137,25 +139,41 @@ namespace GUI
             this.btnCambiarEstado.TabIndex  = 6;
             this.btnCambiarEstado.Click    += new System.EventHandler(this.BtnCambiarEstado_Click);
 
+            // btnMantenimiento
+            this.btnMantenimiento.Tag       = "btn.mantenimiento";
+            this.btnMantenimiento.Text      = "\U0001f527 Mantenimiento";
+            this.btnMantenimiento.Left      = 796;
+            this.btnMantenimiento.Top       = 13;
+            this.btnMantenimiento.Width     = 162;
+            this.btnMantenimiento.Height    = 28;
+            this.btnMantenimiento.BackColor = System.Drawing.Color.FromArgb(70, 130, 180);
+            this.btnMantenimiento.ForeColor = System.Drawing.Color.White;
+            this.btnMantenimiento.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnMantenimiento.FlatAppearance.BorderSize = 0;
+            this.btnMantenimiento.Enabled   = false;
+            this.btnMantenimiento.Name      = "btnMantenimiento";
+            this.btnMantenimiento.TabIndex  = 7;
+            this.btnMantenimiento.Click    += new System.EventHandler(this.BtnMantenimiento_Click);
+
             // btnRefrescar
             this.btnRefrescar.Text      = "\u21bb";
-            this.btnRefrescar.Left      = 796;
+            this.btnRefrescar.Left      = 966;
             this.btnRefrescar.Top       = 13;
             this.btnRefrescar.Width     = 32;
             this.btnRefrescar.Height    = 28;
             this.btnRefrescar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRefrescar.Name      = "btnRefrescar";
-            this.btnRefrescar.TabIndex  = 7;
+            this.btnRefrescar.TabIndex  = 8;
             this.btnRefrescar.Click    += new System.EventHandler(this.BtnRefrescar_Click);
 
             // lblConteo
-            this.lblConteo.Left      = 836;
+            this.lblConteo.Left      = 1006;
             this.lblConteo.Top       = 18;
             this.lblConteo.Width     = 200;
             this.lblConteo.ForeColor = System.Drawing.Color.DimGray;
             this.lblConteo.Font      = new System.Drawing.Font("Segoe UI", 8.5f);
             this.lblConteo.Name      = "lblConteo";
-            this.lblConteo.TabIndex  = 8;
+            this.lblConteo.TabIndex  = 9;
 
             // panelDetalle
             this.panelDetalle.BackColor = System.Drawing.Color.FromArgb(255, 252, 235);
@@ -252,6 +270,7 @@ namespace GUI
         private System.Windows.Forms.Button       btnNueva;
         private System.Windows.Forms.Button       btnEditar;
         private System.Windows.Forms.Button       btnCambiarEstado;
+        private System.Windows.Forms.Button       btnMantenimiento;
         private System.Windows.Forms.Button       btnRefrescar;
         private System.Windows.Forms.Label        lblConteo;
         private System.Windows.Forms.Panel        panelDetalle;

@@ -18,7 +18,7 @@ namespace DAL
                 SqlParameter[] p = { new SqlParameter("@EstadoEnUso", (int)BE.EstadoPrenda.EnUso) };
                 DataTable tabla = acceso.Leer(
                     "SELECT c.IdCliente, c.Nombre, c.Apellido, c.DNI, c.Email, " +
-                    "       c.MetodoPago, c.IdPlan, c.FechaAlta, " +
+                    "       c.MetodoPago, c.IdPlan, c.FechaAlta, c.FechaVencimiento, " +
                     "       p.Nombre AS NombrePlan, " +
                     "       ISNULL(p.LimitePrendas, 0) AS LimitePrendas, " +
                     "       (SELECT COUNT(*) FROM Prenda pr WHERE pr.IdClienteActual = c.IdCliente " +
@@ -51,7 +51,7 @@ namespace DAL
             {
                 DataTable tabla = acceso.Leer(
                     "SELECT c.IdCliente, c.Nombre, c.Apellido, c.DNI, c.Email, " +
-                    "       c.MetodoPago, c.IdPlan, c.FechaAlta, " +
+                    "       c.MetodoPago, c.IdPlan, c.FechaAlta, c.FechaVencimiento, " +
                     "       p.Nombre AS NombrePlan, " +
                     "       ISNULL(p.LimitePrendas, 0) AS LimitePrendas, " +
                     "       (SELECT COUNT(*) FROM Prenda pr WHERE pr.IdClienteActual = c.IdCliente " +
@@ -84,18 +84,19 @@ namespace DAL
         {
             SqlParameter[] p =
             {
-                new SqlParameter("@Nombre", cliente.Nombre),
-                new SqlParameter("@Apellido", cliente.Apellido),
-                new SqlParameter("@DNI", cliente.DNI),
-                new SqlParameter("@Email", (object)cliente.Email ?? DBNull.Value),
-                new SqlParameter("@MetodoPago", cliente.MetodoPago),
-                new SqlParameter("@IdPlan", (object)cliente.IdPlan ?? DBNull.Value),
-                new SqlParameter("@FechaAlta", cliente.FechaAlta)
+                new SqlParameter("@Nombre",           cliente.Nombre),
+                new SqlParameter("@Apellido",         cliente.Apellido),
+                new SqlParameter("@DNI",              cliente.DNI),
+                new SqlParameter("@Email",            (object)cliente.Email ?? DBNull.Value),
+                new SqlParameter("@MetodoPago",       cliente.MetodoPago),
+                new SqlParameter("@IdPlan",           (object)cliente.IdPlan ?? DBNull.Value),
+                new SqlParameter("@FechaAlta",        cliente.FechaAlta),
+                new SqlParameter("@FechaVencimiento", (object)cliente.FechaVencimiento ?? DBNull.Value)
             };
 
             DataTable tabla = acceso.Leer(
-                "INSERT INTO Cliente (Nombre, Apellido, DNI, Email, MetodoPago, IdPlan, FechaAlta) " +
-                "VALUES (@Nombre, @Apellido, @DNI, @Email, @MetodoPago, @IdPlan, @FechaAlta); " +
+                "INSERT INTO Cliente (Nombre, Apellido, DNI, Email, MetodoPago, IdPlan, FechaAlta, FechaVencimiento) " +
+                "VALUES (@Nombre, @Apellido, @DNI, @Email, @MetodoPago, @IdPlan, @FechaAlta, @FechaVencimiento); " +
                 "SELECT SCOPE_IDENTITY() AS IdNuevo",
                 p);
 
@@ -109,17 +110,19 @@ namespace DAL
         {
             SqlParameter[] p =
             {
-                new SqlParameter("@Nombre", cliente.Nombre),
-                new SqlParameter("@Apellido", cliente.Apellido),
-                new SqlParameter("@DNI", cliente.DNI),
-                new SqlParameter("@Email", (object)cliente.Email ?? DBNull.Value),
-                new SqlParameter("@MetodoPago", cliente.MetodoPago),
-                new SqlParameter("@IdPlan", (object)cliente.IdPlan ?? DBNull.Value),
-                new SqlParameter("@IdCliente", cliente.IdCliente)
+                new SqlParameter("@Nombre",           cliente.Nombre),
+                new SqlParameter("@Apellido",         cliente.Apellido),
+                new SqlParameter("@DNI",              cliente.DNI),
+                new SqlParameter("@Email",            (object)cliente.Email ?? DBNull.Value),
+                new SqlParameter("@MetodoPago",       cliente.MetodoPago),
+                new SqlParameter("@IdPlan",           (object)cliente.IdPlan ?? DBNull.Value),
+                new SqlParameter("@FechaVencimiento", (object)cliente.FechaVencimiento ?? DBNull.Value),
+                new SqlParameter("@IdCliente",        cliente.IdCliente)
             };
             acceso.Escribir(
                 "UPDATE Cliente SET Nombre=@Nombre, Apellido=@Apellido, DNI=@DNI, " +
-                "Email=@Email, MetodoPago=@MetodoPago, IdPlan=@IdPlan " +
+                "Email=@Email, MetodoPago=@MetodoPago, IdPlan=@IdPlan, " +
+                "FechaVencimiento=@FechaVencimiento " +
                 "WHERE IdCliente=@IdCliente",
                 p);
         }
@@ -147,7 +150,10 @@ namespace DAL
                 LimitePrendas  = row.Table.Columns.Contains("LimitePrendas")
                                     ? Convert.ToInt32(row["LimitePrendas"])
                                     : 0,
-                FechaAlta      = Convert.ToDateTime(row["FechaAlta"]),
+                FechaAlta        = Convert.ToDateTime(row["FechaAlta"]),
+                FechaVencimiento = row.Table.Columns.Contains("FechaVencimiento") && row["FechaVencimiento"] != DBNull.Value
+                                      ? (DateTime?)Convert.ToDateTime(row["FechaVencimiento"])
+                                      : null,
                 StockUtilizado = Convert.ToInt32(row["StockUtilizado"])
             };
         }

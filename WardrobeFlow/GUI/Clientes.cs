@@ -96,7 +96,8 @@ namespace GUI
             RH("Plan",       "col.cli.plan",       "Plan");
             RH("Prendas",    "col.cli.prendas",    "Prendas");
             RH("MetodoPago", "col.cli.metodopago", "Método de Pago");
-            RH("Alta",       "col.cli.alta",       "Alta");
+            RH("Alta",        "col.cli.alta",        "Alta");
+            RH("Vencimiento", "col.cli.vencimiento", "Vencimiento");
         }
 
         private static void Aplicar(Control c, IDictionary<string, Traduccion> t)
@@ -170,19 +171,32 @@ namespace GUI
             var t = Traductor.ObtenerTraducciones(_idioma);
             string sinPlan = t.ContainsKey("lbl.sinplan") ? t["lbl.sinplan"].Texto : "Sin plan";
 
+            string sinVenc = t.ContainsKey("msg.cli.sinvenc") ? t["msg.cli.sinvenc"].Texto : "—";
+            string vencido = t.ContainsKey("msg.cli.vencido") ? t["msg.cli.vencido"].Texto : "Vencido";
+
             var tabla = new DataTable();
-            tabla.Columns.Add("ID",         typeof(int));
-            tabla.Columns.Add("Nombre",     typeof(string));
-            tabla.Columns.Add("Apellido",   typeof(string));
-            tabla.Columns.Add("DNI",        typeof(string));
-            tabla.Columns.Add("Email",      typeof(string));
-            tabla.Columns.Add("Plan",       typeof(string));
-            tabla.Columns.Add("Prendas",    typeof(int));
-            tabla.Columns.Add("MetodoPago", typeof(string));
-            tabla.Columns.Add("Alta",       typeof(string));
+            tabla.Columns.Add("ID",          typeof(int));
+            tabla.Columns.Add("Nombre",      typeof(string));
+            tabla.Columns.Add("Apellido",    typeof(string));
+            tabla.Columns.Add("DNI",         typeof(string));
+            tabla.Columns.Add("Email",       typeof(string));
+            tabla.Columns.Add("Plan",        typeof(string));
+            tabla.Columns.Add("Prendas",     typeof(int));
+            tabla.Columns.Add("MetodoPago",  typeof(string));
+            tabla.Columns.Add("Alta",        typeof(string));
+            tabla.Columns.Add("Vencimiento", typeof(string));
+            tabla.Columns.Add("_Vencido",    typeof(bool));
 
             foreach (var c in lista)
             {
+                bool expirado = c.FechaVencimiento.HasValue &&
+                                c.FechaVencimiento.Value.Date < DateTime.Today;
+                string vencStr = c.FechaVencimiento.HasValue
+                    ? (expirado
+                        ? $"⚠ {c.FechaVencimiento.Value:dd/MM/yyyy} ({vencido})"
+                        : c.FechaVencimiento.Value.ToString("dd/MM/yyyy"))
+                    : sinVenc;
+
                 tabla.Rows.Add(
                     c.IdCliente,
                     c.Nombre,
@@ -192,10 +206,22 @@ namespace GUI
                     c.NombrePlan ?? sinPlan,
                     c.StockUtilizado,
                     c.MetodoPago,
-                    c.FechaAlta.ToString("dd/MM/yyyy"));
+                    c.FechaAlta.ToString("dd/MM/yyyy"),
+                    vencStr,
+                    expirado);
             }
 
             dgvClientes.DataSource = tabla;
+
+            // Ocultar columna auxiliar y colorear filas vencidas
+            if (dgvClientes.Columns.Contains("_Vencido"))
+                dgvClientes.Columns["_Vencido"].Visible = false;
+
+            foreach (DataGridViewRow row in dgvClientes.Rows)
+            {
+                if (row.Cells["_Vencido"].Value is bool exp && exp)
+                    row.DefaultCellStyle.ForeColor = Color.DarkRed;
+            }
 
             // Ajustar columnas
             if (dgvClientes.Columns.Contains("ID"))

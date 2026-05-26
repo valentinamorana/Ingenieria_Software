@@ -200,6 +200,21 @@ namespace GUI
             var tI = Traductor.ObtenerTraducciones(_idioma);
             string T_i(string k, string fb) => tI.ContainsKey(k) ? tI[k].Texto : fb;
 
+            // Bloquear si suscripción vencida
+            if (_clienteSel.TienePlan() && !_clienteSel.SuscripcionVigente())
+            {
+                string msgVenc = string.Format(
+                    T_i("err.ped.suscvencida",
+                        "⚠ La suscripción de {0} venció el {1}.\nRenovar en el módulo de Clientes."),
+                    _clienteSel.NombreCompleto,
+                    _clienteSel.FechaVencimiento.Value.ToString("dd/MM/yyyy"));
+                lblInfoPlan.Text      = msgVenc;
+                lblInfoPlan.ForeColor = Color.DarkRed;
+                lblInfoPlan.Visible   = true;
+                btnSiguiente.Enabled  = false;
+                return;
+            }
+
             if (_clienteSel.IdPlan.HasValue)
             {
                 lblInfoPlan.Text = string.Format(
@@ -246,36 +261,50 @@ namespace GUI
             int disponibles   = _clienteSel?.PrendasDisponiblesEnPlan() ?? 0;
             int total         = enUso + seleccionadas;
 
-            string linea1 = $"Seleccionadas: {seleccionadas}  |  Ya en uso: {enUso}  |  Total: {total}";
+            var tR = Traductor.ObtenerTraducciones(_idioma);
+            string TR(string k, string fb) => tR.ContainsKey(k) ? tR[k].Texto : fb;
+
+            string linea1 = string.Format(
+                TR("lbl.ped.res.linea1", "Seleccionadas: {0}  |  Ya en uso: {1}  |  Total: {2}"),
+                seleccionadas, enUso, total);
             string linea2 = "";
 
             if (limite > 0)
             {
                 if (!_clienteSel.PuedeSolicitarPrendas(seleccionadas))
                 {
-                    linea2 = $"✗ El plan '{_clienteSel?.NombrePlan}' permite {limite} prenda(s). " +
-                             $"Estás superando el límite por {total - limite}.";
-                    lblResumen.ForeColor  = Color.DarkRed;
-                    btnConfirmar.Enabled  = false;
+                    linea2 = string.Format(
+                        TR("lbl.ped.res.limite",
+                           "✗ El plan '{0}' permite {1} prenda(s). Estás superando el límite por {2}."),
+                        _clienteSel?.NombrePlan, limite, total - limite);
+                    lblResumen.ForeColor = Color.DarkRed;
+                    btnConfirmar.Enabled = false;
                 }
                 else if (seleccionadas == 0)
                 {
-                    linea2 = $"Podés agregar hasta {disponibles} prenda(s) (plan {_clienteSel?.NombrePlan}).";
-                    lblResumen.ForeColor  = Color.DimGray;
-                    btnConfirmar.Enabled  = false;
+                    linea2 = string.Format(
+                        TR("lbl.ped.res.vacio", "Podés agregar hasta {0} prenda(s) (plan {1})."),
+                        disponibles, _clienteSel?.NombrePlan);
+                    lblResumen.ForeColor = Color.DimGray;
+                    btnConfirmar.Enabled = false;
                 }
                 else if (seleccionadas < disponibles)
                 {
-                    linea2 = $"ℹ El plan '{_clienteSel?.NombrePlan}' permite {limite}. " +
-                             $"Estás eligiendo {seleccionadas} de {disponibles} posibles — podés agregar más.";
-                    lblResumen.ForeColor  = Color.FromArgb(140, 100, 0);
-                    btnConfirmar.Enabled  = true;
+                    linea2 = string.Format(
+                        TR("lbl.ped.res.parcial",
+                           "ℹ El plan '{0}' permite {1}. Estás eligiendo {2} de {3} posibles — podés agregar más."),
+                        _clienteSel?.NombrePlan, limite, seleccionadas, disponibles);
+                    lblResumen.ForeColor = Color.FromArgb(140, 100, 0);
+                    btnConfirmar.Enabled = true;
                 }
                 else
                 {
-                    linea2 = $"✓ Alcanzás el máximo del plan '{_clienteSel?.NombrePlan}' ({limite} prendas).";
-                    lblResumen.ForeColor  = Color.DarkGreen;
-                    btnConfirmar.Enabled  = true;
+                    linea2 = string.Format(
+                        TR("lbl.ped.res.lleno",
+                           "✓ Alcanzás el máximo del plan '{0}' ({1} prendas)."),
+                        _clienteSel?.NombrePlan, limite);
+                    lblResumen.ForeColor = Color.DarkGreen;
+                    btnConfirmar.Enabled = true;
                 }
             }
             else
@@ -328,12 +357,18 @@ namespace GUI
             string detallesPrendas = string.Join("\n  • ",
                 prendas.ConvertAll(p => $"{p.Nombre} ({p.Talle} — {p.Color})"));
 
+            var tConf = Traductor.ObtenerTraducciones(_idioma);
+            string TC(string k, string fb) => tConf.ContainsKey(k) ? tConf[k].Texto : fb;
+
             var confirmar = MessageBox.Show(
-                $"Confirmar pedido para {_clienteSel.NombreCompleto}:\n\n" +
-                $"  • {detallesPrendas}\n\n" +
-                $"Total: {prendas.Count} prenda(s)\n" +
-                $"Método de pago: {_clienteSel.MetodoPago}",
-                "Confirmar Pedido",
+                string.Format(
+                    TC("conf.ped.msg",
+                       "Confirmar pedido para {0}:\n\n  • {1}\n\nTotal: {2} prenda(s)\nMétodo de pago: {3}"),
+                    _clienteSel.NombreCompleto,
+                    detallesPrendas,
+                    prendas.Count,
+                    _clienteSel.MetodoPago),
+                TC("conf.ped.titulo", "Confirmar Pedido"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question,
                 MessageBoxDefaultButton.Button1);

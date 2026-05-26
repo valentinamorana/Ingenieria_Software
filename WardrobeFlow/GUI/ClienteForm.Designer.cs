@@ -27,6 +27,8 @@ namespace GUI
             this.cmbMetodoPago = new System.Windows.Forms.ComboBox();
             this.lblPlan = new System.Windows.Forms.Label();
             this.cmbPlan = new System.Windows.Forms.ComboBox();
+            this.chkVencimiento = new System.Windows.Forms.CheckBox();
+            this.dtpVencimiento = new System.Windows.Forms.DateTimePicker();
             this.lblMensaje = new System.Windows.Forms.Label();
             this.btnGuardar = new System.Windows.Forms.Button();
             this.btnCancelar = new System.Windows.Forms.Button();
@@ -132,37 +134,56 @@ namespace GUI
             this.cmbPlan.Name = "cmbPlan";
             this.cmbPlan.Size = new System.Drawing.Size(340, 21);
             this.cmbPlan.TabIndex = 11;
-            // 
+            //
+            // chkVencimiento
+            //
+            this.chkVencimiento.Location = new System.Drawing.Point(16, 332);
+            this.chkVencimiento.Name = "chkVencimiento";
+            this.chkVencimiento.Size = new System.Drawing.Size(340, 20);
+            this.chkVencimiento.TabIndex = 12;
+            this.chkVencimiento.Text = "Fecha de Vencimiento";
+            this.chkVencimiento.CheckedChanged += new System.EventHandler(this.ChkVencimiento_CheckedChanged);
+            //
+            // dtpVencimiento
+            //
+            this.dtpVencimiento.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpVencimiento.Location = new System.Drawing.Point(16, 356);
+            this.dtpVencimiento.Name = "dtpVencimiento";
+            this.dtpVencimiento.Size = new System.Drawing.Size(340, 20);
+            this.dtpVencimiento.TabIndex = 13;
+            this.dtpVencimiento.Enabled = false;
+            this.dtpVencimiento.Value = System.DateTime.Today.AddYears(1);
+            //
             // lblMensaje
-            // 
+            //
             this.lblMensaje.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblMensaje.ForeColor = System.Drawing.Color.DarkRed;
-            this.lblMensaje.Location = new System.Drawing.Point(16, 332);
+            this.lblMensaje.Location = new System.Drawing.Point(16, 390);
             this.lblMensaje.Name = "lblMensaje";
             this.lblMensaje.Size = new System.Drawing.Size(340, 36);
-            this.lblMensaje.TabIndex = 12;
-            // 
+            this.lblMensaje.TabIndex = 14;
+            //
             // btnGuardar
-            // 
+            //
             this.btnGuardar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(100)))), ((int)(((byte)(135)))));
             this.btnGuardar.FlatAppearance.BorderSize = 0;
             this.btnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnGuardar.ForeColor = System.Drawing.Color.White;
-            this.btnGuardar.Location = new System.Drawing.Point(16, 376);
+            this.btnGuardar.Location = new System.Drawing.Point(16, 434);
             this.btnGuardar.Name = "btnGuardar";
             this.btnGuardar.Size = new System.Drawing.Size(160, 34);
-            this.btnGuardar.TabIndex = 13;
+            this.btnGuardar.TabIndex = 15;
             this.btnGuardar.Text = "Registrar Cliente";
             this.btnGuardar.UseVisualStyleBackColor = false;
             this.btnGuardar.Click += new System.EventHandler(this.BtnGuardar_Click);
-            // 
+            //
             // btnCancelar
-            // 
+            //
             this.btnCancelar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCancelar.Location = new System.Drawing.Point(192, 376);
+            this.btnCancelar.Location = new System.Drawing.Point(192, 434);
             this.btnCancelar.Name = "btnCancelar";
             this.btnCancelar.Size = new System.Drawing.Size(100, 34);
-            this.btnCancelar.TabIndex = 14;
+            this.btnCancelar.TabIndex = 16;
             this.btnCancelar.Text = "Cancelar";
             this.btnCancelar.Click += new System.EventHandler(this.BtnCancelar_Click);
             // 
@@ -170,7 +191,7 @@ namespace GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(380, 428);
+            this.ClientSize = new System.Drawing.Size(380, 486);
             this.Controls.Add(this.lblNombre);
             this.Controls.Add(this.txtNombre);
             this.Controls.Add(this.lblApellido);
@@ -183,6 +204,8 @@ namespace GUI
             this.Controls.Add(this.cmbMetodoPago);
             this.Controls.Add(this.lblPlan);
             this.Controls.Add(this.cmbPlan);
+            this.Controls.Add(this.chkVencimiento);
+            this.Controls.Add(this.dtpVencimiento);
             this.Controls.Add(this.lblMensaje);
             this.Controls.Add(this.btnGuardar);
             this.Controls.Add(this.btnCancelar);
@@ -211,8 +234,10 @@ namespace GUI
         private System.Windows.Forms.ComboBox cmbMetodoPago;
         private System.Windows.Forms.Label    lblPlan;
         private System.Windows.Forms.ComboBox cmbPlan;
-        private System.Windows.Forms.Label    lblMensaje;
-        private System.Windows.Forms.Button   btnGuardar;
-        private System.Windows.Forms.Button   btnCancelar;
+        private System.Windows.Forms.CheckBox      chkVencimiento;
+        private System.Windows.Forms.DateTimePicker dtpVencimiento;
+        private System.Windows.Forms.Label         lblMensaje;
+        private System.Windows.Forms.Button        btnGuardar;
+        private System.Windows.Forms.Button        btnCancelar;
     }
 }

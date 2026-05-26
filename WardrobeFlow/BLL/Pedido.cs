@@ -216,6 +216,12 @@ namespace BLL
                     $"El cliente {cliente.NombreCompleto} no tiene plan asignado.\n" +
                     "Asignale un plan antes de crear un pedido.");
 
+            if (!cliente.SuscripcionVigente())
+                throw new Exception(
+                    $"La suscripción de {cliente.NombreCompleto} venció el " +
+                    $"{cliente.FechaVencimiento.Value:dd/MM/yyyy}.\n" +
+                    "Renovar la fecha de vencimiento en el módulo de Clientes.");
+
             return cliente;
         }
 

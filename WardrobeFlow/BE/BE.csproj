@@ -53,6 +53,7 @@
     <Compile Include="Criticidad.cs" />
     <Compile Include="Empleado.cs" />
     <Compile Include="EstadoPedido.cs" />
+    <Compile Include="MantenimientoPrenda.cs" />
     <Compile Include="NivelUrgencia.cs" />
     <Compile Include="EstadoPrenda.cs" />
     <Compile Include="Pedido.cs" />

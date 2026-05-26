@@ -415,6 +415,37 @@ ELSE
     PRINT 'Árbol Composite ya inicializado — sin cambios.';
 GO
 
+-- ============================================================
+-- MIGRACIONES INCREMENTALES
+-- ============================================================
+
+-- FechaVencimiento en Cliente (suscripción con fecha de vencimiento)
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+               WHERE TABLE_NAME = 'Cliente' AND COLUMN_NAME = 'FechaVencimiento')
+BEGIN
+    ALTER TABLE Cliente ADD FechaVencimiento DATE NULL;
+    PRINT 'Columna FechaVencimiento agregada a Cliente.';
+END
+ELSE
+    PRINT 'FechaVencimiento ya existe en Cliente — sin cambios.';
+GO
+
+-- MantenimientoPrenda (historial de limpieza/mantenimiento por prenda)
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'MantenimientoPrenda')
+BEGIN
+    CREATE TABLE MantenimientoPrenda (
+        IdMantenimiento INT           IDENTITY(1,1) PRIMARY KEY,
+        IdPrenda        INT           NOT NULL REFERENCES Prenda(IdPrenda),
+        FechaEntrada    DATETIME      NOT NULL DEFAULT GETDATE(),
+        FechaSalida     DATETIME      NULL,
+        Actor           NVARCHAR(100) NULL
+    );
+    PRINT 'Tabla MantenimientoPrenda creada.';
+END
+ELSE
+    PRINT 'Tabla MantenimientoPrenda ya existe — sin cambios.';
+GO
+
 PRINT '';
 PRINT '=== WardrobeFlowDB deploy completo. ===';
 PRINT 'IMPORTANTE: Ejecutar recálculo de DVH/DVV desde la aplicación';
