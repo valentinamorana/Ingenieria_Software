@@ -189,8 +189,7 @@ namespace GUI
 
             foreach (var c in lista)
             {
-                bool expirado = c.FechaVencimiento.HasValue &&
-                                c.FechaVencimiento.Value.Date < DateTime.Today;
+                bool expirado = c.VencimientoExpirado;
                 string vencStr = c.FechaVencimiento.HasValue
                     ? (expirado
                         ? $"⚠ {c.FechaVencimiento.Value:dd/MM/yyyy} ({vencido})"

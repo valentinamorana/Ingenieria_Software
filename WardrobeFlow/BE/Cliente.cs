@@ -43,6 +43,10 @@ namespace BE
         // Fecha opcional de vencimiento de la suscripción (null = sin límite).
         public DateTime? FechaVencimiento { get; set; }
 
+        // True si FechaVencimiento está establecida y ya pasó (independientemente del plan).
+        public bool VencimientoExpirado =>
+            FechaVencimiento.HasValue && FechaVencimiento.Value.Date < DateTime.Today;
+
         // True si el cliente tiene plan Y (sin fecha de vencimiento O la fecha no pasó).
         public bool SuscripcionVigente()
         {

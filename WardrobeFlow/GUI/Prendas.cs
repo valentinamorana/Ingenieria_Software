@@ -339,28 +339,33 @@ namespace GUI
             var prenda = ObtenerPrendaSeleccionada();
             if (prenda == null) return;
 
-            // Construir opciones de transición válidas (con textos traducidos)
+            // Construir opciones de transición válidas usando la lógica de BE
             var tEst = Traductor.ObtenerTraducciones(_idioma);
             string T_est(string k, string fb) => tEst.ContainsKey(k) ? tEst[k].Texto : fb;
 
             var opciones = new List<(string texto, BE.EstadoPrenda estado)>();
 
-            switch (prenda.Estado)
+            var candidatos = new (BE.EstadoPrenda estado, string clave, string fb)[]
             {
-                case BE.EstadoPrenda.Disponible:
-                    opciones.Add((T_est("opt.enviarlimpieza", "Enviar a Limpieza"), BE.EstadoPrenda.EnLimpieza));
-                    opciones.Add((T_est("opt.darbaja",        "Dar de Baja"),       BE.EstadoPrenda.Baja));
-                    break;
-                case BE.EstadoPrenda.EnLimpieza:
-                    opciones.Add((T_est("opt.marcardisp",     "Marcar Disponible"), BE.EstadoPrenda.Disponible));
-                    opciones.Add((T_est("opt.darbaja",        "Dar de Baja"),       BE.EstadoPrenda.Baja));
-                    break;
-                case BE.EstadoPrenda.EnUso:
-                    MostrarError(T_est("err.prenda.enuso", "No se puede cambiar el estado: la prenda está en uso por un cliente."));
-                    return;
-                case BE.EstadoPrenda.Baja:
-                    MostrarError(T_est("err.prenda.baja", "La prenda está dada de baja y no puede ser reactivada."));
-                    return;
+                (BE.EstadoPrenda.Disponible,  "opt.marcardisp",     "Marcar Disponible"),
+                (BE.EstadoPrenda.EnLimpieza,  "opt.enviarlimpieza", "Enviar a Limpieza"),
+                (BE.EstadoPrenda.Baja,        "opt.darbaja",        "Dar de Baja"),
+            };
+
+            foreach (var cand in candidatos)
+            {
+                if (cand.estado != prenda.Estado && prenda.TransicionPermitida(cand.estado))
+                    opciones.Add((T_est(cand.clave, cand.fb), cand.estado));
+            }
+
+            if (opciones.Count == 0)
+            {
+                string errKey = prenda.Estado == BE.EstadoPrenda.EnUso ? "err.prenda.enuso" : "err.prenda.baja";
+                string errFb  = prenda.Estado == BE.EstadoPrenda.EnUso
+                    ? "No se puede cambiar el estado: la prenda está en uso por un cliente."
+                    : "La prenda está dada de baja y no puede ser reactivada.";
+                MostrarError(T_est(errKey, errFb));
+                return;
             }
 
             // Mostrar diálogo de selección de nuevo estado
