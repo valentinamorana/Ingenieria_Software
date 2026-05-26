@@ -144,7 +144,7 @@ namespace GUI
             this.btnMantenimiento.Text      = "\U0001f527 Mantenimiento";
             this.btnMantenimiento.Left      = 796;
             this.btnMantenimiento.Top       = 13;
-            this.btnMantenimiento.Width     = 162;
+            this.btnMantenimiento.Width     = 130;
             this.btnMantenimiento.Height    = 28;
             this.btnMantenimiento.BackColor = System.Drawing.Color.FromArgb(70, 130, 180);
             this.btnMantenimiento.ForeColor = System.Drawing.Color.White;
@@ -157,7 +157,7 @@ namespace GUI
 
             // btnRefrescar
             this.btnRefrescar.Text      = "\u21bb";
-            this.btnRefrescar.Left      = 966;
+            this.btnRefrescar.Left      = 932;
             this.btnRefrescar.Top       = 13;
             this.btnRefrescar.Width     = 32;
             this.btnRefrescar.Height    = 28;
@@ -167,9 +167,9 @@ namespace GUI
             this.btnRefrescar.Click    += new System.EventHandler(this.BtnRefrescar_Click);
 
             // lblConteo
-            this.lblConteo.Left      = 1006;
+            this.lblConteo.Left      = 970;
             this.lblConteo.Top       = 18;
-            this.lblConteo.Width     = 200;
+            this.lblConteo.Width     = 120;
             this.lblConteo.ForeColor = System.Drawing.Color.DimGray;
             this.lblConteo.Font      = new System.Drawing.Font("Segoe UI", 8.5f);
             this.lblConteo.Name      = "lblConteo";
@@ -242,8 +242,8 @@ namespace GUI
             // Prendas
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode       = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize          = new System.Drawing.Size(1000, 580);
-            this.MinimumSize         = new System.Drawing.Size(820, 460);
+            this.ClientSize          = new System.Drawing.Size(1100, 580);
+            this.MinimumSize         = new System.Drawing.Size(920, 460);
             this.Tag                 = "frm.prendas";
             this.Text                = "Cat\u00e1logo de Prendas";
             this.Name                = "Prendas";
