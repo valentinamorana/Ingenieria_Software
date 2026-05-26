@@ -178,6 +178,7 @@ namespace Servicios.Multiidioma
                 clave.StartsWith("lbl.ped.res.") ||
                 clave == "conf.ped.titulo" || clave == "conf.ped.msg")         return "NuevoPedido";
             if (clave == "frm.mantenimiento" || clave == "btn.mantenimiento" ||
+                clave == "btn.mant.cerrar"    ||
                 clave.StartsWith("col.mant.")  || clave.StartsWith("mant.")  ||
                 clave.StartsWith("msg.mant."))                                 return "MantenimientoHistorial";
             if (clave.StartsWith("col.ped.") || clave.StartsWith("urg.") ||
@@ -843,6 +844,7 @@ namespace Servicios.Multiidioma
             // Mantenimiento — historial de limpieza de prendas
             { "frm.mantenimiento",           "Historial de Mantenimiento"                                                },
             { "btn.mantenimiento",           "🔧 Mantenimiento"                                                         },
+            { "btn.mant.cerrar",             "Cerrar"                                                                    },
             { "col.mant.entrada",            "Entrada"                                                                   },
             { "col.mant.salida",             "Salida"                                                                    },
             { "col.mant.duracion",           "Duración (días)"                                                           },
@@ -1477,6 +1479,7 @@ namespace Servicios.Multiidioma
             // Maintenance — garment cleaning history
             { "frm.mantenimiento",           "Maintenance History"                                                       },
             { "btn.mantenimiento",           "🔧 Maintenance"                                                           },
+            { "btn.mant.cerrar",             "Close"                                                                     },
             { "col.mant.entrada",            "Check-in"                                                                  },
             { "col.mant.salida",             "Check-out"                                                                 },
             { "col.mant.duracion",           "Duration (days)"                                                           },
@@ -2111,6 +2114,7 @@ namespace Servicios.Multiidioma
             // Обслуживание — история чистки одежды
             { "frm.mantenimiento",           "История обслуживания"                                                     },
             { "btn.mantenimiento",           "🔧 Обслуживание"                                                         },
+            { "btn.mant.cerrar",             "Закрыть"                                                                  },
             { "col.mant.entrada",            "Поступление"                                                              },
             { "col.mant.salida",             "Выдача"                                                                   },
             { "col.mant.duracion",           "Длительность (дн.)"                                                       },

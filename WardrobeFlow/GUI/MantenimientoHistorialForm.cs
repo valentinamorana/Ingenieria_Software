@@ -42,7 +42,7 @@ namespace GUI
 
             this.Text      = T("frm.mantenimiento", "Historial de Mantenimiento");
             lblTitulo.Text = $"{T("frm.mantenimiento", "Historial de Mantenimiento")} — {_prenda.Nombre}";
-            btnCerrar.Text = T("btn.cancelar", "Cerrar");
+            btnCerrar.Text = T("btn.mant.cerrar", "Cerrar");
 
             TraducirHeadersGrilla();
         }
