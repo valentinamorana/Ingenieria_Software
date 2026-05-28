@@ -82,9 +82,6 @@ namespace GUI
             AgregarBotonesIdioma();
 
             this.AcceptButton = btnIngresar;
-
-            lblError.AutoSize    = false;
-            lblError.MaximumSize = new Size(lblError.Width, 0);
         }
 
         // ── Pintura decorativa del panel izquierdo ────────────────────────────────
@@ -277,8 +274,21 @@ namespace GUI
                 btn.Click += (s, e) =>
                 {
                     foreach (var idm in Traductor.ObtenerIdiomas())
+                    {
                         if (idm.Id == cod)
-                        { GestorIdioma.CambiarIdioma(idm); break; }
+                        {
+                            try
+                            {
+                                var dict = new BLL.IdiomaService().CargarTraducciones(cod);
+                                GestorIdioma.CambiarIdioma(idm, dict);
+                            }
+                            catch
+                            {
+                                GestorIdioma.CambiarIdioma(idm);
+                            }
+                            break;
+                        }
+                    }
                     MarcarIdiomaActivoLogin(cod);
                 };
 
@@ -447,10 +457,11 @@ namespace GUI
 
         private void MostrarErrorLogin(string mensaje, bool bloqueado)
         {
-            lblError.Text      = mensaje;
             lblError.ForeColor = bloqueado
                 ? Color.FromArgb(140, 0, 0)
                 : Color.FromArgb(180, 50, 50);
+            lblError.Text = mensaje;
+            lblError.Refresh();
 
             if (bloqueado)
             {

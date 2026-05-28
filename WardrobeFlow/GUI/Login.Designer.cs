@@ -178,12 +178,12 @@ namespace GUI
 
             // ── lblError ───────────────────────────────────────────────────
             this.lblError.AutoSize    = false;
-            this.lblError.BackColor   = System.Drawing.Color.Transparent;
-            this.lblError.Font        = new System.Drawing.Font("Segoe UI", 8F);
+            this.lblError.BackColor   = System.Drawing.Color.FromArgb(251, 240, 246);
+            this.lblError.Font        = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblError.ForeColor   = System.Drawing.Color.FromArgb(180, 50, 50);
-            this.lblError.Location    = new System.Drawing.Point(32, 295);
+            this.lblError.Location    = new System.Drawing.Point(32, 291);
             this.lblError.Name        = "lblError";
-            this.lblError.Size        = new System.Drawing.Size(376, 36);
+            this.lblError.Size        = new System.Drawing.Size(376, 40);
             this.lblError.TabIndex    = 4;
             this.lblError.TextAlign   = System.Drawing.ContentAlignment.MiddleCenter;
 
