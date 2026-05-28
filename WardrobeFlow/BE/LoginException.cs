@@ -12,11 +12,14 @@ namespace BE
             CredencialesInvalidas
         }
 
-        public TipoError Tipo { get; }
+        public TipoError Tipo             { get; }
+        public int?     IntentosRestantes { get; }
 
-        public LoginException(TipoError tipo, string mensaje) : base(mensaje)
+        public LoginException(TipoError tipo, string mensaje, int? intentosRestantes = null)
+            : base(mensaje)
         {
-            Tipo = tipo;
+            Tipo              = tipo;
+            IntentosRestantes = intentosRestantes;
         }
     }
 }

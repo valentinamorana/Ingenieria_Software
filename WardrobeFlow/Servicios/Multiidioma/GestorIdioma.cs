@@ -21,12 +21,21 @@ namespace Servicios.Multiidioma
         private static readonly IList<IIdiomaObserver> _observers = new List<IIdiomaObserver>();
         private static Idioma _idiomaActual = Traductor.ObtenerIdiomaDefault();
         private static Dictionary<string, string> _tradActuales = null;
+        private static IList<Idioma> _idiomasDisponibles = null;
 
         public static Idioma IdiomaActual => _idiomaActual;
 
         // Traducciones cargadas desde BD para el idioma activo.
         // Null o vacío → Traductor usa fallback hardcodeado.
         public static Dictionary<string, string> TradActuales => _tradActuales;
+
+        // Idiomas activos cargados desde BD. Null → Traductor usa lista hardcodeada.
+        public static IList<Idioma> IdiomasDisponibles => _idiomasDisponibles;
+
+        public static void SetIdiomasDisponibles(IList<Idioma> idiomas)
+        {
+            _idiomasDisponibles = idiomas;
+        }
 
         public static void SuscribirObservador(IIdiomaObserver observer)
         {

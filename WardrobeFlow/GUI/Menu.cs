@@ -37,8 +37,9 @@ namespace GUI
     /// </summary>
     public partial class Menu : Form, IIdiomaObserver
     {
-        // Botones de idioma — se guardan para poder marcar el activo con negrita
-        private ToolStripButton _btnES, _btnEN, _btnRU;
+        // Botones de idioma — índice por código de idioma para soporte dinámico
+        private ToolStrip _tsIdioma;
+        private readonly Dictionary<string, ToolStripButton> _btnIdiomas = new Dictionary<string, ToolStripButton>();
         // Label "Idioma:" / "Language:" / "Язык:" — dinámico por Observer
         private ToolStripLabel _lblIdioma;
         // Usuario cargado en el constructor; reutilizado en OnLoad para no hacer dos SELECT
@@ -52,7 +53,7 @@ namespace GUI
             // Se agrega un ToolStrip justo debajo del MenuStrip existente.
             // Los 3 botones llaman a GestorIdioma.CambiarIdioma() → notifica a
             // todos los formularios abiertos de forma automática (patrón Observer).
-            var tsIdioma = new ToolStrip
+            _tsIdioma = new ToolStrip
             {
                 Dock      = DockStyle.Top,
                 BackColor = Color.FromArgb(40, 40, 55),
@@ -68,22 +69,16 @@ namespace GUI
                 Font      = new System.Drawing.Font("Segoe UI", 8.5f)
             };
 
-            _btnES = CrearBotonIdioma("Español", "ES");
-            _btnEN = CrearBotonIdioma("English", "EN");
-            _btnRU = CrearBotonIdioma("Русский", "RU");
-
-            tsIdioma.Items.Add(_lblIdioma);
-            tsIdioma.Items.Add(new ToolStripSeparator());
-            tsIdioma.Items.Add(_btnES);
-            tsIdioma.Items.Add(_btnEN);
-            tsIdioma.Items.Add(_btnRU);
+            _tsIdioma.Items.Add(_lblIdioma);
+            _tsIdioma.Items.Add(new ToolStripSeparator());
+            ReconstruirBotonesIdioma(Traductor.ObtenerIdiomas());
 
             // Insertar el ToolStrip después del MenuStrip (índice 0 = primero visible abajo del borde)
-            this.Controls.Add(tsIdioma);
-            tsIdioma.BringToFront();
+            this.Controls.Add(_tsIdioma);
+            _tsIdioma.BringToFront();
 
-            // Marcar ES como activo por defecto
-            MarcarIdiomaActivo("ES");
+            // Marcar idioma activo según el seleccionado hasta ahora
+            MarcarIdiomaActivo(GestorIdioma.IdiomaActual?.Id ?? "ES");
 
             // Obtener usuario activo via BLL (GUI nunca toca SessionManager directamente)
             _usuarioActivo = new BLL.Usuario().ObtenerUsuarioActivo();
@@ -488,7 +483,19 @@ namespace GUI
 
             try
             {
-                var dictTrad = new BLL.IdiomaService().CargarTraducciones(codigoPref);
+                var svc = new BLL.IdiomaService();
+
+                // CargarTraducciones hace el seeding inicial si la BD está vacía
+                var dictTrad = svc.CargarTraducciones(codigoPref);
+
+                // Cargar idiomas activos desde BD y registrarlos en el gestor
+                var idiomas = svc.ObtenerIdiomasActivosComoIdioma();
+                if (idiomas.Count > 0)
+                {
+                    GestorIdioma.SetIdiomasDisponibles(idiomas);
+                    ReconstruirBotonesIdioma(idiomas);
+                }
+
                 foreach (var idm in Traductor.ObtenerIdiomas())
                 {
                     if (idm.Id == codigoPref)
@@ -631,6 +638,27 @@ namespace GUI
         }
 
         /// <summary>
+        /// Reemplaza los botones de idioma del ToolStrip por los de la lista recibida.
+        /// Permite agregar un nuevo idioma desde BD sin tocar este código.
+        /// </summary>
+        private void ReconstruirBotonesIdioma(IList<Idioma> idiomas)
+        {
+            var toRemove = new List<ToolStripItem>();
+            foreach (ToolStripItem item in _tsIdioma.Items)
+                if (item is ToolStripButton) toRemove.Add(item);
+            foreach (var item in toRemove) _tsIdioma.Items.Remove(item);
+
+            _btnIdiomas.Clear();
+
+            foreach (var idioma in idiomas)
+            {
+                var btn = CrearBotonIdioma(idioma.Nombre, idioma.Id);
+                _tsIdioma.Items.Add(btn);
+                _btnIdiomas[idioma.Id] = btn;
+            }
+        }
+
+        /// <summary>
         /// Resalta en negrita el botón del idioma activo y normaliza los demás.
         /// </summary>
         private void MarcarIdiomaActivo(string codigoIdioma)
@@ -640,12 +668,12 @@ namespace GUI
             var colorActivo = Color.White;
             var colorNormal = Color.FromArgb(170, 170, 180);
 
-            _btnES.Font      = codigoIdioma == "ES" ? fontActivo  : fontNormal;
-            _btnES.ForeColor = codigoIdioma == "ES" ? colorActivo : colorNormal;
-            _btnEN.Font      = codigoIdioma == "EN" ? fontActivo  : fontNormal;
-            _btnEN.ForeColor = codigoIdioma == "EN" ? colorActivo : colorNormal;
-            _btnRU.Font      = codigoIdioma == "RU" ? fontActivo  : fontNormal;
-            _btnRU.ForeColor = codigoIdioma == "RU" ? colorActivo : colorNormal;
+            foreach (var kv in _btnIdiomas)
+            {
+                bool activo = kv.Key == codigoIdioma;
+                kv.Value.Font      = activo ? fontActivo  : fontNormal;
+                kv.Value.ForeColor = activo ? colorActivo : colorNormal;
+            }
         }
 
     }

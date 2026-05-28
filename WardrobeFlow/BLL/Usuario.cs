@@ -67,7 +67,8 @@ namespace BLL
                 int restantes = MaxIntentosFallidos - intentos;
                 throw new BE.LoginException(BE.LoginException.TipoError.CredencialesInvalidas,
                     $"Usuario o contraseña incorrectos.\n" +
-                    $"Intentos restantes antes del bloqueo: {restantes}.");
+                    $"Intentos restantes antes del bloqueo: {restantes}.",
+                    intentosRestantes: restantes);
             }
 
             return esValido;
@@ -81,13 +82,14 @@ namespace BLL
             SessionManager.Logout();
         }
 
-        // Crea un nuevo usuario con rol y contraseña hasheada.
-        // Acepta tanto el nombre visible del perfil ("Controlador de Stock")
-        // como el código interno ("ControladorDeStock") — normaliza internamente.
-        public void Alta(string modulo, string username, string contraseña, string perfil)
+        // Crea un nuevo usuario con rol y contraseña generada automáticamente.
+        // La contraseña NO es ingresada por el administrador — se genera aquí y se
+        // exporta a un archivo .txt en CredencialesGeneradas/.
+        // Devuelve la ruta del archivo de credenciales generado.
+        public string Alta(string modulo, string username, string perfil)
         {
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(contraseña))
-                throw new Exception("Usuario y contraseña son obligatorios.");
+            if (string.IsNullOrWhiteSpace(username))
+                throw new Exception("El nombre de usuario es obligatorio.");
 
             if (username.Trim().Length < 3)
                 throw new Exception("El nombre de usuario debe tener al menos 3 caracteres.");
@@ -97,19 +99,24 @@ namespace BLL
 
             perfil = NormalizarPerfil(perfil);
 
-            var (valida, mensaje) = Encriptador.ValidarContrasena(contraseña);
-            if (!valida) throw new Exception(mensaje);
-
-            string claveHasheada = Encriptador.Hash(contraseña);
+            string contrasena    = GeneradorCredenciales.GenerarContrasena();
+            string claveHasheada = Encriptador.Hash(contrasena);
             usuarioDAL.Alta(username, claveHasheada, perfil);
 
+            string rutaArchivo = GeneradorCredenciales.ExportarCredenciales(username, contrasena);
+
             bitacora.Registrar(modulo,
-                $"Alta Usuario: '{username}' [{perfil}]",
+                "Alta Usuario: '" + username + "' [" + perfil + "]",
                 BE.Criticidad.Media);
+
+            return rutaArchivo;
         }
 
-        // Resetea la contraseña de un usuario. Solo Administrador.
-        public void ResetearClave(string modulo, int idUsuario, string nuevaClave)
+        // Resetea la contraseña de un usuario generando una nueva automáticamente.
+        // El administrador NO ingresa la contraseña — se genera aquí y se exporta
+        // a un archivo .txt en CredencialesGeneradas/.
+        // Devuelve la ruta del archivo de credenciales generado.
+        public string ResetearClave(string modulo, int idUsuario, string usernameObjetivo)
         {
             if (!SessionManager.IsLoggedIn)
                 throw new Exception("No hay sesión activa.");
@@ -118,22 +125,26 @@ namespace BLL
             if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
                 throw new Exception("Solo un Administrador puede resetear contraseñas.");
 
-            var (valida, mensaje) = Encriptador.ValidarContrasena(nuevaClave);
-            if (!valida) throw new Exception(mensaje);
-
             var admin = SessionManager.GetInstance.Usuario;
 
             new VersionUsuario().GrabarVersion(idUsuario, admin.Username,
-                $"Snapshot antes de reset de contraseña por '{admin.Username}'.");
+                "Snapshot antes de reset de contraseña por '" + admin.Username + "'.");
 
-            string claveHasheada = Encriptador.Hash(nuevaClave);
+            string contrasena    = GeneradorCredenciales.GenerarContrasena();
+            string claveHasheada = Encriptador.Hash(contrasena);
+            usuarioDAL.ResetearClave(idUsuario, claveHasheada);
+
+            string rutaArchivo = GeneradorCredenciales.ExportarCredenciales(usernameObjetivo, contrasena);
+
             bitacora.RegistrarSinSesion(
                 modulo:     modulo,
                 actividad:  "Reset Contrasena",
                 criticidad: BE.Criticidad.RecuperacionClave,
                 idUsuario:  admin.Id,
-                detalle:    $"Admin '{admin.Username}' (ID: {admin.Id}) reseteo la contrasena del usuario ID {idUsuario} a las {DateTime.Now:HH:mm:ss}."
+                detalle:    "Admin '" + admin.Username + "' (ID: " + admin.Id + ") reseteo la contrasena del usuario ID " + idUsuario + " a las " + DateTime.Now.ToString("HH:mm:ss") + "."
             );
+
+            return rutaArchivo;
         }
 
         // Desbloquea la cuenta de un usuario y resetea el contador de intentos. Solo Administrador.

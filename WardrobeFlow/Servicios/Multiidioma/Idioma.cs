@@ -4,8 +4,9 @@ namespace Servicios.Multiidioma
     /// Representa un idioma soportado por el sistema.
     ///
     /// Equivalente a la clase Idioma del ejemplo de cátedra.
-    /// Se identifican con un código corto (ES, EN, RU) en lugar de Guid
-    /// porque los idiomas son fijos y no vienen de base de datos.
+    /// Se identifican con un código corto (ES, EN, RU).
+    /// La lista de idiomas activos se carga desde la tabla Idioma en BD;
+    /// el hardcode en Traductor actúa solo como fallback de primer arranque.
     /// </summary>
     public class Idioma
     {

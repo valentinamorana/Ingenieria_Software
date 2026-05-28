@@ -1,5 +1,6 @@
 using BLL;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -23,8 +24,8 @@ namespace GUI
     {
         private readonly Usuario usuarioBLL = new Usuario();
 
-        // Referencias a los botones-pastilla de idioma (necesarias para marcar el activo)
-        private Button _loginBtnES, _loginBtnEN, _loginBtnRU;
+        // Botones-pastilla de idioma — índice por código para soporte dinámico
+        private readonly Dictionary<string, Button> _loginBtnsIdioma = new Dictionary<string, Button>();
         // Etiqueta de descripción de marca (creada en código para ser traducible)
         private Label _lblBrandDesc;
 
@@ -241,14 +242,24 @@ namespace GUI
 
         private void AgregarBotonesIdioma()
         {
+            ConstruirBotonesIdioma(Traductor.ObtenerIdiomas());
+            MarcarIdiomaActivoLogin(GestorIdioma.IdiomaActual?.Id ?? "ES");
+        }
+
+        private void ConstruirBotonesIdioma(IList<Idioma> idiomas)
+        {
+            foreach (var btn in _loginBtnsIdioma.Values)
+                pnlLeft.Controls.Remove(btn);
+            _loginBtnsIdioma.Clear();
+
             int y = pnlLeft.Height - 54;
             int x = 22;
 
-            foreach (var (codigo, texto) in new[] { ("ES", "ES"), ("EN", "EN"), ("RU", "RU") })
+            foreach (var idioma in idiomas)
             {
                 var btn = new Button
                 {
-                    Text      = texto,
+                    Text      = idioma.Id,
                     Size      = new Size(40, 22),
                     Location  = new Point(x, y),
                     FlatStyle = FlatStyle.Flat,
@@ -262,24 +273,19 @@ namespace GUI
                 btn.FlatAppearance.BorderColor = Color.FromArgb(224, 200, 216);
                 x += 46;
 
-                string cod = codigo;
+                string cod = idioma.Id;
                 btn.Click += (s, e) =>
                 {
-                    foreach (var idioma in Traductor.ObtenerIdiomas())
-                        if (idioma.Id == cod)
-                        { GestorIdioma.CambiarIdioma(idioma); break; }
+                    foreach (var idm in Traductor.ObtenerIdiomas())
+                        if (idm.Id == cod)
+                        { GestorIdioma.CambiarIdioma(idm); break; }
                     MarcarIdiomaActivoLogin(cod);
                 };
 
                 pnlLeft.Controls.Add(btn);
                 btn.BringToFront();
-
-                if (codigo == "ES") _loginBtnES = btn;
-                if (codigo == "EN") _loginBtnEN = btn;
-                if (codigo == "RU") _loginBtnRU = btn;
+                _loginBtnsIdioma[idioma.Id] = btn;
             }
-
-            MarcarIdiomaActivoLogin("ES");
         }
 
         private void MarcarIdiomaActivoLogin(string codigo)
@@ -294,9 +300,8 @@ namespace GUI
                     ? Color.FromArgb(201, 160, 186)
                     : Color.FromArgb(224, 200, 216);
             }
-            Marcar(_loginBtnES, codigo == "ES");
-            Marcar(_loginBtnEN, codigo == "EN");
-            Marcar(_loginBtnRU, codigo == "RU");
+            foreach (var kv in _loginBtnsIdioma)
+                Marcar(kv.Value, kv.Key == codigo);
         }
 
         // ── Ciclo de vida ─────────────────────────────────────────────────────────
@@ -305,6 +310,19 @@ namespace GUI
         {
             base.OnLoad(e);
             GestorIdioma.SuscribirObservador(this);
+
+            try
+            {
+                var idiomas = new BLL.IdiomaService().ObtenerIdiomasActivosComoIdioma();
+                if (idiomas.Count > 0)
+                {
+                    GestorIdioma.SetIdiomasDisponibles(idiomas);
+                    ConstruirBotonesIdioma(idiomas);
+                    MarcarIdiomaActivoLogin(GestorIdioma.IdiomaActual.Id);
+                }
+            }
+            catch { /* sin conexión: usa botones hardcodeados del constructor */ }
+
             Traducir(GestorIdioma.IdiomaActual);
         }
 
@@ -381,6 +399,8 @@ namespace GUI
         private void btnIngresar_Click(object sender, EventArgs e)
         {
             lblError.Text = string.Empty;
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string Tx(string key, string fallback) => t.ContainsKey(key) ? t[key].Texto : fallback;
 
             try
             {
@@ -390,16 +410,34 @@ namespace GUI
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
+                else
+                {
+                    // Usuario no encontrado — mismo mensaje que credenciales inválidas (evita enumeración)
+                    MostrarErrorLogin(Tx("err.login.credenciales", "Usuario o contraseña incorrectos."), false);
+                }
             }
             catch (BE.LoginException ex) when (ex.Tipo == BE.LoginException.TipoError.LimiteAlcanzado)
             {
-                MessageBox.Show(ex.Message + "\n\nLa aplicación se cerrará.",
-                    "Sesión terminada", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                string titulo = Tx("dlg.login.sesion.titulo", "Sesión terminada");
+                string cuerpo = Tx("err.login.limitesesion",  "Demasiados intentos fallidos en esta sesión.");
+                string cierre = Tx("dlg.login.sesion.cierre", "La aplicación se cerrará.");
+                MessageBox.Show(cuerpo + "\n\n" + cierre, titulo, MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 Application.Exit();
             }
             catch (BE.LoginException ex) when (ex.Tipo == BE.LoginException.TipoError.CuentaBloqueada)
             {
-                MostrarErrorLogin(ex.Message, bloqueado: true);
+                MostrarErrorLogin(Tx("err.login.bloqueada", ex.Message), bloqueado: true);
+            }
+            catch (BE.LoginException ex) when (ex.Tipo == BE.LoginException.TipoError.CredencialesInvalidas)
+            {
+                string msg = ex.IntentosRestantes.HasValue
+                    ? string.Format(Tx("err.login.intentos", "Usuario o contraseña incorrectos.\nIntentos restantes: {0}."), ex.IntentosRestantes.Value)
+                    : Tx("err.login.credenciales", "Usuario o contraseña incorrectos.");
+                MostrarErrorLogin(msg, bloqueado: false);
+            }
+            catch (BE.LoginException ex) when (ex.Tipo == BE.LoginException.TipoError.CamposVacios)
+            {
+                MostrarErrorLogin(Tx("err.login.camposvacio", ex.Message), bloqueado: false);
             }
             catch (BE.LoginException ex)
             {

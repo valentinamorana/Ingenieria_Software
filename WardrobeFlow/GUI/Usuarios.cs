@@ -75,7 +75,6 @@ namespace GUI
                 this.Text = t[this.Tag.ToString()].Texto;
             Aplicar(lblTitulo,            t);
             Aplicar(lblUser,              t);
-            Aplicar(lblPass,              t);
             Aplicar(lblPerfil,            t);
             Aplicar(btnAgregar,           t);
             Aplicar(btnRefrescar,         t);
@@ -154,27 +153,9 @@ namespace GUI
             btnRecalcularDV.Click += BtnRecalcularDV_Click;
             panelAlta.Controls.Add(btnRecalcularDV);
 
-            // Ojito mostrar/ocultar contraseña — se posiciona a la derecha del textbox
-            // una vez que el layout ya tiene las medidas escaladas.
-            txtContraseña.Width -= 26;
-            var btnOjo = new Button
-            {
-                Text      = "👁",
-                Font      = new Font("Segoe UI Emoji", 9.5f),
-                Size      = new Size(24, txtContraseña.Height),
-                Location  = new Point(txtContraseña.Right + 2, txtContraseña.Top),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = txtContraseña.BackColor,
-                ForeColor = Color.FromArgb(80, 80, 80),
-                Cursor    = Cursors.Hand,
-                TabStop   = false,
-                Padding   = new Padding(0)
-            };
-            btnOjo.FlatAppearance.BorderSize  = 0;
-            btnOjo.Click += (s, e2) =>
-                txtContraseña.PasswordChar = txtContraseña.PasswordChar == '\0' ? '●' : '\0';
-            panelAlta.Controls.Add(btnOjo);
-            btnOjo.BringToFront();
+            // Campo de contraseña oculto: la contraseña se genera automáticamente en la BLL.
+            lblPass.Visible      = false;
+            txtContraseña.Visible = false;
 
             CargarUsuarios();
         }
@@ -261,26 +242,25 @@ namespace GUI
 
         // ── Eventos de botones ────────────────────────────────────────────────
 
-        /// <summary>Crea un nuevo usuario. Las validaciones se delegan a BLL.Usuario.Alta().</summary>
+        /// <summary>Crea un nuevo usuario. La contraseña se genera automáticamente en la BLL.</summary>
         private void BtnAgregar_Click(object sender, EventArgs e)
         {
-            string username  = txtUsername.Text.Trim();
-            string password  = txtContraseña.Text;
-            string perfil    = cmbPerfil.SelectedItem?.ToString() ?? "";
+            string username = txtUsername.Text.Trim();
+            string perfil   = cmbPerfil.SelectedItem?.ToString() ?? "";
 
             try
             {
-                usuarioBLL.Alta(this.Text, username, password, perfil);
+                string rutaArchivo = usuarioBLL.Alta(this.Text, username, perfil);
 
-                // Limpiar campos y refrescar lista
                 txtUsername.Clear();
-                txtContraseña.Clear();
                 cmbPerfil.SelectedIndex = 2;
 
                 CargarUsuarios();
                 var tCr = Traductor.ObtenerTraducciones(_idioma);
-                string fmtCr = tCr.ContainsKey("msg.usr.creado") ? tCr["msg.usr.creado"].Texto : "Usuario '{0}' [{1}] creado correctamente.";
-                MostrarOk(string.Format(fmtCr, username, perfil));
+                string fmt = tCr.ContainsKey("msg.usr.creado.exportado")
+                    ? tCr["msg.usr.creado.exportado"].Texto
+                    : "Usuario '{0}' [{1}] creado.\nCredenciales en: {2}";
+                MostrarOk(string.Format(fmt, username, perfil, rutaArchivo));
             }
             catch (Exception ex)
             {
@@ -289,8 +269,8 @@ namespace GUI
         }
 
         /// <summary>
-        /// Resetea la contraseña del usuario seleccionado en la grilla.
-        /// Pide la nueva contraseña mediante un diálogo.
+        /// Resetea la contraseña del usuario seleccionado generándola automáticamente.
+        /// No solicita contraseña al administrador — la BLL la genera y exporta a archivo.
         /// Solo funciona si el usuario en sesión es Administrador.
         /// </summary>
         private void BtnResetearClave_Click(object sender, EventArgs e)
@@ -305,17 +285,14 @@ namespace GUI
             int    idUsuario = Convert.ToInt32(dgvUsuarios.SelectedRows[0].Cells["ID"].Value);
             string username  = dgvUsuarios.SelectedRows[0].Cells["Username"].Value?.ToString() ?? "";
 
-            var tR = Traductor.ObtenerTraducciones(_idioma);
-            string T_r(string k, string fb) => tR.ContainsKey(k) ? tR[k].Texto : fb;
-            string promptReset = string.Format(T_r("dlg.resetclave.prompt", "Nueva contraseña para '{0}' (mínimo 6 caracteres):"), username);
-            string nuevaClave = PedirTexto(promptReset, T_r("frm.resetclave", "Resetear Contraseña"));
-
-            if (string.IsNullOrWhiteSpace(nuevaClave)) return;
-
             try
             {
-                usuarioBLL.ResetearClave(this.Text, idUsuario, nuevaClave);
-                MostrarOk(string.Format(T_r("msg.usr.clave.reseteada", "Contraseña de '{0}' reseteada correctamente."), username));
+                string rutaArchivo = usuarioBLL.ResetearClave(this.Text, idUsuario, username);
+                var tR = Traductor.ObtenerTraducciones(_idioma);
+                string fmt = tR.ContainsKey("msg.usr.clave.exportada")
+                    ? tR["msg.usr.clave.exportada"].Texto
+                    : "Contraseña de '{0}' regenerada.\nCredenciales en: {1}";
+                MostrarOk(string.Format(fmt, username, rutaArchivo));
             }
             catch (Exception ex)
             {

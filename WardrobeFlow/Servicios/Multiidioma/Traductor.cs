@@ -11,9 +11,10 @@ namespace Servicios.Multiidioma
     ///
     /// Idiomas soportados: Español (ES), English (EN), Русский (RU).
     ///
-    /// Para agregar un nuevo idioma:
-    ///   1. Agregar una entrada en ObtenerIdiomas().
-    ///   2. Agregar un nuevo case en ObtenerTraducciones() con su diccionario.
+    /// Para agregar un nuevo idioma sin cambiar código:
+    ///   1. Insertar la fila en la tabla Idioma de la BD (Codigo, Nombre, Activo=1).
+    ///   2. Insertar sus traducciones en la tabla Traduccion vía el módulo Idiomas.
+    ///   La app carga los idiomas activos desde BD al iniciar y construye los botones dinámicamente.
     ///
     /// Claves de traducción (se asignan como Tag de cada control en el formulario):
     ///   frm.login           → título del formulario Login
@@ -38,8 +39,16 @@ namespace Servicios.Multiidioma
     {
         // ── Idiomas disponibles ───────────────────────────────────────────────
 
-        /// <summary>Devuelve la lista de idiomas soportados por el sistema.</summary>
+        /// <summary>Devuelve la lista de idiomas activos: desde BD si está disponible, o hardcodeada como fallback.</summary>
         public static IList<Idioma> ObtenerIdiomas()
+        {
+            var cache = GestorIdioma.IdiomasDisponibles;
+            if (cache != null && cache.Count > 0) return cache;
+            return ObtenerIdiomasHardcode();
+        }
+
+        /// <summary>Lista de idiomas hardcodeada — usada como fallback y durante el seeding inicial.</summary>
+        public static IList<Idioma> ObtenerIdiomasHardcode()
         {
             return new List<Idioma>
             {
@@ -52,7 +61,7 @@ namespace Servicios.Multiidioma
         /// <summary>Devuelve el idioma marcado como predeterminado (Español).</summary>
         public static Idioma ObtenerIdiomaDefault()
         {
-            foreach (var i in ObtenerIdiomas())
+            foreach (var i in ObtenerIdiomasHardcode())
                 if (i.EsDefault) return i;
             return null;
         }
@@ -215,7 +224,8 @@ namespace Servicios.Multiidioma
                 clave == "lnk.olvide"     || clave == "lbl.idioma"      ||
                 clave == "lbl.subtitulo"  || clave == "lbl.iniciarsesion" ||
                 clave == "lbl.bienvenido" || clave == "lbl.credenciales" ||
-                clave == "lbl.divider"    || clave == "lbl.brand.desc") return "Login";
+                clave == "lbl.divider"    || clave == "lbl.brand.desc"  ||
+                clave.StartsWith("err.login.") || clave.StartsWith("dlg.login.")) return "Login";
             if (clave.StartsWith("msg.modulo.") || clave == "lbl.proximamente") return "Menu";
             return "General";
         }
@@ -241,6 +251,14 @@ namespace Servicios.Multiidioma
             { "lbl.credenciales", "Ingresá tus credenciales para continuar" },
             { "lbl.divider",      "o"                              },
             { "lbl.brand.desc",   "Acceso seguro y centralizado\na todos los módulos del sistema." },
+            // Login — errores de autenticación
+            { "err.login.camposvacio",   "Usuario y contraseña son obligatorios."                                    },
+            { "err.login.credenciales",  "Usuario o contraseña incorrectos."                                         },
+            { "err.login.intentos",      "Usuario o contraseña incorrectos.\nIntentos restantes: {0}."               },
+            { "err.login.bloqueada",     "La cuenta está bloqueada.\nContactá al Administrador para reactivarla."    },
+            { "err.login.limitesesion",  "Demasiados intentos fallidos en esta sesión."                              },
+            { "dlg.login.sesion.titulo", "Sesión terminada"                                                          },
+            { "dlg.login.sesion.cierre", "La aplicación se cerrará."                                                 },
             // Menú principal
             { "mnu.perfil",       "Perfil"                         },
             { "mnu.inventario",   "Inventario"                     },
@@ -612,6 +630,8 @@ namespace Servicios.Multiidioma
             { "err.recup.verificar",     "Error al verificar el usuario: {0}"                    },
             // Usuarios — mensajes de operación
             { "msg.usr.creado",          "Usuario '{0}' [{1}] creado correctamente."              },
+            { "msg.usr.creado.exportado","Usuario '{0}' [{1}] creado.\nCredenciales guardadas en:\n{2}" },
+            { "msg.usr.clave.exportada", "Contraseña de '{0}' regenerada automáticamente.\nCredenciales guardadas en:\n{1}" },
             { "err.usr.selecciona",      "Seleccioná un usuario de la lista."                     },
             { "dlg.resetclave.prompt",   "Nueva contraseña para '{0}' (mínimo 6 caracteres):"     },
             { "msg.usr.clave.reseteada", "Contraseña de '{0}' reseteada correctamente."           },
@@ -876,6 +896,14 @@ namespace Servicios.Multiidioma
             { "lbl.credenciales", "Enter your credentials to continue" },
             { "lbl.divider",      "or"                              },
             { "lbl.brand.desc",   "Secure and centralized access\nto all system modules." },
+            // Login — authentication errors
+            { "err.login.camposvacio",   "Username and password are required."                                        },
+            { "err.login.credenciales",  "Incorrect username or password."                                            },
+            { "err.login.intentos",      "Incorrect username or password.\nAttempts remaining: {0}."                  },
+            { "err.login.bloqueada",     "Your account is locked.\nContact the Administrator to reactivate it."       },
+            { "err.login.limitesesion",  "Too many failed attempts in this session."                                   },
+            { "dlg.login.sesion.titulo", "Session ended"                                                               },
+            { "dlg.login.sesion.cierre", "The application will close."                                                 },
             // Main menu
             { "mnu.perfil",       "Profile"                         },
             { "mnu.inventario",   "Inventory"                       },
@@ -1247,6 +1275,8 @@ namespace Servicios.Multiidioma
             { "err.ped.sinplan",         "⚠ {0} has no plan assigned.\nAssign a plan in the Clients module before creating an order." },
             // Users — operation messages
             { "msg.usr.creado",          "User '{0}' [{1}] created successfully."              },
+            { "msg.usr.creado.exportado","User '{0}' [{1}] created.\nCredentials saved to:\n{2}" },
+            { "msg.usr.clave.exportada", "Password for '{0}' auto-generated.\nCredentials saved to:\n{1}" },
             { "err.usr.selecciona",      "Select a user from the list."                        },
             { "dlg.resetclave.prompt",   "New password for '{0}' (minimum 6 characters):"      },
             { "msg.usr.clave.reseteada", "Password for '{0}' reset successfully."              },
@@ -1511,6 +1541,14 @@ namespace Servicios.Multiidioma
             { "lbl.credenciales", "Введите данные для входа"               },
             { "lbl.divider",      "или"                                     },
             { "lbl.brand.desc",   "Безопасный доступ\nко всем модулям системы." },
+            // Вход — ошибки аутентификации
+            { "err.login.camposvacio",   "Имя пользователя и пароль обязательны."                                    },
+            { "err.login.credenciales",  "Неверное имя пользователя или пароль."                                     },
+            { "err.login.intentos",      "Неверное имя пользователя или пароль.\nОсталось попыток: {0}."             },
+            { "err.login.bloqueada",     "Аккаунт заблокирован.\nОбратитесь к Администратору для разблокировки."     },
+            { "err.login.limitesesion",  "Слишком много неудачных попыток в этом сеансе."                            },
+            { "dlg.login.sesion.titulo", "Сеанс завершён"                                                            },
+            { "dlg.login.sesion.cierre", "Приложение будет закрыто."                                                 },
             // Главное меню
             { "mnu.perfil",       "Профиль"                                },
             { "mnu.inventario",   "Склад"                                  },
@@ -1882,6 +1920,8 @@ namespace Servicios.Multiidioma
             { "err.ped.sinplan",         "⚠ У {0} не назначен план.\nНазначьте план в модуле Клиентов перед созданием заказа." },
             // Пользователи — сообщения об операциях
             { "msg.usr.creado",          "Пользователь '{0}' [{1}] успешно создан."             },
+            { "msg.usr.creado.exportado","Пользователь '{0}' [{1}] создан.\nУчётные данные сохранены в:\n{2}" },
+            { "msg.usr.clave.exportada", "Пароль '{0}' сгенерирован автоматически.\nУчётные данные сохранены в:\n{1}" },
             { "err.usr.selecciona",      "Выберите пользователя из списка."                     },
             { "dlg.resetclave.prompt",   "Новый пароль для '{0}' (минимум 6 символов):"         },
             { "msg.usr.clave.reseteada", "Пароль для '{0}' успешно сброшен."                    },
