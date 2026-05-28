@@ -79,6 +79,20 @@ namespace DAL
             return tabla != null && tabla.Rows.Count > 0;
         }
 
+        // Verifica si existe otro cliente activo con ese DNI (excluyendo el ID indicado).
+        // Usado al modificar para detectar colisiones sin traer toda la tabla.
+        public bool ExisteDNIParaOtro(string dni, int idExcluir)
+        {
+            SqlParameter[] p =
+            {
+                new SqlParameter("@DNI",        dni),
+                new SqlParameter("@IdExcluir",  idExcluir)
+            };
+            DataTable tabla = acceso.Leer(
+                "SELECT IdCliente FROM Cliente WHERE DNI = @DNI AND IdCliente <> @IdExcluir AND Activo = 1", p);
+            return tabla != null && tabla.Rows.Count > 0;
+        }
+
         // Inserta un nuevo cliente. Devuelve el ID generado.
         public int Alta(BE.Cliente cliente)
         {

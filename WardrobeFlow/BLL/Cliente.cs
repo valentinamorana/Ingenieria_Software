@@ -33,7 +33,8 @@ namespace BLL
             Validar(cliente);
 
             if (dalCliente.ExisteDNI(cliente.DNI))
-                throw new Exception($"Ya existe un cliente con DNI {cliente.DNI}.");
+                throw new BE.AppException("err.bll.cliente.dni_duplicado",
+                    "Ya existe un cliente con DNI {0}.", cliente.DNI);
 
             cliente.FechaAlta = DateTime.Now;
             int idNuevo = dalCliente.Alta(cliente);
@@ -51,11 +52,9 @@ namespace BLL
         {
             Validar(cliente);
 
-            // Verificar que el DNI no pertenezca a OTRO cliente
-            var existente = dalCliente.ObtenerTodos()
-                .Find(c => c.DNI == cliente.DNI && c.IdCliente != cliente.IdCliente);
-            if (existente != null)
-                throw new Exception($"El DNI {cliente.DNI} ya está registrado para otro cliente.");
+            if (dalCliente.ExisteDNIParaOtro(cliente.DNI, cliente.IdCliente))
+                throw new BE.AppException("err.bll.cliente.dni_duplicado_otro",
+                    "El DNI {0} ya está registrado para otro cliente.", cliente.DNI);
 
             dalCliente.Modificar(cliente);
             bitacora.Registrar(modulo, $"Modificar Cliente ID {cliente.IdCliente}: {cliente.NombreCompleto}", BE.Criticidad.Baja);
@@ -70,10 +69,9 @@ namespace BLL
         {
             // Bloquear baja si el cliente tiene prendas en uso actualmente
             if (cliente.StockUtilizado > 0)
-                throw new Exception(
-                    $"No se puede eliminar a {cliente.NombreCompleto}: " +
-                    $"tiene {cliente.StockUtilizado} prenda(s) en uso. " +
-                    "Primero registrá la devolución de las prendas.");
+                throw new BE.AppException("err.bll.cliente.baja_prendas",
+                    "No se puede eliminar a {0}: tiene {1} prenda(s) en uso. Registrá la devolución primero.",
+                    cliente.NombreCompleto, cliente.StockUtilizado);
 
             dalCliente.Baja(cliente.IdCliente);
             bitacora.Registrar(modulo, $"Baja Cliente ID {cliente.IdCliente}: {cliente.NombreCompleto}", BE.Criticidad.Media);
@@ -89,20 +87,25 @@ namespace BLL
                 throw new ArgumentNullException(nameof(cliente));
 
             if (string.IsNullOrWhiteSpace(cliente.Nombre))
-                throw new Exception("El nombre del cliente es obligatorio.");
+                throw new BE.AppException("err.bll.cliente.nombre_requerido",
+                    "El nombre del cliente es obligatorio.");
 
             if (string.IsNullOrWhiteSpace(cliente.Apellido))
-                throw new Exception("El apellido del cliente es obligatorio.");
+                throw new BE.AppException("err.bll.cliente.apellido_requerido",
+                    "El apellido del cliente es obligatorio.");
 
             if (string.IsNullOrWhiteSpace(cliente.DNI))
-                throw new Exception("El DNI del cliente es obligatorio.");
+                throw new BE.AppException("err.bll.cliente.dni_requerido",
+                    "El DNI del cliente es obligatorio.");
 
             if (cliente.DNI.Length < 7 || cliente.DNI.Length > 8)
-                throw new Exception("El DNI debe tener entre 7 y 8 dígitos.");
+                throw new BE.AppException("err.bll.cliente.dni_formato",
+                    "El DNI debe tener entre 7 y 8 dígitos.");
 
             foreach (char c in cliente.DNI)
                 if (!char.IsDigit(c))
-                    throw new Exception("El DNI solo puede contener números.");
+                    throw new BE.AppException("err.bll.cliente.dni_numeros",
+                        "El DNI solo puede contener números.");
         }
     }
 }

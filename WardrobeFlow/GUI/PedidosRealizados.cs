@@ -29,7 +29,7 @@ namespace GUI
     {
         protected override Label MensajeLabel => lblMensaje;
 
-        private readonly BLL.Pedido pedidoBLL = new BLL.Pedido();
+        private readonly BLL.Interfaces.IPedidoService pedidoBLL = new BLL.Pedido();
 
         private List<BE.Pedido> _pedidos = new List<BE.Pedido>();
 
@@ -152,7 +152,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al cargar: {ex.Message}");
+                MostrarError(ex);
             }
         }
 
@@ -360,7 +360,7 @@ namespace GUI
                 dgvDetalle.DataSource = tabla;
                 TraducirHeadersDetalle();
             }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[PedidosRealizados] Error al cargar detalle: {ex.Message}"); }
+            catch (Exception ex) { System.Diagnostics.Trace.TraceError($"[PedidosRealizados] Error al cargar detalle: {ex.Message}"); }
         }
 
         /// <summary>Traduce los HeaderText de la grilla de detalle de prendas según el idioma activo.</summary>
@@ -409,7 +409,7 @@ namespace GUI
                 MostrarOk(string.Format(T_desp("msg.ped.despachado", "Pedido #{0} despachado correctamente."), pedido.IdPedido));
                 CargarPedidos();
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         private void BtnEntregado_Click(object sender, EventArgs e)
@@ -438,7 +438,7 @@ namespace GUI
                 MostrarOk(string.Format(T_entr("msg.ped.entregado", "Pedido #{0} marcado como Entregado."), pedido.IdPedido));
                 CargarPedidos();
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         private void BtnDevolucion_Click(object sender, EventArgs e)
@@ -470,7 +470,7 @@ namespace GUI
                 MostrarOk(string.Format(T_dev("msg.ped.devolucion", "Devolución registrada — {0} prenda(s) pasan a EnLimpieza."), pedidoCompleto.CantidadPrendas));
                 CargarPedidos();
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         private void BtnVerNotificacion_Click(object sender, EventArgs e)

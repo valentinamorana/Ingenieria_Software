@@ -51,9 +51,9 @@ namespace BLL
         public void Despachar(string modulo, BE.Pedido pedido)
         {
             if (!pedido.PuedeDespachar())
-                throw new Exception(
-                    $"Solo se pueden despachar pedidos Pendientes.\n" +
-                    $"Este pedido está '{pedido.Estado}'.");
+                throw new BE.AppException("err.bll.pedido.despachar_estado",
+                    "Solo se pueden despachar pedidos Pendientes. Este pedido está '{0}'.",
+                    pedido.Estado);
 
             dalPedido.Despachar(pedido.IdPedido);
 
@@ -81,9 +81,9 @@ namespace BLL
         public void MarcarEntregado(string modulo, BE.Pedido pedido)
         {
             if (!pedido.PuedeEntregarse())
-                throw new Exception(
-                    $"Solo se pueden marcar como entregados los pedidos Despachados.\n" +
-                    $"Este pedido está '{pedido.Estado}'.");
+                throw new BE.AppException("err.bll.pedido.entregar_estado",
+                    "Solo se pueden marcar como entregados los pedidos Despachados. Este pedido está '{0}'.",
+                    pedido.Estado);
 
             dalPedido.MarcarEntregado(pedido.IdPedido);
 
@@ -109,9 +109,9 @@ namespace BLL
         public void RegistrarDevolucion(string modulo, BE.Pedido pedido)
         {
             if (pedido.Estado != BE.EstadoPedido.Entregado)
-                throw new Exception(
-                    "Solo se puede registrar la devolución de pedidos ya Entregados.\n" +
-                    $"Este pedido está '{pedido.Estado}'.");
+                throw new BE.AppException("err.bll.pedido.devolucion_estado",
+                    "Solo se puede registrar la devolución de pedidos ya Entregados. Este pedido está '{0}'.",
+                    pedido.Estado);
 
             dalPedido.RegistrarDevolucion(pedido.IdPedido);
 
@@ -138,12 +138,13 @@ namespace BLL
         public void Cancelar(string modulo, BE.Pedido pedido, string motivo)
         {
             if (!pedido.PuedeCancelarse())
-                throw new Exception(
-                    $"Solo se pueden cancelar pedidos en estado Pendiente.\n" +
-                    $"Este pedido está '{pedido.Estado}'.");
+                throw new BE.AppException("err.bll.pedido.cancelar_estado",
+                    "Solo se pueden cancelar pedidos en estado Pendiente. Este pedido está '{0}'.",
+                    pedido.Estado);
 
             if (string.IsNullOrWhiteSpace(motivo))
-                throw new Exception("Es obligatorio ingresar un motivo de cancelación.");
+                throw new BE.AppException("err.bll.pedido.cancelar_sin_motivo",
+                    "Es obligatorio ingresar un motivo de cancelación.");
 
             dalPedido.Cancelar(pedido.IdPedido, motivo.Trim());
 
@@ -169,15 +170,15 @@ namespace BLL
         public void DesCancelar(string modulo, BE.Pedido pedido)
         {
             if (!pedido.PuedeDesCancelarse())
-                throw new Exception(
-                    $"Solo se pueden des-cancelar pedidos Cancelados.\n" +
-                    $"Este pedido está '{pedido.Estado}'.");
+                throw new BE.AppException("err.bll.pedido.descancelar_estado",
+                    "Solo se pueden des-cancelar pedidos Cancelados. Este pedido está '{0}'.",
+                    pedido.Estado);
 
             bool ok = dalPedido.DesCancelar(pedido.IdPedido, pedido.IdCliente);
             if (!ok)
-                throw new Exception(
-                    $"No se puede des-cancelar el Pedido #{pedido.IdPedido}.\n" +
-                    "Una o más prendas del pedido ya no están disponibles.");
+                throw new BE.AppException("err.bll.pedido.descancelar_prendas",
+                    "No se puede des-cancelar el Pedido #{0}. Una o más prendas ya no están disponibles.",
+                    pedido.IdPedido);
 
             RegistrarHistorial(pedido.IdPedido, "DESCANCELAR", new List<(string, string, string)>
             {
@@ -200,7 +201,8 @@ namespace BLL
         private void ValidarParametrosEntrada(List<BE.Prenda> prendas)
         {
             if (prendas == null || prendas.Count == 0)
-                throw new Exception("Debe seleccionar al menos una prenda.");
+                throw new BE.AppException("err.bll.pedido.sin_prendas",
+                    "Debe seleccionar al menos una prenda.");
         }
 
         // Busca el cliente y verifica que exista y tenga plan asignado.
@@ -209,18 +211,18 @@ namespace BLL
             var cliente = dalCliente.ObtenerPorId(idCliente);
 
             if (cliente == null)
-                throw new Exception("El cliente seleccionado no existe.");
+                throw new BE.AppException("err.bll.pedido.cliente_inexistente",
+                    "El cliente seleccionado no existe.");
 
             if (!cliente.TienePlan())
-                throw new Exception(
-                    $"El cliente {cliente.NombreCompleto} no tiene plan asignado.\n" +
-                    "Asignale un plan antes de crear un pedido.");
+                throw new BE.AppException("err.bll.pedido.sin_plan",
+                    "El cliente {0} no tiene plan asignado. Asignale un plan antes de crear un pedido.",
+                    cliente.NombreCompleto);
 
             if (!cliente.SuscripcionVigente())
-                throw new Exception(
-                    $"La suscripción de {cliente.NombreCompleto} venció el " +
-                    $"{cliente.FechaVencimiento.Value:dd/MM/yyyy}.\n" +
-                    "Renovar la fecha de vencimiento en el módulo de Clientes.");
+                throw new BE.AppException("err.bll.pedido.suscripcion_vencida",
+                    "La suscripción de {0} venció el {1}. Renovar en el módulo de Clientes.",
+                    cliente.NombreCompleto, cliente.FechaVencimiento.Value.ToString("dd/MM/yyyy"));
 
             return cliente;
         }
@@ -229,20 +231,20 @@ namespace BLL
         private BE.PlanSuscripcion ObtenerPlanValidado(BE.Cliente cliente, int cantidadPrendas)
         {
             if (!cliente.IdPlan.HasValue)
-                throw new Exception(
-                    $"El cliente {cliente.NombreCompleto} no tiene plan asignado.\n" +
-                    "Asignale un plan antes de crear un pedido.");
+                throw new BE.AppException("err.bll.pedido.sin_plan",
+                    "El cliente {0} no tiene plan asignado. Asignale un plan antes de crear un pedido.",
+                    cliente.NombreCompleto);
 
             var plan = dalPlan.ObtenerPorId(cliente.IdPlan.Value);
 
             if (plan == null)
-                throw new Exception("No se pudo obtener el plan del cliente.");
+                throw new BE.AppException("err.bll.pedido.cliente_inexistente",
+                    "No se pudo obtener el plan del cliente.");
 
             if (!cliente.PuedeSolicitarPrendas(cantidadPrendas))
-                throw new Exception(
-                    $"El plan '{plan.Nombre}' permite {plan.LimitePrendas} prenda(s).\n" +
-                    $"El cliente ya tiene {cliente.StockUtilizado} en uso y está agregando {cantidadPrendas} más.\n" +
-                    $"Máximo posible en este pedido: {cliente.PrendasDisponiblesEnPlan()}.");
+                throw new BE.AppException("err.bll.pedido.limite_plan",
+                    "El plan '{0}' permite {1} prenda(s). El cliente ya tiene {2} en uso y agrega {3} más. Máximo posible: {4}.",
+                    plan.Nombre, plan.LimitePrendas, cliente.StockUtilizado, cantidadPrendas, cliente.PrendasDisponiblesEnPlan());
 
             return plan;
         }
@@ -253,9 +255,9 @@ namespace BLL
             foreach (var p in prendas)
             {
                 if (!p.EstaDisponible())
-                    throw new Exception(
-                        $"La prenda '{p.Nombre}' ya no está disponible (estado: {p.Estado}).\n" +
-                        "Actualizá la selección y volvé a intentar.");
+                    throw new BE.AppException("err.bll.pedido.prenda_no_disponible",
+                        "La prenda '{0}' ya no está disponible (estado: {1}). Actualizá la selección.",
+                        p.Nombre, p.Estado);
             }
         }
 
@@ -299,7 +301,7 @@ namespace BLL
             if (!Seguridad.SessionManager.IsLoggedIn)
                 throw new Exception("La sesión expiró. Volvé a iniciar sesión.");
 
-            var usuario  = Seguridad.SessionManager.GetInstance.Usuario;
+            var usuario  = Seguridad.SessionManager.GetInstance().Usuario;
             var empleado = dalEmpleado.ObtenerPorUsuario(usuario.Id);
             if (empleado == null)
                 throw new Exception(
@@ -322,7 +324,7 @@ namespace BLL
 
             if (Seguridad.SessionManager.IsLoggedIn)
             {
-                var u = Seguridad.SessionManager.GetInstance.Usuario;
+                var u = Seguridad.SessionManager.GetInstance().Usuario;
                 idUsuario     = u.Id;
                 nombreUsuario = u.Username;
             }

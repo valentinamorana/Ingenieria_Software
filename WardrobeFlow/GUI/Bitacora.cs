@@ -428,7 +428,7 @@ namespace GUI
                 var dt = bllBitacora.ObtenerTodosSistema();
                 MostrarEnGrilla(dgvSistema, lblResultadosSistema, dt);
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         private void CargarNegocio()
@@ -438,7 +438,7 @@ namespace GUI
                 var dt = bllBitacora.ObtenerTodosNegocio();
                 MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt);
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         // ── Eventos ───────────────────────────────────────────────────────────
@@ -458,7 +458,7 @@ namespace GUI
                 var dt = bllBitacora.BuscarPorFiltrosSistema(desde, null, uid, activ, criticidad);
                 MostrarEnGrilla(dgvSistema, lblResultadosSistema, dt);
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         private void BtnBuscarNegocio_Click(object sender, EventArgs e)
@@ -477,7 +477,7 @@ namespace GUI
                 var dt = bllBitacora.BuscarPorFiltrosNegocio(desde, null, tipo, idCliente, idPedido);
                 MostrarEnGrilla(dgvNegocio, lblResultadosNegocio, dt);
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         // ══════════════════════════════════════════════════════════════════════

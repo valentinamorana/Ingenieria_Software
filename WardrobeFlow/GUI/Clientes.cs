@@ -28,7 +28,7 @@ namespace GUI
     {
         protected override Label MensajeLabel => lblMensaje;
 
-        private readonly BLL.Cliente clienteBLL = new BLL.Cliente();
+        private readonly BLL.Interfaces.IClienteService clienteBLL = new BLL.Cliente();
 
         // Cache de la lista actual
         private List<BE.Cliente> _clientes = new List<BE.Cliente>();
@@ -251,7 +251,7 @@ namespace GUI
                 }
                 catch (Exception ex)
                 {
-                    MostrarError(ex.Message);
+                    MostrarError(ex);
                 }
             }
         }
@@ -277,7 +277,7 @@ namespace GUI
                 }
                 catch (Exception ex)
                 {
-                    MostrarError(ex.Message);
+                    MostrarError(ex);
                 }
             }
         }
@@ -309,7 +309,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError(ex.Message);
+                MostrarError(ex);
             }
         }
 

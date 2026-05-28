@@ -25,7 +25,7 @@ namespace BLL
         {
             if (!Seguridad.SessionManager.IsLoggedIn)
                 throw new Exception("No hay sesión activa.");
-            string perfil = Seguridad.SessionManager.GetInstance.Usuario.Perfil ?? "";
+            string perfil = Seguridad.SessionManager.GetInstance().Usuario.Perfil ?? "";
             if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
                 throw new Exception("Solo un Administrador puede modificar permisos de roles.");
         }

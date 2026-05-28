@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -90,9 +91,9 @@ namespace Seguridad
 
         // ── AES-128-CBC — cifrado reversible para datos sensibles (ej: DNI) ───
 
-        // Clave fija de 16 bytes derivada de una semilla. En produccion deberia
-        // venir de un almacen seguro (Windows DPAPI / Azure Key Vault).
-        private static readonly byte[] _claveAES = GenerarClave();
+        // Clave AES cargada (o generada la primera vez) desde key.dat junto al ejecutable.
+        // El archivo nunca se sube al repositorio (.gitignore).
+        private static readonly byte[] _claveAES = CargarOCrearClave();
 
         /// <summary>
         /// Cifra un texto con AES-128-CBC usando un IV aleatorio por operacion.
@@ -163,13 +164,27 @@ namespace Seguridad
             catch { return valor; }
         }
 
-        /// <summary>Genera la clave AES de 16 bytes a partir de una semilla fija.</summary>
-        public static byte[] GenerarClave()
+        // Carga la clave AES desde key.dat. Si el archivo no existe lo crea con bytes aleatorios.
+        // ⚠ Eliminar key.dat hace que los DNI cifrados existentes sean irrecuperables.
+        private static byte[] CargarOCrearClave()
         {
-            const string semilla = "WardrobeFlow2026";
-            byte[] semillaBytes  = Encoding.UTF8.GetBytes(semilla);
-            byte[] clave         = new byte[16];
-            Array.Copy(semillaBytes, clave, Math.Min(semillaBytes.Length, 16));
+            string ruta = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "key.dat");
+
+            if (File.Exists(ruta))
+            {
+                try
+                {
+                    byte[] datos = Convert.FromBase64String(File.ReadAllText(ruta).Trim());
+                    if (datos.Length == 16) return datos;
+                }
+                catch { }
+            }
+
+            byte[] clave = new byte[16];
+            using (var rng = RandomNumberGenerator.Create())
+                rng.GetBytes(clave);
+
+            File.WriteAllText(ruta, Convert.ToBase64String(clave));
             return clave;
         }
 

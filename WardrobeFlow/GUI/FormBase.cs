@@ -86,5 +86,27 @@ namespace GUI
             MensajeLabel.ForeColor = Color.DarkRed;
             MensajeLabel.Text      = $"✗ {msg}";
         }
+
+        /// <summary>
+        /// Sobrecarga que traduce AppException al idioma activo antes de mostrar.
+        /// Para otras excepciones muestra ex.Message directamente.
+        /// </summary>
+        protected void MostrarError(Exception ex)
+        {
+            if (ex is BE.AppException appEx)
+            {
+                var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                if (t.ContainsKey(appEx.Clave))
+                {
+                    string texto = t[appEx.Clave].Texto;
+                    string msg   = (appEx.Args != null && appEx.Args.Length > 0)
+                                   ? string.Format(texto, appEx.Args)
+                                   : texto;
+                    MostrarError(msg);
+                    return;
+                }
+            }
+            MostrarError(ex.Message);
+        }
     }
 }

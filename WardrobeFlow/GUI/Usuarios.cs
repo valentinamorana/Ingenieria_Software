@@ -264,7 +264,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError(ex.Message);
+                MostrarError(ex);
             }
         }
 
@@ -296,7 +296,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError(ex.Message);
+                MostrarError(ex);
             }
         }
 
@@ -336,7 +336,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError(ex.Message);
+                MostrarError(ex);
             }
         }
 
@@ -382,7 +382,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError(ex.Message);
+                MostrarError(ex);
             }
         }
 

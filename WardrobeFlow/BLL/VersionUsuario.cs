@@ -52,7 +52,7 @@ namespace BLL
             if (version == null)
                 throw new Exception("La versión seleccionada no existe.");
 
-            string actor = SessionManager.GetInstance.Usuario.Username;
+            string actor = SessionManager.GetInstance().Usuario.Username;
 
             GrabarVersion(version.IdUsuario, actor,
                 $"Snapshot automático antes de restaurar versión ID {idVersion}.");

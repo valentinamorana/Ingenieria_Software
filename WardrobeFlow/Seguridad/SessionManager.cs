@@ -16,15 +16,12 @@ namespace Seguridad
         public DateTime FechaInicio { get; set; }
 
         // Retorna la sesión activa. Lanza excepción si no hay sesión iniciada.
-        public static SessionManager GetInstance
+        public static SessionManager GetInstance()
         {
-            get
-            {
-                if (_session == null)
-                    throw new Exception("Sesión no iniciada. Debe hacer Login primero.");
+            if (_session == null)
+                throw new Exception("Sesión no iniciada. Debe hacer Login primero.");
 
-                return _session;
-            }
+            return _session;
         }
 
         // Indica si hay una sesión activa sin lanzar excepción.

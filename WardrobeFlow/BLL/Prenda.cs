@@ -73,7 +73,7 @@ namespace BLL
             if (nuevoEstado == BE.EstadoPrenda.EnLimpieza)
             {
                 string actor = Seguridad.SessionManager.IsLoggedIn
-                    ? Seguridad.SessionManager.GetInstance.Usuario.Username
+                    ? Seguridad.SessionManager.GetInstance().Usuario.Username
                     : null;
                 dalMantenimiento.IniciarMantenimiento(prenda.IdPrenda, actor);
             }

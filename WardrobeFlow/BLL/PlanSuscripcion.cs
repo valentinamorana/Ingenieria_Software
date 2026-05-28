@@ -7,7 +7,7 @@ namespace BLL
     /// Capa de Lógica de Negocio — Gestión de Planes de Suscripción.
     /// Valida datos antes de persistir y centraliza reglas de negocio.
     /// </summary>
-    public class PlanSuscripcion
+    public class PlanSuscripcion : Interfaces.IPlanSuscripcionService
     {
         private readonly DAL.PlanSuscripcion dalPlan = new DAL.PlanSuscripcion();
 
@@ -64,13 +64,16 @@ namespace BLL
                 throw new ArgumentNullException(nameof(plan));
 
             if (string.IsNullOrWhiteSpace(plan.Nombre))
-                throw new Exception("El nombre del plan es obligatorio.");
+                throw new BE.AppException("err.bll.plan.nombre_requerido",
+                    "El nombre del plan es obligatorio.");
 
             if (plan.LimitePrendas <= 0)
-                throw new Exception("El límite de prendas debe ser mayor que cero.");
+                throw new BE.AppException("err.bll.plan.limite_invalido",
+                    "El límite de prendas debe ser mayor que cero.");
 
             if (plan.Precio < 0)
-                throw new Exception("El precio no puede ser negativo.");
+                throw new BE.AppException("err.bll.plan.precio_negativo",
+                    "El precio no puede ser negativo.");
         }
     }
 }

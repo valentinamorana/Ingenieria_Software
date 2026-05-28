@@ -48,8 +48,6 @@ namespace DAL
                 RecalcularDVH(nuevo.Id);
         }
 
-        public void Logout() { /* no-op */ }
-
         // Busca un usuario por Username para el proceso de Login.
         // Incluye Estado e IntentosFallidos para el control de bloqueo.
         public BE.Usuario ObtenerPorUsername(string username)
@@ -136,7 +134,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[DAL.Usuario.IncrementarIntentosFallidos] {ex.Message}");
+                System.Diagnostics.Trace.TraceError($"[DAL.Usuario.IncrementarIntentosFallidos] {ex.Message}");
             }
         }
 
@@ -156,7 +154,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[DAL.Usuario.ResetearIntentosFallidos] {ex.Message}");
+                System.Diagnostics.Trace.TraceError($"[DAL.Usuario.ResetearIntentosFallidos] {ex.Message}");
             }
         }
 
@@ -283,7 +281,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[DAL.Usuario.RecalcularDVH] {ex.Message}");
+                System.Diagnostics.Trace.TraceError($"[DAL.Usuario.RecalcularDVH] {ex.Message}");
             }
         }
 
@@ -310,7 +308,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[DAL.Usuario.RecalcularTodosDVH] {ex.Message}");
+                System.Diagnostics.Trace.TraceError($"[DAL.Usuario.RecalcularTodosDVH] {ex.Message}");
             }
         }
 

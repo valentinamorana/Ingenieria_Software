@@ -29,9 +29,9 @@ namespace GUI
         public int IdPedidoCreado { get; private set; }
 
         // ── BLL ───────────────────────────────────────────────────────────────
-        private readonly BLL.Cliente  clienteBLL = new BLL.Cliente();
-        private readonly BLL.Prenda   prendaBLL  = new BLL.Prenda();
-        private readonly BLL.Pedido   pedidoBLL  = new BLL.Pedido();
+        private readonly BLL.Interfaces.IClienteService clienteBLL = new BLL.Cliente();
+        private readonly BLL.Interfaces.IPrendaService  prendaBLL  = new BLL.Prenda();
+        private readonly BLL.Interfaces.IPedidoService  pedidoBLL  = new BLL.Pedido();
 
         // ── Estado interno ────────────────────────────────────────────────────
         private List<BE.Cliente> _clientes    = new List<BE.Cliente>();
@@ -137,7 +137,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al cargar clientes: {ex.Message}");
+                MostrarError(ex);
             }
         }
 
@@ -159,7 +159,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al cargar prendas: {ex.Message}");
+                MostrarError(ex);
             }
         }
 
@@ -391,7 +391,7 @@ namespace GUI
                 btnConfirmar.Enabled = true;
                 var te = Traductor.ObtenerTraducciones(_idioma);
                 btnConfirmar.Text = te.ContainsKey("btn.confirmar.pedido") ? te["btn.confirmar.pedido"].Texto : "✓ Confirmar Pedido";
-                MostrarError(ex.Message);
+                MostrarError(ex);
             }
         }
 

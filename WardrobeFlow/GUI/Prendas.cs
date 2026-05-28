@@ -34,7 +34,7 @@ namespace GUI
     {
         protected override Label MensajeLabel => lblMensaje;
 
-        private readonly BLL.Prenda prendaBLL = new BLL.Prenda();
+        private readonly BLL.Interfaces.IPrendaService prendaBLL = new BLL.Prenda();
 
         // Determina si el usuario puede cambiar estados (ControladorDeStock)
         private readonly bool _tieneStock;
@@ -180,7 +180,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al cargar prendas: {ex.Message}");
+                MostrarError(ex);
             }
         }
 
@@ -310,7 +310,7 @@ namespace GUI
                     MostrarOk(string.Format(fmtAlt, form.PrendaEditada.Nombre));
                     CargarPrendas();
                 }
-                catch (Exception ex) { MostrarError(ex.Message); }
+                catch (Exception ex) { MostrarError(ex); }
             }
         }
 
@@ -330,7 +330,7 @@ namespace GUI
                     MostrarOk(string.Format(fmtMod, form.PrendaEditada.Nombre));
                     CargarPrendas();
                 }
-                catch (Exception ex) { MostrarError(ex.Message); }
+                catch (Exception ex) { MostrarError(ex); }
             }
         }
 
@@ -380,7 +380,7 @@ namespace GUI
                     MostrarOk(string.Format(fmtEstAct, prenda.Nombre, EstadoLabel(dlg.EstadoSeleccionado)));
                     CargarPrendas();
                 }
-                catch (Exception ex) { MostrarError(ex.Message); }
+                catch (Exception ex) { MostrarError(ex); }
             }
         }
 

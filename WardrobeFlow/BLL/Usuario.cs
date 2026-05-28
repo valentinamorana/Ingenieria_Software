@@ -78,7 +78,6 @@ namespace BLL
         public void Logout(string modulo)
         {
             bitacora.Registrar(modulo, "Cierre Sesion", BE.Criticidad.None);
-            usuarioDAL.Logout();
             SessionManager.Logout();
         }
 
@@ -121,11 +120,11 @@ namespace BLL
             if (!SessionManager.IsLoggedIn)
                 throw new Exception("No hay sesión activa.");
 
-            string perfil = SessionManager.GetInstance.Usuario.Perfil ?? "";
+            string perfil = SessionManager.GetInstance().Usuario.Perfil ?? "";
             if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
                 throw new Exception("Solo un Administrador puede resetear contraseñas.");
 
-            var admin = SessionManager.GetInstance.Usuario;
+            var admin = SessionManager.GetInstance().Usuario;
 
             new VersionUsuario().GrabarVersion(idUsuario, admin.Username,
                 "Snapshot antes de reset de contraseña por '" + admin.Username + "'.");
@@ -153,13 +152,13 @@ namespace BLL
             if (!SessionManager.IsLoggedIn)
                 throw new Exception("No hay sesión activa.");
 
-            string perfil = SessionManager.GetInstance.Usuario.Perfil ?? "";
+            string perfil = SessionManager.GetInstance().Usuario.Perfil ?? "";
             if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
                 throw new Exception("Solo un Administrador puede desbloquear cuentas.");
 
             new VersionUsuario().GrabarVersion(idUsuario,
-                SessionManager.GetInstance.Usuario.Username,
-                $"Snapshot antes de desbloqueo por '{SessionManager.GetInstance.Usuario.Username}'.");
+                SessionManager.GetInstance().Usuario.Username,
+                $"Snapshot antes de desbloqueo por '{SessionManager.GetInstance().Usuario.Username}'.");
 
             usuarioDAL.Desbloquear(idUsuario);
 
@@ -174,7 +173,7 @@ namespace BLL
             if (!SessionManager.IsLoggedIn)
                 throw new Exception("No hay sesión activa.");
 
-            string perfil = SessionManager.GetInstance.Usuario.Perfil ?? "";
+            string perfil = SessionManager.GetInstance().Usuario.Perfil ?? "";
             if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
                 throw new Exception("Solo un Administrador puede realizar esta operación.");
 
@@ -184,7 +183,7 @@ namespace BLL
             string hash = Encriptador.Hash(claveTemporal);
             usuarioDAL.ResetearTodasLasClaves(hash);
 
-            var admin = SessionManager.GetInstance.Usuario;
+            var admin = SessionManager.GetInstance().Usuario;
             bitacora.RegistrarSinSesion(
                 modulo:     modulo,
                 actividad:  "Reset Masivo Contrasenas",
@@ -198,14 +197,14 @@ namespace BLL
         public BE.Usuario ObtenerUsuarioActivo()
         {
             if (!SessionManager.IsLoggedIn) return null;
-            return SessionManager.GetInstance.Usuario;
+            return SessionManager.GetInstance().Usuario;
         }
 
         // Retorna la fecha/hora de inicio de la sesión activa, o null si no hay sesión.
         public DateTime? ObtenerFechaInicioSesion()
         {
             if (!SessionManager.IsLoggedIn) return null;
-            return SessionManager.GetInstance.FechaInicio;
+            return SessionManager.GetInstance().FechaInicio;
         }
 
         // Lista todos los usuarios del sistema (sin contraseñas).
@@ -247,7 +246,7 @@ namespace BLL
         {
             usuarioDAL.GuardarIdioma(idUsuario, idIdioma);
             if (Seguridad.SessionManager.IsLoggedIn)
-                Seguridad.SessionManager.GetInstance.Usuario.IdIdioma = idIdioma;
+                Seguridad.SessionManager.GetInstance().Usuario.IdIdioma = idIdioma;
         }
 
         // Expone la validación de contraseña para que la GUI pueda dar feedback

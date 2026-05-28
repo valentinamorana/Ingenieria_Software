@@ -71,7 +71,7 @@ namespace Servicios.Multiidioma
                 try { observer.UpdateLanguage(idioma); }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(
+                    System.Diagnostics.Trace.TraceError(
                         $"[GestorIdioma] Error notificando {observer.GetType().Name}: {ex.Message}");
                 }
             }

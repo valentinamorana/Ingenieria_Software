@@ -217,7 +217,7 @@ namespace GUI
                 MostrarOk(t.ContainsKey("msg.idiomas.activado") ? t["msg.idiomas.activado"].Texto : "Idioma activado.");
                 CargarIdiomas();
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         private void BtnDesactivar_Click(object sender, EventArgs e)
@@ -239,7 +239,7 @@ namespace GUI
                 MostrarOk(t2.ContainsKey("msg.idiomas.desactivado") ? t2["msg.idiomas.desactivado"].Texto : "Idioma desactivado.");
                 CargarIdiomas();
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         // ── Guardar traducción editada ────────────────────────────────────────

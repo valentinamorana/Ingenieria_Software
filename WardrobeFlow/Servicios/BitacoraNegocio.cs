@@ -31,7 +31,7 @@ namespace Servicios
             {
                 int? idUsuario = null;
                 if (Seguridad.SessionManager.IsLoggedIn)
-                    idUsuario = Seguridad.SessionManager.GetInstance.Usuario.Id;
+                    idUsuario = Seguridad.SessionManager.GetInstance().Usuario.Id;
 
                 var evento = new BE.BitacoraNegocio
                 {
@@ -49,7 +49,7 @@ namespace Servicios
             catch (Exception ex)
             {
                 // No interrumpir el flujo de negocio por error de bitácora
-                System.Diagnostics.Debug.WriteLine(
+                System.Diagnostics.Trace.TraceError(
                     $"[Servicios.BitacoraNegocio] Error al registrar evento {tipo}: {ex.Message}");
             }
         }

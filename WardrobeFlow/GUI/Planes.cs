@@ -30,7 +30,7 @@ namespace GUI
     {
         protected override Label MensajeLabel => lblMensaje;
 
-        private readonly BLL.PlanSuscripcion planBLL = new BLL.PlanSuscripcion();
+        private readonly BLL.Interfaces.IPlanSuscripcionService planBLL = new BLL.PlanSuscripcion();
 
         private List<BE.PlanSuscripcion> _planes = new List<BE.PlanSuscripcion>();
         private int _idEnEdicion = 0;  // 0 = modo alta
@@ -252,7 +252,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError(ex.Message);
+                MostrarError(ex);
             }
         }
 
@@ -281,7 +281,7 @@ namespace GUI
                 LimpiarFormulario();
                 CargarPlanes();
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         private void BtnActivar_Click(object sender, EventArgs e)
@@ -309,7 +309,7 @@ namespace GUI
                 LimpiarFormulario();
                 CargarPlanes();
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
     }

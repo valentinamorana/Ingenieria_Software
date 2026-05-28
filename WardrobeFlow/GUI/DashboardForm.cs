@@ -32,9 +32,9 @@ namespace GUI
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", "recordatorio.cfg");
 
         // ── Dependencias BLL ──────────────────────────────────────────────────
-        private readonly BLL.Prenda   _bllPrenda   = new BLL.Prenda();
-        private readonly BLL.Cliente  _bllCliente  = new BLL.Cliente();
-        private readonly BLL.Pedido   _bllPedido   = new BLL.Pedido();
+        private readonly BLL.Interfaces.IPrendaService  _bllPrenda   = new BLL.Prenda();
+        private readonly BLL.Interfaces.IClienteService _bllCliente  = new BLL.Cliente();
+        private readonly BLL.Interfaces.IPedidoService  _bllPedido   = new BLL.Pedido();
         private readonly BLL.Usuario  _bllUsuario  = new BLL.Usuario();
         private readonly BLL.Bitacora _bllBitacora = new BLL.Bitacora();
 

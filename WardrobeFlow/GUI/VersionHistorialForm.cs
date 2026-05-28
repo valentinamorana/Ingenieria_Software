@@ -67,7 +67,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[VersionHistorialForm.CargarUsuarios] {ex.Message}");
+                System.Diagnostics.Trace.TraceError($"[VersionHistorialForm.CargarUsuarios] {ex.Message}");
             }
         }
 

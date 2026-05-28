@@ -44,7 +44,7 @@ namespace BLL
         public bool UsuarioPuedeVerSistema()
         {
             if (!Seguridad.SessionManager.IsLoggedIn) return false;
-            string perfil = Seguridad.SessionManager.GetInstance.Usuario.Perfil ?? "";
+            string perfil = Seguridad.SessionManager.GetInstance().Usuario.Perfil ?? "";
             return !perfil.Equals("Supervisor", StringComparison.OrdinalIgnoreCase);
         }
     }

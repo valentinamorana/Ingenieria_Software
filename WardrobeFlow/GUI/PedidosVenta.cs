@@ -26,7 +26,7 @@ namespace GUI
     {
         protected override Label MensajeLabel => lblMensaje;
 
-        private readonly BLL.Pedido pedidoBLL = new BLL.Pedido();
+        private readonly BLL.Interfaces.IPedidoService pedidoBLL = new BLL.Pedido();
 
         private List<BE.Pedido> _pedidos = new List<BE.Pedido>();
 
@@ -153,7 +153,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al cargar pedidos: {ex.Message}");
+                MostrarError(ex);
             }
         }
 
@@ -256,7 +256,7 @@ namespace GUI
 
                 dgvDetallePrendas.DataSource = tabla;
             }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[PedidosVenta] Error al cargar detalle: {ex.Message}"); }
+            catch (Exception ex) { System.Diagnostics.Trace.TraceError($"[PedidosVenta] Error al cargar detalle: {ex.Message}"); }
         }
 
         private string EstadoPrendaLabel(BE.EstadoPrenda estado)
@@ -328,7 +328,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError(ex.Message);
+                MostrarError(ex);
             }
         }
 
@@ -362,7 +362,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError(ex.Message);
+                MostrarError(ex);
             }
         }
 

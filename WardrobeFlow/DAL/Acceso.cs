@@ -106,7 +106,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[Acceso.VerificarConexion] {ex.Message}");
+                System.Diagnostics.Trace.TraceError($"[Acceso.VerificarConexion] {ex.Message}");
                 return false;
             }
         }

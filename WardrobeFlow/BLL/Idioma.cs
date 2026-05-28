@@ -76,7 +76,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[BLL.Idioma.CargarTraducciones] {ex.Message}");
+                System.Diagnostics.Trace.TraceError($"[BLL.Idioma.CargarTraducciones] {ex.Message}");
                 return new Dictionary<string, string>();
             }
         }
@@ -121,7 +121,7 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[BLL.Idioma.SeedearDesdeHardcode] {ex.Message}");
+                System.Diagnostics.Trace.TraceError($"[BLL.Idioma.SeedearDesdeHardcode] {ex.Message}");
                 throw;
             }
         }

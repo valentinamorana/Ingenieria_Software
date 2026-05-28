@@ -15,7 +15,7 @@ namespace BLL
         public string RealizarBackup(string modulo, string dirDestino)
         {
             string usuario = Seguridad.SessionManager.IsLoggedIn
-                ? Seguridad.SessionManager.GetInstance.Usuario.Username
+                ? Seguridad.SessionManager.GetInstance().Usuario.Username
                 : "sistema";
 
             string usuarioSanitizado = Regex.Replace(usuario, @"[^\w]", "_");

@@ -50,7 +50,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[DAL.BitacoraNegocio] Error en ObtenerTodos: {ex.Message}");
+                System.Diagnostics.Trace.TraceError($"[DAL.BitacoraNegocio] Error en ObtenerTodos: {ex.Message}");
                 return new DataTable();
             }
         }
@@ -105,7 +105,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[DAL.BitacoraNegocio] Error en BuscarPorFiltros: {ex.Message}");
+                System.Diagnostics.Trace.TraceError($"[DAL.BitacoraNegocio] Error en BuscarPorFiltros: {ex.Message}");
                 return new DataTable();
             }
         }

@@ -1,0 +1,16 @@
+# Build output
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# NuGet
+packages/
+*.nupkg
+
+# AES encryption key — regenerate per environment, never commit
+key.dat
+
+# Local settings
+*.local

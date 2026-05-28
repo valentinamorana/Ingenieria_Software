@@ -21,7 +21,7 @@ namespace GUI
         protected override Label MensajeLabel => _lblMensaje;
 
         // ── Dependencias ──────────────────────────────────────────────────────
-        private readonly BLL.Pedido _pedidoBLL = new BLL.Pedido();
+        private readonly BLL.Interfaces.IPedidoService _pedidoBLL = new BLL.Pedido();
         private readonly int        _idPedido;
 
         // ── Estado interno ────────────────────────────────────────────────────
@@ -179,7 +179,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al buscar historial: {ex.Message}");
+                MostrarError(ex);
             }
         }
 
@@ -241,7 +241,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al restaurar: {ex.Message}");
+                MostrarError(ex);
             }
         }
 

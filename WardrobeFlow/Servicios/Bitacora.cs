@@ -1,6 +1,7 @@
 using BE;
 using System;
 using System.Data;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 
@@ -18,7 +19,7 @@ namespace Servicios
         {
             if (!Seguridad.SessionManager.IsLoggedIn) return;
 
-            var sesion = Seguridad.SessionManager.GetInstance;
+            var sesion = Seguridad.SessionManager.GetInstance();
             string ip  = ObtenerIPLocal();
 
             BE.Bitacora registro = new BE.Bitacora
@@ -40,7 +41,7 @@ namespace Servicios
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                Trace.TraceError(
                     $"[Servicios.Bitacora.Registrar] Error al registrar: {ex.Message}");
             }
         }
@@ -67,7 +68,7 @@ namespace Servicios
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                Trace.TraceError(
                     $"[Servicios.Bitacora.RegistrarSinSesion] Error al registrar: {ex.Message}");
             }
         }
@@ -108,7 +109,7 @@ namespace Servicios
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[Servicios.Bitacora.ObtenerIPLocal] {ex.Message}");
+                Trace.TraceError($"[Servicios.Bitacora.ObtenerIPLocal] {ex.Message}");
             }
             return IP_DESCONOCIDA;
         }

@@ -628,7 +628,7 @@ namespace GUI
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine(
+                        System.Diagnostics.Trace.TraceError(
                             $"[Menu] Error al guardar preferencia de idioma: {ex.Message}");
                     }
                     break;
