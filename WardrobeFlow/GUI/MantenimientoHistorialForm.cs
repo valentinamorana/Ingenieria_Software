@@ -13,11 +13,11 @@ namespace GUI
     /// </summary>
     public partial class MantenimientoHistorialForm : Form
     {
-        private readonly BE.Prenda   _prenda;
-        private readonly BLL.Prenda  _prendaBLL;
-        private Idioma               _idioma = GestorIdioma.IdiomaActual;
+        private readonly BE.Prenda              _prenda;
+        private readonly BLL.Interfaces.IPrendaService  _prendaBLL;
+        private Idioma                          _idioma = GestorIdioma.IdiomaActual;
 
-        public MantenimientoHistorialForm(BE.Prenda prenda, BLL.Prenda prendaBLL)
+        public MantenimientoHistorialForm(BE.Prenda prenda, BLL.Interfaces.IPrendaService prendaBLL)
         {
             InitializeComponent();
             _prenda    = prenda;

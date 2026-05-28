@@ -55,5 +55,8 @@ namespace BLL.Interfaces
 
         // Restaura el pedido al estado previo a la operación indicada.
         void RestaurarOperacion(string modulo, int idPedido, int idOperacion);
+
+        // Calcula el nivel de urgencia de un pedido según su estado y antigüedad.
+        BE.NivelUrgencia CalcularNivelUrgencia(BE.Pedido pedido);
     }
 }
