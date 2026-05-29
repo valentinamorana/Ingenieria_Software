@@ -57,7 +57,49 @@ namespace BLL
             foreach (var nodo in arbol)
                 raiz.AgregarHijo(nodo);
 
+            // T04 — verificar que el árbol cargado no tenga ciclos (datos corruptos en BD).
+            VerificarSinCiclos(raiz);
+
             return raiz;
+        }
+
+        // T04 — Recorre el árbol completo buscando referencias circulares.
+        // Usa DFS con un set de visitados en el camino actual.
+        // Lanza InvalidOperationException describiendo el ciclo encontrado.
+        public void VerificarSinCiclos(BE.Familia raiz)
+        {
+            var enCamino = new HashSet<int>();
+            var camino   = new System.Collections.Generic.Stack<string>();
+            VerificarRecursivo(raiz, enCamino, camino);
+        }
+
+        private void VerificarRecursivo(BE.Componente nodo,
+                                        HashSet<int> enCamino,
+                                        System.Collections.Generic.Stack<string> camino)
+        {
+            // Los nodos raíz virtuales (Id=0) no se registran para evitar falsos positivos.
+            if (nodo.Id != 0)
+            {
+                if (enCamino.Contains(nodo.Id))
+                {
+                    var ruta = new System.Collections.Generic.List<string>(camino) { nodo.Nombre };
+                    ruta.Reverse();
+                    throw new InvalidOperationException(
+                        $"Referencia circular detectada en el árbol de permisos: " +
+                        string.Join(" → ", ruta));
+                }
+                enCamino.Add(nodo.Id);
+                camino.Push(nodo.Nombre);
+            }
+
+            foreach (var hijo in nodo.Hijos)
+                VerificarRecursivo(hijo, enCamino, camino);
+
+            if (nodo.Id != 0)
+            {
+                enCamino.Remove(nodo.Id);
+                camino.Pop();
+            }
         }
 
         private void MarcarAsignados(IList<BE.Componente> nodos, HashSet<int> ids)
