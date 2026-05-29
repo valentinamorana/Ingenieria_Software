@@ -50,6 +50,7 @@
             this.idiomasToolStripMenuItem  = new System.Windows.Forms.ToolStripMenuItem();
             this.backupToolStripMenuItem         = new System.Windows.Forms.ToolStripMenuItem();
             this.historialUsuariosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.integridadToolStripMenuItem     = new System.Windows.Forms.ToolStripMenuItem();
             this.bitacoraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bitSistemaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bitNegocioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -189,7 +190,8 @@
             this.perfilesToolStripMenuItem,
             this.idiomasToolStripMenuItem,
             this.historialUsuariosToolStripMenuItem,
-            this.backupToolStripMenuItem});
+            this.backupToolStripMenuItem,
+            this.integridadToolStripMenuItem});
             this.gestionToolStripMenuItem.Name = "gestionToolStripMenuItem";
             this.gestionToolStripMenuItem.Tag = "mnu.administrar";
             this.gestionToolStripMenuItem.Size = new System.Drawing.Size(81, 20);
@@ -231,9 +233,17 @@
             //
             this.backupToolStripMenuItem.Name = "backupToolStripMenuItem";
             this.backupToolStripMenuItem.Tag  = "mnu.backup";
-            this.backupToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
+            this.backupToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.backupToolStripMenuItem.Text = "Backup y Restauración";
             this.backupToolStripMenuItem.Click += new System.EventHandler(this.backupToolStripMenuItem_Click);
+            //
+            // integridadToolStripMenuItem
+            //
+            this.integridadToolStripMenuItem.Name = "integridadToolStripMenuItem";
+            this.integridadToolStripMenuItem.Tag  = "mnu.integridad";
+            this.integridadToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.integridadToolStripMenuItem.Text = "Diagnóstico de Integridad";
+            this.integridadToolStripMenuItem.Click += new System.EventHandler(this.integridadToolStripMenuItem_Click);
             //
             // bitacoraToolStripMenuItem
             //
@@ -323,5 +333,6 @@
         private System.Windows.Forms.ToolStripMenuItem pedidosVentaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pedidosRealizadosToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem idiomasToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem integridadToolStripMenuItem;
     }
 }

@@ -4,6 +4,15 @@ using System.Text;
 
 namespace BLL
 {
+    public class ResultadoDiagnostico
+    {
+        public bool   Integro          { get; set; }
+        public int?   DVVAlmacenado    { get; set; }
+        public int    DVVCalculado     { get; set; }
+        public List<DAL.FilaUsuarioDV> FilasRotas { get; set; } = new List<DAL.FilaUsuarioDV>();
+    }
+
+
     /// <summary>
     /// Capa de Lógica de Negocio — Configuración del Sistema.
     ///
@@ -98,7 +107,11 @@ namespace BLL
                 bool dvhOk = filasCorruptas.Count == 0;
                 bool dvvOk = dvvAlmacenado != null && dvvAlmacenado == dvvCalculado;
 
-                if (dvhOk && dvvOk) return true;
+                if (dvhOk && dvvOk)
+                {
+                    LogearVerificacion("Usuario", dvvAlmacenado, dvvCalculado, true, 0, "Arranque");
+                    return true;
+                }
 
                 // Construir mensaje de alerta detallado
                 var sb = new StringBuilder();
@@ -130,6 +143,7 @@ namespace BLL
                 sb.AppendLine("  3. Ejecutar el recálculo de DVH/DVV desde Administrar → Usuarios.");
 
                 mensajeError = sb.ToString();
+                LogearVerificacion("Usuario", dvvAlmacenado, dvvCalculado, false, filasCorruptas.Count, "Arranque");
                 return false;
             }
             catch (Exception ex)
@@ -142,6 +156,85 @@ namespace BLL
                 mensajeError = $"Advertencia al verificar integridad DV:\n{ex.Message}";
                 return true;
             }
+        }
+
+        // ── Métodos de diagnóstico y reparación granular ──────────────────────
+
+        public static ResultadoDiagnostico ObtenerDiagnostico()
+        {
+            var dvDAL = new DAL.DigitoVerificador();
+            var svc   = new Seguridad.DigitoVerificador();
+            var filas = dvDAL.ObtenerFilasUsuario();
+
+            var rotas        = new List<DAL.FilaUsuarioDV>();
+            var dvhsRecalc   = new List<int>();
+
+            foreach (var fila in filas)
+            {
+                int dvhCalc = svc.CalcularDVH(
+                    fila.Id.ToString(), fila.Username, fila.Clave,
+                    fila.Perfil, fila.Estado, fila.IntentosFallidos);
+
+                dvhsRecalc.Add(dvhCalc);
+
+                if (fila.DVHAlmacenado == null || fila.DVHAlmacenado != dvhCalc)
+                    rotas.Add(fila);
+            }
+
+            int  dvvCalculado  = svc.CalcularDVV(dvhsRecalc);
+            int? dvvAlmacenado = dvDAL.ObtenerDVV("Usuario");
+
+            return new ResultadoDiagnostico
+            {
+                Integro       = rotas.Count == 0 && dvvAlmacenado != null && dvvAlmacenado == dvvCalculado,
+                DVVAlmacenado = dvvAlmacenado,
+                DVVCalculado  = dvvCalculado,
+                FilasRotas    = rotas
+            };
+        }
+
+        public static void RepararFilas(IEnumerable<int> ids)
+        {
+            var dvDAL = new DAL.DigitoVerificador();
+            var svc   = new Seguridad.DigitoVerificador();
+            var todas = dvDAL.ObtenerFilasUsuario();
+
+            var idsSet = new HashSet<int>(ids);
+
+            foreach (var fila in todas)
+            {
+                if (!idsSet.Contains(fila.Id)) continue;
+                int dvh = svc.CalcularDVH(
+                    fila.Id.ToString(), fila.Username, fila.Clave,
+                    fila.Perfil, fila.Estado, fila.IntentosFallidos);
+                dvDAL.ActualizarDVH(fila.Id, dvh);
+            }
+
+            // Recalcular DVV completo tras reparar las filas elegidas
+            var todasActualizadas = dvDAL.ObtenerFilasUsuario();
+            var dvhValues = new List<int>();
+            foreach (var f in todasActualizadas)
+                dvhValues.Add(svc.CalcularDVH(f.Id.ToString(), f.Username, f.Clave, f.Perfil, f.Estado, f.IntentosFallidos));
+            dvDAL.GuardarDVV("Usuario", svc.CalcularDVV(dvhValues));
+        }
+
+        // Registra silenciosamente cada verificación en HistorialIntegridad.
+        // Falla silenciosamente si la tabla aún no existe (antes de la migración).
+        private static void LogearVerificacion(string tabla, int? dvvAlm, int dvvCalc, bool resultado, int filasRotas, string origen)
+        {
+            try
+            {
+                new DAL.HistorialIntegridad().Insertar(new BE.HistorialIntegridad
+                {
+                    NombreTabla    = tabla,
+                    DVVAlmacenado  = dvvAlm,
+                    DVVCalculado   = dvvCalc,
+                    Resultado      = resultado,
+                    FilasCorruptas = filasRotas,
+                    DisparadoPor   = origen
+                });
+            }
+            catch { /* tabla aún no existe — ignorar */ }
         }
 
         // Recalcula y persiste DVH de cada fila de Usuario y el DVV de la tabla.

@@ -199,6 +199,12 @@
     <Compile Include="Usuarios.Designer.cs">
       <DependentUpon>Usuarios.cs</DependentUpon>
     </Compile>
+    <Compile Include="DiagnosticoIntegridadForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReparacionAsistidaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <EmbeddedResource Include="Bitacora.resx">
       <DependentUpon>Bitacora.cs</DependentUpon>
     </EmbeddedResource>

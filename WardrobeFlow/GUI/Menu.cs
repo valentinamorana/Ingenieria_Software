@@ -37,6 +37,9 @@ namespace GUI
     /// </summary>
     public partial class Menu : Form, IIdiomaObserver
     {
+        // Timer de verificación periódica de integridad (C — background check)
+        private System.Windows.Forms.Timer _timerIntegridad;
+
         // Botones de idioma — índice por código de idioma para soporte dinámico
         private ToolStrip _tsIdioma;
         private readonly Dictionary<string, ToolStripButton> _btnIdiomas = new Dictionary<string, ToolStripButton>();
@@ -208,6 +211,9 @@ namespace GUI
             bitSistemaToolStripMenuItem.Visible      = tieneAuditoria;
             bitNegocioToolStripMenuItem.Visible      = tieneAuditoria;
             reporteJornadaToolStripMenuItem.Visible  = tieneAuditoria;
+
+            // Diagnóstico de Integridad — solo Administrador
+            integridadToolStripMenuItem.Visible = tieneUsuarios;
         }
 
         /// <summary>
@@ -514,6 +520,13 @@ namespace GUI
 
             // Abrir Panel de Control al iniciar sesión (permisos filtran las tarjetas visibles)
             new DashboardForm(_usuarioActivo?.Permisos) { MdiParent = this }.Show();
+
+            // ── Timer de verificación periódica de integridad (C) ─────────────
+            // Cada 30 minutos verifica DVH/DVV en background y loguea el resultado.
+            // Si detecta problema avisa con un MessageBox no bloqueante.
+            _timerIntegridad = new System.Windows.Forms.Timer { Interval = 30 * 60 * 1000 };
+            _timerIntegridad.Tick += TimerIntegridad_Tick;
+            _timerIntegridad.Start();
         }
 
         /// <summary>
@@ -523,8 +536,58 @@ namespace GUI
         /// </summary>
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            _timerIntegridad?.Stop();
+            _timerIntegridad?.Dispose();
             GestorIdioma.DesuscribirObservador(this);
             base.OnFormClosing(e);
+        }
+
+        private void TimerIntegridad_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                var diag = BLL.Configuracion.ObtenerDiagnostico();
+
+                // Loguear resultado silenciosamente
+                try
+                {
+                    new DAL.HistorialIntegridad().Insertar(new BE.HistorialIntegridad
+                    {
+                        NombreTabla    = "Usuario",
+                        DVVAlmacenado  = diag.DVVAlmacenado,
+                        DVVCalculado   = diag.DVVCalculado,
+                        Resultado      = diag.Integro,
+                        FilasCorruptas = diag.FilasRotas.Count,
+                        DisparadoPor   = "Timer"
+                    });
+                }
+                catch { /* tabla aún no existe */ }
+
+                if (!diag.Integro)
+                {
+                    MessageBox.Show(
+                        $"ALERTA: Se detectaron problemas de integridad en la tabla Usuario.\n\n" +
+                        $"Filas con DVH inválido: {diag.FilasRotas.Count}\n" +
+                        $"DVV almacenado: {diag.DVVAlmacenado?.ToString() ?? "—"}  |  DVV calculado: {diag.DVVCalculado}\n\n" +
+                        "Vaya a Administrar → Diagnóstico de Integridad para reparar.",
+                        "Alerta de Integridad",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError($"[Menu.TimerIntegridad] Error: {ex.Message}");
+            }
+        }
+
+        private void integridadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (Form hijo in this.MdiChildren)
+            {
+                if (hijo is DiagnosticoIntegridadForm) { hijo.BringToFront(); return; }
+            }
+            new DiagnosticoIntegridadForm { MdiParent = this }.Show();
         }
 
         /// <summary>
@@ -565,6 +628,7 @@ namespace GUI
             Aplicar(idiomasToolStripMenuItem,           t);
             Aplicar(historialUsuariosToolStripMenuItem, t);
             Aplicar(backupToolStripMenuItem,            t);
+            Aplicar(integridadToolStripMenuItem,        t);
             Aplicar(bitacoraToolStripMenuItem,          t);
             Aplicar(bitSistemaToolStripMenuItem,        t);
             Aplicar(bitNegocioToolStripMenuItem,        t);
