@@ -42,6 +42,7 @@ namespace GUI
             this.lblTitulo.Font = new System.Drawing.Font("Segoe UI", 11f, System.Drawing.FontStyle.Bold);
             this.lblTitulo.ForeColor = System.Drawing.Color.White;
             this.lblTitulo.Location = new System.Drawing.Point(16, 10);
+            this.lblTitulo.Tag = "frm.confirmaradmin";
             this.lblTitulo.Text = "Confirmar Administrador";
 
             // lblSubtitulo
@@ -49,6 +50,7 @@ namespace GUI
             this.lblSubtitulo.Font = new System.Drawing.Font("Segoe UI", 8f);
             this.lblSubtitulo.ForeColor = System.Drawing.Color.FromArgb(220, 200, 210);
             this.lblSubtitulo.Location = new System.Drawing.Point(17, 36);
+            this.lblSubtitulo.Tag = "lbl.confirmaradmin.subtitulo";
             this.lblSubtitulo.Text = "Solo un Administrador puede continuar";
 
             // pnlBody
@@ -66,6 +68,7 @@ namespace GUI
             this.lblUsuario.Font = new System.Drawing.Font("Segoe UI", 8.5f, System.Drawing.FontStyle.Bold);
             this.lblUsuario.ForeColor = System.Drawing.Color.FromArgb(80, 40, 60);
             this.lblUsuario.Location = new System.Drawing.Point(20, 18);
+            this.lblUsuario.Tag = "lbl.confirmaradmin.usuario";
             this.lblUsuario.Text = "Usuario";
 
             // txtUsuario
@@ -80,6 +83,7 @@ namespace GUI
             this.lblClave.Font = new System.Drawing.Font("Segoe UI", 8.5f, System.Drawing.FontStyle.Bold);
             this.lblClave.ForeColor = System.Drawing.Color.FromArgb(80, 40, 60);
             this.lblClave.Location = new System.Drawing.Point(20, 74);
+            this.lblClave.Tag = "lbl.confirmaradmin.clave";
             this.lblClave.Text = "Contraseña";
 
             // txtClave
@@ -114,6 +118,7 @@ namespace GUI
             this.btnConfirmar.ForeColor = System.Drawing.Color.White;
             this.btnConfirmar.Location = new System.Drawing.Point(204, 10);
             this.btnConfirmar.Size = new System.Drawing.Size(156, 32);
+            this.btnConfirmar.Tag = "btn.confirmaradmin.ok";
             this.btnConfirmar.Text = "Confirmar";
             this.btnConfirmar.Click += new System.EventHandler(this.btnConfirmar_Click);
 
@@ -126,6 +131,7 @@ namespace GUI
             this.btnCancelar.ForeColor = System.Drawing.Color.FromArgb(100, 40, 80);
             this.btnCancelar.Location = new System.Drawing.Point(40, 10);
             this.btnCancelar.Size = new System.Drawing.Size(120, 32);
+            this.btnCancelar.Tag = "btn.confirmaradmin.cancelar";
             this.btnCancelar.Text = "Cancelar";
             this.btnCancelar.Click += new System.EventHandler(this.btnCancelar_Click);
 
@@ -133,7 +139,8 @@ namespace GUI
             this.AcceptButton = this.btnConfirmar;
             this.CancelButton = this.btnCancelar;
             this.BackColor = System.Drawing.Color.FromArgb(252, 250, 252);
-            this.ClientSize = new System.Drawing.Size(380, 244);
+            this.ClientSize = new System.Drawing.Size(380, 290);
+            this.Tag = "frm.confirmaradmin";
             this.Controls.Add(this.pnlBody);
             this.Controls.Add(this.pnlBotones);
             this.Controls.Add(this.pnlHeader);

@@ -707,6 +707,16 @@ namespace Servicios.Multiidioma
             { "btn.rest.recalcular",     "Recalcular Dígitos Verificadores"                       },
             { "btn.rest.backup",         "Restaurar desde Backup"                                 },
             { "btn.rest.salir",          "Salir"                                                  },
+            // RestauracionForm — detalle del error (txtDetalle)
+            { "dv.alerta.titulo",        "ALERTA DE INTEGRIDAD — Tabla Usuario"                   },
+            { "dv.dvh.intro",            "Se detectaron {0} fila(s) con DVH inválido:"            },
+            { "dv.dvv.intro",            "El DVV de la tabla no coincide con el valor almacenado."},
+            { "dv.dvv.valores",          "  Almacenado: {0}  |  Calculado: {1}"                   },
+            { "dv.causas",               "Posibles causas: modificación directa en la base de datos,\nrestauración parcial de backup o error en la migración." },
+            { "dv.pasos.titulo",         "Para restaurar la integridad, un Administrador debe:"   },
+            { "dv.pasos.1",              "  1. Revisar los registros alterados en SQL Server."    },
+            { "dv.pasos.2",              "  2. Corregir los valores afectados manualmente."       },
+            { "dv.pasos.3",              "  3. Ejecutar el recálculo de DVH/DVV desde Administrar → Usuarios." },
             // Menú — Panel de Control + Bitácoras divididas
             { "mnu.dashboard",           "Panel de Control"                                       },
             { "mnu.bitacora.sistema",    "Bitácora del Sistema"                                   },
@@ -796,7 +806,14 @@ namespace Servicios.Multiidioma
             { "col.ver.detalle",         "Detalle"                                                },
             { "col.ver.estado",          "Estado"                                                 },
             { "mnu.historialusr",        "Historial de Cambios"                                   },
-            // Mensajes ConfirmarAdminForm
+            // ConfirmarAdminForm — UI
+            { "frm.confirmaradmin",              "Confirmar Administrador"                                    },
+            { "lbl.confirmaradmin.subtitulo",    "Solo un Administrador puede continuar"                     },
+            { "lbl.confirmaradmin.usuario",      "Usuario"                                                    },
+            { "lbl.confirmaradmin.clave",        "Contraseña"                                                 },
+            { "btn.confirmaradmin.ok",           "Confirmar"                                                  },
+            { "btn.confirmaradmin.cancelar",     "Cancelar"                                                   },
+            // ConfirmarAdminForm — Mensajes
             { "msg.confirmar.vacio",         "Ingrese usuario y contraseña."                                              },
             { "msg.confirmar.invalido",      "Credenciales inválidas o el usuario no es Administrador."                  },
             // Mensajes VersionHistorialForm
@@ -1377,6 +1394,16 @@ namespace Servicios.Multiidioma
             { "btn.rest.recalcular",     "Recalculate Check Digits"                               },
             { "btn.rest.backup",         "Restore from Backup"                                    },
             { "btn.rest.salir",          "Exit"                                                   },
+            // RestauracionForm — error detail (txtDetalle)
+            { "dv.alerta.titulo",        "INTEGRITY ALERT — Usuario Table"                        },
+            { "dv.dvh.intro",            "{0} row(s) with invalid DVH detected:"                  },
+            { "dv.dvv.intro",            "The table DVV does not match the stored value."         },
+            { "dv.dvv.valores",          "  Stored: {0}  |  Calculated: {1}"                     },
+            { "dv.causas",               "Possible causes: direct database modification,\npartial backup restore, or migration error." },
+            { "dv.pasos.titulo",         "To restore integrity, an Administrator must:"           },
+            { "dv.pasos.1",              "  1. Review altered records in SQL Server."             },
+            { "dv.pasos.2",              "  2. Manually correct the affected values."             },
+            { "dv.pasos.3",              "  3. Run DVH/DVV recalculation from Manage → Users."   },
             // Menu — Dashboard + split Audit Logs
             { "mnu.dashboard",           "Dashboard"                                              },
             { "mnu.bitacora.sistema",    "System Log"                                             },
@@ -1466,7 +1493,14 @@ namespace Servicios.Multiidioma
             { "col.ver.detalle",         "Detail"                                                 },
             { "col.ver.estado",          "Status"                                                 },
             { "mnu.historialusr",        "Change History"                                         },
-            // ConfirmarAdmin messages
+            // ConfirmarAdminForm — UI
+            { "frm.confirmaradmin",              "Confirm Administrator"                                      },
+            { "lbl.confirmaradmin.subtitulo",    "Only an Administrator can continue"                         },
+            { "lbl.confirmaradmin.usuario",      "Username"                                                    },
+            { "lbl.confirmaradmin.clave",        "Password"                                                    },
+            { "btn.confirmaradmin.ok",           "Confirm"                                                     },
+            { "btn.confirmaradmin.cancelar",     "Cancel"                                                      },
+            // ConfirmarAdminForm — messages
             { "msg.confirmar.vacio",         "Enter username and password."                                               },
             { "msg.confirmar.invalido",      "Invalid credentials or the user is not an Administrator."                  },
             // VersionHistorial messages
@@ -2047,6 +2081,16 @@ namespace Servicios.Multiidioma
             { "btn.rest.recalcular",     "Пересчитать контрольные цифры"                         },
             { "btn.rest.backup",         "Восстановить из резервной копии"                        },
             { "btn.rest.salir",          "Выйти"                                                  },
+            // RestauracionForm — детали ошибки (txtDetalle)
+            { "dv.alerta.titulo",        "ПРЕДУПРЕЖДЕНИЕ О ЦЕЛОСТНОСТИ — Таблица Usuario"         },
+            { "dv.dvh.intro",            "Обнаружено {0} строк(а/и) с недействительным DVH:"     },
+            { "dv.dvv.intro",            "DVV таблицы не совпадает с сохранённым значением."      },
+            { "dv.dvv.valores",          "  Сохранено: {0}  |  Вычислено: {1}"                   },
+            { "dv.causas",               "Возможные причины: прямое изменение базы данных,\nчастичное восстановление резервной копии или ошибка миграции." },
+            { "dv.pasos.titulo",         "Для восстановления целостности Администратор должен:"   },
+            { "dv.pasos.1",              "  1. Проверить изменённые записи в SQL Server."         },
+            { "dv.pasos.2",              "  2. Вручную исправить затронутые значения."            },
+            { "dv.pasos.3",              "  3. Запустить пересчёт DVH/DVV из Управление → Пользователи." },
             // Меню — Панель управления + разделённые журналы
             { "mnu.dashboard",           "Панель управления"                                      },
             { "mnu.bitacora.sistema",    "Системный журнал"                                       },
@@ -2136,7 +2180,14 @@ namespace Servicios.Multiidioma
             { "col.ver.detalle",         "Детали"                                                 },
             { "col.ver.estado",          "Состояние"                                              },
             { "mnu.historialusr",        "История изменений"                                      },
-            // Сообщения ConfirmarAdmin
+            // ConfirmarAdminForm — интерфейс
+            { "frm.confirmaradmin",              "Подтверждение Администратора"                               },
+            { "lbl.confirmaradmin.subtitulo",    "Только Администратор может продолжить"                      },
+            { "lbl.confirmaradmin.usuario",      "Пользователь"                                               },
+            { "lbl.confirmaradmin.clave",        "Пароль"                                                     },
+            { "btn.confirmaradmin.ok",           "Подтвердить"                                                },
+            { "btn.confirmaradmin.cancelar",     "Отмена"                                                     },
+            // ConfirmarAdminForm — сообщения
             { "msg.confirmar.vacio",         "Введите имя пользователя и пароль."                                        },
             { "msg.confirmar.invalido",      "Неверные учётные данные или пользователь не является Администратором."    },
             // Сообщения VersionHistorial

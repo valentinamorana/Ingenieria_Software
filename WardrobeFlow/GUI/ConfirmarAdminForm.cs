@@ -18,6 +18,27 @@ namespace GUI
             try { string ico = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (System.IO.File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
         }
 
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            Traducir(GestorIdioma.IdiomaActual);
+        }
+
+        private void Traducir(Servicios.Multiidioma.Idioma idioma)
+        {
+            var t = Traductor.ObtenerTraducciones(idioma);
+            void Apl(Control c)
+            {
+                if (c?.Tag != null && t.ContainsKey(c.Tag.ToString()))
+                    c.Text = t[c.Tag.ToString()].Texto;
+            }
+            if (this.Tag != null && t.ContainsKey(this.Tag.ToString()))
+                this.Text = t[this.Tag.ToString()].Texto;
+            Apl(lblTitulo); Apl(lblSubtitulo);
+            Apl(lblUsuario); Apl(lblClave);
+            Apl(btnConfirmar); Apl(btnCancelar);
+        }
+
         private void btnConfirmar_Click(object sender, EventArgs e)
         {
             lblError.Text = string.Empty;
