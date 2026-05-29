@@ -1,3 +1,4 @@
+using Servicios.Multiidioma;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -19,6 +20,7 @@ namespace GUI
         private Button       _btnReparar;
         private Button       _btnCancelar;
         private Label        _lblResumen;
+        private Label        _lblTituloHeader;
 
         public ReparacionAsistidaForm(List<DAL.FilaUsuarioDV> filasRotas)
         {
@@ -26,9 +28,30 @@ namespace GUI
             BuildUI();
         }
 
+        private string T(string key, string fallback)
+        {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            return t.ContainsKey(key) ? t[key].Texto : fallback;
+        }
+
+        private void Traducir()
+        {
+            this.Text         = T("frm.reparacion",     "Reparación Manual de Dígitos Verificadores");
+            _lblTituloHeader.Text = T("lbl.rep.seleccionar", "Seleccione las filas a reparar");
+            _lblResumen.Text  = string.Format(T("lbl.rep.resumen", "{0} fila(s) con DVH inválido detectada(s)."), _filasRotas.Count);
+            bool selAll = _btnSelAll.Text != T("btn.rep.deselall", "Deseleccionar Todas");
+            _btnSelAll.Text   = selAll ? T("btn.rep.selall",   "Seleccionar Todas") : T("btn.rep.deselall", "Deseleccionar Todas");
+            _btnReparar.Text  = T("btn.rep.reparar",    "Reparar Seleccionadas");
+            _btnCancelar.Text = T("btn.cancelar",       "Cancelar");
+            if (_grid.Columns.Contains("colId"))      _grid.Columns["colId"].HeaderText      = T("col.rep.id",       "ID");
+            if (_grid.Columns.Contains("colUsuario"))  _grid.Columns["colUsuario"].HeaderText = T("col.rep.usuario",  "Usuario");
+            if (_grid.Columns.Contains("colDVHAlm"))   _grid.Columns["colDVHAlm"].HeaderText  = T("col.rep.dvh",      "DVH Almacenado");
+            if (_grid.Columns.Contains("colEstado"))   _grid.Columns["colEstado"].HeaderText  = T("col.rep.estado",   "Estado");
+        }
+
         private void BuildUI()
         {
-            this.Text            = "Reparación Manual de Dígitos Verificadores";
+            this.Text            = T("frm.reparacion", "Reparación Manual de Dígitos Verificadores");
             this.Size            = new Size(680, 460);
             this.StartPosition   = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -45,15 +68,15 @@ namespace GUI
                 Padding   = new Padding(16, 0, 16, 0)
             };
 
-            var lblTitulo = new Label
+            _lblTituloHeader = new Label
             {
-                Text      = "Seleccione las filas a reparar",
+                Text      = T("lbl.rep.seleccionar", "Seleccione las filas a reparar"),
                 Font      = new Font("Segoe UI", 11f, FontStyle.Bold),
                 ForeColor = Color.White,
                 Dock      = DockStyle.Fill,
                 TextAlign = System.Drawing.ContentAlignment.MiddleLeft
             };
-            panelHeader.Controls.Add(lblTitulo);
+            panelHeader.Controls.Add(_lblTituloHeader);
 
             // ── Grilla ────────────────────────────────────────────────────────
             _grid = new DataGridView
@@ -78,17 +101,17 @@ namespace GUI
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.None
             };
             _grid.Columns.Add(colCheck);
-            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "colId",      HeaderText = "ID",             FillWeight = 8,  ReadOnly = true });
-            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "colUsuario",  HeaderText = "Usuario",        FillWeight = 28, ReadOnly = true });
-            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "colDVHAlm",   HeaderText = "DVH Almacenado", FillWeight = 19, ReadOnly = true });
-            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "colEstado",   HeaderText = "Estado",         FillWeight = 30, ReadOnly = true });
+            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "colId",      HeaderText = T("col.rep.id",      "ID"),             FillWeight = 8,  ReadOnly = true });
+            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "colUsuario",  HeaderText = T("col.rep.usuario", "Usuario"),        FillWeight = 28, ReadOnly = true });
+            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "colDVHAlm",   HeaderText = T("col.rep.dvh",     "DVH Almacenado"), FillWeight = 19, ReadOnly = true });
+            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "colEstado",   HeaderText = T("col.rep.estado",  "Estado"),         FillWeight = 30, ReadOnly = true });
 
             _grid.CellFormatting += Grid_CellFormatting;
 
             // ── Resumen ───────────────────────────────────────────────────────
             _lblResumen = new Label
             {
-                Text      = $"{_filasRotas.Count} fila(s) con DVH inválido detectada(s).",
+                Text      = string.Format(T("lbl.rep.resumen", "{0} fila(s) con DVH inválido detectada(s)."), _filasRotas.Count),
                 Dock      = DockStyle.Top,
                 Height    = 28,
                 Padding   = new Padding(8, 4, 8, 0),
@@ -108,7 +131,7 @@ namespace GUI
 
             _btnCancelar = new Button
             {
-                Text      = "Cancelar",
+                Text      = T("btn.cancelar", "Cancelar"),
                 Width     = 90,
                 Height    = 34,
                 FlatStyle = FlatStyle.Flat
@@ -117,7 +140,7 @@ namespace GUI
 
             _btnReparar = new Button
             {
-                Text      = "Reparar Seleccionadas",
+                Text      = T("btn.rep.reparar", "Reparar Seleccionadas"),
                 Width     = 170,
                 Height    = 34,
                 FlatStyle = FlatStyle.Flat,
@@ -129,7 +152,7 @@ namespace GUI
 
             _btnSelAll = new Button
             {
-                Text      = "Seleccionar Todas",
+                Text      = T("btn.rep.selall", "Seleccionar Todas"),
                 Width     = 140,
                 Height    = 34,
                 FlatStyle = FlatStyle.Flat,
@@ -151,6 +174,7 @@ namespace GUI
         {
             base.OnLoad(e);
             try { string ico = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (System.IO.File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
+            Traducir();
             CargarFilas();
         }
 
@@ -159,7 +183,9 @@ namespace GUI
             _grid.Rows.Clear();
             foreach (var fila in _filasRotas)
             {
-                string estado = fila.DVHAlmacenado == null ? "Sin DVH almacenado" : "DVH no coincide con datos actuales";
+                string estado = fila.DVHAlmacenado == null
+                    ? T("rep.estado.sinDVH",     "Sin DVH almacenado")
+                    : T("rep.estado.nocoincide", "DVH no coincide con datos actuales");
                 int idx = _grid.Rows.Add(true, fila.Id, fila.Username, fila.DVHAlmacenado?.ToString() ?? "—", estado);
                 _grid.Rows[idx].Tag = fila.Id;
             }
@@ -179,10 +205,12 @@ namespace GUI
 
         private void BtnSelAll_Click(object sender, EventArgs e)
         {
-            bool marcarTodas = _btnSelAll.Text == "Seleccionar Todas";
+            bool marcarTodas = _btnSelAll.Text == T("btn.rep.selall", "Seleccionar Todas");
             foreach (DataGridViewRow row in _grid.Rows)
                 row.Cells["colCheck"].Value = marcarTodas;
-            _btnSelAll.Text = marcarTodas ? "Deseleccionar Todas" : "Seleccionar Todas";
+            _btnSelAll.Text = marcarTodas
+                ? T("btn.rep.deselall", "Deseleccionar Todas")
+                : T("btn.rep.selall",   "Seleccionar Todas");
         }
 
         private void BtnReparar_Click(object sender, EventArgs e)
@@ -196,27 +224,35 @@ namespace GUI
 
             if (idsSeleccionados.Count == 0)
             {
-                MessageBox.Show("Seleccione al menos una fila para reparar.", "Sin selección", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(
+                    T("msg.rep.seleccionar",        "Seleccione al menos una fila para reparar."),
+                    T("msg.rep.sinseleccion.titulo", "Sin selección"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            string msg = $"¿Reparar los dígitos verificadores de {idsSeleccionados.Count} fila(s) seleccionada(s)?\n\n" +
-                          "Se recalcularán los DVH individuales y el DVV de la tabla.";
+            string msg = string.Format(
+                T("msg.rep.confirmar", "¿Reparar los dígitos verificadores de {0} fila(s) seleccionada(s)?\n\nSe recalcularán los DVH individuales y el DVV de la tabla."),
+                idsSeleccionados.Count);
 
-            if (MessageBox.Show(msg, "Confirmar Reparación", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            if (MessageBox.Show(msg, T("msg.rep.confirmar.titulo", "Confirmar Reparación"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                 return;
 
             try
             {
                 BLL.Configuracion.RepararFilas(idsSeleccionados);
                 MessageBox.Show(
-                    $"Se repararon {idsSeleccionados.Count} fila(s) con éxito.\nEl DVV de la tabla fue recalculado.",
-                    "Reparación Exitosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string.Format(T("msg.rep.exito", "Se repararon {0} fila(s) con éxito.\nEl DVV de la tabla fue recalculado."), idsSeleccionados.Count),
+                    T("msg.rep.exito.titulo", "Reparación Exitosa"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al reparar:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    T("msg.error.titulo", "Error") + ":\n" + ex.Message,
+                    T("msg.error.titulo", "Error"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

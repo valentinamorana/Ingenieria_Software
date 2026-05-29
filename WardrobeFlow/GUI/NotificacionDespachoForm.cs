@@ -58,57 +58,53 @@ namespace GUI
         private string GenerarMensaje()
         {
             bool entregado = _pedido.Estado == BE.EstadoPedido.Entregado;
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string TT(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
             var sb = new StringBuilder();
-
             sb.AppendLine("══════════════════════════════════════════════");
-            sb.AppendLine("         WARDROBEFLOW — NOTIFICACIÓN");
+            sb.AppendLine("         WARDROBEFLOW — " + TT("notif.titulo", "NOTIFICACIÓN"));
             sb.AppendLine("══════════════════════════════════════════════");
             sb.AppendLine();
-            sb.AppendLine($"Estimado/a {_pedido.NombreCliente},");
+            sb.AppendLine(string.Format(TT("notif.gen.saludo", "Estimado/a {0},"), _pedido.NombreCliente));
             sb.AppendLine();
 
-            if (entregado)
-            {
-                sb.AppendLine("Queremos confirmarle que su pedido fue entregado.");
-                sb.AppendLine("Gracias por elegir WardrobeFlow.");
-            }
-            else
-            {
-                sb.AppendLine("Le informamos que su pedido ha sido despachado y");
-                sb.AppendLine("estará llegando a su domicilio en breve.");
-            }
+            string cuerpo = entregado
+                ? TT("notif.gen.entregado", "Queremos confirmarle que su pedido fue entregado.\nGracias por elegir WardrobeFlow.")
+                : TT("notif.gen.despachado", "Le informamos que su pedido ha sido despachado y\nestará llegando a su domicilio en breve.");
+            sb.AppendLine(cuerpo);
 
             sb.AppendLine();
             sb.AppendLine("──────────────────────────────────────────────");
-            sb.AppendLine($"  Número de pedido : #{_pedido.IdPedido}");
-            sb.AppendLine($"  Fecha de pedido  : {_pedido.FechaPedido:dd/MM/yyyy HH:mm}");
+            sb.AppendLine($"  {TT("notif.gen.nropedido",   "Número de pedido")} : #{_pedido.IdPedido}");
+            sb.AppendLine($"  {TT("notif.gen.fechapedido", "Fecha de pedido")}  : {_pedido.FechaPedido:dd/MM/yyyy HH:mm}");
 
             if (_pedido.FechaDespacho.HasValue)
-                sb.AppendLine($"  Fecha despacho   : {_pedido.FechaDespacho.Value:dd/MM/yyyy HH:mm}");
+                sb.AppendLine($"  {TT("notif.gen.fechadespacho", "Fecha despacho")}   : {_pedido.FechaDespacho.Value:dd/MM/yyyy HH:mm}");
 
             if (_pedido.FechaEntrega.HasValue)
-                sb.AppendLine($"  Fecha entrega    : {_pedido.FechaEntrega.Value:dd/MM/yyyy HH:mm}");
+                sb.AppendLine($"  {TT("notif.gen.fechaentrega", "Fecha entrega")}    : {_pedido.FechaEntrega.Value:dd/MM/yyyy HH:mm}");
 
-            sb.AppendLine($"  Estado           : {_pedido.Estado}");
+            sb.AppendLine($"  {TT("notif.gen.estado", "Estado")}           : {_pedido.Estado}");
             sb.AppendLine("──────────────────────────────────────────────");
             sb.AppendLine();
-            sb.AppendLine($"  Prendas incluidas ({_pedido.Prendas.Count}):");
+            sb.AppendLine($"  {string.Format(TT("notif.gen.prendas", "Prendas incluidas ({0}):"), _pedido.Prendas.Count)}");
             sb.AppendLine();
 
             int i = 1;
             foreach (var p in _pedido.Prendas)
             {
                 sb.AppendLine($"    {i++}. {p.Nombre}");
-                sb.AppendLine($"       Talle: {p.Talle ?? "—"}   Color: {p.Color ?? "—"}");
-                sb.AppendLine($"       Categoría: {p.Categoria ?? "—"}");
+                sb.AppendLine($"       {TT("notif.gen.talle", "Talle")}: {p.Talle ?? "—"}   {TT("notif.gen.color", "Color")}: {p.Color ?? "—"}");
+                sb.AppendLine($"       {TT("notif.gen.categoria", "Categoría")}: {p.Categoria ?? "—"}");
                 sb.AppendLine();
             }
 
             sb.AppendLine("──────────────────────────────────────────────");
             sb.AppendLine();
-            sb.AppendLine("Ante cualquier consulta, comuníquese con nosotros.");
+            sb.AppendLine(TT("notif.gen.footer", "Ante cualquier consulta, comuníquese con nosotros."));
             sb.AppendLine();
-            sb.AppendLine("WardrobeFlow — Tu guardarropa, sin límites.");
+            sb.AppendLine(TT("notif.gen.slogan", "WardrobeFlow — Tu guardarropa, sin límites."));
             sb.AppendLine("══════════════════════════════════════════════");
 
             return sb.ToString();

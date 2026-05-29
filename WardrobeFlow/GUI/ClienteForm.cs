@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Servicios.Multiidioma;
+using System.Linq;
 
 namespace GUI
 {
@@ -70,6 +71,44 @@ namespace GUI
             // Actualizar ítem "— Sin plan —" del combo de planes (índice 0)
             if (cmbPlan.Items.Count > 0)
                 cmbPlan.Items[0] = T("combo.cli.sinplan", "— Sin plan —");
+
+            // Recargar cmbMetodoPago con etiquetas traducidas (valor interno = clave de BD en español)
+            RellenarComboMetodoPago(t);
+        }
+
+        // Clave fija en BD ← muestra etiqueta traducida.
+        // El SelectedValue siempre es la cadena en español almacenada en la BD ("Efectivo", etc.).
+        private void RellenarComboMetodoPago(IDictionary<string, Servicios.Multiidioma.Traduccion> t)
+        {
+            string TT(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
+            string prevValue = (cmbMetodoPago.SelectedItem as MetodoItem)?.Value
+                            ?? cmbMetodoPago.SelectedItem?.ToString();
+
+            var items = new[]
+            {
+                new MetodoItem("Efectivo",      TT("metodo.efectivo",      "Efectivo")),
+                new MetodoItem("Débito",        TT("metodo.debito",        "Débito")),
+                new MetodoItem("Crédito",       TT("metodo.credito",       "Crédito")),
+                new MetodoItem("Transferencia", TT("metodo.transferencia", "Transferencia")),
+            };
+
+            cmbMetodoPago.DataSource    = null;
+            cmbMetodoPago.DisplayMember = "Label";
+            cmbMetodoPago.ValueMember   = "Value";
+            cmbMetodoPago.DataSource    = items;
+
+            // Restaurar selección previa por valor interno
+            int idx = Array.FindIndex(items, m => m.Value == prevValue);
+            cmbMetodoPago.SelectedIndex = idx >= 0 ? idx : 0;
+        }
+
+        private class MetodoItem
+        {
+            public string Value { get; }
+            public string Label { get; }
+            public MetodoItem(string value, string label) { Value = value; Label = label; }
+            public override string ToString() => Label;
         }
 
         // ── Eventos del Designer ──────────────────────────────────────────────
@@ -119,7 +158,10 @@ namespace GUI
             txtDNI.Text      = _clienteOriginal.DNI;
             txtEmail.Text    = _clienteOriginal.Email ?? "";
 
-            int idxPago = cmbMetodoPago.Items.IndexOf(_clienteOriginal.MetodoPago);
+            // Buscar por Value interno (independiente del idioma mostrado)
+            int idxPago = -1;
+            for (int pi = 0; pi < cmbMetodoPago.Items.Count; pi++)
+                if ((cmbMetodoPago.Items[pi] as MetodoItem)?.Value == _clienteOriginal.MetodoPago) { idxPago = pi; break; }
             cmbMetodoPago.SelectedIndex = idxPago >= 0 ? idxPago : 0;
 
             // Seleccionar plan actual
@@ -156,7 +198,7 @@ namespace GUI
                     Apellido         = txtApellido.Text.Trim(),
                     DNI              = txtDNI.Text.Trim(),
                     Email            = string.IsNullOrWhiteSpace(txtEmail.Text) ? null : txtEmail.Text.Trim(),
-                    MetodoPago       = cmbMetodoPago.SelectedItem?.ToString() ?? "Efectivo",
+                    MetodoPago       = (cmbMetodoPago.SelectedItem as MetodoItem)?.Value ?? "Efectivo",
                     IdPlan           = idPlan,
                     FechaAlta        = _esEdicion ? _clienteOriginal.FechaAlta : DateTime.Now,
                     FechaVencimiento = chkVencimiento.Checked ? dtpVencimiento.Value.Date : (DateTime?)null
