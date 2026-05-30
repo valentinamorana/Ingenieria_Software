@@ -139,31 +139,43 @@ namespace DAL
         // Marca un pedido como Despachado y registra la fecha.
         public void Despachar(int idPedido)
         {
-            SqlParameter[] p =
+            try
             {
-                new SqlParameter("@Estado",        (int)BE.EstadoPedido.Despachado),
-                new SqlParameter("@FechaDespacho", DateTime.Now),
-                new SqlParameter("@IdPedido",      idPedido)
-            };
-            acceso.Escribir(
-                "UPDATE Pedido SET Estado=@Estado, FechaDespacho=@FechaDespacho " +
-                "WHERE IdPedido=@IdPedido",
-                p);
+                acceso.Escribir(
+                    "UPDATE Pedido SET Estado=@Estado, FechaDespacho=@FechaDespacho " +
+                    "WHERE IdPedido=@IdPedido",
+                    new SqlParameter[]
+                    {
+                        new SqlParameter("@Estado",        (int)BE.EstadoPedido.Despachado),
+                        new SqlParameter("@FechaDespacho", DateTime.Now),
+                        new SqlParameter("@IdPedido",      idPedido)
+                    });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al despachar el pedido ID {idPedido}.", ex);
+            }
         }
 
         // Marca un pedido como Entregado y registra la fecha.
         public void MarcarEntregado(int idPedido)
         {
-            SqlParameter[] p =
+            try
             {
-                new SqlParameter("@Estado",       (int)BE.EstadoPedido.Entregado),
-                new SqlParameter("@FechaEntrega", DateTime.Now),
-                new SqlParameter("@IdPedido",     idPedido)
-            };
-            acceso.Escribir(
-                "UPDATE Pedido SET Estado=@Estado, FechaEntrega=@FechaEntrega " +
-                "WHERE IdPedido=@IdPedido",
-                p);
+                acceso.Escribir(
+                    "UPDATE Pedido SET Estado=@Estado, FechaEntrega=@FechaEntrega " +
+                    "WHERE IdPedido=@IdPedido",
+                    new SqlParameter[]
+                    {
+                        new SqlParameter("@Estado",       (int)BE.EstadoPedido.Entregado),
+                        new SqlParameter("@FechaEntrega", DateTime.Now),
+                        new SqlParameter("@IdPedido",     idPedido)
+                    });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al marcar como entregado el pedido ID {idPedido}.", ex);
+            }
         }
 
         // Pasa las prendas del pedido a EnLimpieza y limpia IdClienteActual.
@@ -272,6 +284,8 @@ namespace DAL
         private List<BE.Prenda> ObtenerPrendasDePedido(int idPedido)
         {
             var lista = new List<BE.Prenda>();
+            try
+            {
             SqlParameter[] p = { new SqlParameter("@IdPedido", idPedido) };
 
             DataTable tabla = acceso.Leer(
@@ -299,6 +313,11 @@ namespace DAL
             }
 
             return lista;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener las prendas del pedido ID {idPedido}.", ex);
+            }
         }
 
         private BE.Pedido MapearCabecera(DataRow row)

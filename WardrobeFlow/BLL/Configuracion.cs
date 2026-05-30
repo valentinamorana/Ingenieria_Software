@@ -119,6 +119,7 @@ namespace BLL
 
                 if (filas.Count == 0) return true;
 
+                // Primer arranque sin DVH: todos null o cero + sin DVV → recalcular.
                 bool todosEnCero = true;
                 foreach (var f in filas)
                     if (f.DVHAlmacenado != null && f.DVHAlmacenado != 0) { todosEnCero = false; break; }
@@ -126,6 +127,27 @@ namespace BLL
                 int? dvvIni = dvDAL.ObtenerDVV("Usuario");
                 if (todosEnCero && (dvvIni == null || dvvIni == 0))
                 {
+                    RecalcularTodoDV(dvDAL, svc, filas);
+                    return true;
+                }
+
+                // Migración de algoritmo: si todos los DVH almacenados son < 10
+                // (valores del algoritmo anterior mod 10), recalcular automáticamente
+                // con el nuevo algoritmo en lugar de bloquear el login.
+                bool todosConAlgoritmoAntiguo = true;
+                foreach (var f in filas)
+                {
+                    if (f.DVHAlmacenado == null || f.DVHAlmacenado >= 10)
+                    {
+                        todosConAlgoritmoAntiguo = false;
+                        break;
+                    }
+                }
+                if (todosConAlgoritmoAntiguo)
+                {
+                    System.Diagnostics.Trace.TraceInformation(
+                        "[Configuracion] Detectados DVH del algoritmo anterior (mod 10). " +
+                        "Recalculando con nuevo algoritmo (mod 999.983)...");
                     RecalcularTodoDV(dvDAL, svc, filas);
                     return true;
                 }

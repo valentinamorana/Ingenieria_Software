@@ -30,22 +30,28 @@ namespace DAL
         // Después del INSERT calcula y persiste el DVH de la nueva fila.
         public void Alta(string username, string clave, string perfil)
         {
-            SqlParameter[] parametros = new SqlParameter[]
+            try
             {
-                new SqlParameter("@username", username),
-                new SqlParameter("@clave", clave),
-                new SqlParameter("@perfil", perfil),
-                new SqlParameter("@rol", perfil)
-            };
-            acceso.Escribir(
-                "INSERT INTO Usuario (Username, Clave, Rol, Estado, Perfil, IntentosFallidos) " +
-                "VALUES (@username, @clave, @rol, 1, @perfil, 0)",
-                parametros);
+                SqlParameter[] parametros = new SqlParameter[]
+                {
+                    new SqlParameter("@username", username),
+                    new SqlParameter("@clave",    clave),
+                    new SqlParameter("@perfil",   perfil),
+                    new SqlParameter("@rol",      perfil)
+                };
+                acceso.Escribir(
+                    "INSERT INTO Usuario (Username, Clave, Rol, Estado, Perfil, IntentosFallidos) " +
+                    "VALUES (@username, @clave, @rol, 1, @perfil, 0)",
+                    parametros);
 
-            // Leer el nuevo ID y calcular DVH
-            BE.Usuario nuevo = ObtenerPorUsername(username);
-            if (nuevo != null)
-                RecalcularDVH(nuevo.Id);
+                BE.Usuario nuevo = ObtenerPorUsername(username);
+                if (nuevo != null)
+                    RecalcularDVH(nuevo.Id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al dar de alta al usuario '{username}'.", ex);
+            }
         }
 
         // Busca un usuario por Username para el proceso de Login.
@@ -91,30 +97,34 @@ namespace DAL
         // Se llama tras superar el máximo de intentos fallidos.
         public void Bloquear(int idUsuario)
         {
-            SqlParameter[] parametros = new SqlParameter[]
+            try
             {
-                new SqlParameter("@idUsuario", idUsuario)
-            };
-            acceso.Escribir(
-                "UPDATE Usuario SET Estado = 0 WHERE IdUsuario = @idUsuario",
-                parametros);
-
-            RecalcularDVH(idUsuario);
+                acceso.Escribir(
+                    "UPDATE Usuario SET Estado = 0 WHERE IdUsuario = @idUsuario",
+                    new SqlParameter[] { new SqlParameter("@idUsuario", idUsuario) });
+                RecalcularDVH(idUsuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al bloquear el usuario ID {idUsuario}.", ex);
+            }
         }
 
         // Desbloquea la cuenta de un usuario (Estado=1) y resetea el contador de intentos.
         // Solo puede ejecutarlo un Administrador desde la GUI de Usuarios.
         public void Desbloquear(int idUsuario)
         {
-            SqlParameter[] parametros = new SqlParameter[]
+            try
             {
-                new SqlParameter("@idUsuario", idUsuario)
-            };
-            acceso.Escribir(
-                "UPDATE Usuario SET Estado = 1, IntentosFallidos = 0 WHERE IdUsuario = @idUsuario",
-                parametros);
-
-            RecalcularDVH(idUsuario);
+                acceso.Escribir(
+                    "UPDATE Usuario SET Estado = 1, IntentosFallidos = 0 WHERE IdUsuario = @idUsuario",
+                    new SqlParameter[] { new SqlParameter("@idUsuario", idUsuario) });
+                RecalcularDVH(idUsuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al desbloquear el usuario ID {idUsuario}.", ex);
+            }
         }
 
         // Incrementa en 1 el contador de intentos fallidos para el username dado.
@@ -162,42 +172,60 @@ namespace DAL
         // Recalcula DVH y DVV para todas las filas afectadas.
         public void ResetearTodasLasClaves(string claveHasheada)
         {
-            SqlParameter[] p = { new SqlParameter("@clave", claveHasheada) };
-            acceso.Escribir("UPDATE Usuario SET Clave = @clave", p);
-
-            RecalcularTodosDVH();
+            try
+            {
+                acceso.Escribir(
+                    "UPDATE Usuario SET Clave = @clave",
+                    new SqlParameter[] { new SqlParameter("@clave", claveHasheada) });
+                RecalcularTodosDVH();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al resetear todas las claves de usuario.", ex);
+            }
         }
 
         // Aplica el snapshot de una versión histórica a la fila activa del usuario.
         public void RestaurarVersion(BE.VersionUsuario v)
         {
-            acceso.Escribir(
-                "UPDATE Usuario SET Clave = @Clave, Estado = @Estado, IntentosFallidos = @Intentos " +
-                "WHERE IdUsuario = @Id",
-                new SqlParameter[]
-                {
-                    new SqlParameter("@Clave",    v.ClaveSnapshot),
-                    new SqlParameter("@Estado",   v.EstadoSnapshot ? 1 : 0),
-                    new SqlParameter("@Intentos", v.IntentosSnapshot),
-                    new SqlParameter("@Id",       v.IdUsuario)
-                });
-
-            RecalcularDVH(v.IdUsuario);
+            try
+            {
+                acceso.Escribir(
+                    "UPDATE Usuario SET Clave = @Clave, Estado = @Estado, IntentosFallidos = @Intentos " +
+                    "WHERE IdUsuario = @Id",
+                    new SqlParameter[]
+                    {
+                        new SqlParameter("@Clave",    v.ClaveSnapshot),
+                        new SqlParameter("@Estado",   v.EstadoSnapshot ? 1 : 0),
+                        new SqlParameter("@Intentos", v.IntentosSnapshot),
+                        new SqlParameter("@Id",       v.IdUsuario)
+                    });
+                RecalcularDVH(v.IdUsuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al restaurar la versión del usuario ID {v.IdUsuario}.", ex);
+            }
         }
 
         // Actualiza la contraseña de un usuario existente (ya hasheada por la BLL).
         public void ResetearClave(int idUsuario, string claveHasheada)
         {
-            SqlParameter[] parametros = new SqlParameter[]
+            try
             {
-                new SqlParameter("@clave", claveHasheada),
-                new SqlParameter("@idUsuario", idUsuario)
-            };
-            acceso.Escribir(
-                "UPDATE Usuario SET Clave = @clave WHERE IdUsuario = @idUsuario",
-                parametros);
-
-            RecalcularDVH(idUsuario);
+                acceso.Escribir(
+                    "UPDATE Usuario SET Clave = @clave WHERE IdUsuario = @idUsuario",
+                    new SqlParameter[]
+                    {
+                        new SqlParameter("@clave",     claveHasheada),
+                        new SqlParameter("@idUsuario", idUsuario)
+                    });
+                RecalcularDVH(idUsuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al resetear la clave del usuario ID {idUsuario}.", ex);
+            }
         }
 
         // Obtiene un usuario por su clave primaria (IdUsuario).
@@ -238,18 +266,26 @@ namespace DAL
             }
         }
 
-        // Persiste la preferencia de idioma del usuario (por ejemplo 'ES', 'EN', 'RU').
+        // Persiste la preferencia de idioma del usuario (por ejemplo 'ES', 'EN', 'RU', 'PT').
         // Llamado desde BLL cuando el usuario cambia idioma en Menu.
         public void GuardarIdioma(int idUsuario, string idIdioma)
         {
-            SqlParameter[] parametros = new SqlParameter[]
+            try
             {
-                new SqlParameter("@idUsuario", idUsuario),
-                new SqlParameter("@idIdioma",  idIdioma ?? "ES")
-            };
-            acceso.Escribir(
-                "UPDATE Usuario SET IdIdioma = @idIdioma WHERE IdUsuario = @idUsuario",
-                parametros);
+                acceso.Escribir(
+                    "UPDATE Usuario SET IdIdioma = @idIdioma WHERE IdUsuario = @idUsuario",
+                    new SqlParameter[]
+                    {
+                        new SqlParameter("@idUsuario", idUsuario),
+                        new SqlParameter("@idIdioma",  idIdioma ?? "ES")
+                    });
+            }
+            catch (Exception ex)
+            {
+                // No es crítico: si falla, el usuario solo pierde la preferencia de idioma.
+                System.Diagnostics.Trace.TraceWarning(
+                    $"[DAL.Usuario.GuardarIdioma] Error al guardar idioma para usuario ID {idUsuario}: {ex.Message}");
+            }
         }
 
         // Recalcula el DVH de un usuario específico y actualiza DVV de la tabla.
