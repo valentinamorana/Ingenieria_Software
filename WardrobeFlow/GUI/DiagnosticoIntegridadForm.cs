@@ -15,37 +15,46 @@ namespace GUI
         private Button      _btnActualizar;
         private Button      _btnReparar;
         private Button      _btnRecalcularTodo;
+        private Label       _lblFilasRotas;
 
         // ── Tab historial ─────────────────────────────────────────────────────
         private DataGridView _gridHistorial;
         private Button       _btnActualizarHist;
+
+        // ── Control raíz ─────────────────────────────────────────────────────
+        private TabControl _tabs;
 
         public DiagnosticoIntegridadForm()
         {
             BuildUI();
         }
 
+        // Helper de traducción
+        private string T(string key, string fallback)
+        {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            return t.ContainsKey(key) ? t[key].Texto : fallback;
+        }
+
         private void BuildUI()
         {
-            this.Text            = "Diagnóstico de Integridad";
+            this.Text            = T("diag.frm.titulo", "Diagnóstico de Integridad");
             this.Size            = new Size(820, 560);
             this.StartPosition   = FormStartPosition.CenterScreen;
             this.MinimumSize     = new Size(700, 460);
             this.Font            = new Font("Segoe UI", 9f);
 
-            var tabs = new TabControl { Dock = DockStyle.Fill };
+            _tabs = new TabControl { Dock = DockStyle.Fill };
+            _tabs.TabPages.Add(BuildTabDiagnostico());
+            _tabs.TabPages.Add(BuildTabHistorial());
 
-            tabs.TabPages.Add(BuildTabDiagnostico());
-            tabs.TabPages.Add(BuildTabHistorial());
-
-            this.Controls.Add(tabs);
+            this.Controls.Add(_tabs);
         }
 
         private TabPage BuildTabDiagnostico()
         {
-            var tab = new TabPage("Diagnóstico");
+            var tab = new TabPage(T("diag.tab.diagnostico", "Diagnóstico"));
 
-            // ── Panel de estado DVV ───────────────────────────────────────────
             var panelEstado = new Panel
             {
                 Dock      = DockStyle.Top,
@@ -71,10 +80,9 @@ namespace GUI
 
             panelEstado.Controls.AddRange(new Control[] { _lblEstadoDVV, _lblDVVDetalle });
 
-            // ── Grilla de filas rotas ─────────────────────────────────────────
-            var lblRotas = new Label
+            _lblFilasRotas = new Label
             {
-                Text     = "Filas con DVH inválido:",
+                Text     = T("diag.lbl.filasrotas", "Filas con DVH inválido:"),
                 Font     = new Font("Segoe UI", 9f, FontStyle.Bold),
                 Dock     = DockStyle.Top,
                 Height   = 22,
@@ -94,13 +102,12 @@ namespace GUI
                 BorderStyle           = BorderStyle.None,
                 Font                  = new Font("Segoe UI", 9f)
             };
-            _gridRotas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colId",       HeaderText = "ID",              FillWeight = 8  });
-            _gridRotas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colUsuario",   HeaderText = "Usuario",         FillWeight = 25 });
-            _gridRotas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colDVHAlm",    HeaderText = "DVH Almacenado",  FillWeight = 20 });
-            _gridRotas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colDVHCalc",   HeaderText = "DVH Calculado",   FillWeight = 20 });
-            _gridRotas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colEstado",    HeaderText = "Estado",          FillWeight = 27 });
+            _gridRotas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colId",       HeaderText = T("diag.col.id",       "ID"),              FillWeight = 8  });
+            _gridRotas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colUsuario",   HeaderText = T("diag.col.usuario",  "Usuario"),         FillWeight = 25 });
+            _gridRotas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colDVHAlm",    HeaderText = T("diag.col.dvh.alm",  "DVH Almacenado"),  FillWeight = 20 });
+            _gridRotas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colDVHCalc",   HeaderText = T("diag.col.dvh.calc", "DVH Calculado"),   FillWeight = 20 });
+            _gridRotas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colEstado",    HeaderText = T("diag.col.estado",   "Estado"),          FillWeight = 27 });
 
-            // ── Barra de botones ──────────────────────────────────────────────
             var panelBotones = new FlowLayoutPanel
             {
                 Dock          = DockStyle.Bottom,
@@ -112,7 +119,7 @@ namespace GUI
 
             _btnRecalcularTodo = new Button
             {
-                Text      = "Recalcular Todo",
+                Text      = T("diag.btn.recalcular", "Recalcular Todo"),
                 Width     = 130,
                 Height    = 32,
                 FlatStyle = FlatStyle.Flat,
@@ -124,7 +131,7 @@ namespace GUI
 
             _btnReparar = new Button
             {
-                Text      = "Reparar Seleccionadas...",
+                Text      = T("diag.btn.reparar", "Reparar Seleccionadas..."),
                 Width     = 170,
                 Height    = 32,
                 FlatStyle = FlatStyle.Flat,
@@ -136,7 +143,7 @@ namespace GUI
 
             _btnActualizar = new Button
             {
-                Text      = "Actualizar",
+                Text      = T("diag.btn.actualizar", "Actualizar"),
                 Width     = 100,
                 Height    = 32,
                 FlatStyle = FlatStyle.Flat,
@@ -150,7 +157,7 @@ namespace GUI
 
             var contenedor = new Panel { Dock = DockStyle.Fill };
             contenedor.Controls.Add(_gridRotas);
-            contenedor.Controls.Add(lblRotas);
+            contenedor.Controls.Add(_lblFilasRotas);
 
             tab.Controls.Add(contenedor);
             tab.Controls.Add(panelBotones);
@@ -161,7 +168,7 @@ namespace GUI
 
         private TabPage BuildTabHistorial()
         {
-            var tab = new TabPage("Historial de Verificaciones");
+            var tab = new TabPage(T("diag.tab.historial", "Historial de Verificaciones"));
 
             _gridHistorial = new DataGridView
             {
@@ -176,13 +183,13 @@ namespace GUI
                 BorderStyle           = BorderStyle.None,
                 Font                  = new Font("Segoe UI", 9f)
             };
-            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hFecha",    HeaderText = "Fecha",            FillWeight = 22 });
-            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hTabla",    HeaderText = "Tabla",            FillWeight = 15 });
-            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hDVVAlm",   HeaderText = "DVV Almacenado",   FillWeight = 16 });
-            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hDVVCalc",  HeaderText = "DVV Calculado",    FillWeight = 16 });
-            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hRotas",    HeaderText = "Filas Corruptas",  FillWeight = 14 });
-            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hResultado",HeaderText = "Resultado",        FillWeight = 10 });
-            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hOrigen",   HeaderText = "Disparado por",    FillWeight = 12 });
+            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hFecha",    HeaderText = T("diag.col.fecha",      "Fecha"),            FillWeight = 22 });
+            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hTabla",    HeaderText = T("diag.col.tabla",      "Tabla"),            FillWeight = 15 });
+            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hDVVAlm",   HeaderText = T("diag.col.dvv.alm",   "DVV Almacenado"),   FillWeight = 16 });
+            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hDVVCalc",  HeaderText = T("diag.col.dvv.calc",  "DVV Calculado"),    FillWeight = 16 });
+            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hRotas",    HeaderText = T("diag.col.filas.corr","Filas Corruptas"),  FillWeight = 14 });
+            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hResultado",HeaderText = T("diag.col.resultado", "Resultado"),        FillWeight = 10 });
+            _gridHistorial.Columns.Add(new DataGridViewTextBoxColumn { Name = "hOrigen",   HeaderText = T("diag.col.origen",    "Disparado por"),    FillWeight = 12 });
 
             _gridHistorial.CellFormatting += GridHistorial_CellFormatting;
 
@@ -197,7 +204,7 @@ namespace GUI
 
             _btnActualizarHist = new Button
             {
-                Text      = "Actualizar",
+                Text      = T("diag.btn.actualizar", "Actualizar"),
                 Width     = 100,
                 Height    = 32,
                 FlatStyle = FlatStyle.Flat,
@@ -220,7 +227,12 @@ namespace GUI
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            try { string ico = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (System.IO.File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
+            try
+            {
+                string ico = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico");
+                if (System.IO.File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico);
+            }
+            catch { }
             GestorIdioma.SuscribirObservador(this);
             CargarDiagnostico();
             CargarHistorial();
@@ -232,9 +244,45 @@ namespace GUI
             base.OnFormClosing(e);
         }
 
+        // ── IIdiomaObserver ───────────────────────────────────────────────────
+
         public void UpdateLanguage(Idioma idioma)
         {
-            // Los textos son fijos en esta versión — se puede extender con Traductor si se necesita
+            this.Text                   = T("diag.frm.titulo",         "Diagnóstico de Integridad");
+            _lblFilasRotas.Text         = T("diag.lbl.filasrotas",     "Filas con DVH inválido:");
+            _btnActualizar.Text         = T("diag.btn.actualizar",     "Actualizar");
+            _btnReparar.Text            = T("diag.btn.reparar",        "Reparar Seleccionadas...");
+            _btnRecalcularTodo.Text     = T("diag.btn.recalcular",     "Recalcular Todo");
+            _btnActualizarHist.Text     = T("diag.btn.actualizar",     "Actualizar");
+
+            if (_tabs.TabPages.Count >= 1)
+                _tabs.TabPages[0].Text = T("diag.tab.diagnostico",    "Diagnóstico");
+            if (_tabs.TabPages.Count >= 2)
+                _tabs.TabPages[1].Text = T("diag.tab.historial",      "Historial de Verificaciones");
+
+            ActualizarHeadersGrilla();
+            CargarDiagnostico();
+            CargarHistorial();
+        }
+
+        private void ActualizarHeadersGrilla()
+        {
+            void SetH(DataGridView g, string col, string key, string fb)
+            {
+                if (g.Columns.Contains(col)) g.Columns[col].HeaderText = T(key, fb);
+            }
+            SetH(_gridRotas,    "colId",       "diag.col.id",       "ID");
+            SetH(_gridRotas,    "colUsuario",   "diag.col.usuario",  "Usuario");
+            SetH(_gridRotas,    "colDVHAlm",    "diag.col.dvh.alm",  "DVH Almacenado");
+            SetH(_gridRotas,    "colDVHCalc",   "diag.col.dvh.calc", "DVH Calculado");
+            SetH(_gridRotas,    "colEstado",    "diag.col.estado",   "Estado");
+            SetH(_gridHistorial,"hFecha",       "diag.col.fecha",    "Fecha");
+            SetH(_gridHistorial,"hTabla",       "diag.col.tabla",    "Tabla");
+            SetH(_gridHistorial,"hDVVAlm",      "diag.col.dvv.alm",  "DVV Almacenado");
+            SetH(_gridHistorial,"hDVVCalc",     "diag.col.dvv.calc", "DVV Calculado");
+            SetH(_gridHistorial,"hRotas",       "diag.col.filas.corr","Filas Corruptas");
+            SetH(_gridHistorial,"hResultado",   "diag.col.resultado","Resultado");
+            SetH(_gridHistorial,"hOrigen",      "diag.col.origen",   "Disparado por");
         }
 
         // ── Carga de datos ────────────────────────────────────────────────────
@@ -246,22 +294,30 @@ namespace GUI
             {
                 var diag = BLL.Configuracion.ObtenerDiagnostico();
 
-                var tD = Servicios.Multiidioma.Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
-                string TD(string k, string fb) => tD.ContainsKey(k) ? tD[k].Texto : fb;
-                _lblEstadoDVV.Text      = diag.Integro
-                    ? TD("diag.estado.integro",       "Estado: INTEGRO")
-                    : TD("diag.estado.comprometido",  "Estado: COMPROMETIDO");
-                _lblEstadoDVV.ForeColor = diag.Integro ? Color.FromArgb(40, 140, 60) : Color.FromArgb(180, 50, 50);
+                _lblEstadoDVV.Text = diag.Integro
+                    ? T("diag.estado.integro",      "Estado: INTEGRO")
+                    : T("diag.estado.comprometido", "Estado: COMPROMETIDO");
+                _lblEstadoDVV.ForeColor = diag.Integro
+                    ? Color.FromArgb(40, 140, 60)
+                    : Color.FromArgb(180, 50, 50);
 
-                _lblDVVDetalle.Text = $"DVV almacenado: {(diag.DVVAlmacenado?.ToString() ?? "—")}   |   " +
-                                      $"DVV calculado: {diag.DVVCalculado}   |   " +
-                                      $"Filas con DVH inválido: {diag.FilasRotas.Count}";
+                _lblDVVDetalle.Text = string.Format(
+                    T("diag.dvv.detalle", "DVV almacenado: {0}   |   DVV calculado: {1}   |   Filas con DVH inválido: {2}"),
+                    diag.DVVAlmacenado?.ToString() ?? "—",
+                    diag.DVVCalculado,
+                    diag.FilasRotas.Count);
 
                 _gridRotas.Rows.Clear();
+                string sinDVH      = T("diag.fila.sinDVH",     "Sin DVH");
+                string noCoincide  = T("diag.fila.nocoincide", "DVH no coincide");
+                string dvhRuntime  = T("diag.col.dvh.calc",    "DVH Calculado") + " (runtime)";
                 foreach (var fila in diag.FilasRotas)
                 {
-                    string estadoFila = fila.DVHAlmacenado == null ? "Sin DVH" : "DVH no coincide";
-                    _gridRotas.Rows.Add(fila.Id, fila.Username, fila.DVHAlmacenado?.ToString() ?? "—", "Calculado en runtime", estadoFila);
+                    string estadoFila = fila.DVHAlmacenado == null ? sinDVH : noCoincide;
+                    _gridRotas.Rows.Add(fila.Id, fila.Username,
+                        fila.DVHAlmacenado?.ToString() ?? "—",
+                        dvhRuntime,
+                        estadoFila);
                 }
 
                 _btnReparar.Enabled        = diag.FilasRotas.Count > 0;
@@ -269,7 +325,10 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al cargar diagnóstico:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    string.Format(T("diag.err.cargar", "Error al cargar diagnóstico: {0}"), ex.Message),
+                    T("diag.err.titulo", "Error"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -282,6 +341,8 @@ namespace GUI
             _gridHistorial.Rows.Clear();
             try
             {
+                string ok    = T("diag.hist.ok",    "OK");
+                string fallo = T("diag.hist.fallo", "FALLO");
                 var lista = BLL.Configuracion.ObtenerHistorialIntegridad(150);
                 foreach (var h in lista)
                 {
@@ -291,7 +352,7 @@ namespace GUI
                         h.DVVAlmacenado?.ToString() ?? "—",
                         h.DVVCalculado.ToString(),
                         h.FilasCorruptas.ToString(),
-                        h.Resultado ? "OK" : "FALLO",
+                        h.Resultado ? ok : fallo,
                         h.DisparadoPor);
                 }
             }
@@ -307,8 +368,9 @@ namespace GUI
             var col = _gridHistorial.Columns[e.ColumnIndex];
             if (col.Name != "hResultado") return;
 
+            string ok  = T("diag.hist.ok", "OK");
             string val = e.Value?.ToString() ?? "";
-            e.CellStyle.ForeColor = val == "OK"
+            e.CellStyle.ForeColor = val == ok
                 ? Color.FromArgb(30, 130, 50)
                 : Color.FromArgb(180, 50, 50);
             e.CellStyle.Font = new Font("Segoe UI", 9f, FontStyle.Bold);
@@ -321,7 +383,10 @@ namespace GUI
             var diag = BLL.Configuracion.ObtenerDiagnostico();
             if (diag.FilasRotas.Count == 0)
             {
-                MessageBox.Show("No hay filas con DVH inválido.", "Sin problemas", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(
+                    T("diag.msg.sinproblemas", "No hay filas con DVH inválido."),
+                    T("diag.msg.sinprob.titulo", "Sin problemas"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -342,8 +407,9 @@ namespace GUI
         private void BtnRecalcularTodo_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show(
-                    "¿Recalcular todos los DVH y el DVV de la tabla Usuario?\n\nEsta operación sobreescribirá todos los dígitos verificadores almacenados.",
-                    "Confirmar Recálculo Total",
+                    T("diag.conf.recalcular",
+                      "¿Recalcular todos los DVH y el DVV de la tabla Usuario?\n\nEsta operación sobreescribirá todos los dígitos verificadores almacenados."),
+                    T("diag.conf.recalcular.titulo", "Confirmar Recálculo Total"),
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 return;
 
@@ -354,11 +420,17 @@ namespace GUI
                 try
                 {
                     BLL.Configuracion.RecalcularIntegridadDV();
-                    MessageBox.Show("Dígitos verificadores recalculados con éxito.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(
+                        T("diag.msg.recalc.exito", "Dígitos verificadores recalculados con éxito."),
+                        T("diag.msg.exito.titulo", "Éxito"),
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error al recalcular:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(
+                        string.Format(T("diag.err.recalcular", "Error al recalcular: {0}"), ex.Message),
+                        T("diag.err.titulo", "Error"),
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
 
