@@ -96,11 +96,18 @@ namespace GUI
 
             var items = new[]
             {
-                new PerfilItem("Administrador",      TT("perfil.administrador", "Administrador")),
-                new PerfilItem("Supervisor",         TT("perfil.supervisor",    "Supervisor")),
-                new PerfilItem("Vendedor",           TT("perfil.vendedor",      "Vendedor")),
-                new PerfilItem("ControladorDeStock", TT("perfil.stock",         "Controlador de Stock")),
-                new PerfilItem("OperadorDeInventario", TT("perfil.operador",    "Operador de Inventario")),
+                // Roles de la jerarquía nueva (T04)
+                new PerfilItem("Administrador",       TT("perfil.administrador",       "Administrador")),
+                new PerfilItem("Auditor",             TT("perfil.auditor",             "Auditor")),
+                new PerfilItem("GerenteComercial",    TT("perfil.gerentecomercial",    "Gerente Comercial")),
+                new PerfilItem("Vendedor",            TT("perfil.vendedor",            "Vendedor")),
+                new PerfilItem("GerenteInventario",   TT("perfil.gerenteinventario",   "Gerente de Inventario")),
+                new PerfilItem("EncargadoDeStock",    TT("perfil.encargadodestock",    "Encargado de Stock")),
+                new PerfilItem("OperadorLogistico",   TT("perfil.operadorlogistico",   "Operador Logístico")),
+                // Roles legacy (mantenidos por compatibilidad)
+                new PerfilItem("Supervisor",          TT("perfil.supervisor",          "Supervisor (legacy)")),
+                new PerfilItem("ControladorDeStock",  TT("perfil.stock",               "Controlador de Stock (legacy)")),
+                new PerfilItem("OperadorDeInventario",TT("perfil.operador",            "Operador de Inventario (legacy)")),
             };
 
             int prevIdx = cmbPerfil.SelectedIndex < 0 ? 2 : cmbPerfil.SelectedIndex;

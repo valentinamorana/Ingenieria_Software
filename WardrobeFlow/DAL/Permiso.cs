@@ -212,5 +212,49 @@ namespace DAL
                 throw new Exception($"Error al quitar permiso {idPermiso} del rol '{rol}'.", ex);
             }
         }
+
+        // T04 — Lee la jerarquía de roles desde [RolJerarquia].
+        // Retorna lista plana; BLL reconstruye el árbol.
+        public List<BE.JerarquiaRol> ObtenerJerarquiaRoles()
+        {
+            var lista = new List<BE.JerarquiaRol>();
+            try
+            {
+                DataTable dt = acceso.Leer(
+                    "SELECT RolHijo, RolPadre, Nivel, Area " +
+                    "FROM RolJerarquia ORDER BY Nivel, Area, RolHijo",
+                    null);
+
+                if (dt == null) return lista;
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    lista.Add(new BE.JerarquiaRol
+                    {
+                        Rol      = row["RolHijo"].ToString(),
+                        RolPadre = row["RolPadre"] != DBNull.Value ? row["RolPadre"].ToString() : null,
+                        Nivel    = Convert.ToInt32(row["Nivel"]),
+                        Area     = row["Area"] != DBNull.Value ? row["Area"].ToString() : "General"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener la jerarquía de roles.", ex);
+            }
+            return lista;
+        }
+
+        // Verifica si la tabla RolJerarquia existe (para degradar silenciosamente si no se aplicó la migración).
+        public bool ExisteTablaJerarquia()
+        {
+            try
+            {
+                DataTable dt = acceso.Leer(
+                    "SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'RolJerarquia'", null);
+                return dt != null && dt.Rows.Count > 0;
+            }
+            catch { return false; }
+        }
     }
 }

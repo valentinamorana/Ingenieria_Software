@@ -7,49 +7,57 @@ using Servicios.Multiidioma;
 namespace GUI
 {
     /// <summary>
-    /// Patrón Composite — T04 Gestión de Perfiles de Usuario.
+    /// T04 — Gestión de Perfiles de Usuario (Patrón Composite).
     ///
-    /// Permite al Administrador visualizar y modificar los permisos asignados
-    /// a cada rol del sistema. El árbol se construye recursivamente usando las
-    /// clases BE.Familia (nodo compuesto) y BE.Patente (hoja).
+    /// Rediseño con dos paneles que demuestran el Composite en dos niveles:
     ///
-    /// Flujo:
-    ///   1. Al abrir, se cargan los roles disponibles en el ComboBox.
-    ///   2. Al seleccionar un rol, MostrarPermisos() reconstruye el TreeView
-    ///      llamando a MostrarPermisosRecursivo() — función recursiva requerida.
-    ///   3. El admin tilda/destilda permisos y presiona Guardar.
-    ///   4. GuardarRecursivo() recorre el árbol del TreeView y aplica los cambios.
+    ///   PANEL IZQUIERDO — Jerarquía de Roles (Composite de JerarquiaRol):
+    ///     Área Comercial
+    ///       └── Gerente Comercial
+    ///             └── Vendedor
+    ///     Área Inventario
+    ///       └── Gerente de Inventario
+    ///             ├── Encargado de Stock
+    ///             └── Operador Logístico
     ///
-    /// Accesible desde Administrar → Perfiles (solo para Administrador).
-    /// Construido completamente en código — no usa el Designer.
+    ///   PANEL DERECHO — Árbol de Permisos del rol seleccionado (Composite Familia/Patente):
+    ///     📁 Inventario
+    ///       ☑ Ver Prendas
+    ///       ☑ Gestionar Stock
+    ///     📁 Ventas
+    ///       ☐ Gestionar Clientes
+    ///       ...
+    ///
+    /// Al seleccionar un rol en el árbol izquierdo, el árbol derecho
+    /// muestra y permite editar los permisos asignados a ese rol.
+    /// Los permisos heredados del rol padre se muestran en color diferente (solo lectura informativa).
     /// </summary>
     public class GestorPermisos : FormBase, IIdiomaObserver
     {
         protected override Label MensajeLabel => _lblMensaje;
 
-        // ── Dependencias ──────────────────────────────────────────────────────
         private readonly BLL.Familia _familiaBLL = new BLL.Familia();
 
-        // Nombres de roles tal como están en BD (usados para consultas BLL).
-        // El ComboBox muestra la traducción; esta lista guarda el original.
-        private List<string> _rolesOriginales = new List<string>();
+        // ── Panel izquierdo — Jerarquía de roles ──────────────────────────────
+        private TreeView _treeRoles;
+        private Label    _lblRolesTitulo;
 
-        // Devuelve el nombre de rol original (en español) para el item seleccionado.
-        private string RolOriginalActual =>
-            _cmbRol.SelectedIndex >= 0 && _cmbRol.SelectedIndex < _rolesOriginales.Count
-                ? _rolesOriginales[_cmbRol.SelectedIndex]
-                : null;
+        // ── Panel derecho — Permisos del rol seleccionado ─────────────────────
+        private TreeView _treePermisos;
+        private Label    _lblPermisosTitulo;
+        private Label    _lblRolSeleccionado;
 
-        // ── Controles ─────────────────────────────────────────────────────────
-        private Label        _lblTitulo;
-        private Label        _lblMensaje;
-        private Label        _lblRol;
-        private ComboBox     _cmbRol;
-        private TreeView     _treeView;
-        private Button       _btnGuardar;
-        private Button       _btnCerrar;
+        // ── Controles comunes ─────────────────────────────────────────────────
+        private Label    _lblMensaje;
+        private Button   _btnGuardar;
+        private Button   _btnCerrar;
+        private SplitContainer _split;
 
-        // ── Constructor ───────────────────────────────────────────────────────
+        // Rol seleccionado actualmente en el árbol izquierdo
+        private string _rolActual = null;
+
+        // Permisos heredados del padre del rol actual (solo informativos)
+        private HashSet<string> _permisosHeredados = new HashSet<string>();
 
         public GestorPermisos()
         {
@@ -63,7 +71,7 @@ namespace GUI
             base.OnLoad(e);
             GestorIdioma.SuscribirObservador(this);
             Traducir(GestorIdioma.IdiomaActual);
-            CargarRoles();
+            CargarJerarquiaRoles();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -81,119 +89,181 @@ namespace GUI
             var t = Traductor.ObtenerTraducciones(idioma);
             string Tx(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
 
-            this.Text        = Tx("frm.gestorpermisos",    "Gestor de Perfiles — Permisos");
-            _lblTitulo.Text  = Tx("lbl.permisos.titulo",   "Perfiles y Permisos");
-            _lblRol.Text     = Tx("lbl.permisos.rol",      "Rol:");
-            _btnGuardar.Text = Tx("btn.permisos.guardar",  "Guardar cambios");
-            _btnCerrar.Text  = Tx("btn.permisos.cerrar",   "Cerrar");
+            this.Text            = Tx("frm.gestorpermisos",     "Gestor de Perfiles — Permisos");
+            _lblRolesTitulo.Text = Tx("lbl.jerarquia.roles",    "Jerarquía de Roles");
+            _lblPermisosTitulo.Text = Tx("lbl.permisos.titulo", "Permisos del rol seleccionado");
+            _btnGuardar.Text     = Tx("btn.permisos.guardar",   "Guardar cambios");
+            _btnCerrar.Text      = Tx("btn.permisos.cerrar",    "Cerrar");
 
-            // Refrescar combo con nombres de rol en el idioma nuevo (sin disparar el evento)
-            if (_rolesOriginales.Count > 0)
-            {
-                int prevIdx = _cmbRol.SelectedIndex;
-                _cmbRol.SelectedIndexChanged -= CmbRol_SelectedIndexChanged;
-                _cmbRol.Items.Clear();
-                foreach (string rol in _rolesOriginales)
-                    _cmbRol.Items.Add(Tx($"perm.rol.{rol.ToLowerInvariant().Replace(" ", "")}", rol));
-                if (prevIdx >= 0 && prevIdx < _cmbRol.Items.Count)
-                    _cmbRol.SelectedIndex = prevIdx;
-                _cmbRol.SelectedIndexChanged += CmbRol_SelectedIndexChanged;
+            ActualizarLabelRolSeleccionado();
 
-                // Reconstruir el árbol con los nombres de nodo en el nuevo idioma
-                if (_cmbRol.SelectedIndex >= 0)
-                    MostrarPermisos();
-            }
+            // Reconstruir árboles con nuevas traducciones
+            CargarJerarquiaRoles();
         }
 
-        // Helper para traducir claves dinámicas en métodos que no reciben Idioma.
         private string T(string key, string fallback)
         {
             var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
             return t.ContainsKey(key) ? t[key].Texto : fallback;
         }
 
-        // ── Carga de datos ────────────────────────────────────────────────────
+        // ── Árbol izquierdo: jerarquía de roles ───────────────────────────────
 
-        private void CargarRoles()
+        private void CargarJerarquiaRoles()
         {
+            _treeRoles.BeginUpdate();
+            _treeRoles.Nodes.Clear();
+
             try
             {
-                _rolesOriginales = _familiaBLL.ObtenerRoles();
-                _cmbRol.Items.Clear();
-                foreach (string rol in _rolesOriginales)
-                    _cmbRol.Items.Add(T($"perm.rol.{rol.ToLowerInvariant().Replace(" ", "")}", rol));
+                var raices = _familiaBLL.ObtenerArbolJerarquiaRoles();
 
-                if (_cmbRol.Items.Count > 0)
-                    _cmbRol.SelectedIndex = 0;
+                // Agrupar por Área usando nodos de área como raíces visuales
+                var areaNodes = new Dictionary<string, TreeNode>(StringComparer.OrdinalIgnoreCase);
+
+                foreach (var raiz in raices)
+                {
+                    string area = raiz.Area ?? "General";
+                    if (!areaNodes.ContainsKey(area))
+                    {
+                        var areaNode = new TreeNode(area)
+                        {
+                            NodeFont  = new Font("Segoe UI", 9f, FontStyle.Bold | FontStyle.Italic),
+                            ForeColor = Color.FromArgb(100, 60, 130),
+                            Tag       = null  // área, no es un rol seleccionable
+                        };
+                        areaNodes[area] = areaNode;
+                        _treeRoles.Nodes.Add(areaNode);
+                    }
+                    AgregarNodoRolRecursivo(raiz, areaNodes[area]);
+                }
+
+                _treeRoles.ExpandAll();
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al cargar los roles: {ex.Message}");
+                MostrarError($"Error al cargar jerarquía de roles: {ex.Message}");
+            }
+
+            _treeRoles.EndUpdate();
+        }
+
+        private void AgregarNodoRolRecursivo(BE.JerarquiaRol rolNodo, TreeNode padre)
+        {
+            string clave  = $"perm.rol.{rolNodo.Rol.ToLowerInvariant().Replace(" ", "")}";
+            string nombre = T(clave, rolNodo.Rol);
+
+            var nodo = new TreeNode(nombre)
+            {
+                Tag       = rolNodo.Rol,
+                NodeFont  = new Font("Segoe UI", 9f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(30, 80, 140)
+            };
+
+            // Marcar el rol actualmente seleccionado
+            if (_rolActual != null &&
+                string.Equals(rolNodo.Rol, _rolActual, StringComparison.OrdinalIgnoreCase))
+            {
+                nodo.ForeColor = Color.FromArgb(180, 50, 50);
+            }
+
+            padre.Nodes.Add(nodo);
+
+            foreach (var hijo in rolNodo.Hijos)
+                AgregarNodoRolRecursivo(hijo, nodo);
+        }
+
+        private void TreeRoles_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (e.Node?.Tag == null) return;  // nodo de área — no seleccionable
+
+            string rolSeleccionado = e.Node.Tag.ToString();
+            if (string.Equals(rolSeleccionado, _rolActual, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            _rolActual = rolSeleccionado;
+            ActualizarLabelRolSeleccionado();
+            CargarPermisosRol(_rolActual);
+            _btnGuardar.Enabled = true;
+        }
+
+        private void ActualizarLabelRolSeleccionado()
+        {
+            if (_rolActual == null)
+            {
+                string clave = $"perm.rol.{(_rolActual ?? "").ToLowerInvariant().Replace(" ", "")}";
+                _lblRolSeleccionado.Text = T("lbl.jerarquia.selecciona", "Seleccioná un rol en el árbol izquierdo.");
+            }
+            else
+            {
+                string clave  = $"perm.rol.{_rolActual.ToLowerInvariant().Replace(" ", "")}";
+                string nombre = T(clave, _rolActual);
+                string fmt    = T("msg.permisos.mostrando", "Mostrando permisos del rol '{0}'.");
+                _lblRolSeleccionado.Text = string.Format(fmt, nombre);
             }
         }
 
-        // ── Construcción del TreeView (Composite) ─────────────────────────────
+        // ── Árbol derecho: permisos del rol seleccionado ──────────────────────
 
-        private void MostrarPermisos()
+        private void CargarPermisosRol(string rol)
         {
-            string rol = RolOriginalActual;
-            if (string.IsNullOrEmpty(rol)) return;
+            _treePermisos.BeginUpdate();
+            _treePermisos.Nodes.Clear();
 
             try
             {
-                _treeView.BeginUpdate();
-                _treeView.Nodes.Clear();
+                // Cargar permisos heredados del rol padre (solo visuales)
+                var heredadosList = _familiaBLL.ObtenerPermisosHeredados(rol);
+                _permisosHeredados = new HashSet<string>(heredadosList, StringComparer.OrdinalIgnoreCase);
 
-                // Obtener el árbol Composite desde la BLL
+                // Construir árbol Composite de permisos
                 BE.Familia arbol = _familiaBLL.ObtenerArbolPorRol(rol);
-
-                // Construir el TreeView recursivamente (patrón requerido por T04)
                 MostrarPermisosRecursivo(arbol, null);
 
-                _treeView.ExpandAll();
-                _treeView.EndUpdate();
-
-                string rolTrad = _cmbRol.SelectedItem?.ToString() ?? rol;
-                MostrarOk(string.Format(T("msg.permisos.mostrando", "Mostrando permisos del rol '{0}'."), rolTrad));
-                _btnGuardar.Enabled = true;
+                _treePermisos.ExpandAll();
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al cargar el árbol de permisos: {ex.Message}");
+                MostrarError($"Error al cargar permisos: {ex.Message}");
             }
+
+            _treePermisos.EndUpdate();
+            MostrarOk(string.Format(T("msg.permisos.mostrando", "Mostrando permisos del rol '{0}'."), _rolActual));
         }
 
-        // Función recursiva que construye el TreeView a partir del árbol Composite.
-        // Procesa tanto nodos Familia (grupos) como Patente (hojas con checkbox).
         private void MostrarPermisosRecursivo(BE.Componente componente, TreeNode nodoParent)
         {
             foreach (BE.Componente hijo in componente.Hijos)
             {
                 string prefijo = hijo is BE.Familia ? "perm.grp." : "perm.pat.";
                 string clave   = prefijo + hijo.Nombre.ToLowerInvariant().Replace(" ", "");
-                var nodo = new TreeNode(T(clave, hijo.Nombre))
-                {
-                    Tag = hijo
-                };
+                string nombre  = T(clave, hijo.Nombre);
+
+                var nodo = new TreeNode(nombre) { Tag = hijo };
 
                 if (hijo is BE.Familia)
                 {
-                    // Nodo de grupo — fondo diferenciado, sin checkbox funcional
-                    nodo.NodeFont = new Font("Segoe UI", 9f, FontStyle.Bold);
+                    nodo.NodeFont  = new Font("Segoe UI", 9f, FontStyle.Bold);
                     nodo.ForeColor = Color.FromArgb(40, 80, 140);
                 }
                 else if (hijo is BE.Patente patente)
                 {
-                    // Hoja — checkbox indica si el permiso está asignado al rol
                     nodo.Checked = patente.Asignado;
+
+                    // Permiso heredado del rol padre: mostrar en color diferente (informativo)
+                    bool esHeredado = !string.IsNullOrEmpty(patente.NombreMenu) &&
+                                      _permisosHeredados.Contains(patente.NombreMenu);
+                    if (esHeredado && !patente.Asignado)
+                    {
+                        nodo.ForeColor = Color.FromArgb(100, 160, 100);
+                        string heredMsg = T("lbl.permiso.heredado", " (heredado)");
+                        nodo.Text += heredMsg;
+                    }
                 }
 
-                if (nodoParent == null)
-                    _treeView.Nodes.Add(nodo);
-                else
-                    nodoParent.Nodes.Add(nodo);
+                if (nodoParent == null) _treePermisos.Nodes.Add(nodo);
+                else                   nodoParent.Nodes.Add(nodo);
 
-                // Recursión — procesar hijos del nodo actual
                 MostrarPermisosRecursivo(hijo, nodo);
             }
         }
@@ -202,28 +272,24 @@ namespace GUI
 
         private void GuardarCambios()
         {
-            string rol = RolOriginalActual;
-            if (string.IsNullOrEmpty(rol)) return;
+            if (string.IsNullOrEmpty(_rolActual)) return;
 
             try
             {
-                int asignados = 0;
-                int quitados  = 0;
+                int asignados = 0, quitados = 0;
+                GuardarRecursivo(_treePermisos.Nodes, _rolActual, ref asignados, ref quitados);
 
-                // Recorrer el árbol del TreeView recursivamente para aplicar cambios
-                GuardarRecursivo(_treeView.Nodes, rol, ref asignados, ref quitados);
-
-                // Recargar el árbol para reflejar el estado actualizado
-                MostrarPermisos();
-                MostrarOk(string.Format(T("msg.permisos.guardados", "Cambios guardados: {0} permiso(s) asignado(s), {1} quitado(s)."), asignados, quitados));
+                CargarPermisosRol(_rolActual);
+                MostrarOk(string.Format(
+                    T("msg.permisos.guardados", "Cambios guardados: {0} permiso(s) asignado(s), {1} quitado(s)."),
+                    asignados, quitados));
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al guardar los cambios: {ex.Message}");
+                MostrarError($"Error al guardar: {ex.Message}");
             }
         }
 
-        // Recorre recursivamente los nodos del TreeView y aplica asignaciones/bajas.
         private void GuardarRecursivo(TreeNodeCollection nodos, string rol,
                                        ref int asignados, ref int quitados)
         {
@@ -245,23 +311,18 @@ namespace GUI
                         quitados++;
                     }
                 }
-
-                // Recursión — procesar hijos del nodo actual
                 GuardarRecursivo(nodo.Nodes, rol, ref asignados, ref quitados);
             }
         }
 
         // ── Eventos ───────────────────────────────────────────────────────────
 
-        private void CmbRol_SelectedIndexChanged(object sender, EventArgs e) => MostrarPermisos();
-        private void BtnGuardar_Click(object sender, EventArgs e)             => GuardarCambios();
-        private void BtnCerrar_Click(object sender, EventArgs e)              => this.Close();
+        private void BtnGuardar_Click(object sender, EventArgs e) => GuardarCambios();
+        private void BtnCerrar_Click(object sender, EventArgs e)  => this.Close();
 
-        // Evitar que checkear un Familia propague el check a todos sus hijos de forma recursiva involuntaria
-        private void TreeView_BeforeCheck(object sender, TreeViewCancelEventArgs e)
+        private void TreePermisos_BeforeCheck(object sender, TreeViewCancelEventArgs e)
         {
-            if (e.Node?.Tag is BE.Familia)
-                e.Cancel = true;  // Los nodos de grupo no son checkables
+            if (e.Node?.Tag is BE.Familia) e.Cancel = true;
         }
 
         // ── Construcción de UI ────────────────────────────────────────────────
@@ -269,70 +330,133 @@ namespace GUI
         private void ConstruirUI()
         {
             this.Text            = "Gestor de Perfiles — Permisos";
-            this.Size            = new Size(540, 560);
-            this.MinimumSize     = new Size(460, 460);
+            this.Size            = new Size(900, 620);
+            this.MinimumSize     = new Size(750, 520);
             this.StartPosition   = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.Sizable;
             this.BackColor       = Color.White;
 
-            // ── Título ─────────────────────────────────────────────────────────
-            _lblTitulo = new Label
+            // ── Leyenda de encabezado ──────────────────────────────────────────
+            var lblHeader = new Label
             {
-                Text        = "Perfiles y Permisos",
-                Font        = new Font("Segoe UI", 13f, FontStyle.Bold),
-                ForeColor   = Color.FromArgb(40, 80, 140),
-                AutoSize    = true,
-                Location    = new Point(12, 12),
-                UseMnemonic = false
+                Text      = "Gestor de Perfiles — Permisos",
+                Font      = new Font("Segoe UI", 13f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(40, 80, 140),
+                AutoSize  = true,
+                Location  = new Point(12, 12)
             };
 
             _lblMensaje = new Label
             {
                 AutoSize  = false,
-                Size      = new Size(500, 20),
+                Size      = new Size(860, 20),
                 Location  = new Point(12, 42),
                 Font      = new Font("Segoe UI", 8.5f),
                 ForeColor = Color.DimGray
             };
 
-            // ── Selector de rol ────────────────────────────────────────────────
-            _lblRol = new Label
+            // ── SplitContainer (izquierda = roles, derecha = permisos) ─────────
+            _split = new SplitContainer
             {
-                Text     = "Rol:",
-                Location = new Point(12, 76),
-                AutoSize = true,
-                Font     = new Font("Segoe UI", 9f)
+                Location     = new Point(12, 68),
+                Size         = new Size(860, 460),
+                Anchor       = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                SplitterWidth = 6,
+                SplitterDistance = 280,
+                BackColor    = Color.FromArgb(220, 220, 230)
             };
 
-            _cmbRol = new ComboBox
+            // ── Panel izquierdo ────────────────────────────────────────────────
+            _lblRolesTitulo = new Label
             {
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Location      = new Point(50, 72),
-                Size          = new Size(240, 24),
-                Font          = new Font("Segoe UI", 9f)
+                Text      = "Jerarquía de Roles",
+                Font      = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(60, 40, 100),
+                Dock      = DockStyle.Top,
+                Height    = 26,
+                Padding   = new Padding(4, 4, 0, 0)
             };
 
-            // ── TreeView de permisos ───────────────────────────────────────────
-            _treeView = new TreeView
+            _treeRoles = new TreeView
             {
-                Location        = new Point(12, 108),
-                Size            = new Size(500, 360),
-                Anchor          = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                Dock            = DockStyle.Fill,
+                CheckBoxes      = false,
+                Font            = new Font("Segoe UI", 9f),
+                ShowLines       = true,
+                ShowPlusMinus   = true,
+                BorderStyle     = BorderStyle.None,
+                BackColor       = Color.FromArgb(248, 246, 255),
+                ForeColor       = Color.FromArgb(30, 30, 50),
+                ItemHeight      = 22,
+                Indent          = 18
+            };
+            _treeRoles.AfterSelect += TreeRoles_AfterSelect;
+
+            var leftPanel = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(248, 246, 255) };
+            leftPanel.Controls.Add(_treeRoles);
+            leftPanel.Controls.Add(_lblRolesTitulo);
+            _split.Panel1.Controls.Add(leftPanel);
+
+            // ── Panel derecho ──────────────────────────────────────────────────
+            _lblPermisosTitulo = new Label
+            {
+                Text      = "Permisos del rol seleccionado",
+                Font      = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(40, 80, 140),
+                Dock      = DockStyle.Top,
+                Height    = 26,
+                Padding   = new Padding(4, 4, 0, 0)
+            };
+
+            _lblRolSeleccionado = new Label
+            {
+                Text      = "Seleccioná un rol en el árbol izquierdo.",
+                Font      = new Font("Segoe UI", 8.5f, FontStyle.Italic),
+                ForeColor = Color.DimGray,
+                Dock      = DockStyle.Top,
+                Height    = 20,
+                Padding   = new Padding(4, 2, 0, 0)
+            };
+
+            _treePermisos = new TreeView
+            {
+                Dock            = DockStyle.Fill,
                 CheckBoxes      = true,
                 Font            = new Font("Segoe UI", 9f),
                 ShowLines       = true,
                 ShowPlusMinus   = true,
-                BorderStyle     = BorderStyle.FixedSingle,
+                BorderStyle     = BorderStyle.None,
                 BackColor       = Color.WhiteSmoke,
-                ForeColor       = Color.FromArgb(30, 30, 30)
+                ForeColor       = Color.FromArgb(30, 30, 30),
+                ItemHeight      = 22,
+                Indent          = 16
             };
+            _treePermisos.BeforeCheck += TreePermisos_BeforeCheck;
+
+            // Leyenda de colores
+            var lblLeyenda = new Label
+            {
+                Text      = "■ Azul: asignado   ■ Verde: heredado del rol padre   ■ Gris: sin asignar",
+                Font      = new Font("Segoe UI", 7.5f),
+                ForeColor = Color.DimGray,
+                Dock      = DockStyle.Bottom,
+                Height    = 18,
+                Padding   = new Padding(4, 0, 0, 0)
+            };
+
+            var rightPanel = new Panel { Dock = DockStyle.Fill, BackColor = Color.WhiteSmoke };
+            rightPanel.Controls.Add(_treePermisos);
+            rightPanel.Controls.Add(_lblRolSeleccionado);
+            rightPanel.Controls.Add(_lblPermisosTitulo);
+            rightPanel.Controls.Add(lblLeyenda);
+            _split.Panel2.Controls.Add(rightPanel);
 
             // ── Botones ────────────────────────────────────────────────────────
             _btnGuardar = new Button
             {
                 Text      = "Guardar cambios",
-                Location  = new Point(12, 478),
-                Size      = new Size(150, 32),
+                Location  = new Point(12, 540),
+                Size      = new Size(160, 32),
                 Anchor    = AnchorStyles.Bottom | AnchorStyles.Left,
                 BackColor = Color.FromArgb(40, 110, 60),
                 ForeColor = Color.White,
@@ -342,11 +466,12 @@ namespace GUI
                 Enabled   = false
             };
             _btnGuardar.FlatAppearance.BorderSize = 0;
+            _btnGuardar.Click += BtnGuardar_Click;
 
             _btnCerrar = new Button
             {
                 Text      = "Cerrar",
-                Location  = new Point(394, 478),
+                Location  = new Point(754, 540),
                 Size      = new Size(118, 32),
                 Anchor    = AnchorStyles.Bottom | AnchorStyles.Right,
                 BackColor = Color.FromArgb(210, 210, 210),
@@ -356,19 +481,12 @@ namespace GUI
                 Cursor    = Cursors.Hand
             };
             _btnCerrar.FlatAppearance.BorderSize = 0;
+            _btnCerrar.Click += BtnCerrar_Click;
 
-            // ── Suscribir eventos ──────────────────────────────────────────────
-            _cmbRol.SelectedIndexChanged += CmbRol_SelectedIndexChanged;
-            _btnGuardar.Click            += BtnGuardar_Click;
-            _btnCerrar.Click             += BtnCerrar_Click;
-            _treeView.BeforeCheck        += TreeView_BeforeCheck;
-
-            // ── Agregar controles ──────────────────────────────────────────────
             this.Controls.AddRange(new Control[]
             {
-                _lblTitulo, _lblMensaje,
-                _lblRol, _cmbRol,
-                _treeView,
+                lblHeader, _lblMensaje,
+                _split,
                 _btnGuardar, _btnCerrar
             });
         }

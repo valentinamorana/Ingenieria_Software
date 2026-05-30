@@ -278,9 +278,16 @@ namespace BLL
         {
             switch (perfil.Trim())
             {
-                case "Controlador de Stock":   return "ControladorDeStock";
-                case "Operador de Inventario": return "OperadorDeInventario";
-                default:                       return perfil.Trim();
+                // Roles legacy
+                case "Controlador de Stock":    return "ControladorDeStock";
+                case "Operador de Inventario":  return "OperadorDeInventario";
+                case "Operador Logístico":      return "OperadorLogistico";
+                // Nuevos roles (T04 jerarquía)
+                case "Gerente Comercial":       return "GerenteComercial";
+                case "Gerente de Inventario":   return "GerenteInventario";
+                case "Encargado de Stock":      return "EncargadoDeStock";
+                case "Auditor":                 return "Auditor";
+                default:                        return perfil.Trim();
             }
         }
 

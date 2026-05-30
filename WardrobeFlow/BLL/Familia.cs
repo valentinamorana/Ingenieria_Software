@@ -132,5 +132,78 @@ namespace BLL
                 $"Permiso {idPermiso} quitado del rol '{rol}'",
                 BE.Criticidad.Alta);
         }
+
+        // T04 — Construye el árbol de jerarquía de roles desde la tabla [RolJerarquia].
+        // Retorna nodos raíz (sin padre). Cada nodo tiene Hijos recursivos.
+        // Si la tabla no existe (migración no aplicada), retorna una lista con los roles actuales como nodos planos.
+        public List<BE.JerarquiaRol> ObtenerArbolJerarquiaRoles()
+        {
+            List<BE.JerarquiaRol> todos;
+
+            if (!permisoDAL.ExisteTablaJerarquia())
+            {
+                // Fallback: construir jerarquía plana desde los roles existentes en RolPermiso
+                todos = new List<BE.JerarquiaRol>();
+                foreach (string rol in permisoDAL.ObtenerRoles())
+                    todos.Add(new BE.JerarquiaRol { Rol = rol, RolPadre = null, Nivel = 0, Area = "Roles" });
+            }
+            else
+            {
+                todos = permisoDAL.ObtenerJerarquiaRoles();
+            }
+
+            // Indexar por nombre de rol
+            var byRol = new Dictionary<string, BE.JerarquiaRol>(StringComparer.OrdinalIgnoreCase);
+            foreach (var r in todos)
+                byRol[r.Rol] = r;
+
+            // Vincular hijos con padres
+            var raices = new List<BE.JerarquiaRol>();
+            foreach (var r in todos)
+            {
+                if (r.RolPadre == null || !byRol.ContainsKey(r.RolPadre))
+                    raices.Add(r);
+                else
+                    byRol[r.RolPadre].Hijos.Add(r);
+            }
+
+            return raices;
+        }
+
+        // T04 — Devuelve los nombres de menú (NombreMenu) que el rol recibe por herencia de su padre.
+        // Permite mostrar permisos heredados en el TreeView con distinto color.
+        public List<string> ObtenerPermisosHeredados(string rol)
+        {
+            var heredados = new List<string>();
+            if (!permisoDAL.ExisteTablaJerarquia()) return heredados;
+
+            try
+            {
+                var todos  = permisoDAL.ObtenerJerarquiaRoles();
+                var byRol  = new Dictionary<string, BE.JerarquiaRol>(StringComparer.OrdinalIgnoreCase);
+                foreach (var r in todos) byRol[r.Rol] = r;
+
+                // Subir por la cadena de padres
+                string actual = rol;
+                var visitados = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                while (actual != null && !visitados.Contains(actual))
+                {
+                    visitados.Add(actual);
+                    if (byRol.TryGetValue(actual, out var nodo) && nodo.RolPadre != null)
+                    {
+                        actual = nodo.RolPadre;
+                        foreach (var p in permisoDAL.ObtenerPorRol(actual))
+                            if (!string.IsNullOrEmpty(p.NombreMenu) && !heredados.Contains(p.NombreMenu))
+                                heredados.Add(p.NombreMenu);
+                    }
+                    else break;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceWarning($"[BLL.Familia.ObtenerPermisosHeredados] {ex.Message}");
+            }
+            return heredados;
+        }
     }
 }
