@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using Servicios.Multiidioma;
@@ -16,30 +17,17 @@ namespace GUI
     ///         🔑 Gestionar Usuarios
     ///         🔑 Ver Auditoría
     ///         ...
-    ///       📁 Auditor
-    ///         🔑 Ver Auditoría
+    ///       📁 Auditor / Supervisor
     ///     📁 Comercial
-    ///       📁 Gerente Comercial
-    ///         🔑 Ver Prendas
-    ///         🔑 Gestionar Clientes
-    ///         ...
-    ///       📁 Vendedor
-    ///         🔑 Gestionar Clientes
-    ///         ...
+    ///       📁 Gerente Comercial / Vendedor
     ///     📁 Inventario y Logística
-    ///       📁 Gerente de Inventario
-    ///         ...
-    ///       📁 Encargado de Stock
-    ///         ...
-    ///       📁 Operador Logístico
-    ///         ...
+    ///       📁 ...
     ///
-    /// El árbol se construye en memoria en BLL.Familia.ConstruirArbolOrganizacional()
-    /// usando las clases BE.Familia (nodo compuesto) y BE.Patente (hoja) — exactamente
-    /// como lo hace Stach en su PermisosForm.
+    /// El árbol se construye en BLL.Familia.ConstruirArbolOrganizacional()
+    /// usando BE.Familia (nodo compuesto) y BE.Patente (hoja) — exactamente como Stach.
     ///
+    /// Implementa IIdiomaObserver: todos los controles se traducen al cambiar de idioma.
     /// NO modifica permisos ni afecta la autorización.
-    /// La asignación real de permisos se gestiona en GestorPermisos.
     /// </summary>
     public class ExploradorCompositeForm : Form, IIdiomaObserver
     {
@@ -48,13 +36,24 @@ namespace GUI
         private TreeView _treeView;
         private Label    _lblTitulo;
         private Label    _lblDescripcion;
+        private Label    _lblLeyenda;
         private Button   _btnCerrar;
         private Button   _btnExpandir;
         private Button   _btnColapsar;
+        private Panel    _panelHeader;
+        private Panel    _panelLeyenda;
+        private Panel    _panelBotones;
 
         public ExploradorCompositeForm()
         {
             ConstruirUI();
+        }
+
+        // Helper de traducción — obtiene texto con fallback.
+        private string T(string key, string fallback)
+        {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            return t.ContainsKey(key) ? t[key].Texto : fallback;
         }
 
         // ── Ciclo de vida ─────────────────────────────────────────────────────
@@ -69,6 +68,7 @@ namespace GUI
             }
             catch { }
             GestorIdioma.SuscribirObservador(this);
+            AplicarIdioma();
             CargarArbol();
         }
 
@@ -82,32 +82,48 @@ namespace GUI
 
         public void UpdateLanguage(Idioma idioma)
         {
-            // El árbol se reconstruye para reflejar los nombres de rol en el nuevo idioma
-            CargarArbol();
+            AplicarIdioma();
+            CargarArbol(); // reconstruye el árbol con nombres de patentes/familias en el nuevo idioma
+        }
+
+        // Actualiza TODOS los controles de texto del formulario con las traducciones activas.
+        private void AplicarIdioma()
+        {
+            this.Text               = T("frm.explorador",             "Explorador del Patrón Composite — T04");
+            _lblTitulo.Text         = T("lbl.explorador.titulo",      "Explorador del Patrón Composite");
+            _lblDescripcion.Text    = T("lbl.explorador.descripcion", "Estructura organizacional de WardrobeFlow — Solo lectura");
+            _lblLeyenda.Text        = T("lbl.explorador.leyenda",     "📁 Familia (nodo compuesto — Área o Rol)    🔑 Patente (hoja — permiso atómico)");
+            _btnCerrar.Text         = T("btn.explorador.cerrar",      "Cerrar");
+            _btnColapsar.Text       = T("btn.explorador.colapsar",    "⊟ Colapsar todo");
+            _btnExpandir.Text       = T("btn.explorador.expandir",    "⊞ Expandir todo");
         }
 
         // ── Construcción del árbol ────────────────────────────────────────────
 
         private void CargarArbol()
         {
+            // Obtener traducciones una sola vez para toda la construcción del árbol
+            var traducciones = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+
             _treeView.BeginUpdate();
             _treeView.Nodes.Clear();
 
             try
             {
-                // BLL construye el árbol Composite en memoria desde [RolPermiso]
                 BE.Familia empresa = _familiaBLL.ConstruirArbolOrganizacional();
 
                 // Construir TreeView recursivamente — idéntico al patrón de Stach
                 foreach (BE.Componente hijo in empresa.Hijos)
-                    _treeView.Nodes.Add(CrearNodoRecursivo(hijo));
+                    _treeView.Nodes.Add(CrearNodoRecursivo(hijo, traducciones));
 
                 _treeView.ExpandAll();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar árbol Composite:\n{ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    string.Format(T("err.explorador.cargar", "Error al cargar árbol Composite:\n{0}"), ex.Message),
+                    T("diag.err.titulo", "Error"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             _treeView.EndUpdate();
@@ -119,31 +135,35 @@ namespace GUI
         /// Patentes  → nodo verde con prefijo 🔑
         ///
         /// Idéntico al método CrearNodoRecursivo de Stach/GUI/PermisosForm.cs.
+        /// Las traducciones se pasan como parámetro para no llamar a ObtenerTraducciones en cada nodo.
         /// </summary>
-        private TreeNode CrearNodoRecursivo(BE.Componente componente)
+        private TreeNode CrearNodoRecursivo(BE.Componente componente,
+                                             IDictionary<string, Traduccion> t)
         {
             bool esFamilia = componente is BE.Familia;
             string prefijo = esFamilia ? "📁 " : "🔑 ";
             string nombre  = componente.Nombre;
 
-            // Intentar traducir el nombre del componente
             if (esFamilia)
             {
-                string clave = "perm.grp." + nombre.ToLowerInvariant().Replace(" ", "").Replace("(", "").Replace(")", "");
-                var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
-                if (t.ContainsKey(clave)) nombre = t[clave].Texto;
+                // Intentar traducir como grupo de permisos
+                string claveGrp = "perm.grp." + nombre.ToLowerInvariant()
+                                      .Replace(" ", "").Replace("(", "").Replace(")", "");
+                if (t.ContainsKey(claveGrp))
+                    nombre = t[claveGrp].Texto;
                 else
                 {
-                    // Intentar como rol
-                    string claveRol = "perm.rol." + componente.Nombre.ToLowerInvariant().Replace(" ", "").Replace("(", "").Replace(")", "");
+                    // Intentar traducir como rol
+                    string claveRol = "perm.rol." + componente.Nombre.ToLowerInvariant()
+                                          .Replace(" ", "").Replace("(", "").Replace(")", "");
                     if (t.ContainsKey(claveRol)) nombre = t[claveRol].Texto;
                 }
             }
             else
             {
-                string clave = "perm.pat." + nombre.ToLowerInvariant().Replace(" ", "").Replace("(", "").Replace(")", "");
-                var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
-                if (t.ContainsKey(clave)) nombre = t[clave].Texto;
+                string clavePat = "perm.pat." + nombre.ToLowerInvariant()
+                                      .Replace(" ", "").Replace("(", "").Replace(")", "");
+                if (t.ContainsKey(clavePat)) nombre = t[clavePat].Texto;
             }
 
             var nodo = new TreeNode(prefijo + nombre)
@@ -161,7 +181,7 @@ namespace GUI
             if (esFamilia)
             {
                 foreach (BE.Componente hijo in componente.Hijos)
-                    nodo.Nodes.Add(CrearNodoRecursivo(hijo));
+                    nodo.Nodes.Add(CrearNodoRecursivo(hijo, t));
             }
 
             return nodo;
@@ -179,7 +199,7 @@ namespace GUI
             this.BackColor       = Color.White;
 
             // ── Encabezado ─────────────────────────────────────────────────────
-            var panelHeader = new Panel
+            _panelHeader = new Panel
             {
                 Dock      = DockStyle.Top,
                 Height    = 80,
@@ -205,10 +225,10 @@ namespace GUI
                 Location  = new Point(16, 42)
             };
 
-            panelHeader.Controls.AddRange(new Control[] { _lblTitulo, _lblDescripcion });
+            _panelHeader.Controls.AddRange(new Control[] { _lblTitulo, _lblDescripcion });
 
             // ── Leyenda ────────────────────────────────────────────────────────
-            var panelLeyenda = new Panel
+            _panelLeyenda = new Panel
             {
                 Dock      = DockStyle.Top,
                 Height    = 30,
@@ -216,7 +236,7 @@ namespace GUI
                 Padding   = new Padding(14, 5, 0, 0)
             };
 
-            var lblLeyenda = new Label
+            _lblLeyenda = new Label
             {
                 Text      = "📁 Familia (nodo compuesto — Área o Rol)    🔑 Patente (hoja — permiso atómico)",
                 Font      = new Font("Segoe UI", 8.5f),
@@ -224,26 +244,26 @@ namespace GUI
                 AutoSize  = true,
                 Location  = new Point(14, 6)
             };
-            panelLeyenda.Controls.Add(lblLeyenda);
+            _panelLeyenda.Controls.Add(_lblLeyenda);
 
             // ── TreeView ───────────────────────────────────────────────────────
             _treeView = new TreeView
             {
-                Dock            = DockStyle.Fill,
-                CheckBoxes      = false,
-                Font            = new Font("Segoe UI", 9.5f),
-                ShowLines       = true,
-                ShowPlusMinus   = true,
-                BorderStyle     = BorderStyle.None,
-                BackColor       = Color.FromArgb(252, 250, 255),
-                Indent          = 20,
-                ItemHeight      = 24,
-                FullRowSelect   = true,
-                HideSelection   = false
+                Dock          = DockStyle.Fill,
+                CheckBoxes    = false,
+                Font          = new Font("Segoe UI", 9.5f),
+                ShowLines     = true,
+                ShowPlusMinus = true,
+                BorderStyle   = BorderStyle.None,
+                BackColor     = Color.FromArgb(252, 250, 255),
+                Indent        = 20,
+                ItemHeight    = 24,
+                FullRowSelect = true,
+                HideSelection = false
             };
 
             // ── Panel de botones ───────────────────────────────────────────────
-            var panelBotones = new FlowLayoutPanel
+            _panelBotones = new FlowLayoutPanel
             {
                 Dock          = DockStyle.Bottom,
                 Height        = 46,
@@ -291,12 +311,12 @@ namespace GUI
             _btnExpandir.FlatAppearance.BorderSize = 0;
             _btnExpandir.Click += (s, e) => _treeView.ExpandAll();
 
-            panelBotones.Controls.AddRange(new Control[] { _btnCerrar, _btnColapsar, _btnExpandir });
+            _panelBotones.Controls.AddRange(new Control[] { _btnCerrar, _btnColapsar, _btnExpandir });
 
             this.Controls.Add(_treeView);
-            this.Controls.Add(panelBotones);
-            this.Controls.Add(panelLeyenda);
-            this.Controls.Add(panelHeader);
+            this.Controls.Add(_panelBotones);
+            this.Controls.Add(_panelLeyenda);
+            this.Controls.Add(_panelHeader);
         }
     }
 }

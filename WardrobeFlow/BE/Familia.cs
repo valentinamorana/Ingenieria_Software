@@ -44,6 +44,14 @@ namespace BE
             return false;
         }
 
+        // Elimina un hijo específico del nodo compuesto.
+        // No lanza si el hijo no existe — comportamiento silencioso como en Stach.
+        public override void QuitarHijo(Componente c)
+        {
+            if (c != null)
+                _hijos.Remove(c);
+        }
+
         public override void VaciarHijos()
         {
             _hijos.Clear();

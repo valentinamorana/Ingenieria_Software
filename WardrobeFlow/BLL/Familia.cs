@@ -78,53 +78,42 @@ namespace BLL
         // Los permisos de cada rol se leen de [RolPermiso] vía DAL.Permiso.ObtenerPorRol().
         public BE.Familia ConstruirArbolOrganizacional()
         {
-            // Mapa: rol → área organizacional
+            // Mapa: rol técnico → (área, nombre de display).
+            // Los nombres de display son iguales a los usados en GestorPermisos (sin sufijos "(legacy)").
             var mapa = new List<(string Area, string Rol, string RolDisplay)>
             {
                 // Administración
-                ("Administración",       "Administrador",       "Administrador"),
-                ("Administración",       "Auditor",             "Auditor"),
-                ("Administración",       "Supervisor",          "Supervisor (legacy)"),
+                ("Administración",        "Administrador",        "Administrador"),
+                ("Administración",        "Auditor",              "Auditor"),
+                ("Administración",        "Supervisor",           "Supervisor"),
                 // Comercial
-                ("Comercial",            "GerenteComercial",    "Gerente Comercial"),
-                ("Comercial",            "Vendedor",            "Vendedor"),
+                ("Comercial",             "GerenteComercial",     "Gerente Comercial"),
+                ("Comercial",             "Vendedor",             "Vendedor"),
                 // Inventario y Logística
-                ("Inventario y Logística","GerenteInventario",  "Gerente de Inventario"),
-                ("Inventario y Logística","EncargadoDeStock",   "Encargado de Stock"),
-                ("Inventario y Logística","ControladorDeStock", "Controlador de Stock (legacy)"),
-                ("Inventario y Logística","OperadorLogistico",  "Operador Logístico"),
-                ("Inventario y Logística","OperadorDeInventario","Operador de Inventario (legacy)"),
+                ("Inventario y Logística","GerenteInventario",    "Gerente de Inventario"),
+                ("Inventario y Logística","EncargadoDeStock",     "Encargado de Stock"),
+                ("Inventario y Logística","ControladorDeStock",   "Controlador de Stock"),
+                ("Inventario y Logística","OperadorLogistico",    "Operador Logístico"),
+                ("Inventario y Logística","OperadorDeInventario", "Operador de Inventario"),
             };
 
-            // Construir nodos de área
-            var areas = new Dictionary<string, BE.Familia>(StringComparer.OrdinalIgnoreCase);
-            var empresa = new BE.Familia { Id = 0, Nombre = "WardrobeFlow" };
-
-            foreach (var (area, _, _) in mapa)
-            {
-                if (!areas.ContainsKey(area))
-                {
-                    var nodoArea = new BE.Familia { Id = 0, Nombre = area };
-                    areas[area] = nodoArea;
-                    empresa.AgregarHijo(nodoArea);
-                }
-            }
-
-            // Para cada rol, cargar sus permisos y construir el nodo Familia
+            // Paso 1: construir nodos de rol con sus Patentes.
+            // Agrupar por área solo los roles que tienen permisos en [RolPermiso].
+            var rolesPorArea = new Dictionary<string, List<BE.Familia>>(StringComparer.OrdinalIgnoreCase);
             var rolesAgregados = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var (area, rol, rolDisplay) in mapa)
             {
                 if (rolesAgregados.Contains(rol)) continue;
+                rolesAgregados.Add(rol);
 
                 List<BE.Permiso> permsRol;
                 try { permsRol = permisoDAL.ObtenerPorRol(rol); }
                 catch { permsRol = new List<BE.Permiso>(); }
 
-                if (permsRol.Count == 0) continue; // omitir roles sin permisos
+                if (permsRol.Count == 0) continue; // omitir roles sin permisos (área no se agrega si quedaría vacía)
 
                 var nodoRol = new BE.Familia { Id = 0, Nombre = rolDisplay };
-
                 foreach (var perm in permsRol)
                 {
                     nodoRol.AgregarHijo(new BE.Patente
@@ -136,8 +125,19 @@ namespace BLL
                     });
                 }
 
-                areas[area].AgregarHijo(nodoRol);
-                rolesAgregados.Add(rol);
+                if (!rolesPorArea.ContainsKey(area))
+                    rolesPorArea[area] = new List<BE.Familia>();
+                rolesPorArea[area].Add(nodoRol);
+            }
+
+            // Paso 2: construir el árbol — solo agrega áreas con al menos un rol activo.
+            var empresa = new BE.Familia { Id = 0, Nombre = "WardrobeFlow" };
+            foreach (var kvp in rolesPorArea)
+            {
+                var nodoArea = new BE.Familia { Id = 0, Nombre = kvp.Key };
+                foreach (var nodoRol in kvp.Value)
+                    nodoArea.AgregarHijo(nodoRol);
+                empresa.AgregarHijo(nodoArea);
             }
 
             return empresa;

@@ -25,6 +25,13 @@ namespace BE
                 "Un permiso simple (Patente) no puede contener hijos. Solo las Familias admiten hijos.");
         }
 
+        // Hoja — no tiene hijos que quitar. Equivalente a Quitar() de Stach en la clase Patente.
+        public override void QuitarHijo(Componente c)
+        {
+            throw new InvalidOperationException(
+                "Un permiso simple (Patente) no tiene hijos que quitar.");
+        }
+
         public override void VaciarHijos() { }
     }
 }
