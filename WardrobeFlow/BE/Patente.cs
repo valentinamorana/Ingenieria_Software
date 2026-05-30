@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace BE
@@ -18,7 +19,11 @@ namespace BE
         // Hoja — nunca tiene hijos
         public override IList<Componente> Hijos => new List<Componente>(0);
 
-        public override void AgregarHijo(Componente c) { }
+        public override void AgregarHijo(Componente c)
+        {
+            throw new InvalidOperationException(
+                "Un permiso simple (Patente) no puede contener hijos. Solo las Familias admiten hijos.");
+        }
 
         public override void VaciarHijos() { }
     }

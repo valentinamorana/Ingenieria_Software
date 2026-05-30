@@ -290,6 +290,32 @@ namespace BLL
             dvDAL.GuardarDVV("Usuario", dvv);
         }
 
+        // Devuelve los últimos N registros del historial de verificaciones DV.
+        // Encapsula el acceso a DAL para que la GUI no dependa de DAL.HistorialIntegridad.
+        public static List<BE.HistorialIntegridad> ObtenerHistorialIntegridad(int n)
+        {
+            return new DAL.HistorialIntegridad().ObtenerUltimos(n);
+        }
+
+        // Registra una verificación periódica (Timer del Menu) en el historial.
+        // Centraliza el acceso a DAL para que Menu.cs no dependa de DAL directamente.
+        public static void RegistrarVerificacionPeriodica(ResultadoDiagnostico diag)
+        {
+            try
+            {
+                new DAL.HistorialIntegridad().Insertar(new BE.HistorialIntegridad
+                {
+                    NombreTabla    = "Usuario",
+                    DVVAlmacenado  = diag.DVVAlmacenado,
+                    DVVCalculado   = diag.DVVCalculado,
+                    Resultado      = diag.Integro,
+                    FilasCorruptas = diag.FilasRotas.Count,
+                    DisparadoPor   = "Timer"
+                });
+            }
+            catch { /* tabla aún no existe */ }
+        }
+
         // Registra silenciosamente cada verificación en HistorialIntegridad.
         // Falla silenciosamente si la tabla aún no existe (antes de la migración).
         private static void LogearVerificacion(string tabla, int? dvvAlm, int dvvCalc, bool resultado, int filasRotas, string origen)

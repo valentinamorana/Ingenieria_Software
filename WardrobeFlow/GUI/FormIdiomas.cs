@@ -166,7 +166,9 @@ namespace GUI
                 foreach (var f in filas)
                     dgvTraducciones.Rows.Add(f.IdControl, f.Clave, f.Formulario, f.Texto);
 
-                MostrarOk($"{filas.Count} traducción(es) cargadas.");
+                var tOk = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string fmtOk = tOk.ContainsKey("msg.idiomas.cargadas") ? tOk["msg.idiomas.cargadas"].Texto : "{0} traducción(es) cargadas.";
+                MostrarOk(string.Format(fmtOk, filas.Count));
             }
             catch (Exception ex)
             {
@@ -248,7 +250,8 @@ namespace GUI
         {
             if (_idIdiomaSeleccionado == 0)
             {
-                MostrarError("Seleccioná un idioma primero.");
+                var tSel = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                MostrarError(tSel.ContainsKey("msg.idiomas.seleccionar") ? tSel["msg.idiomas.seleccionar"].Texto : "Seleccioná un idioma primero.");
                 return;
             }
 
@@ -276,7 +279,9 @@ namespace GUI
 
             if (errores == 0)
             {
-                MostrarOk($"{guardadas} traducción(es) guardadas correctamente.");
+                var tG = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string fmtG = tG.ContainsKey("msg.idiomas.guardadas") ? tG["msg.idiomas.guardadas"].Texto : "{0} traducción(es) guardadas correctamente.";
+                MostrarOk(string.Format(fmtG, guardadas));
 
                 // Si el idioma editado es el que está activo ahora mismo,
                 // recargar el diccionario desde BD y notificar a todos los observers
@@ -293,7 +298,9 @@ namespace GUI
             }
             else
             {
-                MostrarError($"Se guardaron {guardadas} y fallaron {errores}.");
+                var tGE = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string fmtGE = tGE.ContainsKey("msg.idiomas.guardadas.error") ? tGE["msg.idiomas.guardadas.error"].Texto : "Se guardaron {0} y fallaron {1}.";
+                MostrarError(string.Format(fmtGE, guardadas, errores));
             }
         }
     }

@@ -246,7 +246,11 @@ namespace GUI
             {
                 var diag = BLL.Configuracion.ObtenerDiagnostico();
 
-                _lblEstadoDVV.Text      = diag.Integro ? "Estado: INTEGRO" : "Estado: COMPROMETIDO";
+                var tD = Servicios.Multiidioma.Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string TD(string k, string fb) => tD.ContainsKey(k) ? tD[k].Texto : fb;
+                _lblEstadoDVV.Text      = diag.Integro
+                    ? TD("diag.estado.integro",       "Estado: INTEGRO")
+                    : TD("diag.estado.comprometido",  "Estado: COMPROMETIDO");
                 _lblEstadoDVV.ForeColor = diag.Integro ? Color.FromArgb(40, 140, 60) : Color.FromArgb(180, 50, 50);
 
                 _lblDVVDetalle.Text = $"DVV almacenado: {(diag.DVVAlmacenado?.ToString() ?? "—")}   |   " +
@@ -278,7 +282,7 @@ namespace GUI
             _gridHistorial.Rows.Clear();
             try
             {
-                var lista = new DAL.HistorialIntegridad().ObtenerUltimos(150);
+                var lista = BLL.Configuracion.ObtenerHistorialIntegridad(150);
                 foreach (var h in lista)
                 {
                     _gridHistorial.Rows.Add(

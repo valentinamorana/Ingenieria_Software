@@ -548,29 +548,25 @@ namespace GUI
             {
                 var diag = BLL.Configuracion.ObtenerDiagnostico();
 
-                // Loguear resultado silenciosamente
-                try
-                {
-                    new DAL.HistorialIntegridad().Insertar(new BE.HistorialIntegridad
-                    {
-                        NombreTabla    = "Usuario",
-                        DVVAlmacenado  = diag.DVVAlmacenado,
-                        DVVCalculado   = diag.DVVCalculado,
-                        Resultado      = diag.Integro,
-                        FilasCorruptas = diag.FilasRotas.Count,
-                        DisparadoPor   = "Timer"
-                    });
-                }
-                catch { /* tabla aún no existe */ }
+                // Loguear resultado via BLL (GUI no accede a DAL directamente)
+                BLL.Configuracion.RegistrarVerificacionPeriodica(diag);
 
                 if (!diag.Integro)
                 {
+                    var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                    string T(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
                     MessageBox.Show(
-                        $"ALERTA: Se detectaron problemas de integridad en la tabla Usuario.\n\n" +
-                        $"Filas con DVH inválido: {diag.FilasRotas.Count}\n" +
-                        $"DVV almacenado: {diag.DVVAlmacenado?.ToString() ?? "—"}  |  DVV calculado: {diag.DVVCalculado}\n\n" +
-                        "Vaya a Administrar → Diagnóstico de Integridad para reparar.",
-                        "Alerta de Integridad",
+                        string.Format(
+                            T("alerta.integridad.msg",
+                              "ALERTA: Se detectaron problemas de integridad en la tabla Usuario.\n\n" +
+                              "Filas con DVH inválido: {0}\n" +
+                              "DVV almacenado: {1}  |  DVV calculado: {2}\n\n" +
+                              "Vaya a Administrar → Diagnóstico de Integridad para reparar."),
+                            diag.FilasRotas.Count,
+                            diag.DVVAlmacenado?.ToString() ?? "—",
+                            diag.DVVCalculado),
+                        T("alerta.integridad.titulo", "Alerta de Integridad"),
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
                 }

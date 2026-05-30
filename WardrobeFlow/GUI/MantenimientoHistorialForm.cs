@@ -115,7 +115,11 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                lblSinRegistros.Text    = $"Error al cargar historial: {ex.Message}";
+                var tErr = Traductor.ObtenerTraducciones(_idioma);
+                string fmtErr = tErr.ContainsKey("err.mant.cargar")
+                    ? tErr["err.mant.cargar"].Texto
+                    : "Error al cargar historial: {0}";
+                lblSinRegistros.Text    = string.Format(fmtErr, ex.Message);
                 lblSinRegistros.Visible = true;
                 dgvHistorial.Visible    = false;
             }
