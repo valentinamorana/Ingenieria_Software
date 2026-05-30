@@ -54,7 +54,7 @@ namespace BLL
         public bool   Integro          { get; set; }
         public int?   DVVAlmacenado    { get; set; }
         public int    DVVCalculado     { get; set; }
-        public List<DAL.FilaUsuarioDV> FilasRotas { get; set; } = new List<DAL.FilaUsuarioDV>();
+        public List<BE.FilaUsuarioDV> FilasRotas { get; set; } = new List<BE.FilaUsuarioDV>();
     }
 
     /// <summary>
@@ -234,7 +234,7 @@ namespace BLL
             var svc   = new Seguridad.DigitoVerificador();
             var filas = dvDAL.ObtenerFilasUsuario();
 
-            var rotas      = new List<DAL.FilaUsuarioDV>();
+            var rotas      = new List<BE.FilaUsuarioDV>();
             var dvhsRecalc = new List<int>();
 
             foreach (var fila in filas)
@@ -297,7 +297,7 @@ namespace BLL
         // Helper compartido entre VerificarIntegridadDV (primer arranque) y RecalcularIntegridadDV.
         private static void RecalcularTodoDV(DAL.DigitoVerificador dvDAL,
                                               Seguridad.DigitoVerificador svc,
-                                              List<DAL.FilaUsuarioDV> filas)
+                                              List<BE.FilaUsuarioDV> filas)
         {
             var dvhValues = new List<int>();
             foreach (var fila in filas)

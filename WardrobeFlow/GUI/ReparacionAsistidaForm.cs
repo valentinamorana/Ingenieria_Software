@@ -13,7 +13,7 @@ namespace GUI
     /// </summary>
     public class ReparacionAsistidaForm : Form
     {
-        private readonly List<DAL.FilaUsuarioDV> _filasRotas;
+        private readonly List<BE.FilaUsuarioDV> _filasRotas;
 
         private DataGridView _grid;
         private Button       _btnSelAll;
@@ -22,7 +22,7 @@ namespace GUI
         private Label        _lblResumen;
         private Label        _lblTituloHeader;
 
-        public ReparacionAsistidaForm(List<DAL.FilaUsuarioDV> filasRotas)
+        public ReparacionAsistidaForm(List<BE.FilaUsuarioDV> filasRotas)
         {
             _filasRotas = filasRotas;
             BuildUI();

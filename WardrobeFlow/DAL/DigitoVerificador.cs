@@ -63,9 +63,9 @@ namespace DAL
 
         // Lee todas las filas de Usuario con sus DVH almacenados, ordenadas por IdUsuario.
         // Retorna lista de (id, username, clave, perfil, estado, intentos, dvhAlmacenado).
-        public List<FilaUsuarioDV> ObtenerFilasUsuario()
+        public List<BE.FilaUsuarioDV> ObtenerFilasUsuario()
         {
-            var lista = new List<FilaUsuarioDV>();
+            var lista = new List<BE.FilaUsuarioDV>();
             try
             {
                 DataTable tabla = acceso.Leer(
@@ -77,7 +77,7 @@ namespace DAL
 
                 foreach (DataRow row in tabla.Rows)
                 {
-                    lista.Add(new FilaUsuarioDV
+                    lista.Add(new BE.FilaUsuarioDV
                     {
                         Id               = Convert.ToInt32(row["IdUsuario"]),
                         Username         = row["Username"].ToString(),
@@ -114,17 +114,5 @@ namespace DAL
                 throw new Exception($"Error al actualizar DVH del usuario ID {idUsuario}.", ex);
             }
         }
-    }
-
-    // DTO interno para el cálculo DV — no expone la entidad BE completa para mantener aislamiento.
-    public class FilaUsuarioDV
-    {
-        public int    Id               { get; set; }
-        public string Username         { get; set; }
-        public string Clave            { get; set; }
-        public string Perfil           { get; set; }
-        public string Estado           { get; set; }
-        public string IntentosFallidos { get; set; }
-        public int?   DVHAlmacenado    { get; set; }
     }
 }
