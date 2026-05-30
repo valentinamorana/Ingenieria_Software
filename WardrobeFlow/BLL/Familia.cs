@@ -6,13 +6,12 @@ namespace BLL
     /// <summary>
     /// Capa de Lógica de Negocio — T04 Gestión de Perfiles de Usuario (Patrón Composite).
     ///
-    /// Construye el árbol de permisos en memoria a partir de los datos en BD.
-    /// Estructura del árbol:
-    ///   BE.Familia (raíz — nombre del rol)
-    ///     BE.Familia (nodo — grupo/familia de permisos, cargado desde BD con EsFamilia=1)
-    ///       BE.Patente (hoja — permiso individual, Asignado=true si está en RolPermiso)
-    ///
-    /// La GUI usa esta BLL exclusivamente; nunca toca DAL.Permiso directamente.
+    /// Responsabilidades:
+    ///   1. ObtenerArbolPorRol()           — construye el árbol Familia→Patente para GestorPermisos.
+    ///   2. ConstruirArbolOrganizacional()  — construye en memoria la jerarquía de la empresa
+    ///                                        (WardrobeFlow → Área → Rol → Patentes) para el
+    ///                                        ExploradorCompositeForm (demostración académica).
+    ///   3. AsignarPermiso() / QuitarPermiso() — modifican [RolPermiso] para el mecanismo real de auth.
     /// </summary>
     public class Familia
     {
@@ -48,44 +47,120 @@ namespace BLL
             List<BE.Permiso>    asignados = permisoDAL.ObtenerPorRol(rol);
 
             var idsAsignados = new HashSet<int>();
-            foreach (var p in asignados)
-                idsAsignados.Add(p.Id);
+            foreach (var p in asignados) idsAsignados.Add(p.Id);
 
             MarcarAsignados(arbol, idsAsignados);
 
             var raiz = new BE.Familia { Id = 0, Nombre = rol };
-            foreach (var nodo in arbol)
-                raiz.AgregarHijo(nodo);
+            foreach (var nodo in arbol) raiz.AgregarHijo(nodo);
 
-            // T04 — verificar que el árbol cargado no tenga ciclos (datos corruptos en BD).
             VerificarSinCiclos(raiz);
-
             return raiz;
         }
 
-        // T04 — Recorre el árbol completo buscando referencias circulares.
-        // Usa DFS con un set de visitados en el camino actual.
-        // Lanza InvalidOperationException describiendo el ciclo encontrado.
+        // T04 — Construye en memoria la jerarquía organizacional de la empresa como árbol Composite.
+        //
+        // Estructura generada:
+        //   BE.Familia("WardrobeFlow")            ← raíz
+        //     BE.Familia("Administración")         ← área
+        //       BE.Familia("Administrador")        ← rol (con sus Patentes)
+        //         BE.Patente("Gestionar Usuarios") ← permiso atómico
+        //         ...
+        //       BE.Familia("Auditor")
+        //         BE.Patente("Ver Auditoría")
+        //     BE.Familia("Comercial")
+        //       ...
+        //     BE.Familia("Inventario y Logística")
+        //       ...
+        //
+        // Usado exclusivamente por ExploradorCompositeForm (visualización académica).
+        // No modifica [RolPermiso] ni afecta la autorización.
+        // Los permisos de cada rol se leen de [RolPermiso] vía DAL.Permiso.ObtenerPorRol().
+        public BE.Familia ConstruirArbolOrganizacional()
+        {
+            // Mapa: rol → área organizacional
+            var mapa = new List<(string Area, string Rol, string RolDisplay)>
+            {
+                // Administración
+                ("Administración",       "Administrador",       "Administrador"),
+                ("Administración",       "Auditor",             "Auditor"),
+                ("Administración",       "Supervisor",          "Supervisor (legacy)"),
+                // Comercial
+                ("Comercial",            "GerenteComercial",    "Gerente Comercial"),
+                ("Comercial",            "Vendedor",            "Vendedor"),
+                // Inventario y Logística
+                ("Inventario y Logística","GerenteInventario",  "Gerente de Inventario"),
+                ("Inventario y Logística","EncargadoDeStock",   "Encargado de Stock"),
+                ("Inventario y Logística","ControladorDeStock", "Controlador de Stock (legacy)"),
+                ("Inventario y Logística","OperadorLogistico",  "Operador Logístico"),
+                ("Inventario y Logística","OperadorDeInventario","Operador de Inventario (legacy)"),
+            };
+
+            // Construir nodos de área
+            var areas = new Dictionary<string, BE.Familia>(StringComparer.OrdinalIgnoreCase);
+            var empresa = new BE.Familia { Id = 0, Nombre = "WardrobeFlow" };
+
+            foreach (var (area, _, _) in mapa)
+            {
+                if (!areas.ContainsKey(area))
+                {
+                    var nodoArea = new BE.Familia { Id = 0, Nombre = area };
+                    areas[area] = nodoArea;
+                    empresa.AgregarHijo(nodoArea);
+                }
+            }
+
+            // Para cada rol, cargar sus permisos y construir el nodo Familia
+            var rolesAgregados = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var (area, rol, rolDisplay) in mapa)
+            {
+                if (rolesAgregados.Contains(rol)) continue;
+
+                List<BE.Permiso> permsRol;
+                try { permsRol = permisoDAL.ObtenerPorRol(rol); }
+                catch { permsRol = new List<BE.Permiso>(); }
+
+                if (permsRol.Count == 0) continue; // omitir roles sin permisos
+
+                var nodoRol = new BE.Familia { Id = 0, Nombre = rolDisplay };
+
+                foreach (var perm in permsRol)
+                {
+                    nodoRol.AgregarHijo(new BE.Patente
+                    {
+                        Id         = perm.Id,
+                        Nombre     = perm.Nombre,
+                        NombreMenu = perm.NombreMenu,
+                        Asignado   = true
+                    });
+                }
+
+                areas[area].AgregarHijo(nodoRol);
+                rolesAgregados.Add(rol);
+            }
+
+            return empresa;
+        }
+
+        // T04 — DFS con HashSet para detectar ciclos en el árbol cargado.
         public void VerificarSinCiclos(BE.Familia raiz)
         {
             var enCamino = new HashSet<int>();
-            var camino   = new System.Collections.Generic.Stack<string>();
+            var camino   = new Stack<string>();
             VerificarRecursivo(raiz, enCamino, camino);
         }
 
-        private void VerificarRecursivo(BE.Componente nodo,
-                                        HashSet<int> enCamino,
-                                        System.Collections.Generic.Stack<string> camino)
+        private void VerificarRecursivo(BE.Componente nodo, HashSet<int> enCamino, Stack<string> camino)
         {
-            // Los nodos raíz virtuales (Id=0) no se registran para evitar falsos positivos.
             if (nodo.Id != 0)
             {
                 if (enCamino.Contains(nodo.Id))
                 {
-                    var ruta = new System.Collections.Generic.List<string>(camino) { nodo.Nombre };
+                    var ruta = new List<string>(camino) { nodo.Nombre };
                     ruta.Reverse();
                     throw new InvalidOperationException(
-                        $"Referencia circular detectada en el árbol de permisos: " +
+                        "Referencia circular detectada en el árbol de permisos: " +
                         string.Join(" → ", ruta));
                 }
                 enCamino.Add(nodo.Id);
@@ -131,79 +206,6 @@ namespace BLL
             _bitacora.Registrar("Gestión de Perfiles",
                 $"Permiso {idPermiso} quitado del rol '{rol}'",
                 BE.Criticidad.Alta);
-        }
-
-        // T04 — Construye el árbol de jerarquía de roles desde la tabla [RolJerarquia].
-        // Retorna nodos raíz (sin padre). Cada nodo tiene Hijos recursivos.
-        // Si la tabla no existe (migración no aplicada), retorna una lista con los roles actuales como nodos planos.
-        public List<BE.JerarquiaRol> ObtenerArbolJerarquiaRoles()
-        {
-            List<BE.JerarquiaRol> todos;
-
-            if (!permisoDAL.ExisteTablaJerarquia())
-            {
-                // Fallback: construir jerarquía plana desde los roles existentes en RolPermiso
-                todos = new List<BE.JerarquiaRol>();
-                foreach (string rol in permisoDAL.ObtenerRoles())
-                    todos.Add(new BE.JerarquiaRol { Rol = rol, RolPadre = null, Nivel = 0, Area = "Roles" });
-            }
-            else
-            {
-                todos = permisoDAL.ObtenerJerarquiaRoles();
-            }
-
-            // Indexar por nombre de rol
-            var byRol = new Dictionary<string, BE.JerarquiaRol>(StringComparer.OrdinalIgnoreCase);
-            foreach (var r in todos)
-                byRol[r.Rol] = r;
-
-            // Vincular hijos con padres
-            var raices = new List<BE.JerarquiaRol>();
-            foreach (var r in todos)
-            {
-                if (r.RolPadre == null || !byRol.ContainsKey(r.RolPadre))
-                    raices.Add(r);
-                else
-                    byRol[r.RolPadre].Hijos.Add(r);
-            }
-
-            return raices;
-        }
-
-        // T04 — Devuelve los nombres de menú (NombreMenu) que el rol recibe por herencia de su padre.
-        // Permite mostrar permisos heredados en el TreeView con distinto color.
-        public List<string> ObtenerPermisosHeredados(string rol)
-        {
-            var heredados = new List<string>();
-            if (!permisoDAL.ExisteTablaJerarquia()) return heredados;
-
-            try
-            {
-                var todos  = permisoDAL.ObtenerJerarquiaRoles();
-                var byRol  = new Dictionary<string, BE.JerarquiaRol>(StringComparer.OrdinalIgnoreCase);
-                foreach (var r in todos) byRol[r.Rol] = r;
-
-                // Subir por la cadena de padres
-                string actual = rol;
-                var visitados = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                while (actual != null && !visitados.Contains(actual))
-                {
-                    visitados.Add(actual);
-                    if (byRol.TryGetValue(actual, out var nodo) && nodo.RolPadre != null)
-                    {
-                        actual = nodo.RolPadre;
-                        foreach (var p in permisoDAL.ObtenerPorRol(actual))
-                            if (!string.IsNullOrEmpty(p.NombreMenu) && !heredados.Contains(p.NombreMenu))
-                                heredados.Add(p.NombreMenu);
-                    }
-                    else break;
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Trace.TraceWarning($"[BLL.Familia.ObtenerPermisosHeredados] {ex.Message}");
-            }
-            return heredados;
         }
     }
 }

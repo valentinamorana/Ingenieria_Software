@@ -67,7 +67,6 @@
     <Compile Include="Usuario.cs" />
     <Compile Include="VersionUsuario.cs" />
     <Compile Include="HistorialIntegridad.cs" />
-    <Compile Include="JerarquiaRol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

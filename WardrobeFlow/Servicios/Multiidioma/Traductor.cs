@@ -717,7 +717,8 @@ namespace Servicios.Multiidioma
             { "perm.pat.gestionarplansuscripciones","Gestionar Plan Suscripciones"               },
             { "perm.pat.realizarventas",            "Realizar Ventas"                            },
             { "perm.pat.verpedidosrealizados",      "Ver Pedidos Realizados"                     },
-            // GestorPermisos — nuevas claves para jerarquía de roles (T04)
+            // GestorPermisos + ExploradorCompositeForm (T04)
+            { "btn.explorador",              "🌳 Ver Explorador Composite"                         },
             { "lbl.jerarquia.roles",         "Jerarquía de Roles"                                 },
             { "lbl.jerarquia.selecciona",    "Seleccioná un rol en el árbol izquierdo."           },
             { "lbl.permiso.heredado",        " (heredado)"                                         },
@@ -1512,7 +1513,8 @@ namespace Servicios.Multiidioma
             { "perm.pat.gestionarplansuscripciones","Manage Subscription Plans"                  },
             { "perm.pat.realizarventas",            "Process Sales"                              },
             { "perm.pat.verpedidosrealizados",      "View Fulfilled Orders"                      },
-            // GestorPermisos — role hierarchy (T04)
+            // GestorPermisos + ExploradorCompositeForm (T04)
+            { "btn.explorador",              "🌳 View Composite Explorer"                          },
             { "lbl.jerarquia.roles",         "Role Hierarchy"                                     },
             { "lbl.jerarquia.selecciona",    "Select a role from the left tree."                  },
             { "lbl.permiso.heredado",        " (inherited)"                                        },
