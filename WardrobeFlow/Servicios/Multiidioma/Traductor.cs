@@ -743,7 +743,6 @@ namespace Servicios.Multiidioma
             { "perm.rol.gerentecomercial",    "Gerente Comercial"                                   },
             { "perm.rol.gerenteinventario",   "Gerente de Inventario"                               },
             { "perm.rol.encargadodestock",    "Encargado de Stock"                                  },
-            { "perm.rol.operadorlogistico",   "Operador Logístico"                                  },
             // FormIdiomas
             { "frm.idiomas",             "Gestión de Idiomas"                                     },
             { "lbl.idiomas.titulo",      "Idiomas del sistema"                                    },
@@ -1552,7 +1551,6 @@ namespace Servicios.Multiidioma
             { "perm.rol.gerentecomercial",    "Sales Manager"                                       },
             { "perm.rol.gerenteinventario",   "Inventory Manager"                                   },
             { "perm.rol.encargadodestock",    "Stock Clerk"                                         },
-            { "perm.rol.operadorlogistico",   "Logistics Operator"                                  },
             // FormIdiomas
             { "frm.idiomas",             "Language Management"                                   },
             { "lbl.idiomas.titulo",      "System Languages"                                      },
@@ -2360,7 +2358,6 @@ namespace Servicios.Multiidioma
             { "perm.rol.gerentecomercial",    "Коммерческий менеджер"                             },
             { "perm.rol.gerenteinventario",   "Менеджер склада"                                   },
             { "perm.rol.encargadodestock",    "Кладовщик"                                         },
-            { "perm.rol.operadorlogistico",   "Логист"                                            },
             // FormIdiomas
             { "frm.idiomas",             "Управление языками"                                    },
             { "lbl.idiomas.titulo",      "Языки системы"                                         },
@@ -3129,7 +3126,6 @@ namespace Servicios.Multiidioma
             { "perm.rol.gerentecomercial",    "Gerente Comercial"                         },
             { "perm.rol.gerenteinventario",   "Gerente de Estoque"                        },
             { "perm.rol.encargadodestock",    "Responsável de Estoque"                    },
-            { "perm.rol.operadorlogistico",   "Operador Logístico"                        },
             { "frm.idiomas",             "Gerenciamento de Idiomas"                     },
             { "lbl.idiomas.titulo",      "Idiomas do sistema"                           },
             { "lbl.idiomas.trad",        "Traduções do idioma selecionado"              },
@@ -3358,10 +3354,7 @@ namespace Servicios.Multiidioma
             // Menu — Timer
             { "alerta.integridad.titulo",          "Alerta de Integridade"                },
             { "alerta.integridad.msg",             "ALERTA: Problemas de integridade detectados na tabela Usuario.\n\nLinhas com DVH inválido: {0}\nDVV armazenado: {1}  |  DVV calculado: {2}\n\nVá a Administrar → Diagnóstico de Integridade para reparar." },
-            // Módulos auxiliares
-            { "msg.modulo.outfits",      "O módulo de Outfits ainda não está disponível." },
-            { "msg.modulo.categorias",   "O módulo de Categorias ainda não está disponível." },
-            { "lbl.proximamente",        "Em breve"                                       },
+            // Módulos auxiliares — ver entradas em linha ~3063
         });
 
         // ── Constructor de diccionario ────────────────────────────────────────
