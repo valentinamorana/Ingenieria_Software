@@ -32,7 +32,6 @@ namespace GUI
         private readonly BLL.Interfaces.IClienteService clienteBLL = new BLL.Cliente();
         private readonly BLL.Interfaces.IPrendaService  prendaBLL  = new BLL.Prenda();
         private readonly BLL.Interfaces.IPedidoService  pedidoBLL  = new BLL.Pedido();
-        private readonly BLL.Cliente                     clienteBLLConcreto = new BLL.Cliente();
 
         // ── Estado interno ────────────────────────────────────────────────────
         private List<BE.Cliente> _clientes    = new List<BE.Cliente>();
@@ -200,7 +199,7 @@ namespace GUI
             string T_i(string k, string fb) => tI.ContainsKey(k) ? tI[k].Texto : fb;
 
             // Consultar la BLL — sin interpretar reglas de negocio en la GUI
-            var estado = clienteBLLConcreto.ObtenerEstadoComercial(_clienteSel, 0);
+            var estado = clienteBLL.ObtenerEstadoComercial(_clienteSel, 0);
 
             if (!estado.PuedeProceder)
             {
@@ -256,7 +255,7 @@ namespace GUI
             int seleccionadas = ContarSeleccionadas();
 
             // La BLL evalúa todas las reglas de negocio y devuelve un DTO listo para mostrar
-            var estado = clienteBLLConcreto.ObtenerEstadoComercial(_clienteSel, seleccionadas);
+            var estado = clienteBLL.ObtenerEstadoComercial(_clienteSel, seleccionadas);
 
             int enUso  = estado.StockUtilizado;
             int limite = estado.LimitePrendas;
