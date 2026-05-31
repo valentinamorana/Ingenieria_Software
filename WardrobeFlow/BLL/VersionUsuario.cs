@@ -46,11 +46,13 @@ namespace BLL
         public void RestaurarVersion(string modulo, int idVersion)
         {
             if (!SessionManager.IsLoggedIn)
-                throw new Exception("No hay sesión activa.");
+                throw new BE.AppException("err.bll.sesion_expirada",
+                    "La sesión expiró. Volvé a iniciar sesión.");
 
             var version = _dalVersion.ObtenerPorId(idVersion);
             if (version == null)
-                throw new Exception("La versión seleccionada no existe.");
+                throw new BE.AppException("err.bll.version.no_existe",
+                    "La versión seleccionada no existe.");
 
             string actor = SessionManager.GetInstance().Usuario.Username;
 

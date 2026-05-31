@@ -423,8 +423,9 @@ namespace BLL
         {
             var cambios = dalHistorial.ObtenerPorOperacion(idPedido, idOperacion);
             if (cambios == null || cambios.Count == 0)
-                throw new Exception(
-                    $"No se encontraron cambios para la operación #{idOperacion} del Pedido #{idPedido}.");
+                throw new BE.AppException("err.bll.pedido.historial_vacio",
+                    "No se encontraron cambios para la operación #{0} del Pedido #{1}.",
+                    idOperacion, idPedido);
 
             string accionOriginal = cambios[0].Accion;
 

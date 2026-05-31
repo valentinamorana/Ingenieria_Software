@@ -23,10 +23,12 @@ namespace BLL
         private static void VerificarAdmin()
         {
             if (!Seguridad.SessionManager.IsLoggedIn)
-                throw new Exception("No hay sesión activa.");
+                throw new BE.AppException("err.bll.sesion_expirada",
+                    "La sesión expiró. Volvé a iniciar sesión.");
             string perfil = Seguridad.SessionManager.GetInstance().Usuario.Perfil ?? "";
             if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
-                throw new Exception("Solo un Administrador puede modificar permisos de roles.");
+                throw new BE.AppException("err.bll.familia.sin_permiso",
+                    "Solo un Administrador puede modificar permisos de roles.");
         }
 
         // Retorna la lista de roles disponibles en el sistema.
