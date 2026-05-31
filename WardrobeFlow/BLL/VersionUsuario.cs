@@ -12,22 +12,32 @@ namespace BLL
 
         // Captura el estado actual del usuario y lo persiste como snapshot histórico.
         // Debe llamarse ANTES de cualquier operación que modifique al usuario.
+        // Falla silenciosamente si HistorialUsuario no existe (migración pendiente),
+        // para no bloquear operaciones críticas como reset de contraseñas.
         public void GrabarVersion(int idUsuario, string actor, string detalle)
         {
-            var usuario = _dalUsuario.ObtenerPorId(idUsuario);
-            if (usuario == null) return;
-
-            _dalVersion.Insertar(new BE.VersionUsuario
+            try
             {
-                IdUsuario        = idUsuario,
-                Fecha            = DateTime.Now,
-                Actor            = actor,
-                Detalle          = detalle,
-                UsernameSnapshot = usuario.Username,
-                ClaveSnapshot    = usuario.Contraseña,
-                EstadoSnapshot   = !usuario.Bloqueado,
-                IntentosSnapshot = usuario.IntentosFallidos
-            });
+                var usuario = _dalUsuario.ObtenerPorId(idUsuario);
+                if (usuario == null) return;
+
+                _dalVersion.Insertar(new BE.VersionUsuario
+                {
+                    IdUsuario        = idUsuario,
+                    Fecha            = DateTime.Now,
+                    Actor            = actor,
+                    Detalle          = detalle,
+                    UsernameSnapshot = usuario.Username,
+                    ClaveSnapshot    = usuario.Contraseña,
+                    EstadoSnapshot   = !usuario.Bloqueado,
+                    IntentosSnapshot = usuario.IntentosFallidos
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceWarning(
+                    $"[BLL.VersionUsuario.GrabarVersion] No se pudo grabar snapshot para usuario ID {idUsuario}: {ex.Message}");
+            }
         }
 
         public List<BE.VersionUsuario> ObtenerPorUsuario(int idUsuario)
