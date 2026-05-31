@@ -95,6 +95,53 @@ namespace BLL
                 idCliente: cliente.IdCliente);
         }
 
+        // Evalúa si un cliente puede crear un pedido con la cantidad de prendas indicada.
+        // Devuelve un DTO listo para que la GUI lo muestre sin interpretar reglas de negocio.
+        public BE.EstadoComercialCliente ObtenerEstadoComercial(BE.Cliente cliente, int prendasSolicitadas)
+        {
+            if (cliente == null) throw new ArgumentNullException(nameof(cliente));
+
+            if (!cliente.TienePlan())
+                return new BE.EstadoComercialCliente
+                {
+                    PuedeProceder  = false,
+                    MotivoBloqueo  = "SIN_PLAN",
+                    MetodoPago     = cliente.MetodoPago,
+                    FechaAlta      = cliente.FechaAlta
+                };
+
+            if (!cliente.SuscripcionVigente())
+                return new BE.EstadoComercialCliente
+                {
+                    PuedeProceder    = false,
+                    MotivoBloqueo    = "SUSCRIPCION_VENCIDA",
+                    NombrePlan       = cliente.NombrePlan,
+                    FechaVencimiento = cliente.FechaVencimiento,
+                    MetodoPago       = cliente.MetodoPago,
+                    FechaAlta        = cliente.FechaAlta
+                };
+
+            bool superaLimite    = !cliente.PuedeSolicitarPrendas(prendasSolicitadas);
+            int  disponibles     = cliente.PrendasDisponiblesEnPlan();
+            int  exceso          = superaLimite
+                ? (cliente.StockUtilizado + prendasSolicitadas) - cliente.LimitePrendas
+                : 0;
+
+            return new BE.EstadoComercialCliente
+            {
+                PuedeProceder    = true,
+                NombrePlan       = cliente.NombrePlan,
+                StockUtilizado   = cliente.StockUtilizado,
+                LimitePrendas    = cliente.LimitePrendas,
+                MetodoPago       = cliente.MetodoPago,
+                FechaAlta        = cliente.FechaAlta,
+                FechaVencimiento = cliente.FechaVencimiento,
+                SuperaLimite     = superaLimite,
+                PrendasDisponibles = disponibles,
+                Exceso           = exceso
+            };
+        }
+
         // Validaciones
         private void Validar(BE.Cliente cliente)
         {

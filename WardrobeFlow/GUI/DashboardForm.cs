@@ -28,8 +28,6 @@ namespace GUI
     {
         private static readonly string DirBackups =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups");
-        private static readonly string RutaConfig =
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", "recordatorio.cfg");
 
         // ── Dependencias BLL ──────────────────────────────────────────────────
         private readonly BLL.Interfaces.IPrendaService  _bllPrenda   = new BLL.Prenda();
@@ -193,7 +191,7 @@ namespace GUI
                         .OrderByDescending(f => f.LastWriteTime)
                         .FirstOrDefault();
 
-                int umbral = LeerRecordatorioDias();
+                int umbral = BLL.Configuracion.ObtenerDiasRecordatorio();
 
                 if (ultimo == null)
                 {
@@ -270,31 +268,9 @@ namespace GUI
 
         // ── Recordatorio: config en archivo ──────────────────────────────────
 
-        private static int LeerRecordatorioDias()
-        {
-            try
-            {
-                if (File.Exists(RutaConfig) &&
-                    int.TryParse(File.ReadAllText(RutaConfig).Trim(), out int d) && d > 0)
-                    return d;
-            }
-            catch { }
-            return 7;   // default: 1 semana
-        }
-
-        private static void GuardarRecordatorioDias(int dias)
-        {
-            try
-            {
-                if (!Directory.Exists(DirBackups)) Directory.CreateDirectory(DirBackups);
-                File.WriteAllText(RutaConfig, dias.ToString());
-            }
-            catch { }
-        }
-
         private void ConfigurarRecordatorio()
         {
-            int actual = LeerRecordatorioDias();
+            int actual = BLL.Configuracion.ObtenerDiasRecordatorio();
 
             using (var dlg = new Form())
             {
@@ -347,7 +323,7 @@ namespace GUI
 
                 if (dlg.ShowDialog(this) == DialogResult.OK)
                 {
-                    GuardarRecordatorioDias((int)spn.Value);
+                    BLL.Configuracion.GuardarDiasRecordatorio((int)spn.Value);
                     ActualizarMetricas();
                 }
             }

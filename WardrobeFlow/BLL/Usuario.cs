@@ -12,8 +12,9 @@ namespace BLL
         private readonly DAL.Permiso        permisoDAL = new DAL.Permiso();
         private readonly Servicios.Bitacora bitacora   = new Servicios.Bitacora();
 
-        private const int    MaxIntentosFallidos = 3;
+        private const int    MaxIntentosFallidos  = 3;
         private const string RolAdministrador    = "Administrador";
+        private const string ClaveTemporalDefault = "Wardrobe1!";
 
         /// <summary>Autentica al usuario y establece la sesión. Bloquea la cuenta tras 3 intentos fallidos.</summary>
         public bool Login(string modulo, string username, string contraseña)
@@ -179,6 +180,14 @@ namespace BLL
             bitacora.Registrar(modulo,
                 $"Desbloqueo de Cuenta: '{usernameObjetivo}'",
                 BE.Criticidad.Alta);
+        }
+
+        // Resetea la contraseña de TODOS los usuarios a la clave temporal por defecto. Solo Administrador.
+        // Devuelve la clave usada para que la GUI pueda informarla al usuario sin conocerla.
+        public string ResetearTodasLasClaves(string modulo)
+        {
+            ResetearTodasLasClaves(modulo, ClaveTemporalDefault);
+            return ClaveTemporalDefault;
         }
 
         // Resetea la contraseña de TODOS los usuarios a una clave temporal. Solo Administrador.

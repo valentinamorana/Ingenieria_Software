@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace BLL
@@ -336,6 +337,36 @@ namespace BLL
                 });
             }
             catch { /* tabla aún no existe */ }
+        }
+
+        // ── Recordatorio de backup ────────────────────────────────────────────
+
+        private static readonly string RutaConfigRecordatorio =
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups", "recordatorio.cfg");
+
+        private const int DiasRecordatorioDefault = 7;
+
+        public static int ObtenerDiasRecordatorio()
+        {
+            try
+            {
+                if (File.Exists(RutaConfigRecordatorio) &&
+                    int.TryParse(File.ReadAllText(RutaConfigRecordatorio).Trim(), out int d) && d > 0)
+                    return d;
+            }
+            catch { }
+            return DiasRecordatorioDefault;
+        }
+
+        public static void GuardarDiasRecordatorio(int dias)
+        {
+            try
+            {
+                string dir = Path.GetDirectoryName(RutaConfigRecordatorio);
+                if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+                File.WriteAllText(RutaConfigRecordatorio, dias.ToString());
+            }
+            catch { }
         }
 
         // Registra silenciosamente cada verificación en HistorialIntegridad.
