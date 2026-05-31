@@ -32,6 +32,7 @@ namespace GUI
         private readonly BLL.Interfaces.IClienteService clienteBLL = new BLL.Cliente();
         private readonly BLL.Interfaces.IPrendaService  prendaBLL  = new BLL.Prenda();
         private readonly BLL.Interfaces.IPedidoService  pedidoBLL  = new BLL.Pedido();
+        private readonly BLL.Cliente                     clienteBLLConcreto = new BLL.Cliente();
 
         // ── Estado interno ────────────────────────────────────────────────────
         private List<BE.Cliente> _clientes    = new List<BE.Cliente>();
@@ -194,51 +195,48 @@ namespace GUI
             }
 
             _clienteSel = _clientes[idx];
-            btnSiguiente.Enabled = true;
 
-            // Mostrar info del plan
             var tI = Traductor.ObtenerTraducciones(_idioma);
             string T_i(string k, string fb) => tI.ContainsKey(k) ? tI[k].Texto : fb;
 
-            // Bloquear si suscripción vencida
-            if (_clienteSel.TienePlan() && !_clienteSel.SuscripcionVigente())
+            // Consultar la BLL — sin interpretar reglas de negocio en la GUI
+            var estado = clienteBLLConcreto.ObtenerEstadoComercial(_clienteSel, 0);
+
+            if (!estado.PuedeProceder)
             {
-                string msgVenc = string.Format(
-                    T_i("err.ped.suscvencida",
-                        "⚠ La suscripción de {0} venció el {1}.\nRenovar en el módulo de Clientes."),
-                    _clienteSel.NombreCompleto,
-                    _clienteSel.FechaVencimiento.Value.ToString("dd/MM/yyyy"));
-                lblInfoPlan.Text      = msgVenc;
+                btnSiguiente.Enabled  = false;
                 lblInfoPlan.ForeColor = Color.DarkRed;
                 lblInfoPlan.Visible   = true;
-                btnSiguiente.Enabled  = false;
+
+                if (estado.MotivoBloqueo == "SIN_PLAN")
+                {
+                    lblInfoPlan.Text = string.Format(
+                        T_i("err.ped.sinplan",
+                            "⚠ {0} no tiene plan asignado.\nAsigná un plan en el módulo de Clientes antes de crear un pedido."),
+                        _clienteSel.NombreCompleto);
+                }
+                else if (estado.MotivoBloqueo == "SUSCRIPCION_VENCIDA")
+                {
+                    lblInfoPlan.Text = string.Format(
+                        T_i("err.ped.suscvencida",
+                            "⚠ La suscripción de {0} venció el {1}.\nRenovar en el módulo de Clientes."),
+                        _clienteSel.NombreCompleto,
+                        estado.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "—");
+                }
                 return;
             }
 
-            if (_clienteSel.IdPlan.HasValue)
-            {
-                lblInfoPlan.Text = string.Format(
-                    T_i("lbl.ped.infoplan",
-                        "Cliente: {0}\nPlan: {1}\nPrendas en uso actualmente: {2}\nMétodo de pago: {3}\nAlta: {4}"),
-                    _clienteSel.NombreCompleto,
-                    _clienteSel.NombrePlan ?? "—",
-                    _clienteSel.StockUtilizado,
-                    _clienteSel.MetodoPago,
-                    _clienteSel.FechaAlta.ToString("dd/MM/yyyy"));
-            }
-            else
-            {
-                lblInfoPlan.Text = string.Format(
-                    T_i("err.ped.sinplan",
-                        "⚠ {0} no tiene plan asignado.\nAsigná un plan en el módulo de Clientes antes de crear un pedido."),
-                    _clienteSel.NombreCompleto);
-                lblInfoPlan.ForeColor = Color.DarkRed;
-                btnSiguiente.Enabled  = false;
-            }
-
-            lblInfoPlan.ForeColor = _clienteSel.IdPlan.HasValue
-                ? Color.FromArgb(40, 80, 140) : Color.DarkRed;
-            lblInfoPlan.Visible = true;
+            btnSiguiente.Enabled  = true;
+            lblInfoPlan.ForeColor = Color.FromArgb(40, 80, 140);
+            lblInfoPlan.Visible   = true;
+            lblInfoPlan.Text = string.Format(
+                T_i("lbl.ped.infoplan",
+                    "Cliente: {0}\nPlan: {1}\nPrendas en uso actualmente: {2}\nMétodo de pago: {3}\nAlta: {4}"),
+                _clienteSel.NombreCompleto,
+                estado.NombrePlan ?? "—",
+                estado.StockUtilizado,
+                estado.MetodoPago,
+                estado.FechaAlta.ToString("dd/MM/yyyy"));
         }
 
         private void BtnSiguiente_Click(object sender, EventArgs e)
@@ -256,10 +254,13 @@ namespace GUI
         private void ActualizarResumen()
         {
             int seleccionadas = ContarSeleccionadas();
-            int enUso         = _clienteSel?.StockUtilizado ?? 0;
-            int limite        = _clienteSel?.LimitePrendas  ?? 0;
-            int disponibles   = _clienteSel?.PrendasDisponiblesEnPlan() ?? 0;
-            int total         = enUso + seleccionadas;
+
+            // La BLL evalúa todas las reglas de negocio y devuelve un DTO listo para mostrar
+            var estado = clienteBLLConcreto.ObtenerEstadoComercial(_clienteSel, seleccionadas);
+
+            int enUso  = estado.StockUtilizado;
+            int limite = estado.LimitePrendas;
+            int total  = enUso + seleccionadas;
 
             var tR = Traductor.ObtenerTraducciones(_idioma);
             string TR(string k, string fb) => tR.ContainsKey(k) ? tR[k].Texto : fb;
@@ -271,12 +272,12 @@ namespace GUI
 
             if (limite > 0)
             {
-                if (!_clienteSel.PuedeSolicitarPrendas(seleccionadas))
+                if (estado.SuperaLimite)
                 {
                     linea2 = string.Format(
                         TR("lbl.ped.res.limite",
                            "✗ El plan '{0}' permite {1} prenda(s). Estás superando el límite por {2}."),
-                        _clienteSel?.NombrePlan, limite, total - limite);
+                        estado.NombrePlan, limite, estado.Exceso);
                     lblResumen.ForeColor = Color.DarkRed;
                     btnConfirmar.Enabled = false;
                 }
@@ -284,16 +285,16 @@ namespace GUI
                 {
                     linea2 = string.Format(
                         TR("lbl.ped.res.vacio", "Podés agregar hasta {0} prenda(s) (plan {1})."),
-                        disponibles, _clienteSel?.NombrePlan);
+                        estado.PrendasDisponibles, estado.NombrePlan);
                     lblResumen.ForeColor = Color.DimGray;
                     btnConfirmar.Enabled = false;
                 }
-                else if (seleccionadas < disponibles)
+                else if (seleccionadas < estado.PrendasDisponibles)
                 {
                     linea2 = string.Format(
                         TR("lbl.ped.res.parcial",
                            "ℹ El plan '{0}' permite {1}. Estás eligiendo {2} de {3} posibles — podés agregar más."),
-                        _clienteSel?.NombrePlan, limite, seleccionadas, disponibles);
+                        estado.NombrePlan, limite, seleccionadas, estado.PrendasDisponibles);
                     lblResumen.ForeColor = Color.FromArgb(140, 100, 0);
                     btnConfirmar.Enabled = true;
                 }
@@ -302,7 +303,7 @@ namespace GUI
                     linea2 = string.Format(
                         TR("lbl.ped.res.lleno",
                            "✓ Alcanzás el máximo del plan '{0}' ({1} prendas)."),
-                        _clienteSel?.NombrePlan, limite);
+                        estado.NombrePlan, limite);
                     lblResumen.ForeColor = Color.DarkGreen;
                     btnConfirmar.Enabled = true;
                 }

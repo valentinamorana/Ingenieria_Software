@@ -407,13 +407,12 @@ namespace GUI
 
         private void BtnResetMasivo_Click(object sender, EventArgs e)
         {
-            const string claveTemporal = "Wardrobe1!";
-
             var tM = Traductor.ObtenerTraducciones(_idioma);
             string T_m(string k, string fb) => tM.ContainsKey(k) ? tM[k].Texto : fb;
 
             var confirm = MessageBox.Show(
-                string.Format(T_m("conf.resetmasivo.body", "Esto va a resetear la contraseña de TODOS los usuarios a:\n\n   {0}\n\nComunicate con cada empleado para que la cambien.\n\n¿Confirmar?"), claveTemporal),
+                T_m("conf.resetmasivo.body.generico",
+                    "Esto va a resetear la contraseña de TODOS los usuarios a una clave temporal.\n\nComunicate con cada empleado para que la cambien.\n\n¿Confirmar?"),
                 T_m("conf.resetmasivo.titulo", "Resetear todas las claves"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning,
@@ -423,8 +422,8 @@ namespace GUI
 
             try
             {
-                usuarioBLL.ResetearTodasLasClaves(this.Text, claveTemporal);
-                MostrarOk(string.Format(T_m("msg.usr.resetmasivo", "Todas las claves fueron reseteadas a: {0}"), claveTemporal));
+                string claveUsada = usuarioBLL.ResetearTodasLasClaves(this.Text);
+                MostrarOk(string.Format(T_m("msg.usr.resetmasivo", "Todas las claves fueron reseteadas a: {0}"), claveUsada));
             }
             catch (Exception ex)
             {

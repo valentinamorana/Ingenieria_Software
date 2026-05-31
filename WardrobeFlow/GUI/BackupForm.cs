@@ -1,7 +1,6 @@
 using Servicios.Multiidioma;
 using System;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace GUI
@@ -86,7 +85,7 @@ namespace GUI
 
                 var item = new ListViewItem(fi.Name) { Tag = fi.FullName };
                 item.SubItems.Add(fi.LastWriteTime.ToString("dd/MM/yyyy HH:mm"));
-                item.SubItems.Add(ExtraerAutor(fi.Name));
+                item.SubItems.Add(_bll.ExtraerAutorDeNombre(fi.Name));
                 item.SubItems.Add(tamanio);
                 lstBackups.Items.Add(item);
             }
@@ -95,25 +94,6 @@ namespace GUI
                 ? T("lbl.backup.sincopias", "Sin copias de seguridad generadas aún.")
                 : string.Format(T("lbl.backup.conteo", "{0} copia(s) disponible(s). La más reciente: {1}"),
                     archivos.Length, archivos[0].LastWriteTime.ToString("dd/MM/yyyy HH:mm"));
-        }
-
-        // Extrae el autor del nombre del archivo.
-        // Formato nuevo: WardrobeFlow_Backup_yyyyMMddHHmmss_USUARIO.bak
-        // Formato viejo (sin autor): muestra "—"
-        private static string ExtraerAutor(string nombreArchivo)
-        {
-            const string prefix = "WardrobeFlow_Backup_";
-            if (!nombreArchivo.StartsWith(prefix) || nombreArchivo.Length <= prefix.Length + 15)
-                return "—";
-
-            string rest = nombreArchivo.Substring(prefix.Length);
-            bool isNewFormat = rest.Length >= 15
-                && rest.Substring(0, 14).All(char.IsDigit)
-                && rest[14] == '_';
-
-            if (!isNewFormat) return "—";
-
-            return Path.GetFileNameWithoutExtension(rest.Substring(15));
         }
 
         private void lstBackups_SelectedIndexChanged(object sender, EventArgs e)

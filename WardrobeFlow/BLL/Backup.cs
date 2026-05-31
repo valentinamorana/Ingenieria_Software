@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace BLL
@@ -61,6 +62,25 @@ namespace BLL
             _bitacora.Registrar(modulo,
                 $"Backup eliminado: '{filename}'",
                 BE.Criticidad.Alta);
+        }
+
+        // Extrae el autor del nombre de un archivo de backup.
+        // Formato: WardrobeFlow_Backup_yyyyMMddHHmmss_USUARIO.bak
+        // Devuelve "—" si el nombre no sigue la convención.
+        public string ExtraerAutorDeNombre(string nombreArchivo)
+        {
+            const string prefix = "WardrobeFlow_Backup_";
+            if (!nombreArchivo.StartsWith(prefix) || nombreArchivo.Length <= prefix.Length + 15)
+                return "—";
+
+            string rest = nombreArchivo.Substring(prefix.Length);
+            bool isNewFormat = rest.Length >= 15
+                && rest.Substring(0, 14).All(char.IsDigit)
+                && rest[14] == '_';
+
+            if (!isNewFormat) return "—";
+
+            return Path.GetFileNameWithoutExtension(rest.Substring(15));
         }
     }
 }
