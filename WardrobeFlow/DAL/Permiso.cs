@@ -71,7 +71,9 @@ namespace DAL
                 }
             }
 
-            var rels = acceso.Leer("SELECT IdPadre, IdHijo FROM PermisoRelacion", null);
+            DataTable rels;
+            try { rels = acceso.Leer("SELECT IdPadre, IdHijo FROM PermisoRelacion", null); }
+            catch { rels = new System.Data.DataTable(); }
             var conPadre = new HashSet<int>();
 
             foreach (DataRow row in rels.Rows)
