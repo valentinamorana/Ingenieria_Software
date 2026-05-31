@@ -204,7 +204,7 @@ namespace GUI
                     : sinVenc;
 
                 // Mostrar "StockUtilizado / LimitePrendas" si tiene plan con límite
-                string capacidad = c.TienePlan() && c.LimitePrendas > 0
+                string capacidad = c.IdPlan.HasValue && c.LimitePrendas > 0
                     ? $"{c.StockUtilizado} / {c.LimitePrendas}"
                     : c.StockUtilizado.ToString();
 
