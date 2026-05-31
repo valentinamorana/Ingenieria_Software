@@ -14,6 +14,18 @@ namespace BLL
         private readonly Servicios.Bitacora        bitacora    = new Servicios.Bitacora();
         private readonly Servicios.BitacoraNegocio bitacoraNeg = new Servicios.BitacoraNegocio();
 
+        // Lanza AppException si el usuario en sesión no posee el permiso indicado.
+        private static void ValidarPermiso(string nombrePatente)
+        {
+            if (!Seguridad.SessionManager.IsLoggedIn) return;
+            var usuario = Seguridad.SessionManager.GetInstance().Usuario;
+            if (usuario.Perfil == "Administrador") return;
+            bool tiene = usuario.Permisos?.Exists(p => p.NombreMenu == nombrePatente) == true;
+            if (!tiene)
+                throw new BE.AppException("err.bll.sin_permiso",
+                    "No tiene permiso para ejecutar esta operación ('{0}').", nombrePatente);
+        }
+
         // Devuelve todos los clientes con plan y stock utilizado.
         public List<BE.Cliente> ObtenerTodos()
         {
@@ -30,6 +42,7 @@ namespace BLL
         // Valida campos obligatorios y unicidad de DNI.
         public void Alta(string modulo, BE.Cliente cliente)
         {
+            ValidarPermiso("mnuClientes");
             Validar(cliente);
 
             if (dalCliente.ExisteDNI(cliente.DNI))
@@ -50,6 +63,7 @@ namespace BLL
         // Valida unicidad de DNI excluyendo el propio registro.
         public void Modificar(string modulo, BE.Cliente cliente)
         {
+            ValidarPermiso("mnuClientes");
             Validar(cliente);
 
             if (dalCliente.ExisteDNIParaOtro(cliente.DNI, cliente.IdCliente))
@@ -67,6 +81,7 @@ namespace BLL
         // No se puede eliminar si tiene prendas actualmente en uso.
         public void Baja(string modulo, BE.Cliente cliente)
         {
+            ValidarPermiso("mnuClientes");
             // Bloquear baja si el cliente tiene prendas en uso actualmente
             if (cliente.StockUtilizado > 0)
                 throw new BE.AppException("err.bll.cliente.baja_prendas",

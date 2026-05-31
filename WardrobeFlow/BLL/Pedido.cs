@@ -17,15 +17,29 @@ namespace BLL
         private readonly Servicios.BitacoraNegocio bitacoraNeg = new Servicios.BitacoraNegocio();
         private readonly DAL.PedidoHistorial dalHistorial = new DAL.PedidoHistorial();
 
-        // Consultas 
+        // Consultas
         public List<BE.Pedido> ObtenerTodos() => dalPedido.ObtenerTodos();
         public List<BE.Pedido> ObtenerPendientes() => dalPedido.ObtenerPendientes();
         public BE.Pedido ObtenerPorId(int id) => dalPedido.ObtenerPorId(id);
 
-        // Crear Pedido 
+        // Lanza AppException si el usuario en sesión no posee el permiso indicado.
+        // El Administrador siempre pasa. Sin sesión activa deja pasar (modo interno).
+        private static void ValidarPermiso(string nombrePatente)
+        {
+            if (!Seguridad.SessionManager.IsLoggedIn) return;
+            var usuario = Seguridad.SessionManager.GetInstance().Usuario;
+            if (usuario.Perfil == "Administrador") return;
+            bool tiene = usuario.Permisos?.Exists(p => p.NombreMenu == nombrePatente) == true;
+            if (!tiene)
+                throw new BE.AppException("err.bll.sin_permiso",
+                    "No tiene permiso para ejecutar esta operación ('{0}').", nombrePatente);
+        }
+
+        // Crear Pedido
         // Crea un nuevo pedido para un cliente. Devuelve el ID generado.
         public int CrearPedido(string modulo, int idCliente, List<BE.Prenda> prendas)
         {
+            ValidarPermiso("mnuPedidosVenta");
             ValidarParametrosEntrada(prendas);
 
             var cliente = ObtenerClienteValidado(idCliente);
@@ -50,6 +64,7 @@ namespace BLL
         // Marca el pedido como Despachado.
         public void Despachar(string modulo, BE.Pedido pedido)
         {
+            ValidarPermiso("mnuPedidosVenta");
             if (!pedido.PuedeDespachar())
                 throw new BE.AppException("err.bll.pedido.despachar_estado",
                     "Solo se pueden despachar pedidos Pendientes. Este pedido está '{0}'.",
@@ -76,10 +91,11 @@ namespace BLL
                 idCliente: pedido.IdCliente);
         }
 
-        //Marcar Entregado 
+        // Marcar Entregado
         // Marca el pedido como Entregado.
         public void MarcarEntregado(string modulo, BE.Pedido pedido)
         {
+            ValidarPermiso("mnuPedidosVenta");
             if (!pedido.PuedeEntregarse())
                 throw new BE.AppException("err.bll.pedido.entregar_estado",
                     "Solo se pueden marcar como entregados los pedidos Despachados. Este pedido está '{0}'.",
@@ -108,6 +124,7 @@ namespace BLL
         // Registra la devolución de prendas de un pedido Entregado.
         public void RegistrarDevolucion(string modulo, BE.Pedido pedido)
         {
+            ValidarPermiso("mnuPedidosRealizados");
             if (pedido.Estado != BE.EstadoPedido.Entregado)
                 throw new BE.AppException("err.bll.pedido.devolucion_estado",
                     "Solo se puede registrar la devolución de pedidos ya Entregados. Este pedido está '{0}'.",
@@ -137,6 +154,7 @@ namespace BLL
         // Cancela un pedido Pendiente. Requiere motivo.
         public void Cancelar(string modulo, BE.Pedido pedido, string motivo)
         {
+            ValidarPermiso("mnuPedidosVenta");
             if (!pedido.PuedeCancelarse())
                 throw new BE.AppException("err.bll.pedido.cancelar_estado",
                     "Solo se pueden cancelar pedidos en estado Pendiente. Este pedido está '{0}'.",
@@ -169,6 +187,7 @@ namespace BLL
         // Revierte la cancelación si todas las prendas siguen Disponibles.
         public void DesCancelar(string modulo, BE.Pedido pedido)
         {
+            ValidarPermiso("mnuPedidosVenta");
             if (!pedido.PuedeDesCancelarse())
                 throw new BE.AppException("err.bll.pedido.descancelar_estado",
                     "Solo se pueden des-cancelar pedidos Cancelados. Este pedido está '{0}'.",
@@ -299,14 +318,16 @@ namespace BLL
         private int ResolverEmpleadoActivo()
         {
             if (!Seguridad.SessionManager.IsLoggedIn)
-                throw new Exception("La sesión expiró. Volvé a iniciar sesión.");
+                throw new BE.AppException("err.bll.sesion_expirada",
+                    "La sesión expiró. Volvé a iniciar sesión.");
 
             var usuario  = Seguridad.SessionManager.GetInstance().Usuario;
             var empleado = dalEmpleado.ObtenerPorUsuario(usuario.Id);
             if (empleado == null)
-                throw new Exception(
-                    $"El usuario '{usuario.Username}' no tiene un Empleado vinculado.\n" +
-                    "Pedíle al Administrador que configure el vínculo.");
+                throw new BE.AppException("err.bll.pedido.empleado_sin_vinculo",
+                    "El usuario '{0}' no tiene un Empleado vinculado. " +
+                    "Pedíle al Administrador que configure el vínculo.",
+                    usuario.Username);
             return empleado.IdEmpleado;
         }
 

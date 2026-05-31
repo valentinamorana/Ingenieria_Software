@@ -19,6 +19,7 @@ namespace BLL
         // Da de alta una nueva prenda. Estado inicial siempre Disponible.
         public void Alta(string modulo, BE.Prenda prenda)
         {
+            ValidarPermiso("mnuStock");
             Validar(prenda);
             prenda.Estado    = BE.EstadoPrenda.Disponible;
             prenda.FechaAlta = DateTime.Now;
@@ -40,6 +41,7 @@ namespace BLL
         // No afecta estado ni cliente asignado.
         public void Modificar(string modulo, BE.Prenda prenda)
         {
+            ValidarPermiso("mnuStock");
             Validar(prenda);
             dalPrenda.Modificar(prenda);
 
@@ -57,11 +59,12 @@ namespace BLL
         // al volver a Disponible desde EnLimpieza lo cierra.
         public void CambiarEstado(string modulo, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado)
         {
+            ValidarPermiso("mnuStock");
             if (!prenda.TransicionPermitida(nuevoEstado))
             {
                 string motivo = prenda.MotivoTransicionNoPermitida(nuevoEstado)
                                 ?? $"Transición no permitida: {prenda.Estado} → {nuevoEstado}.";
-                throw new Exception(motivo);
+                throw new BE.AppException("err.bll.prenda.transicion_invalida", motivo);
             }
 
             int? idCliente = nuevoEstado == BE.EstadoPrenda.EnUso
@@ -96,19 +99,35 @@ namespace BLL
         public List<BE.MantenimientoPrenda> ObtenerHistorialMantenimiento(int idPrenda)
             => dalMantenimiento.ObtenerPorPrenda(idPrenda);
 
+        // Lanza AppException si el usuario en sesión no tiene el permiso indicado.
+        // Administrador siempre pasa. Si no hay sesión activa, deja pasar (modo interno/test).
+        private static void ValidarPermiso(string nombrePatente)
+        {
+            if (!Seguridad.SessionManager.IsLoggedIn) return;
+            var usuario = Seguridad.SessionManager.GetInstance().Usuario;
+            if (usuario.Perfil == "Administrador") return;
+            bool tiene = usuario.Permisos?.Exists(p => p.NombreMenu == nombrePatente) == true;
+            if (!tiene)
+                throw new BE.AppException("err.bll.sin_permiso",
+                    "No tiene permiso para ejecutar esta operación ('{0}').", nombrePatente);
+        }
+
         private void Validar(BE.Prenda prenda)
         {
             if (prenda == null)
                 throw new ArgumentNullException(nameof(prenda));
 
             if (string.IsNullOrWhiteSpace(prenda.Nombre))
-                throw new Exception("El nombre de la prenda es obligatorio.");
+                throw new BE.AppException("err.bll.prenda.nombre_requerido",
+                    "El nombre de la prenda es obligatorio.");
 
             if (string.IsNullOrWhiteSpace(prenda.Talle))
-                throw new Exception("El talle es obligatorio.");
+                throw new BE.AppException("err.bll.prenda.talle_requerido",
+                    "El talle es obligatorio.");
 
             if (string.IsNullOrWhiteSpace(prenda.Categoria))
-                throw new Exception("La categoría es obligatoria.");
+                throw new BE.AppException("err.bll.prenda.categoria_requerida",
+                    "La categoría es obligatoria.");
         }
     }
 }

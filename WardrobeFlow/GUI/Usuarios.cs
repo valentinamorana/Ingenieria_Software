@@ -36,6 +36,10 @@ namespace GUI
         // Idioma activo — sincronizado en Traducir() para usar en CargarUsuarios
         private Idioma _idioma = GestorIdioma.IdiomaActual;
 
+        // Referencias a botones dinámicos para poder traducirlos en UpdateLanguage
+        private Button _btnResetMasivo;
+        private Button _btnRecalcularDV;
+
         /// <summary>
         /// Constructor: inicializa el formulario y construye la interfaz de gestión de usuarios.
         /// </summary>
@@ -85,6 +89,8 @@ namespace GUI
             Aplicar(lblDesbloquearInfo,   t);
             Aplicar(btnDesbloquear,       t);
             Aplicar(lblListaTitulo,       t);
+            Aplicar(_btnResetMasivo,      t);
+            Aplicar(_btnRecalcularDV,     t);
             RellenarComboPerfil(t);
             TraducirHeadersGrilla();
         }
@@ -160,8 +166,9 @@ namespace GUI
             // formulario ya esté aplicada y las posiciones/tamaños sean correctos.
 
             // Botón reset masivo — debajo del último control del panel
-            var btnResetMasivo = new Button
+            _btnResetMasivo = new Button
             {
+                Tag       = "btn.usr.resetmasivo",
                 Text      = "Resetear todas las claves a temporal",
                 Size      = new Size(216, 30),
                 Location  = new Point(12, btnDesbloquear.Bottom + 20),
@@ -171,25 +178,26 @@ namespace GUI
                 Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold),
                 Cursor    = Cursors.Hand
             };
-            btnResetMasivo.FlatAppearance.BorderSize = 0;
-            btnResetMasivo.Click += BtnResetMasivo_Click;
-            panelAlta.Controls.Add(btnResetMasivo);
+            _btnResetMasivo.FlatAppearance.BorderSize = 0;
+            _btnResetMasivo.Click += BtnResetMasivo_Click;
+            panelAlta.Controls.Add(_btnResetMasivo);
 
             // Botón recalcular DV — T07: regenera DVH y DVV para todas las filas de Usuario
-            var btnRecalcularDV = new Button
+            _btnRecalcularDV = new Button
             {
+                Tag       = "btn.usr.recalculardv",
                 Text      = "Recalcular integridad (DV)",
                 Size      = new Size(216, 30),
-                Location  = new Point(12, btnResetMasivo.Bottom + 8),
+                Location  = new Point(12, _btnResetMasivo.Bottom + 8),
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(40, 80, 140),
                 ForeColor = Color.White,
                 Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold),
                 Cursor    = Cursors.Hand
             };
-            btnRecalcularDV.FlatAppearance.BorderSize = 0;
-            btnRecalcularDV.Click += BtnRecalcularDV_Click;
-            panelAlta.Controls.Add(btnRecalcularDV);
+            _btnRecalcularDV.FlatAppearance.BorderSize = 0;
+            _btnRecalcularDV.Click += BtnRecalcularDV_Click;
+            panelAlta.Controls.Add(_btnRecalcularDV);
 
             // Campo de contraseña oculto: la contraseña se genera automáticamente en la BLL.
             lblPass.Visible      = false;

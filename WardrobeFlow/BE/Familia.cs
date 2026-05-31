@@ -34,12 +34,17 @@ namespace BE
         }
 
         // Retorna true si 'buscado' aparece en el subárbol de 'nodo'.
-        private static bool ContieneDescendiente(Componente nodo, Componente buscado)
+        // maxDepth evita recursión infinita si los datos en BD están corrompidos.
+        private static bool ContieneDescendiente(Componente nodo, Componente buscado, int depth = 0)
         {
+            if (depth > 50)
+                throw new InvalidOperationException(
+                    "Se alcanzó la profundidad máxima del árbol de permisos. " +
+                    "Posible referencia circular en los datos.");
             foreach (var hijo in nodo.Hijos)
             {
                 if (hijo == buscado) return true;
-                if (ContieneDescendiente(hijo, buscado)) return true;
+                if (ContieneDescendiente(hijo, buscado, depth + 1)) return true;
             }
             return false;
         }

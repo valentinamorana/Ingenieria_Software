@@ -9,6 +9,17 @@ namespace BLL
         private readonly DAL.Backup       _dal      = new DAL.Backup();
         private readonly Servicios.Bitacora _bitacora = new Servicios.Bitacora();
 
+        private static void ValidarAdministrador()
+        {
+            if (!Seguridad.SessionManager.IsLoggedIn)
+                throw new BE.AppException("err.bll.sesion_expirada",
+                    "La sesión expiró. Volvé a iniciar sesión.");
+            string perfil = Seguridad.SessionManager.GetInstance().Usuario.Perfil ?? "";
+            if (!perfil.Equals("Administrador", StringComparison.OrdinalIgnoreCase))
+                throw new BE.AppException("err.bll.backup.sin_permiso",
+                    "Solo un Administrador puede realizar operaciones de backup y restauración.");
+        }
+
         // Construye el nombre del archivo embebiendo el usuario activo.
         // Formato: WardrobeFlow_Backup_yyyyMMddHHmmss_USUARIO.bak
         // El usuario en el nombre permite saber quién hizo cada backup desde la lista.
@@ -32,6 +43,7 @@ namespace BLL
 
         public void RestaurarBackup(string modulo, string rutaArchivo)
         {
+            ValidarAdministrador();
             _dal.RestaurarBackup(rutaArchivo);
             _bitacora.Registrar(modulo,
                 $"Base de datos restaurada desde '{Path.GetFileName(rutaArchivo)}'",
@@ -40,6 +52,7 @@ namespace BLL
 
         public void EliminarBackup(string modulo, string rutaArchivo)
         {
+            ValidarAdministrador();
             if (!File.Exists(rutaArchivo))
                 throw new FileNotFoundException("El archivo de backup no existe.", rutaArchivo);
 

@@ -21,10 +21,15 @@ namespace DAL
                     "       c.MetodoPago, c.IdPlan, c.FechaAlta, c.FechaVencimiento, " +
                     "       p.Nombre AS NombrePlan, " +
                     "       ISNULL(p.LimitePrendas, 0) AS LimitePrendas, " +
-                    "       (SELECT COUNT(*) FROM Prenda pr WHERE pr.IdClienteActual = c.IdCliente " +
-                    "        AND pr.Estado = @EstadoEnUso) AS StockUtilizado " +
+                    "       ISNULL(stock.StockUtilizado, 0) AS StockUtilizado " +
                     "FROM Cliente c " +
                     "LEFT JOIN PlanSuscripcion p ON p.IdPlan = c.IdPlan " +
+                    "LEFT JOIN ( " +
+                    "    SELECT IdClienteActual, COUNT(*) AS StockUtilizado " +
+                    "    FROM Prenda " +
+                    "    WHERE Estado = @EstadoEnUso " +
+                    "    GROUP BY IdClienteActual " +
+                    ") stock ON stock.IdClienteActual = c.IdCliente " +
                     "WHERE c.Activo = 1 " +
                     "ORDER BY c.Apellido, c.Nombre",
                     p);
@@ -68,6 +73,15 @@ namespace DAL
             {
                 throw new Exception("Error al obtener el cliente.", ex);
             }
+        }
+
+        // Devuelve la cantidad de clientes activos asignados al plan indicado.
+        public int ContarClientesActivosPorPlan(int idPlan)
+        {
+            var dt = acceso.Leer(
+                "SELECT COUNT(*) AS Total FROM Cliente WHERE IdPlan = @IdPlan AND Activo = 1",
+                new[] { new SqlParameter("@IdPlan", idPlan) });
+            return dt != null && dt.Rows.Count > 0 ? Convert.ToInt32(dt.Rows[0]["Total"]) : 0;
         }
 
         // Verifica si ya existe un cliente activo con ese DNI.

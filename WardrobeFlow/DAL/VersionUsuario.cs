@@ -26,7 +26,7 @@ namespace DAL
         {
             var lista = new List<BE.VersionUsuario>();
             var dt = acceso.Leer(
-                "SELECT * FROM HistorialUsuario ORDER BY Fecha DESC", null);
+                "SELECT IdVersion, IdUsuario, Fecha, Actor, Detalle, UsernameSnap, ClaveSnap, EstadoSnap, IntentosSnap FROM HistorialUsuario ORDER BY Fecha DESC", null);
             foreach (DataRow row in dt.Rows)
                 lista.Add(Mapear(row));
             return lista;
@@ -35,7 +35,7 @@ namespace DAL
         public override BE.VersionUsuario ObtenerPorId(int id)
         {
             var dt = acceso.Leer(
-                "SELECT * FROM HistorialUsuario WHERE IdVersion = @Id",
+                "SELECT IdVersion, IdUsuario, Fecha, Actor, Detalle, UsernameSnap, ClaveSnap, EstadoSnap, IntentosSnap FROM HistorialUsuario WHERE IdVersion = @Id",
                 new[] { new SqlParameter("@Id", id) });
             return dt.Rows.Count == 0 ? null : Mapear(dt.Rows[0]);
         }
@@ -44,7 +44,7 @@ namespace DAL
         {
             var lista = new List<BE.VersionUsuario>();
             var dt = acceso.Leer(
-                "SELECT * FROM HistorialUsuario WHERE IdUsuario = @Id ORDER BY Fecha DESC",
+                "SELECT IdVersion, IdUsuario, Fecha, Actor, Detalle, UsernameSnap, ClaveSnap, EstadoSnap, IntentosSnap FROM HistorialUsuario WHERE IdUsuario = @Id ORDER BY Fecha DESC",
                 new[] { new SqlParameter("@Id", idUsuario) });
             foreach (DataRow row in dt.Rows)
                 lista.Add(Mapear(row));

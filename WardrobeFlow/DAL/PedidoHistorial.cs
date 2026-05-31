@@ -68,7 +68,10 @@ namespace DAL
 
                 return dt.Rows.Count > 0 ? Convert.ToInt32(dt.Rows[0]["Siguiente"]) : 1;
             }
-            catch { return 1; }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener el siguiente IdOperacion del historial de pedidos.", ex);
+            }
         }
 
         // ── Consulta ──────────────────────────────────────────────────────────

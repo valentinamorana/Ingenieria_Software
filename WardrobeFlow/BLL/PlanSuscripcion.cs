@@ -9,7 +9,8 @@ namespace BLL
     /// </summary>
     public class PlanSuscripcion : Interfaces.IPlanSuscripcionService
     {
-        private readonly DAL.PlanSuscripcion dalPlan = new DAL.PlanSuscripcion();
+        private readonly DAL.PlanSuscripcion dalPlan   = new DAL.PlanSuscripcion();
+        private readonly DAL.Cliente         dalCliente = new DAL.Cliente();
 
         // Devuelve todos los planes activos (para combos/selección).
         public List<BE.PlanSuscripcion> ObtenerActivos()
@@ -46,8 +47,16 @@ namespace BLL
         }
 
         // Desactiva (baja lógica) un plan.
+        // Falla si hay clientes activos asignados a ese plan.
         public void Desactivar(int idPlan)
         {
+            int clientesActivos = dalCliente.ContarClientesActivosPorPlan(idPlan);
+            if (clientesActivos > 0)
+                throw new BE.AppException("err.bll.plan.tiene_clientes",
+                    "No se puede desactivar el plan: tiene {0} cliente(s) activo(s) asignado(s). " +
+                    "Reasignalos a otro plan antes de desactivarlo.",
+                    clientesActivos);
+
             dalPlan.Desactivar(idPlan);
         }
 

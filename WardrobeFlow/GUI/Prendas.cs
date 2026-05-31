@@ -76,7 +76,11 @@ namespace GUI
             base.OnFormClosing(e);
         }
 
-        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
+        public void UpdateLanguage(Idioma idioma)
+        {
+            Traducir(idioma);    // actualiza _idioma, combo de estados y headers
+            AplicarFiltro();     // reconstruye filas con EstadoLabel() en el nuevo idioma
+        }
 
         private void Traducir(Idioma idioma)
         {
