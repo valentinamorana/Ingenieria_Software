@@ -44,6 +44,7 @@ namespace GUI
         private Label _numClientes, _txtClientes;
         private Label _numPedidos,  _txtPedidos;
         private Label _numBackup,   _txtBackup;
+        private Label _numOcupacion, _txtOcupacion;
         private Panel _cardBackupPanel;
 
         // ── Controles generales ───────────────────────────────────────────────
@@ -127,10 +128,11 @@ namespace GUI
             _lblTitulo.Text    = T("frm.dashboard",      "Panel de Control");
             _btnRefrescar.Text = T("dash.btn.refrescar", "↻ Actualizar");
 
-            if (_txtPrendas  != null) _txtPrendas.Text  = T("dash.prendas",  "Prendas\ndisponibles");
-            if (_txtClientes != null) _txtClientes.Text = T("dash.clientes", "Clientes\nregistrados");
-            if (_txtPedidos  != null) _txtPedidos.Text  = T("dash.pedidos",  "Pedidos\npendientes");
-            if (_txtBackup   != null) _txtBackup.Text   = T("dash.backup",   "días sin\nbackup");
+            if (_txtPrendas   != null) _txtPrendas.Text   = T("dash.prendas",    "Prendas\ndisponibles");
+            if (_txtClientes  != null) _txtClientes.Text  = T("dash.clientes",   "Clientes\nregistrados");
+            if (_txtPedidos   != null) _txtPedidos.Text   = T("dash.pedidos",    "Pedidos\npendientes");
+            if (_txtBackup    != null) _txtBackup.Text    = T("dash.backup",     "días sin\nbackup");
+            if (_txtOcupacion != null) _txtOcupacion.Text = T("dash.ocupacion",  "ocupación\ndel stock");
 
             if (_lblActTitulo != null) _lblActTitulo.Text = T("dash.actividad.titulo", "Actividad reciente");
             if (_lblStTitulo  != null) _lblStTitulo.Text  = T("dash.stats.titulo",     "Resumen de eventos");
@@ -166,6 +168,9 @@ namespace GUI
 
             if (_verBackup && _numBackup != null)
                 ActualizarTarjetaBackup();
+
+            if (_verPrendas && _numOcupacion != null)
+                ActualizarTarjetaOcupacion();
 
             // Info de sesión
             try
@@ -264,6 +269,51 @@ namespace GUI
         {
             _lblAviso.Visible = false;
             _lblAviso.Height  = 0;
+        }
+
+        // ── Ocupación del stock ───────────────────────────────────────────────
+
+        private void ActualizarTarjetaOcupacion()
+        {
+            try
+            {
+                var oc = _bllPrenda.ObtenerOcupacion();
+                if (_numOcupacion == null) return;
+
+                _numOcupacion.Text = $"{oc.PorcentajeOcupacion}%";
+                _numOcupacion.Font = new System.Drawing.Font("Segoe UI", 28f, System.Drawing.FontStyle.Bold);
+
+                // Código de color: verde (< 70%) → amarillo (70-90%) → rojo (> 90%)
+                System.Drawing.Color fondo, tinta;
+                if (oc.PorcentajeOcupacion < 70)
+                {
+                    fondo = System.Drawing.Color.FromArgb(215, 240, 220);
+                    tinta = System.Drawing.Color.FromArgb(15, 85, 35);
+                }
+                else if (oc.PorcentajeOcupacion <= 90)
+                {
+                    fondo = System.Drawing.Color.FromArgb(255, 248, 210);
+                    tinta = System.Drawing.Color.FromArgb(120, 90, 0);
+                }
+                else
+                {
+                    fondo = System.Drawing.Color.FromArgb(255, 218, 218);
+                    tinta = System.Drawing.Color.FromArgb(160, 20, 20);
+                }
+
+                if (_txtOcupacion != null)
+                {
+                    _txtOcupacion.Text = string.Format(
+                        T("dash.ocupacion.detalle", "{0} en uso · {1} libres"),
+                        oc.EnUso, oc.Disponibles);
+                    _txtOcupacion.ForeColor = tinta;
+                }
+                _numOcupacion.ForeColor = tinta;
+                // Actualizar fondo del card buscando el panel padre
+                var card = _numOcupacion.Parent;
+                if (card != null) card.BackColor = fondo;
+            }
+            catch { if (_numOcupacion != null) _numOcupacion.Text = "—"; }
         }
 
         // ── Recordatorio: config en archivo ──────────────────────────────────
@@ -441,6 +491,12 @@ namespace GUI
                 btnConfig.BringToFront();
                 _flowCards.Controls.Add(tarjeta);
             }
+
+            // ── Tarjeta de ocupación del stock ────────────────────────────────
+            if (_verPrendas)
+                _flowCards.Controls.Add(CrearTarjeta(
+                    Color.FromArgb(215, 240, 220), Color.FromArgb(15, 85, 35),
+                    out _numOcupacion, out _txtOcupacion, out _));
 
             // ── Aviso de backup vencido ───────────────────────────────────────
             _lblAviso = new Label

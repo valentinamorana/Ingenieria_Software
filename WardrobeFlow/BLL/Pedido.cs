@@ -43,6 +43,16 @@ namespace BLL
             ValidarParametrosEntrada(prendas);
 
             var cliente = ObtenerClienteValidado(idCliente);
+
+            // Bloquear si el cliente tiene un pedido despachado que aún no fue entregado
+            var despachadoActivo = ObtenerTodos()
+                .Find(p => p.IdCliente == idCliente && p.Estado == BE.EstadoPedido.Despachado);
+            if (despachadoActivo != null)
+                throw new BE.AppException("err.bll.pedido.ya_despachado",
+                    "El cliente tiene el pedido #{0} despachado pendiente de entrega. " +
+                    "Confirmá la entrega antes de crear uno nuevo.",
+                    despachadoActivo.IdPedido);
+
             var plan    = ObtenerPlanValidado(cliente, prendas.Count);
 
             ValidarDisponibilidadPrendas(prendas);

@@ -54,5 +54,18 @@ namespace BE
             if (!FechaVencimiento.HasValue) return true;
             return FechaVencimiento.Value.Date >= DateTime.Today;
         }
+
+        // True si la suscripción vence dentro de los próximos diasAlerta días (inclusive hoy).
+        public bool SuscripcionProximaAVencer(int diasAlerta = 7) =>
+            TienePlan()
+            && FechaVencimiento.HasValue
+            && FechaVencimiento.Value.Date >= DateTime.Today
+            && (FechaVencimiento.Value.Date - DateTime.Today).TotalDays <= diasAlerta;
+
+        // Días que faltan para que venza la suscripción; int.MaxValue si no hay fecha.
+        public int DiasHastaVencimiento() =>
+            FechaVencimiento.HasValue
+                ? Math.Max(0, (FechaVencimiento.Value.Date - DateTime.Today).Days)
+                : int.MaxValue;
     }
 }
