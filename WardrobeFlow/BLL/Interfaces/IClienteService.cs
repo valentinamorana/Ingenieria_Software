@@ -23,5 +23,8 @@ namespace BLL.Interfaces
 
         // Elimina un cliente si no tiene prendas en uso.
         void Baja(string modulo, BE.Cliente cliente);
+
+        // Evalúa si un cliente puede crear un pedido con la cantidad de prendas indicada.
+        BE.EstadoComercialCliente ObtenerEstadoComercial(BE.Cliente cliente, int prendasSolicitadas);
     }
 }
