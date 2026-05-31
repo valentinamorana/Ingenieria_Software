@@ -54,6 +54,31 @@ namespace DAL
             }
         }
 
+        // Helper compartido por ObtenerPorUsername y ObtenerPorId.
+        // idiomaDefault se usa cuando la columna IdIdioma no existe en BD (migración v4.0 pendiente).
+        private BE.Usuario LeerUsuarioPorQuery(string sql, SqlParameter[] parametros, string idiomaDefault = null)
+        {
+            DataTable tabla = acceso.Leer(sql, parametros);
+            if (tabla == null || tabla.Rows.Count == 0) return null;
+
+            DataRow row = tabla.Rows[0];
+            bool tieneIdIdioma = tabla.Columns.Contains("IdIdioma");
+            return new BE.Usuario
+            {
+                Id               = Convert.ToInt32(row["Id"]),
+                Username         = row["Username"].ToString(),
+                Contraseña       = row["Contraseña"].ToString(),
+                Rol              = row["Rol"] != DBNull.Value ? row["Rol"].ToString() : null,
+                Perfil           = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
+                Bloqueado        = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
+                IntentosFallidos = row["IntentosFallidos"] != DBNull.Value
+                                       ? Convert.ToInt32(row["IntentosFallidos"]) : 0,
+                IdIdioma         = tieneIdIdioma && row["IdIdioma"] != DBNull.Value
+                                       ? row["IdIdioma"].ToString()
+                                       : (idiomaDefault ?? "ES")
+            };
+        }
+
         // Busca un usuario por Username para el proceso de Login.
         // Incluye Estado e IntentosFallidos para el control de bloqueo.
         public BE.Usuario ObtenerPorUsername(string username)
@@ -65,27 +90,21 @@ namespace DAL
 
             try
             {
-                DataTable tabla = acceso.Leer(
+                return LeerUsuarioPorQuery(
                     "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
                     "       Estado, IntentosFallidos, ISNULL(IdIdioma, 'ES') AS IdIdioma " +
                     "FROM Usuario WHERE Username = @Username",
                     parametros);
-
-                if (tabla == null || tabla.Rows.Count == 0) return null;
-
-                DataRow row = tabla.Rows[0];
-                return new BE.Usuario
-                {
-                    Id = Convert.ToInt32(row["Id"]),
-                    Username = row["Username"].ToString(),
-                    Contraseña = row["Contraseña"].ToString(),
-                    Rol = row["Rol"] != DBNull.Value ? row["Rol"].ToString() : null,
-                    Perfil = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
-                    Bloqueado = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
-                    IntentosFallidos = row["IntentosFallidos"] != DBNull.Value
-                                          ? Convert.ToInt32(row["IntentosFallidos"]) : 0,
-                    IdIdioma = row["IdIdioma"] != DBNull.Value ? row["IdIdioma"].ToString() : "ES"
-                };
+            }
+            catch (System.Data.SqlClient.SqlException sqlEx)
+                when (sqlEx.Message.Contains("IdIdioma"))
+            {
+                // Columna IdIdioma no existe: migración v4.0 pendiente. Funciona con "ES" por defecto.
+                return LeerUsuarioPorQuery(
+                    "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
+                    "       Estado, IntentosFallidos " +
+                    "FROM Usuario WHERE Username = @Username",
+                    parametros, idiomaDefault: "ES");
             }
             catch (Exception ex)
             {
@@ -238,27 +257,20 @@ namespace DAL
             };
             try
             {
-                DataTable tabla = acceso.Leer(
+                return LeerUsuarioPorQuery(
                     "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
                     "       Estado, IntentosFallidos, ISNULL(IdIdioma, 'ES') AS IdIdioma " +
                     "FROM Usuario WHERE IdUsuario = @IdUsuario",
                     parametros);
-
-                if (tabla == null || tabla.Rows.Count == 0) return null;
-
-                DataRow row = tabla.Rows[0];
-                return new BE.Usuario
-                {
-                    Id = Convert.ToInt32(row["Id"]),
-                    Username = row["Username"].ToString(),
-                    Contraseña = row["Contraseña"].ToString(),
-                    Rol = row["Rol"] != DBNull.Value ? row["Rol"].ToString() : null,
-                    Perfil = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : null,
-                    Bloqueado = row["Estado"] != DBNull.Value && Convert.ToInt32(row["Estado"]) == 0,
-                    IntentosFallidos = row["IntentosFallidos"] != DBNull.Value
-                                          ? Convert.ToInt32(row["IntentosFallidos"]) : 0,
-                    IdIdioma = row["IdIdioma"] != DBNull.Value ? row["IdIdioma"].ToString() : "ES"
-                };
+            }
+            catch (System.Data.SqlClient.SqlException sqlEx)
+                when (sqlEx.Message.Contains("IdIdioma"))
+            {
+                return LeerUsuarioPorQuery(
+                    "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
+                    "       Estado, IntentosFallidos " +
+                    "FROM Usuario WHERE IdUsuario = @IdUsuario",
+                    parametros, idiomaDefault: "ES");
             }
             catch (Exception ex)
             {
