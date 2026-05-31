@@ -11,6 +11,7 @@ namespace BLL
     public class Cliente : Interfaces.IClienteService
     {
         private readonly DAL.Cliente               dalCliente  = new DAL.Cliente();
+        private readonly DAL.PlanSuscripcion       dalPlan     = new DAL.PlanSuscripcion();
         private readonly Servicios.Bitacora        bitacora    = new Servicios.Bitacora();
         private readonly Servicios.BitacoraNegocio bitacoraNeg = new Servicios.BitacoraNegocio();
 
@@ -61,6 +62,7 @@ namespace BLL
 
         // Modifica los datos de un cliente existente.
         // Valida unicidad de DNI excluyendo el propio registro.
+        // Bloquea si el nuevo plan tiene menos capacidad que las prendas actualmente en uso.
         public void Modificar(string modulo, BE.Cliente cliente)
         {
             ValidarPermiso("mnuClientes");
@@ -70,11 +72,31 @@ namespace BLL
                 throw new BE.AppException("err.bll.cliente.dni_duplicado_otro",
                     "El DNI {0} ya está registrado para otro cliente.", cliente.DNI);
 
+            var actual = dalCliente.ObtenerPorId(cliente.IdCliente);
+
+            // Bloquear si el nuevo plan tiene menos capacidad que prendas en uso
+            if (cliente.IdPlan.HasValue && cliente.IdPlan != actual?.IdPlan)
+            {
+                var nuevoPlan = dalPlan.ObtenerPorId(cliente.IdPlan.Value);
+                if (nuevoPlan != null && actual.StockUtilizado > nuevoPlan.LimitePrendas)
+                    throw new BE.AppException("err.bll.cliente.plan_insuficiente",
+                        "No se puede asignar el plan '{0}': el cliente tiene {1} prenda(s) en uso " +
+                        "y ese plan solo permite {2}. Registrá las devoluciones primero.",
+                        nuevoPlan.Nombre, actual.StockUtilizado, nuevoPlan.LimitePrendas);
+            }
+
+            // Construir detalle de auditoría incluyendo cambio de plan si ocurrió
+            string detalle = $"Modificación cliente: {cliente.NombreCompleto} — DNI {cliente.DNI}";
+            if (actual != null && cliente.IdPlan != actual.IdPlan)
+            {
+                string planAnterior = actual.NombrePlan ?? (actual.IdPlan.HasValue ? $"ID {actual.IdPlan}" : "Sin plan");
+                string planNuevo    = cliente.NombrePlan ?? (cliente.IdPlan.HasValue ? $"ID {cliente.IdPlan}" : "Sin plan");
+                detalle += $" | Plan: {planAnterior} → {planNuevo}";
+            }
+
             dalCliente.Modificar(cliente);
             bitacora.Registrar(modulo, $"Modificar Cliente ID {cliente.IdCliente}: {cliente.NombreCompleto}", BE.Criticidad.Baja);
-            bitacoraNeg.Registrar(BE.TipoEventoNegocio.ModificacionCliente,
-                $"Modificación cliente: {cliente.NombreCompleto} — DNI {cliente.DNI}",
-                idCliente: cliente.IdCliente);
+            bitacoraNeg.Registrar(BE.TipoEventoNegocio.ModificacionCliente, detalle, idCliente: cliente.IdCliente);
         }
 
         // Da de baja a un cliente.
@@ -138,7 +160,9 @@ namespace BLL
                 FechaVencimiento = cliente.FechaVencimiento,
                 SuperaLimite     = superaLimite,
                 PrendasDisponibles = disponibles,
-                Exceso           = exceso
+                Exceso           = exceso,
+                SuscripcionProximaAVencer = cliente.SuscripcionProximaAVencer(),
+                DiasHastaVencimiento      = cliente.DiasHastaVencimiento()
             };
         }
 

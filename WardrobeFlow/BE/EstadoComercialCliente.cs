@@ -24,5 +24,9 @@ namespace BE
         public bool SuperaLimite       { get; set; }
         public int  PrendasDisponibles { get; set; }
         public int  Exceso             { get; set; }
+
+        // Alerta proactiva: suscripción vigente pero vence pronto
+        public bool SuscripcionProximaAVencer { get; set; }
+        public int  DiasHastaVencimiento      { get; set; }
     }
 }

@@ -99,6 +99,26 @@ namespace BLL
         public List<BE.MantenimientoPrenda> ObtenerHistorialMantenimiento(int idPrenda)
             => dalMantenimiento.ObtenerPorPrenda(idPrenda);
 
+        // Devuelve el resumen de ocupación del stock para el Dashboard.
+        public BE.OcupacionStock ObtenerOcupacion()
+        {
+            var todas = dalPrenda.ObtenerTodos();
+            int enUso      = 0, enLimpieza = 0, disponibles = 0;
+            foreach (var p in todas)
+            {
+                if      (p.Estado == BE.EstadoPrenda.EnUso)      enUso++;
+                else if (p.Estado == BE.EstadoPrenda.EnLimpieza) enLimpieza++;
+                else if (p.Estado == BE.EstadoPrenda.Disponible) disponibles++;
+            }
+            return new BE.OcupacionStock
+            {
+                Total       = todas.Count,
+                EnUso       = enUso,
+                EnLimpieza  = enLimpieza,
+                Disponibles = disponibles
+            };
+        }
+
         // Lanza AppException si el usuario en sesión no tiene el permiso indicado.
         // Administrador siempre pasa. Si no hay sesión activa, deja pasar (modo interno/test).
         private static void ValidarPermiso(string nombrePatente)

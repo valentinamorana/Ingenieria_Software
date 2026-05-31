@@ -68,6 +68,7 @@
     <Compile Include="VersionUsuario.cs" />
     <Compile Include="HistorialIntegridad.cs" />
     <Compile Include="EstadoComercialCliente.cs" />
+    <Compile Include="OcupacionStock.cs" />
     <Compile Include="FilaUsuarioDV.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

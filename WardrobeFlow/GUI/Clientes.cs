@@ -94,7 +94,7 @@ namespace GUI
             RH("DNI",        "col.cli.dni",        "DNI");
             RH("Email",      "col.cli.email",      "Email");
             RH("Plan",       "col.cli.plan",       "Plan");
-            RH("Prendas",    "col.cli.prendas",    "Prendas");
+            RH("Prendas",    "col.cli.prendas",    "Uso / Plan");
             RH("MetodoPago", "col.cli.metodopago", "Método de Pago");
             RH("Alta",        "col.cli.alta",        "Alta");
             RH("Vencimiento", "col.cli.vencimiento", "Vencimiento");
@@ -174,6 +174,8 @@ namespace GUI
             string sinVenc = t.ContainsKey("msg.cli.sinvenc") ? t["msg.cli.sinvenc"].Texto : "—";
             string vencido = t.ContainsKey("msg.cli.vencido") ? t["msg.cli.vencido"].Texto : "Vencido";
 
+            string proxVencer = t.ContainsKey("msg.cli.proxvencer") ? t["msg.cli.proxvencer"].Texto : "Vence pronto";
+
             var tabla = new DataTable();
             tabla.Columns.Add("ID",          typeof(int));
             tabla.Columns.Add("Nombre",      typeof(string));
@@ -181,20 +183,30 @@ namespace GUI
             tabla.Columns.Add("DNI",         typeof(string));
             tabla.Columns.Add("Email",       typeof(string));
             tabla.Columns.Add("Plan",        typeof(string));
-            tabla.Columns.Add("Prendas",     typeof(int));
+            tabla.Columns.Add("Prendas",     typeof(string));
             tabla.Columns.Add("MetodoPago",  typeof(string));
             tabla.Columns.Add("Alta",        typeof(string));
             tabla.Columns.Add("Vencimiento", typeof(string));
             tabla.Columns.Add("_Vencido",    typeof(bool));
+            tabla.Columns.Add("_ProxVencer", typeof(bool));
 
             foreach (var c in lista)
             {
-                bool expirado = c.VencimientoExpirado;
+                bool expirado    = c.VencimientoExpirado;
+                bool proxAVencer = !expirado && c.SuscripcionProximaAVencer();
+
                 string vencStr = c.FechaVencimiento.HasValue
                     ? (expirado
                         ? $"⚠ {c.FechaVencimiento.Value:dd/MM/yyyy} ({vencido})"
-                        : c.FechaVencimiento.Value.ToString("dd/MM/yyyy"))
+                        : proxAVencer
+                            ? $"⏰ {c.FechaVencimiento.Value:dd/MM/yyyy} ({proxVencer})"
+                            : c.FechaVencimiento.Value.ToString("dd/MM/yyyy"))
                     : sinVenc;
+
+                // Mostrar "StockUtilizado / LimitePrendas" si tiene plan con límite
+                string capacidad = c.TienePlan() && c.LimitePrendas > 0
+                    ? $"{c.StockUtilizado} / {c.LimitePrendas}"
+                    : c.StockUtilizado.ToString();
 
                 tabla.Rows.Add(
                     c.IdCliente,
@@ -203,23 +215,28 @@ namespace GUI
                     c.DNI,
                     c.Email ?? "—",
                     c.NombrePlan ?? sinPlan,
-                    c.StockUtilizado,
+                    capacidad,
                     c.MetodoPago,
                     c.FechaAlta.ToString("dd/MM/yyyy"),
                     vencStr,
-                    expirado);
+                    expirado,
+                    proxAVencer);
             }
 
             dgvClientes.DataSource = tabla;
 
-            // Ocultar columna auxiliar y colorear filas vencidas
+            // Ocultar columnas auxiliares y colorear filas
             if (dgvClientes.Columns.Contains("_Vencido"))
                 dgvClientes.Columns["_Vencido"].Visible = false;
+            if (dgvClientes.Columns.Contains("_ProxVencer"))
+                dgvClientes.Columns["_ProxVencer"].Visible = false;
 
             foreach (DataGridViewRow row in dgvClientes.Rows)
             {
                 if (row.Cells["_Vencido"].Value is bool exp && exp)
                     row.DefaultCellStyle.ForeColor = Color.DarkRed;
+                else if (row.Cells["_ProxVencer"].Value is bool prox && prox)
+                    row.DefaultCellStyle.ForeColor = Color.FromArgb(160, 100, 0);
             }
 
             // Ajustar columnas

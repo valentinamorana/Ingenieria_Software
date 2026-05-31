@@ -132,7 +132,14 @@ namespace GUI
                 cmbCliente.Items.Clear();
                 cmbCliente.Items.Add(placeholder);
                 foreach (var c in _clientes)
-                    cmbCliente.Items.Add($"{c.NombreCompleto}  (DNI {c.DNI})");
+                {
+                    string etiqueta = $"{c.NombreCompleto}  (DNI {c.DNI})";
+                    if (c.VencimientoExpirado)
+                        etiqueta += "  ⚠ venc.";
+                    else if (c.SuscripcionProximaAVencer())
+                        etiqueta += $"  ⏰ {c.DiasHastaVencimiento()}d";
+                    cmbCliente.Items.Add(etiqueta);
+                }
                 cmbCliente.SelectedIndex = 0;
             }
             catch (Exception ex)
@@ -226,9 +233,9 @@ namespace GUI
             }
 
             btnSiguiente.Enabled  = true;
-            lblInfoPlan.ForeColor = Color.FromArgb(40, 80, 140);
             lblInfoPlan.Visible   = true;
-            lblInfoPlan.Text = string.Format(
+
+            string infoBase = string.Format(
                 T_i("lbl.ped.infoplan",
                     "Cliente: {0}\nPlan: {1}\nPrendas en uso actualmente: {2}\nMétodo de pago: {3}\nAlta: {4}"),
                 _clienteSel.NombreCompleto,
@@ -236,6 +243,20 @@ namespace GUI
                 estado.StockUtilizado,
                 estado.MetodoPago,
                 estado.FechaAlta.ToString("dd/MM/yyyy"));
+
+            if (estado.SuscripcionProximaAVencer)
+            {
+                lblInfoPlan.ForeColor = Color.FromArgb(160, 100, 0);
+                lblInfoPlan.Text = infoBase + "\n" + string.Format(
+                    T_i("lbl.ped.proxvencer",
+                        "⏰ La suscripción vence en {0} día(s). Avisale al cliente para renovarla."),
+                    estado.DiasHastaVencimiento);
+            }
+            else
+            {
+                lblInfoPlan.ForeColor = Color.FromArgb(40, 80, 140);
+                lblInfoPlan.Text = infoBase;
+            }
         }
 
         private void BtnSiguiente_Click(object sender, EventArgs e)
