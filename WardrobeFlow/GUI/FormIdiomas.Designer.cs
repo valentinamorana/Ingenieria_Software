@@ -21,6 +21,8 @@ namespace GUI
             this.btnDesactivar        = new System.Windows.Forms.Button();
             this.lblTituloTrad        = new System.Windows.Forms.Label();
             this.dgvTraducciones      = new System.Windows.Forms.DataGridView();
+            this.lblTituloControles   = new System.Windows.Forms.Label();
+            this.dgvControles         = new System.Windows.Forms.DataGridView();
             this.btnGuardar           = new System.Windows.Forms.Button();
             this.lblMensaje           = new System.Windows.Forms.Label();
             this.panelIdiomas         = new System.Windows.Forms.Panel();
@@ -29,6 +31,7 @@ namespace GUI
             this.panelBottom          = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.dgvIdiomas)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTraducciones)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvControles)).BeginInit();
             this.panelIdiomas.SuspendLayout();
             this.panelTrad.SuspendLayout();
             this.panelBotonesIdioma.SuspendLayout();
@@ -113,22 +116,43 @@ namespace GUI
             //
             // dgvTraducciones
             //
-            this.dgvTraducciones.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvTraducciones.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.dgvTraducciones.BackgroundColor = System.Drawing.Color.White;
             this.dgvTraducciones.BorderStyle     = System.Windows.Forms.BorderStyle.FixedSingle;
             this.dgvTraducciones.Location        = new System.Drawing.Point(8, 35);
             this.dgvTraducciones.Name            = "dgvTraducciones";
-            this.dgvTraducciones.Size            = new System.Drawing.Size(860, 320);
+            this.dgvTraducciones.Size            = new System.Drawing.Size(560, 305);
             this.dgvTraducciones.TabIndex        = 3;
+            //
+            // lblTituloControles
+            //
+            this.lblTituloControles.Anchor    = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            this.lblTituloControles.AutoSize  = true;
+            this.lblTituloControles.Font      = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblTituloControles.ForeColor = System.Drawing.Color.FromArgb(180, 60, 100);
+            this.lblTituloControles.Location  = new System.Drawing.Point(576, 8);
+            this.lblTituloControles.Name      = "lblTituloControles";
+            this.lblTituloControles.Size      = new System.Drawing.Size(160, 19);
+            this.lblTituloControles.Text      = "Controles traducibles";
+            //
+            // dgvControles
+            //
+            this.dgvControles.Anchor          = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvControles.BackgroundColor = System.Drawing.Color.White;
+            this.dgvControles.BorderStyle     = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.dgvControles.Location        = new System.Drawing.Point(576, 35);
+            this.dgvControles.Name            = "dgvControles";
+            this.dgvControles.Size            = new System.Drawing.Size(292, 305);
+            this.dgvControles.TabIndex        = 6;
             //
             // btnGuardar
             //
-            this.btnGuardar.Anchor    = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right;
+            this.btnGuardar.Anchor    = System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left;
             this.btnGuardar.BackColor = System.Drawing.Color.FromArgb(210, 100, 135);
             this.btnGuardar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnGuardar.Font      = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnGuardar.ForeColor = System.Drawing.Color.White;
-            this.btnGuardar.Location  = new System.Drawing.Point(730, 363);
+            this.btnGuardar.Location  = new System.Drawing.Point(8, 347);
             this.btnGuardar.Name      = "btnGuardar";
             this.btnGuardar.Size      = new System.Drawing.Size(138, 30);
             this.btnGuardar.TabIndex  = 4;
@@ -139,6 +163,8 @@ namespace GUI
             //
             this.panelTrad.Controls.Add(this.lblTituloTrad);
             this.panelTrad.Controls.Add(this.dgvTraducciones);
+            this.panelTrad.Controls.Add(this.lblTituloControles);
+            this.panelTrad.Controls.Add(this.dgvControles);
             this.panelTrad.Controls.Add(this.btnGuardar);
             this.panelTrad.Dock     = System.Windows.Forms.DockStyle.Fill;
             this.panelTrad.Name     = "panelTrad";
@@ -178,6 +204,7 @@ namespace GUI
             this.Text = "Gestión de Idiomas";
             ((System.ComponentModel.ISupportInitialize)(this.dgvIdiomas)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTraducciones)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvControles)).EndInit();
             this.panelIdiomas.ResumeLayout(false);
             this.panelIdiomas.PerformLayout();
             this.panelTrad.ResumeLayout(false);
@@ -195,6 +222,8 @@ namespace GUI
         private System.Windows.Forms.Button             btnDesactivar;
         private System.Windows.Forms.Label              lblTituloTrad;
         private System.Windows.Forms.DataGridView       dgvTraducciones;
+        private System.Windows.Forms.Label              lblTituloControles;
+        private System.Windows.Forms.DataGridView       dgvControles;
         private System.Windows.Forms.Button             btnGuardar;
         private System.Windows.Forms.Label              lblMensaje;
         private System.Windows.Forms.Panel              panelIdiomas;

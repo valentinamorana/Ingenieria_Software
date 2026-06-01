@@ -35,6 +35,7 @@ namespace GUI
             Traducir(GestorIdioma.IdiomaActual);
             ConfigurarGrillas();
             CargarIdiomas();
+            CargarControles();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -55,6 +56,7 @@ namespace GUI
             this.Text               = T("frm.idiomas",            "Gestión de Idiomas");
             lblTituloIdiomas.Text   = T("lbl.idiomas.titulo",     "Idiomas del sistema");
             lblTituloTrad.Text      = T("lbl.idiomas.trad",       "Traducciones del idioma seleccionado");
+            lblTituloControles.Text = T("lbl.idiomas.controles",  "Controles traducibles");
             btnActivar.Text         = T("btn.idiomas.activar",    "✔ Activar");
             btnDesactivar.Text      = T("btn.idiomas.desactivar", "✕ Desactivar");
             btnGuardar.Text         = T("btn.idiomas.guardar",    "💾 Guardar cambios");
@@ -80,6 +82,36 @@ namespace GUI
             dgvTraducciones.AllowUserToDeleteRows  = false;
             dgvTraducciones.AutoSizeColumnsMode    = DataGridViewAutoSizeColumnsMode.Fill;
             dgvTraducciones.RowHeadersVisible      = false;
+
+            // dgvControles — listado de controles traducibles del sistema (solo lectura)
+            dgvControles.SelectionMode          = DataGridViewSelectionMode.FullRowSelect;
+            dgvControles.MultiSelect            = false;
+            dgvControles.ReadOnly               = true;
+            dgvControles.AllowUserToAddRows     = false;
+            dgvControles.AllowUserToDeleteRows  = false;
+            dgvControles.AutoSizeColumnsMode    = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvControles.RowHeadersVisible      = false;
+        }
+
+        // ── Grid de Controles (textos traducibles del sistema) — T05 ─────────────
+        private void CargarControles()
+        {
+            try
+            {
+                dgvControles.Rows.Clear();
+                dgvControles.Columns.Clear();
+                dgvControles.Columns.Add("colCtrlId",   "ID");
+                dgvControles.Columns.Add("colCtrlClave","Clave");
+                dgvControles.Columns.Add("colCtrlForm", "Formulario");
+                dgvControles.Columns["colCtrlId"].Width = 40;
+
+                foreach (var c in _bllIdioma.ObtenerControles())
+                    dgvControles.Rows.Add(c.IdControl, c.Clave, c.Formulario);
+            }
+            catch (Exception ex)
+            {
+                MostrarError($"Error al cargar controles: {ex.Message}");
+            }
         }
 
         // ── Carga de idiomas ─────────────────────────────────────────────────
@@ -214,6 +246,22 @@ namespace GUI
             if (_idIdiomaSeleccionado == 0) return;
             try
             {
+                // T05 — Advertir si el idioma tiene traducciones incompletas.
+                // Política elegida: permitir la activación, usando los textos por defecto
+                // para las claves faltantes (fallback por-clave en Traductor).
+                int faltantes = _bllIdioma.ContarTraduccionesFaltantes(_idIdiomaSeleccionado);
+                if (faltantes > 0)
+                {
+                    var confirm = MessageBox.Show(
+                        $"Este idioma tiene {faltantes} control(es) sin traducir.\n" +
+                        "Si lo activás, esos textos se mostrarán en el idioma por defecto.\n\n" +
+                        "¿Activar de todos modos?",
+                        "Traducciones incompletas",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+                        MessageBoxDefaultButton.Button2);
+                    if (confirm != DialogResult.Yes) return;
+                }
+
                 _bllIdioma.ActivarIdioma(_idIdiomaSeleccionado);
                 var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
                 MostrarOk(t.ContainsKey("msg.idiomas.activado") ? t["msg.idiomas.activado"].Texto : "Idioma activado.");

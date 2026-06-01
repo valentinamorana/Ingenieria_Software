@@ -27,6 +27,18 @@ namespace Seguridad
         // Indica si hay una sesión activa sin lanzar excepción.
         public static bool IsLoggedIn => _session != null;
 
+        // T04 — Re-validación de permisos en el BACKEND.
+        // Devuelve true si el usuario en sesión posee la patente indicada.
+        // El Administrador tiene acceso total. Si no hay usuario, no tiene permiso.
+        public bool TienePermiso(string nombreMenu)
+        {
+            if (Usuario == null) return false;
+            if (string.Equals(Usuario.Perfil, "Administrador", StringComparison.OrdinalIgnoreCase))
+                return true;
+            return Usuario.Permisos != null &&
+                   Usuario.Permisos.Exists(p => p.NombreMenu == nombreMenu);
+        }
+
         // Crea la sesión para el usuario autenticado.
         public static void Login(Usuario usuario)
         {

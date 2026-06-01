@@ -10,6 +10,7 @@ namespace BLL
     {
         private readonly DAL.Usuario        usuarioDAL = new DAL.Usuario();
         private readonly DAL.Permiso        permisoDAL = new DAL.Permiso();
+        private readonly BLL.Familia        perfilesBLL = new BLL.Familia();
         private readonly Servicios.Bitacora bitacora   = new Servicios.Bitacora();
 
         private const int    MaxIntentosFallidos  = 3;
@@ -42,7 +43,9 @@ namespace BLL
             {
                 ContadorSesion.GetInstance().Resetear();
                 usuarioDAL.ResetearIntentosFallidos(username);
-                usuario.Permisos = permisoDAL.ObtenerPorRol(usuario.Rol ?? usuario.Perfil);
+                // T04 — Permisos EFECTIVOS resueltos recursivamente sobre el árbol Composite
+                // (rol → roles/familias → patentes), con deduplicación de permisos repetidos.
+                usuario.Permisos = perfilesBLL.ObtenerPermisosEfectivos(usuario.Rol ?? usuario.Perfil);
                 SessionManager.Login(usuario);
                 bitacora.Registrar(modulo, "Inicio Sesion", BE.Criticidad.None);
             }

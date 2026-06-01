@@ -20,6 +20,7 @@ namespace BLL
     {
         private readonly DAL.Idioma     dalIdioma     = new DAL.Idioma();
         private readonly DAL.Traduccion dalTraduccion = new DAL.Traduccion();
+        private readonly DAL.Control    dalControl    = new DAL.Control();
 
         // Se vuelve true la primera vez que se seedea en esta sesión.
         // Evita re-seedear en cada cambio de idioma; InsertarSiNoExiste lo hace idempotente.
@@ -92,6 +93,26 @@ namespace BLL
         {
             if (string.IsNullOrEmpty(texto)) return;
             dalTraduccion.GuardarTraduccion(idControl, idIdioma, texto);
+        }
+
+        // ── Controles (textos traducibles del sistema) — T05 ─────────────────────
+
+        // Todos los controles traducibles, para el grid de Controles del FormIdiomas.
+        public List<BE.Control> ObtenerControles()
+        {
+            return dalControl.ObtenerTodos();
+        }
+
+        // Cantidad de controles SIN traducción cargada (texto vacío o inexistente) para un idioma.
+        // Usado para advertir al activar un idioma con cobertura incompleta (T05).
+        public int ContarTraduccionesFaltantes(int idIdioma)
+        {
+            int totalControles = dalControl.ObtenerTodos().Count;
+            int conTexto = 0;
+            foreach (var f in dalTraduccion.ObtenerPorIdioma(idIdioma))
+                if (!string.IsNullOrWhiteSpace(f.Texto)) conTexto++;
+            int faltantes = totalControles - conTexto;
+            return faltantes < 0 ? 0 : faltantes;
         }
 
         // ── Seeding ──────────────────────────────────────────────────────────

@@ -79,7 +79,8 @@ BEGIN
         NombreMenu      NVARCHAR(100) NULL,
         TipoComponente  NVARCHAR(100) NULL,
         Estado          BIT           NOT NULL DEFAULT 1,
-        EsFamilia       BIT           NOT NULL DEFAULT 0
+        EsFamilia       BIT           NOT NULL DEFAULT 0,
+        EsRol           BIT           NOT NULL DEFAULT 0
     );
     PRINT 'Tabla Permiso creada.';
 END
@@ -92,8 +93,13 @@ BEGIN
         ALTER TABLE Permiso ADD EsFamilia BIT NOT NULL DEFAULT 0;
         PRINT 'Columna EsFamilia agregada a Permiso (migración).';
     END
-    ELSE
-        PRINT 'Tabla Permiso ya existe — sin cambios.';
+    -- EsRol: marca los nodos-rol del Composite (migración v7.0 — T04)
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+                   WHERE TABLE_NAME = 'Permiso' AND COLUMN_NAME = 'EsRol')
+    BEGIN
+        ALTER TABLE Permiso ADD EsRol BIT NOT NULL DEFAULT 0;
+        PRINT 'Columna EsRol agregada a Permiso (migración).';
+    END
 END
 GO
 
@@ -413,6 +419,29 @@ BEGIN
 END
 ELSE
     PRINT 'Árbol Composite ya inicializado — sin cambios.';
+GO
+
+-- ============================================================
+-- MIGRACIÓN COMPOSITE (T04) — Roles como NODOS del árbol
+-- A partir de v7.0 [PermisoRelacion] es la única fuente de verdad de la
+-- composición. Se crea un nodo-rol por cada rol de [RolPermiso] y se migran
+-- las asignaciones planas a aristas rol→permiso.
+-- ============================================================
+
+-- Crear nodo-rol faltante por cada rol existente en RolPermiso
+INSERT INTO Permiso (Nombre, NombreMenu, TipoComponente, Estado, EsFamilia, EsRol)
+SELECT DISTINCT rp.Rol, NULL, 'Rol', 1, 1, 1
+FROM   RolPermiso rp
+WHERE  NOT EXISTS (SELECT 1 FROM Permiso p WHERE p.Nombre = rp.Rol AND p.EsRol = 1);
+
+-- Migrar asignaciones planas a aristas Composite (idempotente)
+INSERT INTO PermisoRelacion (IdPadre, IdHijo)
+SELECT pr.IdPermiso, rp.IdPermiso
+FROM   RolPermiso rp
+INNER JOIN Permiso pr ON pr.Nombre = rp.Rol AND pr.EsRol = 1 AND pr.IdPermiso <> rp.IdPermiso
+WHERE  NOT EXISTS (SELECT 1 FROM PermisoRelacion x
+                   WHERE x.IdPadre = pr.IdPermiso AND x.IdHijo = rp.IdPermiso);
+PRINT 'Nodos-rol y aristas rol→permiso migrados (T04 v7.0).';
 GO
 
 -- ============================================================

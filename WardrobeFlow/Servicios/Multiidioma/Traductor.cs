@@ -89,7 +89,17 @@ namespace Servicios.Multiidioma
             // Prioridad: cache cargado desde BD por BLL.Idioma.CargarTraducciones()
             var cache = GestorIdioma.TradActuales;
             if (cache != null && cache.Count > 0)
-                return Construir(new System.Collections.Generic.Dictionary<string, string>(cache));
+            {
+                // T05 — FALLBACK por-clave: si el idioma activo no tiene cargada una
+                // traducción, se usa el texto por defecto (idioma default, completo)
+                // en lugar de dejar el control sin traducir. Esto permite activar un
+                // idioma incompleto sin que la UI quede con textos faltantes/stale.
+                var merged = new System.Collections.Generic.Dictionary<string, string>(
+                    System.StringComparer.OrdinalIgnoreCase);
+                foreach (var kv in _es) merged[kv.Key] = kv.Value.Texto; // base: por defecto
+                foreach (var kv in cache) merged[kv.Key] = kv.Value;       // overlay: idioma activo
+                return Construir(merged);
+            }
 
             // Fallback: dicts hardcodeados (primer arranque o sin conexión)
             return ObtenerTraduccionesHardcode(idioma);
