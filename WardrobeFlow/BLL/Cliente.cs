@@ -18,11 +18,11 @@ namespace BLL
         // Lanza AppException si el usuario en sesión no posee el permiso indicado.
         private static void ValidarPermiso(string nombrePatente)
         {
-            if (!Seguridad.SessionManager.IsLoggedIn) return;
-            var usuario = Seguridad.SessionManager.GetInstance().Usuario;
-            if (usuario.Perfil == "Administrador") return;
-            bool tiene = usuario.Permisos?.Exists(p => p.NombreMenu == nombrePatente) == true;
-            if (!tiene)
+            // Fail-closed: sin sesión NO se permite la operación (apunte T04).
+            if (!Seguridad.SessionManager.IsLoggedIn)
+                throw new BE.AppException("err.bll.sesion_expirada",
+                    "La sesión expiró. Volvé a iniciar sesión.");
+            if (!Seguridad.SessionManager.GetInstance().TienePermiso(nombrePatente))
                 throw new BE.AppException("err.bll.sin_permiso",
                     "No tiene permiso para ejecutar esta operación ('{0}').", nombrePatente);
         }

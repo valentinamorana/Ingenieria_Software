@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Servicios.Multiidioma;
 
@@ -9,15 +10,16 @@ namespace GUI
     /// <summary>
     /// T04 — Gestión de Perfiles de Usuario (Patrón Composite) — formulario funcional.
     ///
-    /// Permite al Administrador ver y modificar los permisos asignados a cada rol.
+    /// Asignación mediante DOS LISTAS (según apunte de diseño):
+    ///   • Lista de Familias  → agrega/quita permisos COMPUESTOS al rol.
+    ///   • Lista de Patentes  → agrega/quita permisos SIMPLES al rol.
+    /// Además permite embeber un rol dentro de otro (composición de roles),
+    /// crear patentes/familias/roles y eliminar roles (con bloqueo si están en uso).
     ///
-    /// Flujo:
-    ///   1. El admin selecciona un rol en el ComboBox.
-    ///   2. Se carga el árbol Composite (Familias y Patentes) con checkboxes.
-    ///   3. Tildar/destildar patentes asigna/quita permisos para ese rol en [RolPermiso].
-    ///   4. "Ver Explorador Composite" abre la vista académica del patrón (solo lectura).
+    /// El TreeView de la derecha muestra, de forma RECURSIVA, la composición
+    /// efectiva resultante del rol seleccionado, y se actualiza al guardar.
     ///
-    /// Para la demostración académica del patrón Composite, ver ExploradorCompositeForm.
+    /// La composición se persiste en [PermisoRelacion] (motor real de autorización).
     /// </summary>
     public class GestorPermisos : FormBase, IIdiomaObserver
     {
@@ -25,36 +27,33 @@ namespace GUI
 
         private readonly BLL.Familia _familiaBLL = new BLL.Familia();
 
-        // Nombres internos de BD (usados para consultas). El ComboBox muestra la traducción.
-        private List<string> _rolesOriginales = new List<string>();
-
-        private string RolOriginalActual =>
-            _cmbRol.SelectedIndex >= 0 && _cmbRol.SelectedIndex < _rolesOriginales.Count
-                ? _rolesOriginales[_cmbRol.SelectedIndex]
-                : null;
-
-        // ── Controles ─────────────────────────────────────────────────────────
-        private Label    _lblTitulo;
-        private Label    _lblMensaje;
-        private Label    _lblRol;
-        private ComboBox _cmbRol;
-        private TreeView _treeView;
-        private Button   _btnGuardar;
-        private Button   _btnExplorador;
-        private Button   _btnCerrar;
-
-        public GestorPermisos()
+        // Item con Id + nombre para los CheckedListBox / ComboBox.
+        private class Item
         {
-            ConstruirUI();
+            public int Id;
+            public string Nombre;
+            public override string ToString() => Nombre;
         }
 
-        // ── Ciclo de vida ─────────────────────────────────────────────────────
+        private List<string> _roles = new List<string>();
+        private string RolActual => _cmbRol.SelectedItem is Item it ? it.Nombre : null;
+        private int RolActualId => _cmbRol.SelectedItem is Item it ? it.Id : 0;
 
+        // ── Controles ──────────────────────────────────────────────────────────
+        private Label    _lblTitulo, _lblMensaje, _lblRol, _lblFamilias, _lblPatentes, _lblArbol, _lblEmbeber;
+        private ComboBox _cmbRol, _cmbEmbeber;
+        private CheckedListBox _clbFamilias, _clbPatentes;
+        private TreeView _treeView;
+        private Button   _btnGuardar, _btnEmbeber, _btnNuevoRol, _btnEliminarRol,
+                         _btnNuevaPatente, _btnNuevaFamilia, _btnExplorador, _btnCerrar;
+
+        public GestorPermisos() { ConstruirUI(); }
+
+        // ── Ciclo de vida ────────────────────────────────────────────────────
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
             GestorIdioma.SuscribirObservador(this);
-            Traducir(GestorIdioma.IdiomaActual);
             CargarRoles();
         }
 
@@ -64,35 +63,7 @@ namespace GUI
             base.OnFormClosing(e);
         }
 
-        // ── IIdiomaObserver ───────────────────────────────────────────────────
-
-        public void UpdateLanguage(Idioma idioma) => Traducir(idioma);
-
-        private void Traducir(Idioma idioma)
-        {
-            var t = Traductor.ObtenerTraducciones(idioma);
-            string Tx(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
-
-            this.Text            = Tx("frm.gestorpermisos",     "Gestor de Perfiles — Permisos");
-            _lblTitulo.Text      = Tx("lbl.permisos.titulo",    "Perfiles y Permisos");
-            _lblRol.Text         = Tx("lbl.permisos.rol",       "Rol:");
-            _btnGuardar.Text     = Tx("btn.permisos.guardar",   "Guardar cambios");
-            _btnExplorador.Text  = Tx("btn.explorador",         "🌳 Ver Explorador Composite");
-            _btnCerrar.Text      = Tx("btn.permisos.cerrar",    "Cerrar");
-
-            if (_rolesOriginales.Count > 0)
-            {
-                int prevIdx = _cmbRol.SelectedIndex;
-                _cmbRol.SelectedIndexChanged -= CmbRol_SelectedIndexChanged;
-                _cmbRol.Items.Clear();
-                foreach (string rol in _rolesOriginales)
-                    _cmbRol.Items.Add(Tx($"perm.rol.{rol.ToLowerInvariant().Replace(" ", "")}", rol));
-                if (prevIdx >= 0 && prevIdx < _cmbRol.Items.Count)
-                    _cmbRol.SelectedIndex = prevIdx;
-                _cmbRol.SelectedIndexChanged += CmbRol_SelectedIndexChanged;
-                if (_cmbRol.SelectedIndex >= 0) MostrarPermisos();
-            }
-        }
+        public void UpdateLanguage(Idioma idioma) { /* textos fijos por simplicidad */ }
 
         private string T(string key, string fallback)
         {
@@ -100,245 +71,289 @@ namespace GUI
             return t.ContainsKey(key) ? t[key].Texto : fallback;
         }
 
-        // ── Carga de datos ────────────────────────────────────────────────────
-
+        // ── Carga de datos ─────────────────────────────────────────────────────
         private void CargarRoles()
         {
             try
             {
-                _rolesOriginales = _familiaBLL.ObtenerRoles();
+                _roles = _familiaBLL.ObtenerRoles();
+                _cmbRol.SelectedIndexChanged -= CmbRol_Changed;
                 _cmbRol.Items.Clear();
-                foreach (string rol in _rolesOriginales)
-                    _cmbRol.Items.Add(T($"perm.rol.{rol.ToLowerInvariant().Replace(" ", "")}", rol));
+                foreach (string rol in _roles)
+                    _cmbRol.Items.Add(new Item { Id = 0, Nombre = rol });
+                _cmbRol.SelectedIndexChanged += CmbRol_Changed;
                 if (_cmbRol.Items.Count > 0) _cmbRol.SelectedIndex = 0;
+                else { _clbFamilias.Items.Clear(); _clbPatentes.Items.Clear(); _treeView.Nodes.Clear(); }
             }
-            catch (Exception ex)
-            {
-                MostrarError($"Error al cargar roles: {ex.Message}");
-            }
+            catch (Exception ex) { MostrarError($"Error al cargar roles: {ex.Message}"); }
         }
 
-        // ── Construcción del TreeView (Composite) ─────────────────────────────
-
-        private void MostrarPermisos()
+        private void CargarListas()
         {
-            string rol = RolOriginalActual;
+            string rol = RolActual;
             if (string.IsNullOrEmpty(rol)) return;
+            try
+            {
+                var directos = _familiaBLL.ObtenerIdsDirectosDelRol(rol);
 
+                _clbFamilias.Items.Clear();
+                foreach (var f in _familiaBLL.ObtenerFamiliasDisponibles())
+                    _clbFamilias.Items.Add(new Item { Id = f.Id, Nombre = f.Nombre }, directos.Contains(f.Id));
+
+                _clbPatentes.Items.Clear();
+                foreach (var p in _familiaBLL.ObtenerPatentesDisponibles())
+                    _clbPatentes.Items.Add(new Item { Id = p.Id, Nombre = p.Nombre }, directos.Contains(p.Id));
+
+                // Otros roles para embeber (excluye el actual).
+                _cmbEmbeber.Items.Clear();
+                foreach (string r in _roles)
+                    if (!string.Equals(r, rol, StringComparison.OrdinalIgnoreCase))
+                        _cmbEmbeber.Items.Add(new Item { Id = 0, Nombre = r });
+                if (_cmbEmbeber.Items.Count > 0) _cmbEmbeber.SelectedIndex = 0;
+
+                MostrarComposicion();
+                _btnGuardar.Enabled = true;
+            }
+            catch (Exception ex) { MostrarError($"Error al cargar listas: {ex.Message}"); }
+        }
+
+        // TreeView recursivo con la composición efectiva del rol.
+        private void MostrarComposicion()
+        {
+            string rol = RolActual;
+            if (string.IsNullOrEmpty(rol)) return;
             try
             {
                 _treeView.BeginUpdate();
                 _treeView.Nodes.Clear();
-
                 BE.Familia arbol = _familiaBLL.ObtenerArbolPorRol(rol);
-                MostrarPermisosRecursivo(arbol, null);
-
+                var raiz = new TreeNode("👤 " + rol) { NodeFont = new Font("Segoe UI", 9f, FontStyle.Bold) };
+                _treeView.Nodes.Add(raiz);
+                AgregarNodos(arbol, raiz);
+                raiz.Expand();
                 _treeView.ExpandAll();
                 _treeView.EndUpdate();
-
-                string rolTrad = _cmbRol.SelectedItem?.ToString() ?? rol;
-                MostrarOk(string.Format(T("msg.permisos.mostrando", "Mostrando permisos del rol '{0}'."), rolTrad));
-                _btnGuardar.Enabled = true;
             }
-            catch (Exception ex)
-            {
-                MostrarError($"Error al cargar árbol de permisos: {ex.Message}");
-            }
+            catch (Exception ex) { MostrarError($"Error al mostrar composición: {ex.Message}"); }
         }
 
-        // Función recursiva que construye el TreeView a partir del árbol Composite.
-        private void MostrarPermisosRecursivo(BE.Componente componente, TreeNode nodoParent)
+        private void AgregarNodos(BE.Componente componente, TreeNode parent)
         {
             foreach (BE.Componente hijo in componente.Hijos)
             {
-                string prefijo = hijo is BE.Familia ? "perm.grp." : "perm.pat.";
-                string clave   = prefijo + hijo.Nombre.ToLowerInvariant().Replace(" ", "");
-                var nodo = new TreeNode(T(clave, hijo.Nombre)) { Tag = hijo };
-
+                string icono = hijo is BE.Rol ? "👥 " : hijo is BE.Familia ? "📁 " : "• ";
+                var nodo = new TreeNode(icono + hijo.Nombre) { Tag = hijo };
                 if (hijo is BE.Familia)
                 {
                     nodo.NodeFont  = new Font("Segoe UI", 9f, FontStyle.Bold);
                     nodo.ForeColor = Color.FromArgb(40, 80, 140);
                 }
-                else if (hijo is BE.Patente patente)
-                {
-                    nodo.Checked = patente.Asignado;
-                }
-
-                if (nodoParent == null) _treeView.Nodes.Add(nodo);
-                else                   nodoParent.Nodes.Add(nodo);
-
-                MostrarPermisosRecursivo(hijo, nodo);
+                parent.Nodes.Add(nodo);
+                AgregarNodos(hijo, nodo);
             }
         }
 
-        // ── Guardar cambios ───────────────────────────────────────────────────
-
+        // ── Guardar ──────────────────────────────────────────────────────────
         private void GuardarCambios()
         {
-            string rol = RolOriginalActual;
+            string rol = RolActual;
             if (string.IsNullOrEmpty(rol)) return;
-
             try
             {
-                int asignados = 0, quitados = 0;
-                GuardarRecursivo(_treeView.Nodes, rol, ref asignados, ref quitados);
-                MostrarPermisos();
-                MostrarOk(string.Format(
-                    T("msg.permisos.guardados", "Cambios guardados: {0} permiso(s) asignado(s), {1} quitado(s)."),
-                    asignados, quitados));
+                var ids = new List<int>();
+                foreach (Item it in _clbFamilias.CheckedItems) ids.Add(it.Id);
+                foreach (Item it in _clbPatentes.CheckedItems) ids.Add(it.Id);
+
+                var (agregados, quitados) = _familiaBLL.GuardarAsignacionRol(rol, ids);
+                CargarListas();
+                MostrarOk($"Cambios guardados para '{rol}': {agregados} agregado(s), {quitados} quitado(s).");
             }
-            catch (Exception ex)
+            catch (Exception ex) { MostrarError($"Error al guardar: {ex.Message}"); }
+        }
+
+        // ── CRUD / acciones ────────────────────────────────────────────────────
+        private void EmbeberRol()
+        {
+            string rol = RolActual;
+            if (string.IsNullOrEmpty(rol) || !(_cmbEmbeber.SelectedItem is Item hijo)) return;
+            try
             {
-                MostrarError($"Error al guardar: {ex.Message}");
+                int idHijo  = ObtenerIdRol(hijo.Nombre);
+                int idPadre = ObtenerIdRol(rol);
+                if (idPadre == 0 || idHijo == 0) { MostrarError("No se pudo resolver el rol."); return; }
+                _familiaBLL.AgregarComponente(idPadre, idHijo);
+                CargarListas();
+                MostrarOk($"Rol '{hijo.Nombre}' embebido dentro de '{rol}'.");
             }
+            catch (Exception ex) { MostrarError($"No se pudo embeber: {ex.Message}"); }
         }
 
-        private void GuardarRecursivo(TreeNodeCollection nodos, string rol,
-                                       ref int asignados, ref int quitados)
+        // Resuelve el Id de un rol buscando su nodo en el árbol.
+        private int ObtenerIdRol(string rol)
         {
-            foreach (TreeNode nodo in nodos)
+            foreach (var raiz in _familiaBLL.ObtenerArbol())
             {
-                if (nodo.Tag is BE.Patente patente)
-                {
-                    if (nodo.Checked && !patente.Asignado)      { _familiaBLL.AsignarPermiso(rol, patente.Id); asignados++; }
-                    else if (!nodo.Checked && patente.Asignado) { _familiaBLL.QuitarPermiso(rol, patente.Id);  quitados++; }
-                }
-                GuardarRecursivo(nodo.Nodes, rol, ref asignados, ref quitados);
+                int id = BuscarIdRol(raiz, rol);
+                if (id != 0) return id;
+            }
+            return 0;
+        }
+        private int BuscarIdRol(BE.Componente nodo, string rol)
+        {
+            if (nodo is BE.Rol && string.Equals(nodo.Nombre, rol, StringComparison.OrdinalIgnoreCase))
+                return nodo.Id;
+            if (nodo is BE.Familia fam)
+                foreach (var h in fam.Hijos) { int id = BuscarIdRol(h, rol); if (id != 0) return id; }
+            return 0;
+        }
+
+        private void NuevoRol()
+        {
+            string nombre = Pedir("Nuevo rol", "Nombre del nuevo rol:");
+            if (string.IsNullOrWhiteSpace(nombre)) return;
+            try { _familiaBLL.CrearRol(nombre.Trim()); CargarRoles(); SeleccionarRol(nombre.Trim());
+                  MostrarOk($"Rol '{nombre.Trim()}' creado."); }
+            catch (Exception ex) { MostrarError(ex.Message); }
+        }
+
+        private void EliminarRol()
+        {
+            string rol = RolActual;
+            if (string.IsNullOrEmpty(rol)) return;
+            if (MessageBox.Show($"¿Eliminar el rol '{rol}'?", "Confirmar",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+            try { _familiaBLL.EliminarRol(rol); CargarRoles(); MostrarOk($"Rol '{rol}' eliminado."); }
+            catch (Exception ex) { MostrarError(ex.Message); }
+        }
+
+        private void NuevaPatente()
+        {
+            string nombre = Pedir("Nueva patente", "Nombre de la patente (permiso simple):");
+            if (string.IsNullOrWhiteSpace(nombre)) return;
+            string menu = Pedir("Nueva patente", "NombreMenu asociado (opcional, ej: mnuClientes):");
+            try { _familiaBLL.CrearPatente(nombre.Trim(), string.IsNullOrWhiteSpace(menu) ? null : menu.Trim());
+                  CargarListas(); MostrarOk($"Patente '{nombre.Trim()}' creada."); }
+            catch (Exception ex) { MostrarError(ex.Message); }
+        }
+
+        private void NuevaFamilia()
+        {
+            string nombre = Pedir("Nueva familia", "Nombre de la familia (permiso compuesto):");
+            if (string.IsNullOrWhiteSpace(nombre)) return;
+            try { _familiaBLL.CrearFamilia(nombre.Trim()); CargarListas();
+                  MostrarOk($"Familia '{nombre.Trim()}' creada."); }
+            catch (Exception ex) { MostrarError(ex.Message); }
+        }
+
+        private void SeleccionarRol(string rol)
+        {
+            for (int i = 0; i < _cmbRol.Items.Count; i++)
+                if (_cmbRol.Items[i] is Item it && string.Equals(it.Nombre, rol, StringComparison.OrdinalIgnoreCase))
+                { _cmbRol.SelectedIndex = i; return; }
+        }
+
+        // Mini cuadro de diálogo de entrada de texto (sin dependencias externas).
+        private static string Pedir(string titulo, string prompt)
+        {
+            using (var f = new Form())
+            {
+                f.Text = titulo; f.Size = new Size(420, 160); f.StartPosition = FormStartPosition.CenterParent;
+                f.FormBorderStyle = FormBorderStyle.FixedDialog; f.MinimizeBox = false; f.MaximizeBox = false;
+                var lbl = new Label { Text = prompt, Location = new Point(12, 15), AutoSize = true };
+                var txt = new TextBox { Location = new Point(15, 45), Size = new Size(380, 24) };
+                var ok  = new Button { Text = "Aceptar", DialogResult = DialogResult.OK, Location = new Point(225, 80), Size = new Size(80, 30) };
+                var ca  = new Button { Text = "Cancelar", DialogResult = DialogResult.Cancel, Location = new Point(315, 80), Size = new Size(80, 30) };
+                f.Controls.AddRange(new Control[] { lbl, txt, ok, ca });
+                f.AcceptButton = ok; f.CancelButton = ca;
+                return f.ShowDialog() == DialogResult.OK ? txt.Text : null;
             }
         }
 
-        // ── Eventos ───────────────────────────────────────────────────────────
+        // ── Eventos ──────────────────────────────────────────────────────────
+        private void CmbRol_Changed(object sender, EventArgs e) => CargarListas();
 
-        private void CmbRol_SelectedIndexChanged(object sender, EventArgs e) => MostrarPermisos();
-        private void BtnGuardar_Click(object sender, EventArgs e)             => GuardarCambios();
-        private void BtnCerrar_Click(object sender, EventArgs e)              => this.Close();
-
-        private void BtnExplorador_Click(object sender, EventArgs e)
-        {
-            // Abrir el Explorador Composite como ventana independiente (no MDI)
-            var explorador = new ExploradorCompositeForm();
-            explorador.Show(this);
-        }
-
-        private void TreeView_BeforeCheck(object sender, TreeViewCancelEventArgs e)
-        {
-            if (e.Node?.Tag is BE.Familia) e.Cancel = true;
-        }
-
-        // ── Construcción de UI ────────────────────────────────────────────────
-
+        // ── Construcción de UI ───────────────────────────────────────────────
         private void ConstruirUI()
         {
-            this.Text            = "Gestor de Perfiles — Permisos";
-            this.Size            = new Size(560, 620);
-            this.MinimumSize     = new Size(460, 500);
+            this.Text            = "Gestor de Perfiles — Permisos (Composite)";
+            this.Size            = new Size(940, 640);
+            this.MinimumSize     = new Size(880, 560);
             this.StartPosition   = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.Sizable;
             this.BackColor       = Color.White;
 
-            _lblTitulo = new Label
-            {
-                Text      = "Perfiles y Permisos",
-                Font      = new Font("Segoe UI", 13f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(40, 80, 140),
-                AutoSize  = true,
-                Location  = new Point(12, 12)
-            };
+            _lblTitulo = new Label { Text = "Perfiles y Permisos", Font = new Font("Segoe UI", 13f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(40, 80, 140), AutoSize = true, Location = new Point(12, 12) };
+            _lblMensaje = new Label { AutoSize = false, Size = new Size(900, 20), Location = new Point(12, 42),
+                Font = new Font("Segoe UI", 8.5f), ForeColor = Color.DimGray };
 
-            _lblMensaje = new Label
-            {
-                AutoSize  = false,
-                Size      = new Size(520, 20),
-                Location  = new Point(12, 42),
-                Font      = new Font("Segoe UI", 8.5f),
-                ForeColor = Color.DimGray
-            };
+            _lblRol = new Label { Text = "Rol:", Location = new Point(12, 76), AutoSize = true, Font = new Font("Segoe UI", 9f) };
+            _cmbRol = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(50, 72),
+                Size = new Size(240, 24), Font = new Font("Segoe UI", 9f) };
+            _cmbRol.SelectedIndexChanged += CmbRol_Changed;
 
-            _lblRol = new Label
-            {
-                Text     = "Rol:",
-                Location = new Point(12, 76),
-                AutoSize = true,
-                Font     = new Font("Segoe UI", 9f)
-            };
+            _btnNuevoRol = Btn("➕ Nuevo rol", new Point(300, 71), 110, Color.FromArgb(40, 110, 60));
+            _btnNuevoRol.Click += (s, e) => NuevoRol();
+            _btnEliminarRol = Btn("🗑 Eliminar rol", new Point(416, 71), 120, Color.FromArgb(170, 50, 50));
+            _btnEliminarRol.Click += (s, e) => EliminarRol();
 
-            _cmbRol = new ComboBox
-            {
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                Location      = new Point(50, 72),
-                Size          = new Size(260, 24),
-                Font          = new Font("Segoe UI", 9f)
-            };
-            _cmbRol.SelectedIndexChanged += CmbRol_SelectedIndexChanged;
+            // Lista de Familias
+            _lblFamilias = new Label { Text = "Lista de Familias (compuestos)", Location = new Point(12, 112),
+                AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(40, 80, 140) };
+            _clbFamilias = new CheckedListBox { Location = new Point(12, 134), Size = new Size(270, 300),
+                CheckOnClick = true, Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle };
+            _btnNuevaFamilia = Btn("➕ Nueva familia", new Point(12, 440), 130, Color.FromArgb(80, 100, 150));
+            _btnNuevaFamilia.Click += (s, e) => NuevaFamilia();
 
-            _treeView = new TreeView
-            {
-                Location        = new Point(12, 108),
-                Size            = new Size(520, 400),
-                Anchor          = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
-                CheckBoxes      = true,
-                Font            = new Font("Segoe UI", 9f),
-                ShowLines       = true,
-                ShowPlusMinus   = true,
-                BorderStyle     = BorderStyle.FixedSingle,
-                BackColor       = Color.WhiteSmoke
-            };
-            _treeView.BeforeCheck += TreeView_BeforeCheck;
+            // Lista de Patentes
+            _lblPatentes = new Label { Text = "Lista de Patentes (simples)", Location = new Point(300, 112),
+                AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(40, 80, 140) };
+            _clbPatentes = new CheckedListBox { Location = new Point(300, 134), Size = new Size(270, 300),
+                CheckOnClick = true, Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle };
+            _btnNuevaPatente = Btn("➕ Nueva patente", new Point(300, 440), 130, Color.FromArgb(80, 100, 150));
+            _btnNuevaPatente.Click += (s, e) => NuevaPatente();
 
-            _btnGuardar = new Button
-            {
-                Text      = "Guardar cambios",
-                Location  = new Point(12, 524),
-                Size      = new Size(150, 32),
-                Anchor    = AnchorStyles.Bottom | AnchorStyles.Left,
-                BackColor = Color.FromArgb(40, 110, 60),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font      = new Font("Segoe UI", 9f, FontStyle.Bold),
-                Cursor    = Cursors.Hand,
-                Enabled   = false
-            };
-            _btnGuardar.FlatAppearance.BorderSize = 0;
-            _btnGuardar.Click += BtnGuardar_Click;
+            // Embeber rol
+            _lblEmbeber = new Label { Text = "Embeber rol:", Location = new Point(12, 478), AutoSize = true, Font = new Font("Segoe UI", 9f) };
+            _cmbEmbeber = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(95, 474),
+                Size = new Size(185, 24), Font = new Font("Segoe UI", 9f) };
+            _btnEmbeber = Btn("Embeber ➜", new Point(290, 473), 110, Color.FromArgb(64, 0, 64));
+            _btnEmbeber.Click += (s, e) => EmbeberRol();
 
-            _btnExplorador = new Button
-            {
-                Text      = "🌳 Ver Explorador Composite",
-                Location  = new Point(170, 524),
-                Size      = new Size(190, 32),
-                Anchor    = AnchorStyles.Bottom | AnchorStyles.Left,
-                BackColor = Color.FromArgb(64, 0, 64),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Font      = new Font("Segoe UI", 9f),
-                Cursor    = Cursors.Hand
-            };
-            _btnExplorador.FlatAppearance.BorderSize = 0;
-            _btnExplorador.Click += BtnExplorador_Click;
+            // Árbol de composición
+            _lblArbol = new Label { Text = "Composición efectiva (recursiva)", Location = new Point(588, 112),
+                AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(40, 80, 140) };
+            _treeView = new TreeView { Location = new Point(588, 134), Size = new Size(324, 360),
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right,
+                Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.WhiteSmoke };
 
-            _btnCerrar = new Button
-            {
-                Text      = "Cerrar",
-                Location  = new Point(434, 524),
-                Size      = new Size(98, 32),
-                Anchor    = AnchorStyles.Bottom | AnchorStyles.Right,
-                BackColor = Color.FromArgb(210, 210, 210),
-                ForeColor = Color.Black,
-                FlatStyle = FlatStyle.Flat,
-                Font      = new Font("Segoe UI", 9f),
-                Cursor    = Cursors.Hand
-            };
-            _btnCerrar.FlatAppearance.BorderSize = 0;
-            _btnCerrar.Click += BtnCerrar_Click;
+            // Acciones inferiores
+            _btnGuardar = Btn("💾 Guardar cambios", new Point(12, 558), 160, Color.FromArgb(40, 110, 60));
+            _btnGuardar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left; _btnGuardar.Enabled = false;
+            _btnGuardar.Click += (s, e) => GuardarCambios();
+            _btnExplorador = Btn("🌳 Explorador Composite", new Point(180, 558), 190, Color.FromArgb(64, 0, 64));
+            _btnExplorador.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            _btnExplorador.Click += (s, e) => new ExploradorCompositeForm().Show(this);
+            _btnCerrar = Btn("Cerrar", new Point(814, 558), 98, Color.FromArgb(210, 210, 210));
+            _btnCerrar.ForeColor = Color.Black; _btnCerrar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            _btnCerrar.Click += (s, e) => this.Close();
 
             this.Controls.AddRange(new Control[]
             {
-                _lblTitulo, _lblMensaje,
-                _lblRol, _cmbRol,
-                _treeView,
+                _lblTitulo, _lblMensaje, _lblRol, _cmbRol, _btnNuevoRol, _btnEliminarRol,
+                _lblFamilias, _clbFamilias, _btnNuevaFamilia,
+                _lblPatentes, _clbPatentes, _btnNuevaPatente,
+                _lblEmbeber, _cmbEmbeber, _btnEmbeber,
+                _lblArbol, _treeView,
                 _btnGuardar, _btnExplorador, _btnCerrar
             });
+        }
+
+        private static Button Btn(string text, Point loc, int width, Color back)
+        {
+            var b = new Button { Text = text, Location = loc, Size = new Size(width, 30), BackColor = back,
+                ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 8.5f), Cursor = Cursors.Hand };
+            b.FlatAppearance.BorderSize = 0;
+            return b;
         }
     }
 }

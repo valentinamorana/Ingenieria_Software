@@ -110,11 +110,17 @@ namespace GUI
 
             try
             {
-                BE.Familia empresa = _familiaBLL.ConstruirArbolOrganizacional();
-
-                // Construir TreeView recursivamente — idéntico al patrón de Stach
-                foreach (BE.Componente hijo in empresa.Hijos)
-                    _treeView.Nodes.Add(CrearNodoRecursivo(hijo, traducciones));
+                // Árbol REAL desde BD (vía PermisoRelacion): roles, familias y patentes.
+                // Los nodos raíz son los que no tienen padre (roles y familias huérfanas).
+                var raices = _familiaBLL.ObtenerArbol();
+                var empresa = new TreeNode("📁 WardrobeFlow")
+                {
+                    NodeFont  = new Font("Segoe UI", 9f, FontStyle.Bold),
+                    ForeColor = Color.FromArgb(64, 0, 64)
+                };
+                foreach (BE.Componente raiz in raices)
+                    empresa.Nodes.Add(CrearNodoRecursivo(raiz, traducciones));
+                _treeView.Nodes.Add(empresa);
 
                 _treeView.ExpandAll();
             }

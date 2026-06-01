@@ -50,6 +50,7 @@
     <Compile Include="Cliente.cs" />
     <Compile Include="Componente.cs" />
     <Compile Include="Familia.cs" />
+    <Compile Include="Rol.cs" />
     <Compile Include="Patente.cs" />
     <Compile Include="Criticidad.cs" />
     <Compile Include="Empleado.cs" />

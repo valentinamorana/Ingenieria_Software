@@ -12,6 +12,21 @@ namespace BLL
         private readonly DAL.PlanSuscripcion dalPlan   = new DAL.PlanSuscripcion();
         private readonly DAL.Cliente         dalCliente = new DAL.Cliente();
 
+        // T04 — Validación de permisos en el BACKEND (no confiar solo en la UI).
+        // Aunque el menú "Planes" esté oculto, si la acción llega igual se rechaza
+        // cuando el usuario en sesión no posee la patente 'mnuPlanSuscripciones'.
+        // Mismo patrón que BLL.Cliente / BLL.Pedido / BLL.Prenda.
+        private static void ValidarPermiso(string nombrePatente)
+        {
+            // Fail-closed: sin sesión NO se permite la operación (apunte T04).
+            if (!Seguridad.SessionManager.IsLoggedIn)
+                throw new BE.AppException("err.bll.sesion_expirada",
+                    "La sesión expiró. Volvé a iniciar sesión.");
+            if (!Seguridad.SessionManager.GetInstance().TienePermiso(nombrePatente))
+                throw new BE.AppException("err.bll.sin_permiso",
+                    "No tiene permiso para ejecutar esta operación ('{0}').", nombrePatente);
+        }
+
         // Devuelve todos los planes activos (para combos/selección).
         public List<BE.PlanSuscripcion> ObtenerActivos()
         {
@@ -34,6 +49,7 @@ namespace BLL
         // Valida que nombre no esté vacío, límite > 0 y precio >= 0.
         public void Alta(BE.PlanSuscripcion plan)
         {
+            ValidarPermiso("mnuPlanSuscripciones");
             Validar(plan);
             plan.Estado = true;
             dalPlan.Alta(plan);
@@ -42,6 +58,7 @@ namespace BLL
         // Modifica un plan existente.
         public void Modificar(BE.PlanSuscripcion plan)
         {
+            ValidarPermiso("mnuPlanSuscripciones");
             Validar(plan);
             dalPlan.Modificar(plan);
         }
@@ -50,6 +67,7 @@ namespace BLL
         // Falla si hay clientes activos asignados a ese plan.
         public void Desactivar(int idPlan)
         {
+            ValidarPermiso("mnuPlanSuscripciones");
             int clientesActivos = dalCliente.ContarClientesActivosPorPlan(idPlan);
             if (clientesActivos > 0)
                 throw new BE.AppException("err.bll.plan.tiene_clientes",
@@ -63,6 +81,7 @@ namespace BLL
         // Reactiva un plan previamente desactivado.
         public void Activar(int idPlan)
         {
+            ValidarPermiso("mnuPlanSuscripciones");
             dalPlan.Activar(idPlan);
         }
 
