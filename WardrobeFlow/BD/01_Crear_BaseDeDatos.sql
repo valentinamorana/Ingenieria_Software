@@ -1,14 +1,27 @@
 -- ============================================================
--- WardrobeFlow — Script de deploy completo
--- Crea toda la BD de cero. Idempotente: se puede ejecutar
--- sobre una BD existente sin romper datos ya cargados.
+-- WardrobeFlow — 01. CREAR BASE DE DATOS DE CERO
+-- ------------------------------------------------------------
+-- Crea la base WardrobeFlowDB completa: estructura + datos
+-- semilla (permisos, roles, usuarios, idiomas) + árbol Composite.
+-- Idempotente: se puede re-ejecutar sin romper datos existentes.
 --
--- Orden de ejecución:
---   1. Tablas base (sin FK)
---   2. Tablas con FK (respetando dependencias)
---   3. Seeds iniciales
---   4. Migración Composite (Familia + PermisoRelacion)
+-- Usuarios semilla (ver Contraseñas.txt):
+--   admin/administrador1!   supervisor/supervisor1!
+--   vendedor/vendedor1!     stock/controladorstock1!   operador/operador1!
+--
+-- Para ACTUALIZAR una BD ya existente, usar: 02_Actualizar_BaseDeDatos.sql
+--
+-- Orden: 1) crear BD  2) tablas  3) seeds  4) migración Composite
 -- ============================================================
+
+IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = 'WardrobeFlowDB')
+BEGIN
+    CREATE DATABASE WardrobeFlowDB;
+    PRINT 'Base de datos WardrobeFlowDB creada.';
+END
+ELSE
+    PRINT 'Base de datos WardrobeFlowDB ya existe — se actualiza su contenido.';
+GO
 
 USE WardrobeFlowDB;
 GO
@@ -354,9 +367,92 @@ ELSE
     PRINT 'Tabla HistorialUsuario ya existe — sin cambios.';
 GO
 
+-- HistorialIntegridad (historial de verificaciones de integridad DV — T07)
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'HistorialIntegridad')
+BEGIN
+    CREATE TABLE HistorialIntegridad (
+        Id                INT          IDENTITY(1,1) PRIMARY KEY,
+        NombreTabla       VARCHAR(100) NOT NULL,
+        DVVAlmacenado     INT          NULL,
+        DVVCalculado      INT          NOT NULL,
+        Resultado         BIT          NOT NULL,
+        FilasCorruptas    INT          NOT NULL DEFAULT 0,
+        FechaVerificacion DATETIME     NOT NULL DEFAULT GETDATE(),
+        DisparadoPor      VARCHAR(50)  NOT NULL
+            CONSTRAINT CHK_HistInteg_Origen CHECK (DisparadoPor IN ('Arranque', 'Timer', 'Manual'))
+    );
+    PRINT 'Tabla HistorialIntegridad creada.';
+END
+ELSE
+    PRINT 'Tabla HistorialIntegridad ya existe — sin cambios.';
+GO
+
 -- ============================================================
 -- SEEDS INICIALES
 -- ============================================================
+
+-- ── Permisos: PATENTES (permisos simples) ───────────────────────────────────
+INSERT INTO Permiso (Nombre, NombreMenu, TipoComponente, Estado, EsFamilia, EsRol)
+SELECT v.Nombre, v.NombreMenu, v.Tipo, 1, 0, 0
+FROM (VALUES
+    ('Gestionar Usuarios',          'mnuUsuarios',           'Sistema'),
+    ('Ver Auditoria',               'mnuAuditoria',          'Sistema'),
+    ('Ver Prendas',                 'mnuPrendas',            'Inventario'),
+    ('Ver Outfits',                 'mnuOutfits',            'Inventario'),
+    ('Ver Categorias',              'mnuCategorias',         'Inventario'),
+    ('Gestionar Stock',             'mnuStock',              'Inventario'),
+    ('Gestionar Clientes',          'mnuClientes',           'Ventas'),
+    ('Gestionar PlanSuscripciones', 'mnuPlanSuscripciones',  'Ventas'),
+    ('Realizar Ventas',             'mnuPedidosVenta',       'Ventas'),
+    ('Ver Pedidos Realizados',      'mnuPedidosRealizados',  'Ventas')
+) AS v(Nombre, NombreMenu, Tipo)
+WHERE NOT EXISTS (SELECT 1 FROM Permiso p
+                  WHERE p.NombreMenu = v.NombreMenu AND ISNULL(p.EsFamilia,0) = 0);
+PRINT 'Patentes (permisos simples) inicializadas.';
+GO
+
+-- ── Asignación rol → patente (RolPermiso) ────────────────────────────────────
+-- Se asigna por NombreMenu para no depender de IDs de identidad.
+INSERT INTO RolPermiso (Rol, IdPermiso)
+SELECT r.Rol, p.IdPermiso
+FROM (VALUES
+    -- Administrador: acceso total
+    ('Administrador','mnuUsuarios'),('Administrador','mnuAuditoria'),
+    ('Administrador','mnuPrendas'),('Administrador','mnuOutfits'),
+    ('Administrador','mnuCategorias'),('Administrador','mnuStock'),
+    ('Administrador','mnuClientes'),('Administrador','mnuPlanSuscripciones'),
+    ('Administrador','mnuPedidosVenta'),('Administrador','mnuPedidosRealizados'),
+    -- Supervisor: auditoría
+    ('Supervisor','mnuAuditoria'),
+    -- Vendedor: prendas + clientes + planes + ventas
+    ('Vendedor','mnuPrendas'),('Vendedor','mnuClientes'),
+    ('Vendedor','mnuPlanSuscripciones'),('Vendedor','mnuPedidosVenta'),
+    -- ControladorDeStock: prendas + stock
+    ('ControladorDeStock','mnuPrendas'),('ControladorDeStock','mnuStock'),
+    -- OperadorDeInventario: solo despacho
+    ('OperadorDeInventario','mnuPedidosRealizados')
+) AS r(Rol, NombreMenu)
+JOIN Permiso p ON p.NombreMenu = r.NombreMenu AND ISNULL(p.EsFamilia,0) = 0
+WHERE NOT EXISTS (SELECT 1 FROM RolPermiso x WHERE x.Rol = r.Rol AND x.IdPermiso = p.IdPermiso);
+PRINT 'Asignaciones rol→patente inicializadas.';
+GO
+
+-- ── Usuarios iniciales (clave hasheada PBKDF2; ver Contraseñas.txt) ───────────
+-- admin/administrador1!  supervisor/supervisor1!  vendedor/vendedor1!
+-- operador/operador1!     stock/controladorstock1!
+-- DVH=0 → la app recalcula el DV en el primer arranque.
+INSERT INTO Usuario (Username, Clave, Rol, Perfil, Estado, IntentosFallidos, DVH, IdIdioma)
+SELECT v.Username, v.Clave, v.Rol, v.Perfil, 1, 0, 0, 'ES'
+FROM (VALUES
+    ('admin',      '3ZTrmLBPYN+Dr4uWxFV6gfhtzhqVjnLEaPuUd2v+MNHwAaWlmPPfHwmMMwS0bZuP', 'Administrador',        'Administrador'),
+    ('supervisor', 'k2GSNeiFtFw7m/Ipaok3XUqzWKFidcIy9agOxXKfs3MAiTD+1wF1kyFPcB2iYlaj', 'Supervisor',           'Supervisor'),
+    ('vendedor',   'VWyQxHK8Dxr+BBWgw63IMTgFG91ZeDZSxRtj5FIpH9qxHbayJVLUBFpErIgLdOmZ', 'Vendedor',             'Vendedor'),
+    ('stock',      'jkBe/qjMTd/g8kS1BAZEGO0gp+U2xIXev6mTuPrlTTSXz/aWWjPAyKcqNGrJwstR', 'ControladorDeStock',   'Controlador de Stock'),
+    ('operador',   'EMy1Imvv5SfGsRX8ZIW2F6J0u6j86jbqhXXCPeVAloOX790eWYOGIHfUg5hcrOlR', 'OperadorDeInventario', 'Operador de Inventario')
+) AS v(Username, Clave, Rol, Perfil)
+WHERE NOT EXISTS (SELECT 1 FROM Usuario u WHERE u.Username = v.Username);
+PRINT 'Usuarios iniciales creados.';
+GO
 
 -- Idiomas (ES, EN, RU)
 INSERT INTO Idioma (Codigo, Nombre, Activo, EsDefault)
@@ -430,7 +526,7 @@ GO
 
 -- Crear nodo-rol faltante por cada rol existente en RolPermiso
 INSERT INTO Permiso (Nombre, NombreMenu, TipoComponente, Estado, EsFamilia, EsRol)
-SELECT DISTINCT rp.Rol, NULL, 'Rol', 1, 1, 1
+SELECT DISTINCT rp.Rol, rp.Rol, 'Rol', 1, 1, 1
 FROM   RolPermiso rp
 WHERE  NOT EXISTS (SELECT 1 FROM Permiso p WHERE p.Nombre = rp.Rol AND p.EsRol = 1);
 

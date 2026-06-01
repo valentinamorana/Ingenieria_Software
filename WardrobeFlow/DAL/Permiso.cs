@@ -272,7 +272,9 @@ namespace DAL
                     new[]
                     {
                         new SqlParameter("@nom",  nombre),
-                        new SqlParameter("@menu", (object)nombreMenu ?? DBNull.Value),
+                        // NombreMenu puede ser NOT NULL en esquemas legacy: para familias/roles
+                        // (sin menú propio) se usa el nombre como valor por defecto.
+                        new SqlParameter("@menu", (object)(string.IsNullOrEmpty(nombreMenu) ? nombre : nombreMenu)),
                         new SqlParameter("@tipo", (object)tipoComponente ?? DBNull.Value),
                         new SqlParameter("@fam",  esFamilia || esRol),
                         new SqlParameter("@rol",  esRol)
