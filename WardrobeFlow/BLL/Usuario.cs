@@ -9,7 +9,6 @@ namespace BLL
     public class Usuario
     {
         private readonly DAL.Usuario        usuarioDAL = new DAL.Usuario();
-        private readonly DAL.Permiso        permisoDAL = new DAL.Permiso();
         private readonly BLL.Familia        perfilesBLL = new BLL.Familia();
         private readonly Servicios.Bitacora bitacora   = new Servicios.Bitacora();
 

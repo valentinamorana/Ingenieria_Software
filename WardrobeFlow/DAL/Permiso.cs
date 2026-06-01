@@ -118,38 +118,6 @@ namespace DAL
             return raices;
         }
 
-        // Solo Patentes (EsFamilia=0) — usado por Login para poblar la sesión.
-        public List<BE.Permiso> ObtenerTodos()
-        {
-            var lista = new List<BE.Permiso>();
-            try
-            {
-                DataTable tabla = acceso.Leer(
-                    "SELECT IdPermiso, Nombre, NombreMenu, TipoComponente, Estado " +
-                    "FROM Permiso WHERE ISNULL(EsFamilia,0) = 0 ORDER BY TipoComponente, Nombre",
-                    null);
-
-                if (tabla == null) return lista;
-
-                foreach (DataRow row in tabla.Rows)
-                {
-                    lista.Add(new BE.Permiso
-                    {
-                        Id             = Convert.ToInt32(row["IdPermiso"]),
-                        Nombre         = row["Nombre"].ToString(),
-                        NombreMenu     = row["NombreMenu"].ToString(),
-                        TipoComponente = row["TipoComponente"].ToString(),
-                        Estado         = Convert.ToBoolean(row["Estado"])
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al obtener permisos.", ex);
-            }
-            return lista;
-        }
-
         // Roles disponibles en el sistema.
         // T04: los roles son nodos del Composite (EsRol=1), de modo que un rol recién
         // creado aparece aunque todavía no tenga permisos asignados.
@@ -216,35 +184,6 @@ namespace DAL
                 throw new Exception($"Error al obtener permisos para el rol '{rol}'.", ex);
             }
             return lista;
-        }
-
-        public void AsignarPermiso(string rol, int idPermiso)
-        {
-            try
-            {
-                acceso.Escribir(
-                    "IF NOT EXISTS (SELECT 1 FROM RolPermiso WHERE Rol = @rol AND IdPermiso = @id) " +
-                    "INSERT INTO RolPermiso (Rol, IdPermiso) VALUES (@rol, @id)",
-                    new SqlParameter[] { new SqlParameter("@rol", rol), new SqlParameter("@id", idPermiso) });
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error al asignar permiso {idPermiso} al rol '{rol}'.", ex);
-            }
-        }
-
-        public void QuitarPermiso(string rol, int idPermiso)
-        {
-            try
-            {
-                acceso.Escribir(
-                    "DELETE FROM RolPermiso WHERE Rol = @rol AND IdPermiso = @id",
-                    new SqlParameter[] { new SqlParameter("@rol", rol), new SqlParameter("@id", idPermiso) });
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error al quitar permiso {idPermiso} del rol '{rol}'.", ex);
-            }
         }
 
         // ── T04 — CRUD del Composite (Patentes / Familias / Roles) ──────────────
