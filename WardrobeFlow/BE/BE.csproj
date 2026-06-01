@@ -46,6 +46,8 @@
     <Compile Include="Bitacora.cs" />
     <Compile Include="BitacoraNegocio.cs" />
     <Compile Include="FilaTraduccion.cs" />
+    <Compile Include="Control.cs" />
+    <Compile Include="Traduccion.cs" />
     <Compile Include="Idioma.cs" />
     <Compile Include="Cliente.cs" />
     <Compile Include="Componente.cs" />

@@ -46,6 +46,7 @@
     <Compile Include="BaseDAL.cs" />
     <Compile Include="Idioma.cs" />
     <Compile Include="Traduccion.cs" />
+    <Compile Include="Control.cs" />
     <Compile Include="Bitacora.cs" />
     <Compile Include="DigitoVerificador.cs" />
     <Compile Include="BitacoraNegocio.cs" />
