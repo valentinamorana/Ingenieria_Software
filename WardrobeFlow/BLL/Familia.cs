@@ -7,11 +7,10 @@ namespace BLL
     /// Capa de Lógica de Negocio — T04 Gestión de Perfiles de Usuario (Patrón Composite).
     ///
     /// Responsabilidades:
-    ///   1. ObtenerArbolPorRol()           — construye el árbol Familia→Patente para GestorPermisos.
-    ///   2. ConstruirArbolOrganizacional()  — construye en memoria la jerarquía de la empresa
-    ///                                        (WardrobeFlow → Área → Rol → Patentes) para el
-    ///                                        ExploradorCompositeForm (demostración académica).
-    ///   3. AsignarPermiso() / QuitarPermiso() — modifican [RolPermiso] para el mecanismo real de auth.
+    ///   1. ObtenerArbol() / ObtenerArbolPorRol() — exponen el árbol Composite desde BD.
+    ///   2. ObtenerPermisosEfectivos()            — resuelve recursivamente los permisos de un rol.
+    ///   3. CRUD de componentes + AsignarPermiso() / QuitarPermiso() — operan sobre [PermisoRelacion],
+    ///      el motor real de autorización.
     /// </summary>
     public class Familia
     {
@@ -349,91 +348,6 @@ namespace BLL
                 if (hijo is BE.Patente pat) pat.Asignado = true;
                 else if (hijo is BE.Familia sub) MarcarTodasAsignadas(sub, visit);
             }
-        }
-
-        // T04 — Construye en memoria la jerarquía organizacional de la empresa como árbol Composite.
-        //
-        // Estructura generada:
-        //   BE.Familia("WardrobeFlow")            ← raíz
-        //     BE.Familia("Administración")         ← área
-        //       BE.Familia("Administrador")        ← rol (con sus Patentes)
-        //         BE.Patente("Gestionar Usuarios") ← permiso atómico
-        //         ...
-        //       BE.Familia("Auditor")
-        //         BE.Patente("Ver Auditoría")
-        //     BE.Familia("Comercial")
-        //       ...
-        //     BE.Familia("Inventario y Logística")
-        //       ...
-        //
-        // Usado exclusivamente por ExploradorCompositeForm (visualización académica).
-        // No modifica [RolPermiso] ni afecta la autorización.
-        // Los permisos de cada rol se leen de [RolPermiso] vía DAL.Permiso.ObtenerPorRol().
-        public BE.Familia ConstruirArbolOrganizacional()
-        {
-            // Mapa: rol técnico → (área, nombre de display).
-            // Los nombres de display son iguales a los usados en GestorPermisos (sin sufijos "(legacy)").
-            var mapa = new List<(string Area, string Rol, string RolDisplay)>
-            {
-                // Administración
-                ("Administración",        "Administrador",        "Administrador"),
-                ("Administración",        "Auditor",              "Auditor"),
-                ("Administración",        "Supervisor",           "Supervisor"),
-                // Comercial
-                ("Comercial",             "GerenteComercial",     "Gerente Comercial"),
-                ("Comercial",             "Vendedor",             "Vendedor"),
-                // Inventario y Logística
-                ("Inventario y Logística","GerenteInventario",    "Gerente de Inventario"),
-                ("Inventario y Logística","EncargadoDeStock",     "Encargado de Stock"),
-                ("Inventario y Logística","ControladorDeStock",   "Controlador de Stock"),
-                ("Inventario y Logística","OperadorLogistico",    "Operador Logístico"),
-                ("Inventario y Logística","OperadorDeInventario", "Operador de Inventario"),
-            };
-
-            // Paso 1: construir nodos de rol con sus Patentes.
-            // Agrupar por área solo los roles que tienen permisos en [RolPermiso].
-            var rolesPorArea = new Dictionary<string, List<BE.Familia>>(StringComparer.OrdinalIgnoreCase);
-            var rolesAgregados = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var (area, rol, rolDisplay) in mapa)
-            {
-                if (rolesAgregados.Contains(rol)) continue;
-                rolesAgregados.Add(rol);
-
-                List<BE.Permiso> permsRol;
-                try { permsRol = permisoDAL.ObtenerPorRol(rol); }
-                catch { permsRol = new List<BE.Permiso>(); }
-
-                if (permsRol.Count == 0) continue; // omitir roles sin permisos (área no se agrega si quedaría vacía)
-
-                var nodoRol = new BE.Familia { Id = 0, Nombre = rolDisplay };
-                foreach (var perm in permsRol)
-                {
-                    nodoRol.AgregarHijo(new BE.Patente
-                    {
-                        Id         = perm.Id,
-                        Nombre     = perm.Nombre,
-                        NombreMenu = perm.NombreMenu,
-                        Asignado   = true
-                    });
-                }
-
-                if (!rolesPorArea.ContainsKey(area))
-                    rolesPorArea[area] = new List<BE.Familia>();
-                rolesPorArea[area].Add(nodoRol);
-            }
-
-            // Paso 2: construir el árbol — solo agrega áreas con al menos un rol activo.
-            var empresa = new BE.Familia { Id = 0, Nombre = "WardrobeFlow" };
-            foreach (var kvp in rolesPorArea)
-            {
-                var nodoArea = new BE.Familia { Id = 0, Nombre = kvp.Key };
-                foreach (var nodoRol in kvp.Value)
-                    nodoArea.AgregarHijo(nodoRol);
-                empresa.AgregarHijo(nodoArea);
-            }
-
-            return empresa;
         }
 
         // T04 — DFS con HashSet para detectar ciclos en el árbol cargado.

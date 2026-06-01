@@ -23,8 +23,8 @@ namespace GUI
     ///     📁 Inventario y Logística
     ///       📁 ...
     ///
-    /// El árbol se construye en BLL.Familia.ConstruirArbolOrganizacional()
-    /// usando BE.Familia (nodo compuesto) y BE.Patente (hoja) — exactamente como Stach.
+    /// El árbol se obtiene de BLL.Familia.ObtenerArbol() (árbol real desde BD vía
+    /// PermisoRelacion) usando BE.Rol/BE.Familia (nodos compuestos) y BE.Patente (hojas).
     ///
     /// Implementa IIdiomaObserver: todos los controles se traducen al cambiar de idioma.
     /// NO modifica permisos ni afecta la autorización.
