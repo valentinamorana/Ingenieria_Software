@@ -32,6 +32,8 @@ namespace GUI
         {
             public int Id;
             public string Nombre;
+            public string NombreMenu;   // solo patentes
+            public bool EsFamilia;
             public override string ToString() => Nombre;
         }
 
@@ -45,7 +47,8 @@ namespace GUI
         private CheckedListBox _clbFamilias, _clbPatentes;
         private TreeView _treeView;
         private Button   _btnGuardar, _btnEmbeber, _btnNuevoRol, _btnEliminarRol,
-                         _btnNuevaPatente, _btnNuevaFamilia, _btnExplorador, _btnCerrar;
+                         _btnNuevaPatente, _btnNuevaFamilia, _btnExplorador, _btnCerrar,
+                         _btnModificarComp, _btnEliminarComp;
 
         public GestorPermisos() { ConstruirUI(); }
 
@@ -98,11 +101,11 @@ namespace GUI
 
                 _clbFamilias.Items.Clear();
                 foreach (var f in _familiaBLL.ObtenerFamiliasDisponibles())
-                    _clbFamilias.Items.Add(new Item { Id = f.Id, Nombre = f.Nombre }, directos.Contains(f.Id));
+                    _clbFamilias.Items.Add(new Item { Id = f.Id, Nombre = f.Nombre, EsFamilia = true }, directos.Contains(f.Id));
 
                 _clbPatentes.Items.Clear();
                 foreach (var p in _familiaBLL.ObtenerPatentesDisponibles())
-                    _clbPatentes.Items.Add(new Item { Id = p.Id, Nombre = p.Nombre }, directos.Contains(p.Id));
+                    _clbPatentes.Items.Add(new Item { Id = p.Id, Nombre = p.Nombre, NombreMenu = p.NombreMenu, EsFamilia = false }, directos.Contains(p.Id));
 
                 // Otros roles para embeber (excluye el actual).
                 _cmbEmbeber.Items.Clear();
@@ -245,6 +248,48 @@ namespace GUI
             catch (Exception ex) { MostrarError(ex.Message); }
         }
 
+        // Componente (patente o familia) seleccionado en cualquiera de las dos listas.
+        private Item ComponenteSeleccionado()
+        {
+            if (_clbFamilias.SelectedItem is Item f) return f;
+            if (_clbPatentes.SelectedItem is Item p) return p;
+            return null;
+        }
+
+        private void ModificarComponente()
+        {
+            var item = ComponenteSeleccionado();
+            if (item == null) { MostrarError("Seleccioná una patente o familia para modificar."); return; }
+            string nombre = Pedir("Modificar componente", "Nuevo nombre:");
+            if (string.IsNullOrWhiteSpace(nombre)) return;
+            // Para patentes se conserva (o edita) el NombreMenu; para familias se usa el nombre.
+            string menu = item.EsFamilia ? nombre.Trim()
+                                         : (Pedir("Modificar patente", "NombreMenu asociado:") ?? item.NombreMenu);
+            try
+            {
+                _familiaBLL.RenombrarComponente(item.Id, nombre.Trim(), menu);
+                CargarListas();
+                MostrarOk($"Componente modificado a '{nombre.Trim()}'.");
+            }
+            catch (Exception ex) { MostrarError(ex.Message); }
+        }
+
+        private void EliminarComponente()
+        {
+            var item = ComponenteSeleccionado();
+            if (item == null) { MostrarError("Seleccioná una patente o familia para eliminar."); return; }
+            string tipo = item.EsFamilia ? "la familia" : "la patente";
+            if (MessageBox.Show($"¿Eliminar {tipo} '{item.Nombre}'? Se quitará de todos los roles.",
+                    "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+            try
+            {
+                _familiaBLL.EliminarComponente(item.Id);
+                CargarListas();
+                MostrarOk($"'{item.Nombre}' eliminado.");
+            }
+            catch (Exception ex) { MostrarError(ex.Message); }
+        }
+
         private void SeleccionarRol(string rol)
         {
             for (int i = 0; i < _cmbRol.Items.Count; i++)
@@ -319,6 +364,12 @@ namespace GUI
             _btnEmbeber = Btn("Embeber ➜", new Point(290, 473), 110, Color.FromArgb(64, 0, 64));
             _btnEmbeber.Click += (s, e) => EmbeberRol();
 
+            // ABM de la patente/familia seleccionada (modificar / eliminar)
+            _btnModificarComp = Btn("✏ Modificar selección", new Point(12, 508), 175, Color.FromArgb(80, 100, 150));
+            _btnModificarComp.Click += (s, e) => ModificarComponente();
+            _btnEliminarComp = Btn("🗑 Eliminar selección", new Point(195, 508), 175, Color.FromArgb(170, 50, 50));
+            _btnEliminarComp.Click += (s, e) => EliminarComponente();
+
             // Árbol de composición
             _lblArbol = new Label { Text = "Composición efectiva (recursiva)", Location = new Point(588, 112),
                 AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(40, 80, 140) };
@@ -343,6 +394,7 @@ namespace GUI
                 _lblFamilias, _clbFamilias, _btnNuevaFamilia,
                 _lblPatentes, _clbPatentes, _btnNuevaPatente,
                 _lblEmbeber, _cmbEmbeber, _btnEmbeber,
+                _btnModificarComp, _btnEliminarComp,
                 _lblArbol, _treeView,
                 _btnGuardar, _btnExplorador, _btnCerrar
             });

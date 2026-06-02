@@ -133,6 +133,7 @@ namespace DAL
                 }
             });
 
+            RecalcularDV();   // T07: DV multi-tabla (pedido + líneas)
             return idNuevo;
         }
 
@@ -155,6 +156,7 @@ namespace DAL
             {
                 throw new Exception($"Error al despachar el pedido ID {idPedido}.", ex);
             }
+            RecalcularDV();   // T07
         }
 
         // Marca un pedido como Entregado y registra la fecha.
@@ -176,6 +178,7 @@ namespace DAL
             {
                 throw new Exception($"Error al marcar como entregado el pedido ID {idPedido}.", ex);
             }
+            RecalcularDV();   // T07
         }
 
         // Pasa las prendas del pedido a EnLimpieza y limpia IdClienteActual.
@@ -226,6 +229,7 @@ namespace DAL
                     cmdPrendas.ExecuteNonQuery();
                 }
             });
+            RecalcularDV();   // T07
         }
 
         // Revierte la cancelación. Devuelve false si alguna prenda ya no está Disponible.
@@ -278,6 +282,7 @@ namespace DAL
                 }
             });
 
+            if (puedeReactivar) RecalcularDV();   // T07
             return puedeReactivar;
         }
 
@@ -336,6 +341,76 @@ namespace DAL
                 NombreCliente = row["NombreCliente"].ToString(),
                 NombreEmpleado = row["NombreEmpleado"].ToString()
             };
+        }
+
+        // ── T07 — DV MULTI-TABLA del Pedido ─────────────────────────────────────
+        // El estado de un Pedido se compone de su fila MÁS sus líneas (PedidoPrenda).
+        // El DVH incorpora un digest de las líneas: así, agregar / quitar / intercambiar
+        // prendas del pedido por fuera del sistema cambia el DVH y se detecta.
+        public const string DV_Tabla = "Pedido";
+
+        public List<BE.FilaDV> ObtenerFilasDV()
+        {
+            var lista = new List<BE.FilaDV>();
+            DataTable dt = acceso.Leer(
+                "SELECT IdPedido, IdCliente, IdEmpleado, Estado, DVH FROM Pedido ORDER BY IdPedido", null);
+            if (dt == null) return lista;
+            foreach (DataRow row in dt.Rows)
+            {
+                int id = Convert.ToInt32(row["IdPedido"]);
+                lista.Add(new BE.FilaDV
+                {
+                    Id = id,
+                    Campos = new[]
+                    {
+                        id.ToString(),
+                        row["IdCliente"].ToString(),
+                        row["IdEmpleado"].ToString(),
+                        row["Estado"].ToString(),
+                        DigestLineas(id)
+                    },
+                    DVHAlmacenado = row["DVH"] == DBNull.Value ? (int?)null : Convert.ToInt32(row["DVH"]),
+                    Descripcion = "Pedido #" + id
+                });
+            }
+            return lista;
+        }
+
+        // Huella de las líneas del pedido: IdPrenda concatenados y ordenados.
+        private string DigestLineas(int idPedido)
+        {
+            DataTable dt = acceso.Leer(
+                "SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido = @id ORDER BY IdPrenda",
+                new SqlParameter[] { new SqlParameter("@id", idPedido) });
+            var ids = new List<string>();
+            if (dt != null)
+                foreach (DataRow r in dt.Rows) ids.Add(r["IdPrenda"].ToString());
+            return string.Join(",", ids);
+        }
+
+        // Recalcula el DVH de cada Pedido (con sus líneas) y el DVV de la tabla.
+        // Se invoca tras cada operación que modifica un pedido. No propaga errores
+        // (la falla del DV no debe abortar la operación de negocio).
+        public void RecalcularDV()
+        {
+            try
+            {
+                var svc   = new Seguridad.DigitoVerificador();
+                var dvDAL = new DigitoVerificador();
+                var dvhs  = new List<int>();
+                foreach (var f in ObtenerFilasDV())
+                {
+                    int dvh = svc.CalcularDVH(f.Campos);
+                    acceso.Escribir("UPDATE Pedido SET DVH=@dvh WHERE IdPedido=@id",
+                        new SqlParameter[] { new SqlParameter("@dvh", dvh), new SqlParameter("@id", f.Id) });
+                    dvhs.Add(dvh);
+                }
+                dvDAL.GuardarDVV(DV_Tabla, svc.CalcularDVV(dvhs));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[DAL.Pedido.RecalcularDV] " + ex.Message);
+            }
         }
     }
 }

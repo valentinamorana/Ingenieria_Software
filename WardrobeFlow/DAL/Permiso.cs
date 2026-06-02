@@ -214,7 +214,8 @@ namespace DAL
                         // NombreMenu puede ser NOT NULL en esquemas legacy: para familias/roles
                         // (sin menú propio) se usa el nombre como valor por defecto.
                         new SqlParameter("@menu", (object)(string.IsNullOrEmpty(nombreMenu) ? nombre : nombreMenu)),
-                        new SqlParameter("@tipo", (object)tipoComponente ?? DBNull.Value),
+                        // TipoComponente puede ser NOT NULL en esquemas legacy → valor por defecto.
+                        new SqlParameter("@tipo", (object)(string.IsNullOrEmpty(tipoComponente) ? "General" : tipoComponente)),
                         new SqlParameter("@fam",  esFamilia || esRol),
                         new SqlParameter("@rol",  esRol)
                     });

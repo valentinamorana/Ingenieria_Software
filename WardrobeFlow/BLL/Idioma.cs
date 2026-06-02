@@ -48,6 +48,31 @@ namespace BLL
             return dalIdioma.ObtenerTodos();
         }
 
+        // Crea un idioma nuevo (queda inactivo hasta que el admin lo active).
+        public void CrearIdioma(string codigo, string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(codigo) || string.IsNullOrWhiteSpace(nombre))
+                throw new BE.AppException("err.bll.idioma.campos",
+                    "El código y el nombre del idioma son obligatorios.");
+            codigo = codigo.Trim().ToUpperInvariant();
+            if (codigo.Length > 5)
+                throw new BE.AppException("err.bll.idioma.codigo_largo",
+                    "El código de idioma no puede superar los 5 caracteres.");
+            if (dalIdioma.ExisteCodigo(codigo))
+                throw new BE.AppException("err.bll.idioma.duplicado",
+                    "Ya existe un idioma con el código '{0}'.", codigo);
+            dalIdioma.Crear(codigo, nombre.Trim());
+        }
+
+        // Renombra un idioma existente.
+        public void ModificarIdioma(int idIdioma, string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                throw new BE.AppException("err.bll.idioma.nombre",
+                    "El nombre del idioma es obligatorio.");
+            dalIdioma.Modificar(idIdioma, nombre.Trim());
+        }
+
         public void ActivarIdioma(int idIdioma)
         {
             dalIdioma.Activar(idIdioma);

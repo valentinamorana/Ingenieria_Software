@@ -244,7 +244,8 @@ BEGIN
         FechaPedido       DATETIME      NOT NULL DEFAULT GETDATE(),
         FechaDespacho     DATETIME      NULL,
         FechaEntrega      DATETIME      NULL,
-        MotivoCancelacion NVARCHAR(500) NULL
+        MotivoCancelacion NVARCHAR(500) NULL,
+        DVH               INT           NULL              -- T07: DV horizontal (incluye sus líneas)
     );
     PRINT 'Tabla Pedido creada.';
 END

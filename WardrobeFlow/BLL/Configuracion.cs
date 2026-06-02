@@ -324,6 +324,7 @@ namespace BLL
             // T07 — Tablas adicionales protegidas con DV.
             dvDAL.RecalcularTabla(DAL.Cliente.DV_Tabla,  DAL.Cliente.DV_Pk,  DAL.Cliente.DV_Columnas);
             dvDAL.RecalcularTabla(DAL.Empleado.DV_Tabla, DAL.Empleado.DV_Pk, DAL.Empleado.DV_Columnas);
+            new DAL.Pedido().RecalcularDV();   // objeto multi-tabla (pedido + líneas)
         }
 
         // Helper compartido entre VerificarIntegridadDV (primer arranque) y RecalcularIntegridadDV.
@@ -356,8 +357,17 @@ namespace BLL
             var svc   = new Seguridad.DigitoVerificador();
             var corruptas = new List<string>();
 
-            VerificarUnaTabla(dvDAL, svc, DAL.Cliente.DV_Tabla,  DAL.Cliente.DV_Pk,  DAL.Cliente.DV_Columnas,  corruptas);
-            VerificarUnaTabla(dvDAL, svc, DAL.Empleado.DV_Tabla, DAL.Empleado.DV_Pk, DAL.Empleado.DV_Columnas, corruptas);
+            var pedidoDAL = new DAL.Pedido();
+            VerificarUnaTabla(dvDAL, svc, DAL.Cliente.DV_Tabla,
+                () => dvDAL.ObtenerFilas(DAL.Cliente.DV_Tabla, DAL.Cliente.DV_Pk, DAL.Cliente.DV_Columnas),
+                () => dvDAL.RecalcularTabla(DAL.Cliente.DV_Tabla, DAL.Cliente.DV_Pk, DAL.Cliente.DV_Columnas), corruptas);
+            VerificarUnaTabla(dvDAL, svc, DAL.Empleado.DV_Tabla,
+                () => dvDAL.ObtenerFilas(DAL.Empleado.DV_Tabla, DAL.Empleado.DV_Pk, DAL.Empleado.DV_Columnas),
+                () => dvDAL.RecalcularTabla(DAL.Empleado.DV_Tabla, DAL.Empleado.DV_Pk, DAL.Empleado.DV_Columnas), corruptas);
+            // T07 — Pedido: objeto MULTI-TABLA (pedido + líneas PedidoPrenda).
+            VerificarUnaTabla(dvDAL, svc, DAL.Pedido.DV_Tabla,
+                () => pedidoDAL.ObtenerFilasDV(),
+                () => pedidoDAL.RecalcularDV(), corruptas);
 
             if (corruptas.Count == 0) return true;
 
@@ -372,10 +382,10 @@ namespace BLL
         }
 
         private static void VerificarUnaTabla(DAL.DigitoVerificador dvDAL, Seguridad.DigitoVerificador svc,
-            string tabla, string pk, string[] cols, List<string> corruptas)
+            string tabla, System.Func<List<BE.FilaDV>> obtenerFilas, System.Action recalcular, List<string> corruptas)
         {
             List<BE.FilaDV> filas;
-            try { filas = dvDAL.ObtenerFilas(tabla, pk, cols); }
+            try { filas = obtenerFilas(); }
             catch { return; }   // tabla/columna DVH sin migrar → no se verifica
             if (filas.Count == 0) return;
 
@@ -384,7 +394,7 @@ namespace BLL
             int? dvvAlm = dvDAL.ObtenerDVV(tabla);
             if (todosNull && (dvvAlm == null || dvvAlm == 0))
             {
-                dvDAL.RecalcularTabla(tabla, pk, cols);
+                recalcular();
                 return;
             }
 

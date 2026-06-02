@@ -34,8 +34,84 @@ namespace GUI
             GestorIdioma.SuscribirObservador(this);
             Traducir(GestorIdioma.IdiomaActual);
             ConfigurarGrillas();
+            CrearBotonesIdioma();
             CargarIdiomas();
             CargarControles();
+        }
+
+        // ── Alta / modificación de idiomas (T05) — botones creados por código ────
+        private void CrearBotonesIdioma()
+        {
+            var btnNuevo = new Button
+            {
+                Text = "➕ Nuevo idioma", Location = new System.Drawing.Point(320, 167),
+                Size = new System.Drawing.Size(130, 28), FlatStyle = FlatStyle.Flat,
+                BackColor = System.Drawing.Color.FromArgb(80, 100, 150), ForeColor = System.Drawing.Color.White,
+                Cursor = Cursors.Hand
+            };
+            btnNuevo.FlatAppearance.BorderSize = 0;
+            btnNuevo.Click += BtnNuevoIdioma_Click;
+
+            var btnRenombrar = new Button
+            {
+                Text = "✏ Renombrar", Location = new System.Drawing.Point(458, 167),
+                Size = new System.Drawing.Size(120, 28), FlatStyle = FlatStyle.Flat,
+                BackColor = System.Drawing.Color.FromArgb(110, 90, 150), ForeColor = System.Drawing.Color.White,
+                Cursor = Cursors.Hand
+            };
+            btnRenombrar.FlatAppearance.BorderSize = 0;
+            btnRenombrar.Click += BtnRenombrarIdioma_Click;
+
+            // panelIdiomas es el panel superior (declarado en el Designer).
+            this.panelIdiomas.Controls.Add(btnNuevo);
+            this.panelIdiomas.Controls.Add(btnRenombrar);
+        }
+
+        private void BtnNuevoIdioma_Click(object sender, EventArgs e)
+        {
+            string codigo = Pedir("Nuevo idioma", "Código (ej: FR, IT, PT) — máx. 5:");
+            if (string.IsNullOrWhiteSpace(codigo)) return;
+            string nombre = Pedir("Nuevo idioma", "Nombre del idioma (ej: Français):");
+            if (string.IsNullOrWhiteSpace(nombre)) return;
+            try
+            {
+                _bllIdioma.CrearIdioma(codigo, nombre);
+                CargarIdiomas();
+                MostrarOk($"Idioma '{nombre.Trim()}' creado (inactivo — activalo cuando cargues sus traducciones).");
+            }
+            catch (Exception ex) { MostrarError(ex); }
+        }
+
+        private void BtnRenombrarIdioma_Click(object sender, EventArgs e)
+        {
+            if (_idIdiomaSeleccionado == 0) { MostrarError("Seleccioná un idioma de la grilla."); return; }
+            string nombre = Pedir("Renombrar idioma", "Nuevo nombre:");
+            if (string.IsNullOrWhiteSpace(nombre)) return;
+            try
+            {
+                _bllIdioma.ModificarIdioma(_idIdiomaSeleccionado, nombre);
+                CargarIdiomas();
+                MostrarOk("Idioma renombrado.");
+            }
+            catch (Exception ex) { MostrarError(ex); }
+        }
+
+        // Mini cuadro de entrada de texto (sin dependencias externas).
+        private static string Pedir(string titulo, string prompt)
+        {
+            using (var f = new Form())
+            {
+                f.Text = titulo; f.Size = new System.Drawing.Size(420, 160);
+                f.StartPosition = FormStartPosition.CenterParent;
+                f.FormBorderStyle = FormBorderStyle.FixedDialog; f.MinimizeBox = false; f.MaximizeBox = false;
+                var lbl = new Label { Text = prompt, Location = new System.Drawing.Point(12, 15), AutoSize = true };
+                var txt = new TextBox { Location = new System.Drawing.Point(15, 45), Size = new System.Drawing.Size(380, 24) };
+                var ok = new Button { Text = "Aceptar", DialogResult = DialogResult.OK, Location = new System.Drawing.Point(225, 80), Size = new System.Drawing.Size(80, 30) };
+                var ca = new Button { Text = "Cancelar", DialogResult = DialogResult.Cancel, Location = new System.Drawing.Point(315, 80), Size = new System.Drawing.Size(80, 30) };
+                f.Controls.AddRange(new Control[] { lbl, txt, ok, ca });
+                f.AcceptButton = ok; f.CancelButton = ca;
+                return f.ShowDialog() == DialogResult.OK ? txt.Text : null;
+            }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

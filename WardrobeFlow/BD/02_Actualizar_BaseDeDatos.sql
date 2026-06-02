@@ -233,7 +233,8 @@ BEGIN
         FechaPedido       DATETIME      NOT NULL DEFAULT GETDATE(),
         FechaDespacho     DATETIME      NULL,
         FechaEntrega      DATETIME      NULL,
-        MotivoCancelacion NVARCHAR(500) NULL
+        MotivoCancelacion NVARCHAR(500) NULL,
+        DVH               INT           NULL              -- T07: DV horizontal (incluye sus líneas)
     );
     PRINT 'Tabla Pedido creada.';
 END
@@ -516,6 +517,12 @@ IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Emplea
 BEGIN
     ALTER TABLE Empleado ADD DVH INT NULL;
     PRINT 'Columna DVH agregada a Empleado (T07).';
+END
+GO
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Pedido' AND COLUMN_NAME='DVH')
+BEGIN
+    ALTER TABLE Pedido ADD DVH INT NULL;
+    PRINT 'Columna DVH agregada a Pedido (T07 multi-tabla).';
 END
 GO
 
