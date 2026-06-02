@@ -664,7 +664,11 @@ namespace GUI
                     n++;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Widget no crítico: no interrumpe el Dashboard, pero deja traza para diagnóstico.
+                System.Diagnostics.Trace.TraceError("[DashboardForm.CargarActividadReciente] " + ex.Message);
+            }
         }
 
         private void CargarMiniStats()

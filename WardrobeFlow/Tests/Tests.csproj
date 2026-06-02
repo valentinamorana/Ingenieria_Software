@@ -44,6 +44,7 @@
     <Compile Include="CompositeTests.cs" />
     <Compile Include="MementoTests.cs" />
     <Compile Include="FamiliaPermisosTests.cs" />
+    <Compile Include="TraductorI18nTests.cs" />
     <Compile Include="Fakes\FakePermisoDAL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -63,6 +64,10 @@
     <ProjectReference Include="..\BLL\BLL.csproj">
       <Project>{4a9b520a-b2fe-4e78-9989-1c7fa5746dd9}</Project>
       <Name>BLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Servicios\Servicios.csproj">
+      <Project>{F41A7A3A-8AC1-4036-9FCA-B81EE8812B8E}</Project>
+      <Name>Servicios</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
