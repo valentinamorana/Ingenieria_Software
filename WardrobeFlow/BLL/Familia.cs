@@ -14,10 +14,21 @@ namespace BLL
     /// </summary>
     public class Familia
     {
-        private readonly DAL.Permiso       permisoDAL = new DAL.Permiso();
-        private readonly Servicios.Bitacora _bitacora  = new Servicios.Bitacora();
+        private readonly DAL.Interfaces.IPermisoDAL permisoDAL;
+        // Bitácora perezosa: solo se instancia cuando una operación de escritura la usa.
+        // Así los métodos de lectura/resolución se pueden testear sin tocar la BD.
+        private Servicios.Bitacora _bitacoraLazy;
+        private Servicios.Bitacora _bitacora => _bitacoraLazy ?? (_bitacoraLazy = new Servicios.Bitacora());
 
         private const string RolAdministrador = BE.Roles.Administrador;
+
+        // Inyección de dependencias: el constructor por defecto usa el DAL real;
+        // el segundo permite inyectar un doble de prueba (tests unitarios sin BD).
+        public Familia() : this(new DAL.Permiso()) { }
+        public Familia(DAL.Interfaces.IPermisoDAL permisoDAL)
+        {
+            this.permisoDAL = permisoDAL;
+        }
 
         private static void VerificarAdmin()
         {

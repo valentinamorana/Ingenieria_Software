@@ -35,7 +35,7 @@ using System.Data.SqlClient;
 
 namespace DAL
 {
-    public class Permiso
+    public class Permiso : Interfaces.IPermisoDAL
     {
         private readonly Acceso acceso = Acceso.GetInstance();
 

@@ -43,6 +43,8 @@
     <Compile Include="EncriptadorTests.cs" />
     <Compile Include="CompositeTests.cs" />
     <Compile Include="MementoTests.cs" />
+    <Compile Include="FamiliaPermisosTests.cs" />
+    <Compile Include="Fakes\FakePermisoDAL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +55,14 @@
     <ProjectReference Include="..\Seguridad\Seguridad.csproj">
       <Project>{8d86288e-77ff-4076-b495-e881fc568379}</Project>
       <Name>Seguridad</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{759e1c38-e8ec-45a2-a367-0ea9cf9dabad}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BLL\BLL.csproj">
+      <Project>{4a9b520a-b2fe-4e78-9989-1c7fa5746dd9}</Project>
+      <Name>BLL</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

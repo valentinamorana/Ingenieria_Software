@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 namespace DAL
 {
     /// <summary>Acceso a datos de la tabla [Cliente].</summary>
-    public class Cliente : BaseDAL<BE.Cliente>
+    public class Cliente : BaseDAL<BE.Cliente>, Interfaces.IClienteDAL
     {
         // T07 — Definición del Dígito Verificador de esta tabla (fuente única, usada
         // tanto para recalcular tras escrituras como para verificar al arrancar).

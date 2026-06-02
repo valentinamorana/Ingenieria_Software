@@ -10,10 +10,17 @@ namespace BLL
     /// </summary>
     public class Cliente : Interfaces.IClienteService
     {
-        private readonly DAL.Cliente               dalCliente  = new DAL.Cliente();
+        private readonly DAL.Interfaces.IClienteDAL dalCliente;
         private readonly DAL.PlanSuscripcion       dalPlan     = new DAL.PlanSuscripcion();
         private readonly Servicios.Bitacora        bitacora    = new Servicios.Bitacora();
         private readonly Servicios.BitacoraNegocio bitacoraNeg = new Servicios.BitacoraNegocio();
+
+        // DI: el constructor por defecto usa el DAL real; el otro permite inyectar un doble.
+        public Cliente() : this(new DAL.Cliente()) { }
+        public Cliente(DAL.Interfaces.IClienteDAL dalCliente)
+        {
+            this.dalCliente = dalCliente;
+        }
 
         // Lanza AppException si el usuario en sesión no posee el permiso indicado.
         private static void ValidarPermiso(string nombrePatente)

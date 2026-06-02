@@ -44,6 +44,9 @@
   <ItemGroup>
     <Compile Include="Acceso.cs" />
     <Compile Include="BaseDAL.cs" />
+    <Compile Include="Interfaces\IPermisoDAL.cs" />
+    <Compile Include="Interfaces\IClienteDAL.cs" />
+    <Compile Include="Interfaces\IUsuarioDAL.cs" />
     <Compile Include="Idioma.cs" />
     <Compile Include="Traduccion.cs" />
     <Compile Include="Control.cs" />

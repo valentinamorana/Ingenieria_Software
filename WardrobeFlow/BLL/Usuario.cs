@@ -8,9 +8,16 @@ namespace BLL
     /// <summary>Lógica de negocio para autenticación y gestión de usuarios.</summary>
     public class Usuario
     {
-        private readonly DAL.Usuario        usuarioDAL = new DAL.Usuario();
+        private readonly DAL.Interfaces.IUsuarioDAL usuarioDAL;
         private readonly BLL.Familia        perfilesBLL = new BLL.Familia();
         private readonly Servicios.Bitacora bitacora   = new Servicios.Bitacora();
+
+        // DI: el constructor por defecto usa el DAL real; el otro permite inyectar un doble.
+        public Usuario() : this(new DAL.Usuario()) { }
+        public Usuario(DAL.Interfaces.IUsuarioDAL usuarioDAL)
+        {
+            this.usuarioDAL = usuarioDAL;
+        }
 
         private const int    MaxIntentosFallidos  = 3;
         private const string RolAdministrador    = BE.Roles.Administrador;

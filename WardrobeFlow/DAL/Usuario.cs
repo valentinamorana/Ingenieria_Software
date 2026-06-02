@@ -23,7 +23,7 @@ namespace DAL
     ///   - acceso  → Singleton de BD (heredado, no se redeclara)
     ///   - ObtenerTodos() y ObtenerPorId() → implementados con SQL de Usuario
     /// </summary>
-    public class Usuario : BaseDAL<BE.Usuario>
+    public class Usuario : BaseDAL<BE.Usuario>, Interfaces.IUsuarioDAL
     {
         // Inserta un nuevo usuario con contraseña hasheada y rol asignado.
         // Estado=1 (activo) e IntentosFallidos=0 por defecto al crear.
