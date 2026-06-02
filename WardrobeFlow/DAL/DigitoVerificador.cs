@@ -114,5 +114,61 @@ namespace DAL
                 throw new Exception($"Error al actualizar DVH del usuario ID {idUsuario}.", ex);
             }
         }
+
+        // ── DV GENÉRICO (reutilizable para cualquier tabla protegida) ───────────
+        // tabla / pkCol / columnas son CONSTANTES del sistema (no entradas de usuario),
+        // por eso es seguro construir el SQL por concatenación (no hay inyección).
+
+        // Lee las filas de una tabla con sus campos relevantes para el DVH y el DVH almacenado.
+        public List<BE.FilaDV> ObtenerFilas(string tabla, string pkCol, string[] columnas)
+        {
+            string cols = string.Join(", ", columnas);
+            DataTable dt = acceso.Leer(
+                "SELECT " + pkCol + ", " + cols + ", DVH FROM " + tabla + " ORDER BY " + pkCol, null);
+
+            var lista = new List<BE.FilaDV>();
+            if (dt == null) return lista;
+
+            foreach (DataRow row in dt.Rows)
+            {
+                var campos = new string[columnas.Length + 1];
+                campos[0] = row[pkCol].ToString();                // la PK entra al DVH
+                for (int i = 0; i < columnas.Length; i++)
+                    campos[i + 1] = row[columnas[i]] == DBNull.Value ? "" : row[columnas[i]].ToString();
+
+                lista.Add(new BE.FilaDV
+                {
+                    Id            = Convert.ToInt32(row[pkCol]),
+                    Campos        = campos,
+                    DVHAlmacenado = row["DVH"] == DBNull.Value ? (int?)null : Convert.ToInt32(row["DVH"]),
+                    Descripcion   = tabla + " #" + row[pkCol]
+                });
+            }
+            return lista;
+        }
+
+        // Actualiza el DVH de una fila de cualquier tabla.
+        public void ActualizarDVH(string tabla, string pkCol, int id, int dvh)
+        {
+            acceso.Escribir(
+                "UPDATE " + tabla + " SET DVH = @dvh WHERE " + pkCol + " = @id",
+                new SqlParameter[] { new SqlParameter("@dvh", dvh), new SqlParameter("@id", id) });
+        }
+
+        // Recalcula y persiste el DVH de cada fila + el DVV de la tabla.
+        // Debe llamarse después de cualquier escritura sobre la tabla protegida.
+        public void RecalcularTabla(string tabla, string pkCol, string[] columnas)
+        {
+            var svc   = new Seguridad.DigitoVerificador();
+            var filas = ObtenerFilas(tabla, pkCol, columnas);
+            var dvhs  = new List<int>();
+            foreach (var f in filas)
+            {
+                int dvh = svc.CalcularDVH(f.Campos);
+                ActualizarDVH(tabla, pkCol, f.Id, dvh);
+                dvhs.Add(dvh);
+            }
+            GuardarDVV(tabla, svc.CalcularDVV(dvhs));
+        }
     }
 }

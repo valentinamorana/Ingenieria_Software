@@ -14,6 +14,17 @@ namespace DAL
     {
         private readonly Acceso acceso = Acceso.GetInstance();
 
+        // T07 — Definición del Dígito Verificador de esta tabla (fuente única).
+        public const  string   DV_Tabla    = "Empleado";
+        public const  string   DV_Pk       = "IdEmpleado";
+        public static readonly string[] DV_Columnas = { "Nombre", "Apellido", "DNI", "Email", "Puesto", "Legajo" };
+
+        private void RecalcularDV()
+        {
+            try { new DigitoVerificador().RecalcularTabla(DV_Tabla, DV_Pk, DV_Columnas); }
+            catch (Exception ex) { System.Diagnostics.Trace.TraceError("[DAL.Empleado.RecalcularDV] " + ex.Message); }
+        }
+
         // Devuelve todos los empleados con su username (si tienen usuario).
         public List<BE.Empleado> ObtenerTodos()
         {
@@ -124,9 +135,11 @@ namespace DAL
                 "SELECT SCOPE_IDENTITY() AS IdNuevo",
                 p);
 
-            return tabla != null && tabla.Rows.Count > 0
+            int idNuevo = tabla != null && tabla.Rows.Count > 0
                 ? Convert.ToInt32(tabla.Rows[0]["IdNuevo"])
                 : 0;
+            RecalcularDV();   // T07
+            return idNuevo;
         }
 
         // Actualiza los datos de un empleado existente.
@@ -149,6 +162,7 @@ namespace DAL
                 "Email=@Email, FechaIngreso=@FechaIngreso, Puesto=@Puesto, Legajo=@Legajo, " +
                 "IdUsuario=@IdUsuario WHERE IdEmpleado=@IdEmpleado",
                 p);
+            RecalcularDV();   // T07
         }
 
         private BE.Empleado Mapear(DataRow row)

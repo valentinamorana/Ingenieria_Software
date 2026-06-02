@@ -183,7 +183,8 @@ BEGIN
         FechaIngreso DATETIME      NOT NULL DEFAULT GETDATE(),
         Puesto       NVARCHAR(100) NULL,
         Legajo       NVARCHAR(50)  NULL,
-        IdUsuario    INT           NULL REFERENCES Usuario(IdUsuario)
+        IdUsuario    INT           NULL REFERENCES Usuario(IdUsuario),
+        DVH          INT           NULL              -- T07: dígito verificador horizontal
     );
     PRINT 'Tabla Empleado creada.';
 END
@@ -203,7 +204,8 @@ BEGIN
         MetodoPago  NVARCHAR(100) NULL,
         IdPlan      INT           NULL REFERENCES PlanSuscripcion(IdPlan),
         FechaAlta   DATETIME      NOT NULL DEFAULT GETDATE(),
-        Activo      BIT           NOT NULL DEFAULT 1
+        Activo      BIT           NOT NULL DEFAULT 1,
+        DVH         INT           NULL              -- T07: dígito verificador horizontal
     );
     PRINT 'Tabla Cliente creada.';
 END

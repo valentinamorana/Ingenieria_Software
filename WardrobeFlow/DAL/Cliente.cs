@@ -8,6 +8,20 @@ namespace DAL
     /// <summary>Acceso a datos de la tabla [Cliente].</summary>
     public class Cliente : BaseDAL<BE.Cliente>
     {
+        // T07 — Definición del Dígito Verificador de esta tabla (fuente única, usada
+        // tanto para recalcular tras escrituras como para verificar al arrancar).
+        public const  string   DV_Tabla    = "Cliente";
+        public const  string   DV_Pk       = "IdCliente";
+        public static readonly string[] DV_Columnas = { "Nombre", "Apellido", "DNI", "Email", "MetodoPago" };
+
+        // Recalcula DVH de cada fila + DVV de la tabla. Se llama tras Alta/Modificar/Baja.
+        // No propaga errores: la falla del DV no debe abortar la operación de negocio
+        // (la verificación de integridad al arranque la detectaría igual).
+        private void RecalcularDV()
+        {
+            try { new DigitoVerificador().RecalcularTabla(DV_Tabla, DV_Pk, DV_Columnas); }
+            catch (Exception ex) { System.Diagnostics.Trace.TraceError("[DAL.Cliente.RecalcularDV] " + ex.Message); }
+        }
 
         // Devuelve todos los clientes activos con el nombre de su plan (JOIN).
         public override List<BE.Cliente> ObtenerTodos()
@@ -136,9 +150,11 @@ namespace DAL
                 "SELECT SCOPE_IDENTITY() AS IdNuevo",
                 p);
 
-            return tabla != null && tabla.Rows.Count > 0
+            int idNuevo = tabla != null && tabla.Rows.Count > 0
                 ? Convert.ToInt32(tabla.Rows[0]["IdNuevo"])
                 : 0;
+            RecalcularDV();   // T07
+            return idNuevo;
         }
 
         // Actualiza los datos de un cliente existente.
@@ -161,6 +177,7 @@ namespace DAL
                 "FechaVencimiento=@FechaVencimiento " +
                 "WHERE IdCliente=@IdCliente",
                 p);
+            RecalcularDV();   // T07
         }
 
         // Baja lógica del cliente (Activo=0).
@@ -169,6 +186,7 @@ namespace DAL
             SqlParameter[] p = { new SqlParameter("@IdCliente", idCliente) };
             acceso.Escribir(
                 "UPDATE Cliente SET Activo = 0 WHERE IdCliente = @IdCliente", p);
+            RecalcularDV();   // T07
         }
 
         private BE.Cliente Mapear(DataRow row)

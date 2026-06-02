@@ -172,7 +172,8 @@ BEGIN
         FechaIngreso DATETIME      NOT NULL DEFAULT GETDATE(),
         Puesto       NVARCHAR(100) NULL,
         Legajo       NVARCHAR(50)  NULL,
-        IdUsuario    INT           NULL REFERENCES Usuario(IdUsuario)
+        IdUsuario    INT           NULL REFERENCES Usuario(IdUsuario),
+        DVH          INT           NULL              -- T07: dígito verificador horizontal
     );
     PRINT 'Tabla Empleado creada.';
 END
@@ -192,7 +193,8 @@ BEGIN
         MetodoPago  NVARCHAR(100) NULL,
         IdPlan      INT           NULL REFERENCES PlanSuscripcion(IdPlan),
         FechaAlta   DATETIME      NOT NULL DEFAULT GETDATE(),
-        Activo      BIT           NOT NULL DEFAULT 1
+        Activo      BIT           NOT NULL DEFAULT 1,
+        DVH         INT           NULL              -- T07: dígito verificador horizontal
     );
     PRINT 'Tabla Cliente creada.';
 END
@@ -500,6 +502,20 @@ IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
 BEGIN
     ALTER TABLE Empleado ALTER COLUMN DNI NVARCHAR(200) NOT NULL;
     PRINT 'Empleado.DNI ensanchado a NVARCHAR(200) (cifrado T03).';
+END
+GO
+
+-- T07 — Columna DVH (dígito verificador horizontal) en Cliente y Empleado.
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Cliente' AND COLUMN_NAME='DVH')
+BEGIN
+    ALTER TABLE Cliente ADD DVH INT NULL;
+    PRINT 'Columna DVH agregada a Cliente (T07).';
+END
+GO
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Empleado' AND COLUMN_NAME='DVH')
+BEGIN
+    ALTER TABLE Empleado ADD DVH INT NULL;
+    PRINT 'Columna DVH agregada a Empleado (T07).';
 END
 GO
 

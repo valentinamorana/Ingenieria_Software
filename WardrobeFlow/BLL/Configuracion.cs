@@ -118,7 +118,7 @@ namespace BLL
                 var svc   = new Seguridad.DigitoVerificador();
                 var filas = dvDAL.ObtenerFilasUsuario();
 
-                if (filas.Count == 0) return true;
+                if (filas.Count == 0) return VerificarTablasAdicionales(out resultado);
 
                 // Primer arranque sin DVH: todos null o cero + sin DVV → recalcular.
                 bool todosEnCero = true;
@@ -129,7 +129,7 @@ namespace BLL
                 if (todosEnCero && (dvvIni == null || dvvIni == 0))
                 {
                     RecalcularTodoDV(dvDAL, svc, filas);
-                    return true;
+                    return VerificarTablasAdicionales(out resultado);
                 }
 
                 // Migración de algoritmo: si todos los DVH almacenados son < 10
@@ -150,7 +150,7 @@ namespace BLL
                         "[Configuracion] Detectados DVH del algoritmo anterior (mod 10). " +
                         "Recalculando con nuevo algoritmo (mod 999.983)...");
                     RecalcularTodoDV(dvDAL, svc, filas);
-                    return true;
+                    return VerificarTablasAdicionales(out resultado);
                 }
 
                 var dvhsRecalculados = new List<int>();
@@ -175,7 +175,7 @@ namespace BLL
                 if (dvhOk && dvvOk)
                 {
                     LogearVerificacion("Usuario", dvvAlmacenado, dvvCalculado, true, 0, "Arranque");
-                    return true;
+                    return VerificarTablasAdicionales(out resultado);
                 }
 
                 resultado = new ResultadoIntegridad
@@ -320,6 +320,10 @@ namespace BLL
             var svc   = new Seguridad.DigitoVerificador();
             var filas = dvDAL.ObtenerFilasUsuario();
             RecalcularTodoDV(dvDAL, svc, filas);
+
+            // T07 — Tablas adicionales protegidas con DV.
+            dvDAL.RecalcularTabla(DAL.Cliente.DV_Tabla,  DAL.Cliente.DV_Pk,  DAL.Cliente.DV_Columnas);
+            dvDAL.RecalcularTabla(DAL.Empleado.DV_Tabla, DAL.Empleado.DV_Pk, DAL.Empleado.DV_Columnas);
         }
 
         // Helper compartido entre VerificarIntegridadDV (primer arranque) y RecalcularIntegridadDV.
@@ -338,6 +342,67 @@ namespace BLL
             }
             int dvv = svc.CalcularDVV(dvhValues);
             dvDAL.GuardarDVV("Usuario", dvv);
+        }
+
+        // ── DV en tablas ADICIONALES (Cliente, Empleado) — T07 ──────────────────
+
+        // Verifica las tablas protegidas además de Usuario. Si alguna está corrupta,
+        // arma el resultado y devuelve false; si están OK (o se inicializan en el primer
+        // arranque), devuelve true. Las definiciones de columnas viven en cada DAL.
+        private static bool VerificarTablasAdicionales(out ResultadoIntegridad resultado)
+        {
+            resultado = null;
+            var dvDAL = new DAL.DigitoVerificador();
+            var svc   = new Seguridad.DigitoVerificador();
+            var corruptas = new List<string>();
+
+            VerificarUnaTabla(dvDAL, svc, DAL.Cliente.DV_Tabla,  DAL.Cliente.DV_Pk,  DAL.Cliente.DV_Columnas,  corruptas);
+            VerificarUnaTabla(dvDAL, svc, DAL.Empleado.DV_Tabla, DAL.Empleado.DV_Pk, DAL.Empleado.DV_Columnas, corruptas);
+
+            if (corruptas.Count == 0) return true;
+
+            resultado = new ResultadoIntegridad
+            {
+                HayDvhInvalido = true,
+                FilasCorruptas = corruptas,
+                DvvAlmacenado  = null,
+                DvvCalculado   = 0
+            };
+            return false;
+        }
+
+        private static void VerificarUnaTabla(DAL.DigitoVerificador dvDAL, Seguridad.DigitoVerificador svc,
+            string tabla, string pk, string[] cols, List<string> corruptas)
+        {
+            List<BE.FilaDV> filas;
+            try { filas = dvDAL.ObtenerFilas(tabla, pk, cols); }
+            catch { return; }   // tabla/columna DVH sin migrar → no se verifica
+            if (filas.Count == 0) return;
+
+            // Primer arranque: sin DVH ni DVV → inicializar (no es corrupción).
+            bool todosNull = filas.TrueForAll(f => f.DVHAlmacenado == null || f.DVHAlmacenado == 0);
+            int? dvvAlm = dvDAL.ObtenerDVV(tabla);
+            if (todosNull && (dvvAlm == null || dvvAlm == 0))
+            {
+                dvDAL.RecalcularTabla(tabla, pk, cols);
+                return;
+            }
+
+            int antes = corruptas.Count;
+            var dvhs  = new List<int>();
+            foreach (var f in filas)
+            {
+                int calc = svc.CalcularDVH(f.Campos);
+                dvhs.Add(calc);
+                if (f.DVHAlmacenado == null || f.DVHAlmacenado != calc)
+                    corruptas.Add(f.Descripcion + " (DVH)");
+            }
+            int dvvCalc = svc.CalcularDVV(dvhs);
+            bool dvvOk  = dvvAlm != null && dvvAlm == dvvCalc;
+            if (!dvvOk) corruptas.Add(tabla + " (DVV)");
+
+            int rotasTabla = corruptas.Count - antes;
+            LogearVerificacion(tabla, dvvAlm, dvvCalc, rotasTabla == 0, rotasTabla, "Arranque");
         }
 
         // Devuelve los últimos N registros del historial de verificaciones DV.
