@@ -111,7 +111,7 @@ namespace GUI
                 if (_cmbRol.Items.Count > 0) _cmbRol.SelectedIndex = 0;
                 else { _clbFamilias.Items.Clear(); _clbPatentes.Items.Clear(); _treeView.Nodes.Clear(); }
             }
-            catch (Exception ex) { MostrarError($"Error al cargar roles: {ex.Message}"); }
+            catch (Exception ex) { MostrarError(string.Format(T("err.generico.cargar", "Error al cargar: {0}"), ex.Message)); }
         }
 
         private void CargarListas()
@@ -140,7 +140,7 @@ namespace GUI
                 MostrarComposicion();
                 _btnGuardar.Enabled = true;
             }
-            catch (Exception ex) { MostrarError($"Error al cargar listas: {ex.Message}"); }
+            catch (Exception ex) { MostrarError(string.Format(T("err.generico.cargar", "Error al cargar: {0}"), ex.Message)); }
         }
 
         // TreeView recursivo con la composición efectiva del rol.
@@ -160,7 +160,7 @@ namespace GUI
                 _treeView.ExpandAll();
                 _treeView.EndUpdate();
             }
-            catch (Exception ex) { MostrarError($"Error al mostrar composición: {ex.Message}"); }
+            catch (Exception ex) { MostrarError(string.Format(T("err.generico.cargar", "Error al cargar: {0}"), ex.Message)); }
         }
 
         private void AgregarNodos(BE.Componente componente, TreeNode parent)
@@ -194,7 +194,7 @@ namespace GUI
                 CargarListas();
                 MostrarOk(string.Format(T("perm.ok.guardado", "Cambios guardados para '{0}': {1} agregado(s), {2} quitado(s)."), rol, agregados, quitados));
             }
-            catch (Exception ex) { MostrarError($"Error al guardar: {ex.Message}"); }
+            catch (Exception ex) { MostrarError(string.Format(T("err.generico.guardar", "Error al guardar: {0}"), ex.Message)); }
         }
 
         // ── CRUD / acciones ────────────────────────────────────────────────────

@@ -174,7 +174,8 @@ namespace GUI
                 ConfigurarColumnas();
                 TraducirHeadersGrilla();
 
-                MostrarOk($"{dt.Rows.Count} registro(s) encontrado(s).");
+                var tb = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                MostrarOk(string.Format(tb.ContainsKey("pedidos.hist.encontrados") ? tb["pedidos.hist.encontrados"].Texto : "{0} registro(s) encontrado(s).", dt.Rows.Count));
                 _btnRestaurar.Enabled = false;
             }
             catch (Exception ex)

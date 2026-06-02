@@ -299,6 +299,9 @@ namespace Servicios.Multiidioma
             { "idiomas.conf.incompleto",   "Este idioma tiene {0} control(es) sin traducir.\nSi lo activás, esos textos se mostrarán en el idioma por defecto.\n\n¿Activar de todos modos?" },
             { "idiomas.conf.incompleto.t", "Traducciones incompletas" },
             { "lbl.idiomas.controles",     "Controles traducibles" },
+            { "err.generico.cargar",       "Error al cargar: {0}" },
+            { "err.generico.guardar",      "Error al guardar: {0}" },
+            { "pedidos.hist.encontrados",  "{0} registro(s) encontrado(s)." },
             // Login — textos idénticos al Designer para que ES no cambie nada visualmente
             { "frm.login",        "WardrobeFlow"                   },
             { "lbl.usuario",      "Usuario"                        },
@@ -1160,6 +1163,9 @@ namespace Servicios.Multiidioma
             { "idiomas.conf.incompleto",   "This language has {0} untranslated control(s).\nIf you activate it, those texts will be shown in the default language.\n\nActivate anyway?" },
             { "idiomas.conf.incompleto.t", "Incomplete translations" },
             { "lbl.idiomas.controles",     "Translatable controls" },
+            { "err.generico.cargar",       "Error loading: {0}" },
+            { "err.generico.guardar",      "Error saving: {0}" },
+            { "pedidos.hist.encontrados",  "{0} record(s) found." },
             // Login
             { "frm.login",        "WardrobeFlow — Login"           },
             { "lbl.usuario",      "Username"                        },
@@ -2020,6 +2026,9 @@ namespace Servicios.Multiidioma
             { "idiomas.conf.incompleto",   "В этом языке {0} непереведённых элемент(ов).\nЕсли вы активируете его, эти тексты будут показаны на языке по умолчанию.\n\nВсё равно активировать?" },
             { "idiomas.conf.incompleto.t", "Неполные переводы" },
             { "lbl.idiomas.controles",     "Переводимые элементы" },
+            { "err.generico.cargar",       "Ошибка загрузки: {0}" },
+            { "err.generico.guardar",      "Ошибка сохранения: {0}" },
+            { "pedidos.hist.encontrados",  "Найдено записей: {0}." },
             // Вход
             { "frm.login",        "WardrobeFlow — Вход"                    },
             { "lbl.usuario",      "Пользователь"                           },
@@ -2879,6 +2888,9 @@ namespace Servicios.Multiidioma
             { "idiomas.conf.incompleto",   "Este idioma tem {0} controle(s) sem tradução.\nSe você ativá-lo, esses textos serão exibidos no idioma padrão.\n\nAtivar mesmo assim?" },
             { "idiomas.conf.incompleto.t", "Traduções incompletas" },
             { "lbl.idiomas.controles",     "Controles traduzíveis" },
+            { "err.generico.cargar",       "Erro ao carregar: {0}" },
+            { "err.generico.guardar",      "Erro ao salvar: {0}" },
+            { "pedidos.hist.encontrados",  "{0} registro(s) encontrado(s)." },
             // === diag.* (Diagnóstico de Integridade) — faltavam em PT ===
             { "diag.frm.titulo",           "Diagnóstico de Integridade" },
             { "diag.tab.diagnostico",      "Diagnóstico" },

@@ -282,7 +282,8 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al cargar: {ex.Message}");
+                var te = Traductor.ObtenerTraducciones(_idioma);
+                MostrarError(string.Format(te.ContainsKey("err.generico.cargar") ? te["err.generico.cargar"].Texto : "Error al cargar: {0}", ex.Message));
             }
         }
 

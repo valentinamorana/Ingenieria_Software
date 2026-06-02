@@ -200,7 +200,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al cargar controles: {ex.Message}");
+                MostrarError(string.Format(Tx("err.generico.cargar", "Error al cargar: {0}"), ex.Message));
             }
         }
 
@@ -263,7 +263,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al cargar idiomas: {ex.Message}");
+                MostrarError(string.Format(Tx("err.generico.cargar", "Error al cargar: {0}"), ex.Message));
             }
         }
 
@@ -294,7 +294,7 @@ namespace GUI
             }
             catch (Exception ex)
             {
-                MostrarError($"Error al cargar traducciones: {ex.Message}");
+                MostrarError(string.Format(Tx("err.generico.cargar", "Error al cargar: {0}"), ex.Message));
             }
         }
 
