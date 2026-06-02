@@ -191,11 +191,38 @@ namespace BLL
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("DVH") || ex.InnerException?.Message.Contains("DVH") == true)
+                System.Diagnostics.Trace.TraceError($"[Configuracion.VerificarIntegridadDV] {ex.Message}");
+
+                // Tolerancia: la columna DVH / la tabla DVVertical aún no existen (BD sin
+                // migrar) → no hay integridad que verificar todavía, no se bloquea.
+                string msg = (ex.Message ?? "") + " " + (ex.InnerException?.Message ?? "");
+                if (msg.Contains("DVH") || msg.Contains("DVVertical"))
                     return true;
-                resultado = new ResultadoIntegridad { ErrorTecnico = ex.Message };
-                return true;
+
+                // FAIL-SAFE: ante cualquier otro error NO se asume integridad. Se bloquea el
+                // acceso y se informa al administrador (RestauracionForm muestra FilasCorruptas).
+                resultado = new ResultadoIntegridad
+                {
+                    HayDvhInvalido = true,
+                    FilasCorruptas = new List<string> { "Error técnico al verificar la integridad: " + ex.Message },
+                    DvvAlmacenado  = null,
+                    DvvCalculado   = 0
+                };
+                return false;
             }
+        }
+
+        /// <summary>
+        /// T07 — Asegura la integridad de la tabla Usuario ANTES de una operación sensible
+        /// (alta/reset/desbloqueo de usuarios). Lanza AppException si la base fue manipulada,
+        /// de modo que la operación no se ejecute sobre datos corruptos.
+        /// </summary>
+        public static void AsegurarIntegridadUsuarios()
+        {
+            if (!VerificarIntegridadDV(out ResultadoIntegridad _))
+                throw new BE.AppException("err.bll.integridad",
+                    "Operación cancelada: se detectó una posible manipulación de los datos de usuarios " +
+                    "(dígito verificador inválido). Reiniciá el sistema para reparar la integridad antes de continuar.");
         }
 
         // Garantiza que exista al menos un segundo Administrador ("admin2") en la BD.

@@ -12,8 +12,8 @@ namespace BLL
 
         // Captura el estado actual del usuario y lo persiste como snapshot histórico.
         // Debe llamarse ANTES de cualquier operación que modifique al usuario.
-        // Falla silenciosamente si HistorialUsuario no existe (migración pendiente),
-        // para no bloquear operaciones críticas como reset de contraseñas.
+        // T06 — FAIL-SAFE: si no se puede grabar el snapshot, ABORTA la operación lanzando
+        // AppException, en lugar de seguir sin respaldo (lo que rompería la garantía de rollback).
         public void GrabarVersion(int idUsuario, string actor, string detalle)
         {
             try
@@ -33,10 +33,14 @@ namespace BLL
                     IntentosSnapshot = usuario.IntentosFallidos
                 });
             }
+            catch (BE.AppException) { throw; }
             catch (Exception ex)
             {
-                System.Diagnostics.Trace.TraceWarning(
+                System.Diagnostics.Trace.TraceError(
                     $"[BLL.VersionUsuario.GrabarVersion] No se pudo grabar snapshot para usuario ID {idUsuario}: {ex.Message}");
+                throw new BE.AppException("err.bll.snapshot_fallido",
+                    "No se pudo guardar el estado previo del usuario (control de cambios); " +
+                    "la operación se canceló para no perder el historial.");
             }
         }
 

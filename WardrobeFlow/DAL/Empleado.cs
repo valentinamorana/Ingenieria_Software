@@ -88,12 +88,19 @@ namespace DAL
         }
 
         // Verifica si ya existe un empleado con ese DNI.
+        // T03 — El DNI se almacena CIFRADO (AES, IV aleatorio); no se puede comparar por
+        // igualdad en SQL. Se descifra cada DNI y se compara en memoria (TryDesencriptar
+        // tolera registros legacy en texto plano).
         public bool ExisteDNI(string dni)
         {
-            SqlParameter[] p = { new SqlParameter("@DNI", dni) };
-            DataTable tabla = acceso.Leer(
-                "SELECT IdEmpleado FROM Empleado WHERE DNI = @DNI", p);
-            return tabla != null && tabla.Rows.Count > 0;
+            DataTable tabla = acceso.Leer("SELECT DNI FROM Empleado", null);
+            if (tabla == null) return false;
+            foreach (DataRow row in tabla.Rows)
+            {
+                string dniGuardado = Seguridad.Encriptador.TryDesencriptar(row["DNI"].ToString());
+                if (string.Equals(dniGuardado, dni, StringComparison.Ordinal)) return true;
+            }
+            return false;
         }
 
         // Inserta un nuevo empleado. Devuelve el ID generado.
@@ -103,7 +110,7 @@ namespace DAL
             {
                 new SqlParameter("@Nombre", empleado.Nombre),
                 new SqlParameter("@Apellido", empleado.Apellido),
-                new SqlParameter("@DNI", empleado.DNI),
+                new SqlParameter("@DNI", Seguridad.Encriptador.Encriptar(empleado.DNI)),
                 new SqlParameter("@Email", (object)empleado.Email ?? DBNull.Value),
                 new SqlParameter("@FechaIngreso", empleado.FechaIngreso),
                 new SqlParameter("@Puesto", (object)empleado.Puesto ?? DBNull.Value),
@@ -129,7 +136,7 @@ namespace DAL
             {
                 new SqlParameter("@Nombre", empleado.Nombre),
                 new SqlParameter("@Apellido", empleado.Apellido),
-                new SqlParameter("@DNI", empleado.DNI),
+                new SqlParameter("@DNI", Seguridad.Encriptador.Encriptar(empleado.DNI)),
                 new SqlParameter("@Email", (object)empleado.Email ?? DBNull.Value),
                 new SqlParameter("@FechaIngreso", empleado.FechaIngreso),
                 new SqlParameter("@Puesto", (object)empleado.Puesto ?? DBNull.Value),
@@ -151,7 +158,7 @@ namespace DAL
                 IdEmpleado = Convert.ToInt32(row["IdEmpleado"]),
                 Nombre = row["Nombre"].ToString(),
                 Apellido = row["Apellido"].ToString(),
-                DNI = row["DNI"].ToString(),
+                DNI = Seguridad.Encriptador.TryDesencriptar(row["DNI"].ToString()),
                 Email = row["Email"] != DBNull.Value ? row["Email"].ToString() : null,
                 FechaIngreso = Convert.ToDateTime(row["FechaIngreso"]),
                 Puesto = row["Puesto"] != DBNull.Value ? row["Puesto"].ToString() : null,

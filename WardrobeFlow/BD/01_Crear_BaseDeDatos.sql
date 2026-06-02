@@ -178,7 +178,7 @@ BEGIN
         IdEmpleado   INT           IDENTITY(1,1) PRIMARY KEY,
         Nombre       NVARCHAR(100) NOT NULL,
         Apellido     NVARCHAR(100) NOT NULL,
-        DNI          NVARCHAR(20)  NOT NULL,
+        DNI          NVARCHAR(200) NOT NULL,  -- T03: almacena el DNI CIFRADO (AES Base64)
         Email        NVARCHAR(200) NULL,
         FechaIngreso DATETIME      NOT NULL DEFAULT GETDATE(),
         Puesto       NVARCHAR(100) NULL,
@@ -198,7 +198,7 @@ BEGIN
         IdCliente   INT           IDENTITY(1,1) PRIMARY KEY,
         Nombre      NVARCHAR(100) NOT NULL,
         Apellido    NVARCHAR(100) NOT NULL,
-        DNI         NVARCHAR(20)  NOT NULL,
+        DNI         NVARCHAR(200) NOT NULL,  -- T03: almacena el DNI CIFRADO (AES Base64)
         Email       NVARCHAR(200) NULL,
         MetodoPago  NVARCHAR(100) NULL,
         IdPlan      INT           NULL REFERENCES PlanSuscripcion(IdPlan),

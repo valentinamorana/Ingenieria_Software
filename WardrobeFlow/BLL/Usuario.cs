@@ -99,6 +99,9 @@ namespace BLL
                 throw new BE.AppException("err.bll.usuario.alta_sin_permiso",
                     "Solo un Administrador puede crear nuevos usuarios.");
 
+            // T07 — Verificar integridad de la base ANTES de modificar usuarios.
+            Configuracion.AsegurarIntegridadUsuarios();
+
             if (string.IsNullOrWhiteSpace(username))
                 throw new BE.AppException("err.bll.usuario.username_requerido",
                     "El nombre de usuario es obligatorio.");
@@ -140,6 +143,9 @@ namespace BLL
                 throw new BE.AppException("err.bll.usuario.reset_sin_permiso",
                     "Solo un Administrador puede resetear contraseñas.");
 
+            // T07 — Verificar integridad de la base ANTES de modificar usuarios.
+            Configuracion.AsegurarIntegridadUsuarios();
+
             var admin = SessionManager.GetInstance().Usuario;
 
             new VersionUsuario().GrabarVersion(idUsuario, admin.Username,
@@ -172,6 +178,9 @@ namespace BLL
             if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
                 throw new BE.AppException("err.bll.usuario.desbloquear_sin_permiso",
                     "Solo un Administrador puede desbloquear cuentas.");
+
+            // T07 — Verificar integridad de la base ANTES de modificar usuarios.
+            Configuracion.AsegurarIntegridadUsuarios();
 
             new VersionUsuario().GrabarVersion(idUsuario,
                 SessionManager.GetInstance().Usuario.Username,

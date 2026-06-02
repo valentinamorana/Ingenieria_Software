@@ -167,7 +167,7 @@ BEGIN
         IdEmpleado   INT           IDENTITY(1,1) PRIMARY KEY,
         Nombre       NVARCHAR(100) NOT NULL,
         Apellido     NVARCHAR(100) NOT NULL,
-        DNI          NVARCHAR(20)  NOT NULL,
+        DNI          NVARCHAR(200) NOT NULL,  -- T03: almacena el DNI CIFRADO (AES Base64)
         Email        NVARCHAR(200) NULL,
         FechaIngreso DATETIME      NOT NULL DEFAULT GETDATE(),
         Puesto       NVARCHAR(100) NULL,
@@ -187,7 +187,7 @@ BEGIN
         IdCliente   INT           IDENTITY(1,1) PRIMARY KEY,
         Nombre      NVARCHAR(100) NOT NULL,
         Apellido    NVARCHAR(100) NOT NULL,
-        DNI         NVARCHAR(20)  NOT NULL,
+        DNI         NVARCHAR(200) NOT NULL,  -- T03: almacena el DNI CIFRADO (AES Base64)
         Email       NVARCHAR(200) NULL,
         MetodoPago  NVARCHAR(100) NULL,
         IdPlan      INT           NULL REFERENCES PlanSuscripcion(IdPlan),
@@ -469,6 +469,39 @@ GO
 -- ============================================================
 -- MIGRACIONES INCREMENTALES
 -- ============================================================
+
+-- T03 — Preparar DNI para almacenar el valor CIFRADO (AES Base64 ~44 chars).
+-- 1) Quitar la constraint UNIQUE sobre DNI: el cifrado usa IV aleatorio (mismo DNI →
+--    distinto texto), por lo que la unicidad a nivel BD ya no aplica. La unicidad se
+--    valida en la capa de negocio (DAL.Cliente/Empleado.ExisteDNI, descifrando).
+DECLARE @uqCli SYSNAME = (SELECT TOP 1 tc.CONSTRAINT_NAME
+    FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+    JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu ON tc.CONSTRAINT_NAME=ccu.CONSTRAINT_NAME
+    WHERE tc.CONSTRAINT_TYPE='UNIQUE' AND tc.TABLE_NAME='Cliente' AND ccu.COLUMN_NAME='DNI');
+IF @uqCli IS NOT NULL EXEC('ALTER TABLE Cliente DROP CONSTRAINT ' + @uqCli);
+
+DECLARE @uqEmp SYSNAME = (SELECT TOP 1 tc.CONSTRAINT_NAME
+    FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+    JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu ON tc.CONSTRAINT_NAME=ccu.CONSTRAINT_NAME
+    WHERE tc.CONSTRAINT_TYPE='UNIQUE' AND tc.TABLE_NAME='Empleado' AND ccu.COLUMN_NAME='DNI');
+IF @uqEmp IS NOT NULL EXEC('ALTER TABLE Empleado DROP CONSTRAINT ' + @uqEmp);
+GO
+
+-- 2) Ensanchar la columna para el texto cifrado.
+IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+           WHERE TABLE_NAME='Cliente' AND COLUMN_NAME='DNI' AND CHARACTER_MAXIMUM_LENGTH < 200)
+BEGIN
+    ALTER TABLE Cliente ALTER COLUMN DNI NVARCHAR(200) NOT NULL;
+    PRINT 'Cliente.DNI ensanchado a NVARCHAR(200) (cifrado T03).';
+END
+GO
+IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+           WHERE TABLE_NAME='Empleado' AND COLUMN_NAME='DNI' AND CHARACTER_MAXIMUM_LENGTH < 200)
+BEGIN
+    ALTER TABLE Empleado ALTER COLUMN DNI NVARCHAR(200) NOT NULL;
+    PRINT 'Empleado.DNI ensanchado a NVARCHAR(200) (cifrado T03).';
+END
+GO
 
 -- FechaVencimiento en Cliente (suscripción con fecha de vencimiento)
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
