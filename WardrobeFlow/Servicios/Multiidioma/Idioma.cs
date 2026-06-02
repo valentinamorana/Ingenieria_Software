@@ -1,10 +1,11 @@
 namespace Servicios.Multiidioma
 {
     /// <summary>
-    /// Representa un idioma soportado por el sistema.
+    /// Tipo de RUNTIME del idioma para el patrón Observer (Subject GestorIdioma e
+    /// IIdiomaObserver.UpdateLanguage). Es liviano: se identifica por código corto
+    /// (ES, EN, RU). Su contraparte de PERSISTENCIA es <see cref="BE.Idioma"/>
+    /// (la conversión está centralizada en BLL.IdiomaService).
     ///
-    /// Equivalente a la clase Idioma del ejemplo de cátedra.
-    /// Se identifican con un código corto (ES, EN, RU).
     /// La lista de idiomas activos se carga desde la tabla Idioma en BD;
     /// el hardcode en Traductor actúa solo como fallback de primer arranque.
     /// </summary>
