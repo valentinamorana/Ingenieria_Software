@@ -5,4 +5,5 @@
   <Project Path="GUI/GUI.csproj" Id="eab99289-c035-40bf-9866-dcc247b7c9df" />
   <Project Path="Seguridad/Seguridad.csproj" Id="8d86288e-77ff-4076-b495-e881fc568379" />
   <Project Path="Servicios/Servicios.csproj" Id="f41a7a3a-8ac1-4036-9fca-b81ee8812b8e" />
+  <Project Path="Tests/Tests.csproj" Id="c17e57a1-0001-4b2c-9d3e-000000000001" />
 </Solution>
