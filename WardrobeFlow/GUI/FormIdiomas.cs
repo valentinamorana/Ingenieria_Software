@@ -22,10 +22,18 @@ namespace GUI
         private readonly BLL.IdiomaService  _bllIdioma  = new BLL.IdiomaService();
         private List<BE.Idioma>      _idiomas     = new List<BE.Idioma>();
         private int                  _idIdiomaSeleccionado = 0;
+        private Button               _btnNuevoIdioma, _btnRenombrarIdioma;
 
         public FormIdiomas()
         {
             InitializeComponent();
+        }
+
+        // Helper de traducción reutilizable (idioma activo).
+        private string Tx(string key, string fallback)
+        {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            return t.ContainsKey(key) ? t[key].Texto : fallback;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -42,56 +50,56 @@ namespace GUI
         // ── Alta / modificación de idiomas (T05) — botones creados por código ────
         private void CrearBotonesIdioma()
         {
-            var btnNuevo = new Button
+            _btnNuevoIdioma = new Button
             {
-                Text = "➕ Nuevo idioma", Location = new System.Drawing.Point(320, 167),
+                Text = Tx("btn.idiomas.nuevo", "➕ Nuevo idioma"), Location = new System.Drawing.Point(320, 167),
                 Size = new System.Drawing.Size(130, 28), FlatStyle = FlatStyle.Flat,
                 BackColor = System.Drawing.Color.FromArgb(80, 100, 150), ForeColor = System.Drawing.Color.White,
                 Cursor = Cursors.Hand
             };
-            btnNuevo.FlatAppearance.BorderSize = 0;
-            btnNuevo.Click += BtnNuevoIdioma_Click;
+            _btnNuevoIdioma.FlatAppearance.BorderSize = 0;
+            _btnNuevoIdioma.Click += BtnNuevoIdioma_Click;
 
-            var btnRenombrar = new Button
+            _btnRenombrarIdioma = new Button
             {
-                Text = "✏ Renombrar", Location = new System.Drawing.Point(458, 167),
+                Text = Tx("btn.idiomas.renombrar", "✏ Renombrar"), Location = new System.Drawing.Point(458, 167),
                 Size = new System.Drawing.Size(120, 28), FlatStyle = FlatStyle.Flat,
                 BackColor = System.Drawing.Color.FromArgb(110, 90, 150), ForeColor = System.Drawing.Color.White,
                 Cursor = Cursors.Hand
             };
-            btnRenombrar.FlatAppearance.BorderSize = 0;
-            btnRenombrar.Click += BtnRenombrarIdioma_Click;
+            _btnRenombrarIdioma.FlatAppearance.BorderSize = 0;
+            _btnRenombrarIdioma.Click += BtnRenombrarIdioma_Click;
 
             // panelIdiomas es el panel superior (declarado en el Designer).
-            this.panelIdiomas.Controls.Add(btnNuevo);
-            this.panelIdiomas.Controls.Add(btnRenombrar);
+            this.panelIdiomas.Controls.Add(_btnNuevoIdioma);
+            this.panelIdiomas.Controls.Add(_btnRenombrarIdioma);
         }
 
         private void BtnNuevoIdioma_Click(object sender, EventArgs e)
         {
-            string codigo = Pedir("Nuevo idioma", "Código (ej: FR, IT, PT) — máx. 5:");
+            string codigo = Pedir(Tx("idiomas.dlg.nuevo.t", "Nuevo idioma"), Tx("idiomas.dlg.nuevo.codigo", "Código (ej: FR, IT, PT) — máx. 5:"));
             if (string.IsNullOrWhiteSpace(codigo)) return;
-            string nombre = Pedir("Nuevo idioma", "Nombre del idioma (ej: Français):");
+            string nombre = Pedir(Tx("idiomas.dlg.nuevo.t", "Nuevo idioma"), Tx("idiomas.dlg.nuevo.nombre", "Nombre del idioma (ej: Français):"));
             if (string.IsNullOrWhiteSpace(nombre)) return;
             try
             {
                 _bllIdioma.CrearIdioma(codigo, nombre);
                 CargarIdiomas();
-                MostrarOk($"Idioma '{nombre.Trim()}' creado (inactivo — activalo cuando cargues sus traducciones).");
+                MostrarOk(string.Format(Tx("idiomas.ok.creado", "Idioma '{0}' creado (inactivo — activalo cuando cargues sus traducciones)."), nombre.Trim()));
             }
             catch (Exception ex) { MostrarError(ex); }
         }
 
         private void BtnRenombrarIdioma_Click(object sender, EventArgs e)
         {
-            if (_idIdiomaSeleccionado == 0) { MostrarError("Seleccioná un idioma de la grilla."); return; }
-            string nombre = Pedir("Renombrar idioma", "Nuevo nombre:");
+            if (_idIdiomaSeleccionado == 0) { MostrarError(Tx("idiomas.msg.selecc", "Seleccioná un idioma de la grilla.")); return; }
+            string nombre = Pedir(Tx("idiomas.dlg.renombrar.t", "Renombrar idioma"), Tx("idiomas.dlg.renombrar.p", "Nuevo nombre:"));
             if (string.IsNullOrWhiteSpace(nombre)) return;
             try
             {
                 _bllIdioma.ModificarIdioma(_idIdiomaSeleccionado, nombre);
                 CargarIdiomas();
-                MostrarOk("Idioma renombrado.");
+                MostrarOk(Tx("idiomas.ok.renombrado", "Idioma renombrado."));
             }
             catch (Exception ex) { MostrarError(ex); }
         }
@@ -99,6 +107,9 @@ namespace GUI
         // Mini cuadro de entrada de texto (sin dependencias externas).
         private static string Pedir(string titulo, string prompt)
         {
+            var tr = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string txtOk = tr.ContainsKey("btn.aceptar")  ? tr["btn.aceptar"].Texto  : "Aceptar";
+            string txtCa = tr.ContainsKey("btn.cancelar") ? tr["btn.cancelar"].Texto : "Cancelar";
             using (var f = new Form())
             {
                 f.Text = titulo; f.Size = new System.Drawing.Size(420, 160);
@@ -106,8 +117,8 @@ namespace GUI
                 f.FormBorderStyle = FormBorderStyle.FixedDialog; f.MinimizeBox = false; f.MaximizeBox = false;
                 var lbl = new Label { Text = prompt, Location = new System.Drawing.Point(12, 15), AutoSize = true };
                 var txt = new TextBox { Location = new System.Drawing.Point(15, 45), Size = new System.Drawing.Size(380, 24) };
-                var ok = new Button { Text = "Aceptar", DialogResult = DialogResult.OK, Location = new System.Drawing.Point(225, 80), Size = new System.Drawing.Size(80, 30) };
-                var ca = new Button { Text = "Cancelar", DialogResult = DialogResult.Cancel, Location = new System.Drawing.Point(315, 80), Size = new System.Drawing.Size(80, 30) };
+                var ok = new Button { Text = txtOk, DialogResult = DialogResult.OK, Location = new System.Drawing.Point(225, 80), Size = new System.Drawing.Size(80, 30) };
+                var ca = new Button { Text = txtCa, DialogResult = DialogResult.Cancel, Location = new System.Drawing.Point(315, 80), Size = new System.Drawing.Size(80, 30) };
                 f.Controls.AddRange(new Control[] { lbl, txt, ok, ca });
                 f.AcceptButton = ok; f.CancelButton = ca;
                 return f.ShowDialog() == DialogResult.OK ? txt.Text : null;
@@ -136,6 +147,9 @@ namespace GUI
             btnActivar.Text         = T("btn.idiomas.activar",    "✔ Activar");
             btnDesactivar.Text      = T("btn.idiomas.desactivar", "✕ Desactivar");
             btnGuardar.Text         = T("btn.idiomas.guardar",    "💾 Guardar cambios");
+            // Botones creados por código (pueden no existir aún en el primer Traducir de OnLoad).
+            if (_btnNuevoIdioma     != null) _btnNuevoIdioma.Text     = T("btn.idiomas.nuevo",     "➕ Nuevo idioma");
+            if (_btnRenombrarIdioma != null) _btnRenombrarIdioma.Text = T("btn.idiomas.renombrar", "✏ Renombrar");
         }
 
         // ── Configuración inicial de grillas ─────────────────────────────────
@@ -329,10 +343,9 @@ namespace GUI
                 if (faltantes > 0)
                 {
                     var confirm = MessageBox.Show(
-                        $"Este idioma tiene {faltantes} control(es) sin traducir.\n" +
-                        "Si lo activás, esos textos se mostrarán en el idioma por defecto.\n\n" +
-                        "¿Activar de todos modos?",
-                        "Traducciones incompletas",
+                        string.Format(Tx("idiomas.conf.incompleto",
+                            "Este idioma tiene {0} control(es) sin traducir.\nSi lo activás, esos textos se mostrarán en el idioma por defecto.\n\n¿Activar de todos modos?"), faltantes),
+                        Tx("idiomas.conf.incompleto.t", "Traducciones incompletas"),
                         MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
                         MessageBoxDefaultButton.Button2);
                     if (confirm != DialogResult.Yes) return;

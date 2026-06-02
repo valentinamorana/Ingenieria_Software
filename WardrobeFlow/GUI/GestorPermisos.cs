@@ -57,6 +57,7 @@ namespace GUI
         {
             base.OnLoad(e);
             GestorIdioma.SuscribirObservador(this);
+            Traducir();
             CargarRoles();
         }
 
@@ -66,12 +67,34 @@ namespace GUI
             base.OnFormClosing(e);
         }
 
-        public void UpdateLanguage(Idioma idioma) { /* textos fijos por simplicidad */ }
+        public void UpdateLanguage(Idioma idioma) { Traducir(); }
 
         private string T(string key, string fallback)
         {
             var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
             return t.ContainsKey(key) ? t[key].Texto : fallback;
+        }
+
+        // Aplica el idioma actual a TODOS los textos fijos (título, labels y botones).
+        private void Traducir()
+        {
+            this.Text              = T("frm.gestorpermisos",      "Gestor de Perfiles — Permisos (Composite)");
+            _lblTitulo.Text        = T("lbl.permisos.titulo",     "Perfiles y Permisos");
+            _lblRol.Text           = T("lbl.permisos.rol",        "Rol:");
+            _lblFamilias.Text      = T("lbl.permisos.familias",   "Lista de Familias (compuestos)");
+            _lblPatentes.Text      = T("lbl.permisos.patentes",   "Lista de Patentes (simples)");
+            _lblArbol.Text         = T("lbl.permisos.composicion","Composición efectiva (recursiva)");
+            _lblEmbeber.Text       = T("lbl.permisos.embeber",    "Embeber rol:");
+            _btnNuevoRol.Text      = T("btn.permisos.nuevorol",     "➕ Nuevo rol");
+            _btnEliminarRol.Text   = T("btn.permisos.eliminarrol",  "🗑 Eliminar rol");
+            _btnNuevaFamilia.Text  = T("btn.permisos.nuevafamilia", "➕ Nueva familia");
+            _btnNuevaPatente.Text  = T("btn.permisos.nuevapatente", "➕ Nueva patente");
+            _btnEmbeber.Text       = T("btn.permisos.embeber",      "Embeber ➜");
+            _btnModificarComp.Text = T("btn.permisos.modificar",    "✏ Modificar selección");
+            _btnEliminarComp.Text  = T("btn.permisos.eliminar",     "🗑 Eliminar selección");
+            _btnGuardar.Text       = T("btn.permisos.guardar",      "💾 Guardar cambios");
+            _btnExplorador.Text    = T("btn.explorador",            "🌳 Explorador Composite");
+            _btnCerrar.Text        = T("btn.permisos.cerrar",       "Cerrar");
         }
 
         // ── Carga de datos ─────────────────────────────────────────────────────
@@ -169,7 +192,7 @@ namespace GUI
 
                 var (agregados, quitados) = _familiaBLL.GuardarAsignacionRol(rol, ids);
                 CargarListas();
-                MostrarOk($"Cambios guardados para '{rol}': {agregados} agregado(s), {quitados} quitado(s).");
+                MostrarOk(string.Format(T("perm.ok.guardado", "Cambios guardados para '{0}': {1} agregado(s), {2} quitado(s)."), rol, agregados, quitados));
             }
             catch (Exception ex) { MostrarError($"Error al guardar: {ex.Message}"); }
         }
@@ -183,12 +206,12 @@ namespace GUI
             {
                 int idHijo  = ObtenerIdRol(hijo.Nombre);
                 int idPadre = ObtenerIdRol(rol);
-                if (idPadre == 0 || idHijo == 0) { MostrarError("No se pudo resolver el rol."); return; }
+                if (idPadre == 0 || idHijo == 0) { MostrarError(T("perm.msg.norol", "No se pudo resolver el rol.")); return; }
                 _familiaBLL.AgregarComponente(idPadre, idHijo);
                 CargarListas();
-                MostrarOk($"Rol '{hijo.Nombre}' embebido dentro de '{rol}'.");
+                MostrarOk(string.Format(T("perm.ok.embebido", "Rol '{0}' embebido dentro de '{1}'."), hijo.Nombre, rol));
             }
-            catch (Exception ex) { MostrarError($"No se pudo embeber: {ex.Message}"); }
+            catch (Exception ex) { MostrarError(string.Format(T("perm.err.embeber", "No se pudo embeber: {0}"), ex.Message)); }
         }
 
         // Resuelve el Id de un rol buscando su nodo en el árbol.
@@ -212,10 +235,10 @@ namespace GUI
 
         private void NuevoRol()
         {
-            string nombre = Pedir("Nuevo rol", "Nombre del nuevo rol:");
+            string nombre = Pedir(T("perm.dlg.rol.t", "Nuevo rol"), T("perm.dlg.rol.p", "Nombre del nuevo rol:"));
             if (string.IsNullOrWhiteSpace(nombre)) return;
             try { _familiaBLL.CrearRol(nombre.Trim()); CargarRoles(); SeleccionarRol(nombre.Trim());
-                  MostrarOk($"Rol '{nombre.Trim()}' creado."); }
+                  MostrarOk(string.Format(T("perm.ok.rolcreado", "Rol '{0}' creado."), nombre.Trim())); }
             catch (Exception ex) { MostrarError(ex.Message); }
         }
 
@@ -223,28 +246,28 @@ namespace GUI
         {
             string rol = RolActual;
             if (string.IsNullOrEmpty(rol)) return;
-            if (MessageBox.Show($"¿Eliminar el rol '{rol}'?", "Confirmar",
+            if (MessageBox.Show(string.Format(T("perm.conf.elirol", "¿Eliminar el rol '{0}'?"), rol), T("perm.conf.titulo", "Confirmar"),
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
-            try { _familiaBLL.EliminarRol(rol); CargarRoles(); MostrarOk($"Rol '{rol}' eliminado."); }
+            try { _familiaBLL.EliminarRol(rol); CargarRoles(); MostrarOk(string.Format(T("perm.ok.roleli", "Rol '{0}' eliminado."), rol)); }
             catch (Exception ex) { MostrarError(ex.Message); }
         }
 
         private void NuevaPatente()
         {
-            string nombre = Pedir("Nueva patente", "Nombre de la patente (permiso simple):");
+            string nombre = Pedir(T("perm.dlg.pat.t", "Nueva patente"), T("perm.dlg.pat.p", "Nombre de la patente (permiso simple):"));
             if (string.IsNullOrWhiteSpace(nombre)) return;
-            string menu = Pedir("Nueva patente", "NombreMenu asociado (opcional, ej: mnuClientes):");
+            string menu = Pedir(T("perm.dlg.pat.t", "Nueva patente"), T("perm.dlg.pat.menu", "NombreMenu asociado (opcional, ej: mnuClientes):"));
             try { _familiaBLL.CrearPatente(nombre.Trim(), string.IsNullOrWhiteSpace(menu) ? null : menu.Trim());
-                  CargarListas(); MostrarOk($"Patente '{nombre.Trim()}' creada."); }
+                  CargarListas(); MostrarOk(string.Format(T("perm.ok.patcreada", "Patente '{0}' creada."), nombre.Trim())); }
             catch (Exception ex) { MostrarError(ex.Message); }
         }
 
         private void NuevaFamilia()
         {
-            string nombre = Pedir("Nueva familia", "Nombre de la familia (permiso compuesto):");
+            string nombre = Pedir(T("perm.dlg.fam.t", "Nueva familia"), T("perm.dlg.fam.p", "Nombre de la familia (permiso compuesto):"));
             if (string.IsNullOrWhiteSpace(nombre)) return;
             try { _familiaBLL.CrearFamilia(nombre.Trim()); CargarListas();
-                  MostrarOk($"Familia '{nombre.Trim()}' creada."); }
+                  MostrarOk(string.Format(T("perm.ok.famcreada", "Familia '{0}' creada."), nombre.Trim())); }
             catch (Exception ex) { MostrarError(ex.Message); }
         }
 
@@ -259,17 +282,17 @@ namespace GUI
         private void ModificarComponente()
         {
             var item = ComponenteSeleccionado();
-            if (item == null) { MostrarError("Seleccioná una patente o familia para modificar."); return; }
-            string nombre = Pedir("Modificar componente", "Nuevo nombre:");
+            if (item == null) { MostrarError(T("perm.msg.selmod", "Seleccioná una patente o familia para modificar.")); return; }
+            string nombre = Pedir(T("perm.dlg.mod.t", "Modificar componente"), T("perm.dlg.mod.p", "Nuevo nombre:"));
             if (string.IsNullOrWhiteSpace(nombre)) return;
             // Para patentes se conserva (o edita) el NombreMenu; para familias se usa el nombre.
             string menu = item.EsFamilia ? nombre.Trim()
-                                         : (Pedir("Modificar patente", "NombreMenu asociado:") ?? item.NombreMenu);
+                                         : (Pedir(T("perm.dlg.mod.t", "Modificar componente"), T("perm.dlg.mod.menu", "NombreMenu asociado:")) ?? item.NombreMenu);
             try
             {
                 _familiaBLL.RenombrarComponente(item.Id, nombre.Trim(), menu);
                 CargarListas();
-                MostrarOk($"Componente modificado a '{nombre.Trim()}'.");
+                MostrarOk(string.Format(T("perm.ok.modificado", "Componente actualizado a '{0}'."), nombre.Trim()));
             }
             catch (Exception ex) { MostrarError(ex.Message); }
         }
@@ -277,15 +300,15 @@ namespace GUI
         private void EliminarComponente()
         {
             var item = ComponenteSeleccionado();
-            if (item == null) { MostrarError("Seleccioná una patente o familia para eliminar."); return; }
-            string tipo = item.EsFamilia ? "la familia" : "la patente";
-            if (MessageBox.Show($"¿Eliminar {tipo} '{item.Nombre}'? Se quitará de todos los roles.",
-                    "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+            if (item == null) { MostrarError(T("perm.msg.seleli", "Seleccioná una patente o familia para eliminar.")); return; }
+            string tipo = item.EsFamilia ? T("perm.tipo.familia", "la familia") : T("perm.tipo.patente", "la patente");
+            if (MessageBox.Show(string.Format(T("perm.conf.elicomp", "¿Eliminar {0} '{1}'? Se quitará de todos los roles."), tipo, item.Nombre),
+                    T("perm.conf.titulo", "Confirmar"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
             try
             {
                 _familiaBLL.EliminarComponente(item.Id);
                 CargarListas();
-                MostrarOk($"'{item.Nombre}' eliminado.");
+                MostrarOk(string.Format(T("perm.ok.eliminado", "'{0}' eliminado."), item.Nombre));
             }
             catch (Exception ex) { MostrarError(ex.Message); }
         }
@@ -300,14 +323,17 @@ namespace GUI
         // Mini cuadro de diálogo de entrada de texto (sin dependencias externas).
         private static string Pedir(string titulo, string prompt)
         {
+            var tr = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string txtOk = tr.ContainsKey("btn.aceptar")  ? tr["btn.aceptar"].Texto  : "Aceptar";
+            string txtCa = tr.ContainsKey("btn.cancelar") ? tr["btn.cancelar"].Texto : "Cancelar";
             using (var f = new Form())
             {
                 f.Text = titulo; f.Size = new Size(420, 160); f.StartPosition = FormStartPosition.CenterParent;
                 f.FormBorderStyle = FormBorderStyle.FixedDialog; f.MinimizeBox = false; f.MaximizeBox = false;
                 var lbl = new Label { Text = prompt, Location = new Point(12, 15), AutoSize = true };
                 var txt = new TextBox { Location = new Point(15, 45), Size = new Size(380, 24) };
-                var ok  = new Button { Text = "Aceptar", DialogResult = DialogResult.OK, Location = new Point(225, 80), Size = new Size(80, 30) };
-                var ca  = new Button { Text = "Cancelar", DialogResult = DialogResult.Cancel, Location = new Point(315, 80), Size = new Size(80, 30) };
+                var ok  = new Button { Text = txtOk, DialogResult = DialogResult.OK, Location = new Point(225, 80), Size = new Size(80, 30) };
+                var ca  = new Button { Text = txtCa, DialogResult = DialogResult.Cancel, Location = new Point(315, 80), Size = new Size(80, 30) };
                 f.Controls.AddRange(new Control[] { lbl, txt, ok, ca });
                 f.AcceptButton = ok; f.CancelButton = ca;
                 return f.ShowDialog() == DialogResult.OK ? txt.Text : null;
