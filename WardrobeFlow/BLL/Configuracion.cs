@@ -115,7 +115,7 @@ namespace BLL
             try
             {
                 var dvDAL = new DAL.DigitoVerificador();
-                var svc   = new Seguridad.DigitoVerificador();
+                var svc   = Seguridad.CalculadorDV.Crear();
                 var filas = dvDAL.ObtenerFilasUsuario();
 
                 if (filas.Count == 0) return VerificarTablasAdicionales(out resultado);
@@ -259,7 +259,7 @@ namespace BLL
         public static ResultadoDiagnostico ObtenerDiagnostico()
         {
             var dvDAL = new DAL.DigitoVerificador();
-            var svc   = new Seguridad.DigitoVerificador();
+            var svc   = Seguridad.CalculadorDV.Crear();
             var filas = dvDAL.ObtenerFilasUsuario();
 
             var rotas      = new List<BE.FilaUsuarioDV>();
@@ -292,7 +292,7 @@ namespace BLL
         public static void RepararFilas(IEnumerable<int> ids)
         {
             var dvDAL  = new DAL.DigitoVerificador();
-            var svc    = new Seguridad.DigitoVerificador();
+            var svc    = Seguridad.CalculadorDV.Crear();
             var todas  = dvDAL.ObtenerFilasUsuario();
             var idsSet = new HashSet<int>(ids);
 
@@ -317,7 +317,7 @@ namespace BLL
         public static void RecalcularIntegridadDV()
         {
             var dvDAL = new DAL.DigitoVerificador();
-            var svc   = new Seguridad.DigitoVerificador();
+            var svc   = Seguridad.CalculadorDV.Crear();
             var filas = dvDAL.ObtenerFilasUsuario();
             RecalcularTodoDV(dvDAL, svc, filas);
 
@@ -329,7 +329,7 @@ namespace BLL
 
         // Helper compartido entre VerificarIntegridadDV (primer arranque) y RecalcularIntegridadDV.
         private static void RecalcularTodoDV(DAL.DigitoVerificador dvDAL,
-                                              Seguridad.DigitoVerificador svc,
+                                              Seguridad.ICalculadorDV svc,
                                               List<BE.FilaUsuarioDV> filas)
         {
             var dvhValues = new List<int>();
@@ -354,7 +354,7 @@ namespace BLL
         {
             resultado = null;
             var dvDAL = new DAL.DigitoVerificador();
-            var svc   = new Seguridad.DigitoVerificador();
+            var svc   = Seguridad.CalculadorDV.Crear();
             var corruptas = new List<string>();
 
             var pedidoDAL = new DAL.Pedido();
@@ -381,7 +381,7 @@ namespace BLL
             return false;
         }
 
-        private static void VerificarUnaTabla(DAL.DigitoVerificador dvDAL, Seguridad.DigitoVerificador svc,
+        private static void VerificarUnaTabla(DAL.DigitoVerificador dvDAL, Seguridad.ICalculadorDV svc,
             string tabla, System.Func<List<BE.FilaDV>> obtenerFilas, System.Action recalcular, List<string> corruptas)
         {
             List<BE.FilaDV> filas;

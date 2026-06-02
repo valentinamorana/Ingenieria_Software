@@ -395,7 +395,7 @@ namespace DAL
         {
             try
             {
-                var svc   = new Seguridad.DigitoVerificador();
+                var svc   = Seguridad.CalculadorDV.Crear();
                 var dvDAL = new DigitoVerificador();
                 var dvhs  = new List<int>();
                 foreach (var f in ObtenerFilasDV())

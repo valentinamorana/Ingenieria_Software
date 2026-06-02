@@ -159,7 +159,7 @@ namespace DAL
         // Debe llamarse después de cualquier escritura sobre la tabla protegida.
         public void RecalcularTabla(string tabla, string pkCol, string[] columnas)
         {
-            var svc   = new Seguridad.DigitoVerificador();
+            var svc   = Seguridad.CalculadorDV.Crear();
             var filas = ObtenerFilas(tabla, pkCol, columnas);
             var dvhs  = new List<int>();
             foreach (var f in filas)
