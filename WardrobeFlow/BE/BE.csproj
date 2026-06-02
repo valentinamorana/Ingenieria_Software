@@ -69,6 +69,8 @@
     <Compile Include="TipoPermiso.cs" />
     <Compile Include="Usuario.cs" />
     <Compile Include="VersionUsuario.cs" />
+    <Compile Include="Memento\IMemento.cs" />
+    <Compile Include="Memento\IOriginator.cs" />
     <Compile Include="HistorialIntegridad.cs" />
     <Compile Include="EstadoComercialCliente.cs" />
     <Compile Include="OcupacionStock.cs" />

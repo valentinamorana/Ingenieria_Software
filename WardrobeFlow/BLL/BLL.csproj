@@ -46,6 +46,7 @@
     <Compile Include="Cliente.cs" />
     <Compile Include="Idioma.cs" />
     <Compile Include="Configuracion.cs" />
+    <Compile Include="CuidadorHistorial.cs" />
     <Compile Include="Familia.cs" />
     <Compile Include="Interfaces\IClienteService.cs" />
     <Compile Include="Interfaces\IPedidoService.cs" />
