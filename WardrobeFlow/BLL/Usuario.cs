@@ -13,7 +13,7 @@ namespace BLL
         private readonly Servicios.Bitacora bitacora   = new Servicios.Bitacora();
 
         private const int    MaxIntentosFallidos  = 3;
-        private const string RolAdministrador    = "Administrador";
+        private const string RolAdministrador    = BE.Roles.Administrador;
         private const string ClaveTemporalDefault = "Wardrobe1!";
 
         /// <summary>Autentica al usuario y establece la sesión. Bloquea la cuenta tras 3 intentos fallidos.</summary>

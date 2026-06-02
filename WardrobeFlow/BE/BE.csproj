@@ -76,6 +76,8 @@
     <Compile Include="OcupacionStock.cs" />
     <Compile Include="FilaUsuarioDV.cs" />
     <Compile Include="FilaDV.cs" />
+    <Compile Include="Roles.cs" />
+    <Compile Include="Patentes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

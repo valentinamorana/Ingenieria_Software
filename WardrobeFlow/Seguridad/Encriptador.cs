@@ -164,7 +164,9 @@ namespace Seguridad
             catch { return valor; }
         }
 
-        // Carga la clave AES desde key.dat. Si el archivo no existe lo crea con bytes aleatorios.
+        // Carga la clave AES desde key.dat, PROTEGIDA con DPAPI (ProtectedData, ámbito del
+        // usuario actual). Migra automáticamente un key.dat legacy en texto plano sin cambiar
+        // la clave (para no invalidar los datos ya cifrados).
         // ⚠ Eliminar key.dat hace que los DNI cifrados existentes sean irrecuperables.
         private static byte[] CargarOCrearClave()
         {
@@ -172,20 +174,42 @@ namespace Seguridad
 
             if (File.Exists(ruta))
             {
-                try
-                {
-                    byte[] datos = Convert.FromBase64String(File.ReadAllText(ruta).Trim());
-                    if (datos.Length == 16) return datos;
-                }
+                byte[] bytes = null;
+                try { bytes = Convert.FromBase64String(File.ReadAllText(ruta).Trim()); }
                 catch { }
+
+                if (bytes != null)
+                {
+                    // 1) Caso normal: el archivo es un blob DPAPI → desproteger.
+                    try
+                    {
+                        byte[] clave = ProtectedData.Unprotect(bytes, null, DataProtectionScope.CurrentUser);
+                        if (clave.Length == 16) return clave;
+                    }
+                    catch { }
+
+                    // 2) Legacy: clave plana de 16 bytes → migrar a DPAPI conservando la MISMA clave.
+                    if (bytes.Length == 16)
+                    {
+                        GuardarClaveProtegida(ruta, bytes);
+                        return bytes;
+                    }
+                }
             }
 
-            byte[] clave = new byte[16];
+            byte[] nueva = new byte[16];
             using (var rng = RandomNumberGenerator.Create())
-                rng.GetBytes(clave);
+                rng.GetBytes(nueva);
 
-            File.WriteAllText(ruta, Convert.ToBase64String(clave));
-            return clave;
+            GuardarClaveProtegida(ruta, nueva);
+            return nueva;
+        }
+
+        // Persiste la clave AES protegida con DPAPI (Base64 del blob protegido).
+        private static void GuardarClaveProtegida(string ruta, byte[] clave)
+        {
+            byte[] protegida = ProtectedData.Protect(clave, null, DataProtectionScope.CurrentUser);
+            File.WriteAllText(ruta, Convert.ToBase64String(protegida));
         }
 
         /// <summary>Convierte un array de bytes a Base64.</summary>

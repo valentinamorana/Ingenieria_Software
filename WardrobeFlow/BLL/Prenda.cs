@@ -19,7 +19,7 @@ namespace BLL
         // Da de alta una nueva prenda. Estado inicial siempre Disponible.
         public void Alta(string modulo, BE.Prenda prenda)
         {
-            ValidarPermiso("mnuStock");
+            ValidarPermiso(BE.Patentes.Stock);
             Validar(prenda);
             prenda.Estado    = BE.EstadoPrenda.Disponible;
             prenda.FechaAlta = DateTime.Now;
@@ -41,7 +41,7 @@ namespace BLL
         // No afecta estado ni cliente asignado.
         public void Modificar(string modulo, BE.Prenda prenda)
         {
-            ValidarPermiso("mnuStock");
+            ValidarPermiso(BE.Patentes.Stock);
             Validar(prenda);
             dalPrenda.Modificar(prenda);
 
@@ -59,7 +59,7 @@ namespace BLL
         // al volver a Disponible desde EnLimpieza lo cierra.
         public void CambiarEstado(string modulo, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado)
         {
-            ValidarPermiso("mnuStock");
+            ValidarPermiso(BE.Patentes.Stock);
             if (!prenda.TransicionPermitida(nuevoEstado))
             {
                 string motivo = prenda.MotivoTransicionNoPermitida(nuevoEstado)

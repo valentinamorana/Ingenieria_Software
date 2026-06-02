@@ -16,7 +16,7 @@ namespace BLL
                 throw new BE.AppException("err.bll.sesion_expirada",
                     "La sesión expiró. Volvé a iniciar sesión.");
             string perfil = Seguridad.SessionManager.GetInstance().Usuario.Perfil ?? "";
-            if (!perfil.Equals("Administrador", StringComparison.OrdinalIgnoreCase))
+            if (!perfil.Equals(BE.Roles.Administrador, StringComparison.OrdinalIgnoreCase))
                 throw new BE.AppException("err.bll.backup.sin_permiso",
                     "Solo un Administrador puede realizar operaciones de backup y restauración.");
         }

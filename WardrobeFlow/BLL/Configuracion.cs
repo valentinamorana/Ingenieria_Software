@@ -233,7 +233,7 @@ namespace BLL
         public static string SeedAdminSecundario()
         {
             const string Username = "admin2";
-            const string Perfil   = "Administrador";
+            const string Perfil   = BE.Roles.Administrador;
 
             try
             {
@@ -446,7 +446,7 @@ namespace BLL
                     int.TryParse(File.ReadAllText(RutaConfigRecordatorio).Trim(), out int d) && d > 0)
                     return d;
             }
-            catch { }
+            catch (Exception ex) { System.Diagnostics.Trace.TraceError("[Configuracion.ObtenerDiasRecordatorio] " + ex.Message); }
             return DiasRecordatorioDefault;
         }
 
@@ -458,7 +458,7 @@ namespace BLL
                 if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
                 File.WriteAllText(RutaConfigRecordatorio, dias.ToString());
             }
-            catch { }
+            catch (Exception ex) { System.Diagnostics.Trace.TraceError("[Configuracion.GuardarDiasRecordatorio] " + ex.Message); }
         }
 
         // Registra silenciosamente cada verificación en HistorialIntegridad.

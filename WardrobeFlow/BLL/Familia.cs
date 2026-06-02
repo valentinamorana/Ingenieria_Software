@@ -17,7 +17,7 @@ namespace BLL
         private readonly DAL.Permiso       permisoDAL = new DAL.Permiso();
         private readonly Servicios.Bitacora _bitacora  = new Servicios.Bitacora();
 
-        private const string RolAdministrador = "Administrador";
+        private const string RolAdministrador = BE.Roles.Administrador;
 
         private static void VerificarAdmin()
         {

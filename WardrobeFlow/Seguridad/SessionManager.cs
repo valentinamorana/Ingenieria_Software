@@ -33,7 +33,7 @@ namespace Seguridad
         public bool TienePermiso(string nombreMenu)
         {
             if (Usuario == null) return false;
-            if (string.Equals(Usuario.Perfil, "Administrador", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(Usuario.Perfil, BE.Roles.Administrador, StringComparison.OrdinalIgnoreCase))
                 return true;
             return Usuario.Permisos != null &&
                    Usuario.Permisos.Exists(p => p.NombreMenu == nombreMenu);

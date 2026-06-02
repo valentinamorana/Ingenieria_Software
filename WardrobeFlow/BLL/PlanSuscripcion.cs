@@ -49,7 +49,7 @@ namespace BLL
         // Valida que nombre no esté vacío, límite > 0 y precio >= 0.
         public void Alta(BE.PlanSuscripcion plan)
         {
-            ValidarPermiso("mnuPlanSuscripciones");
+            ValidarPermiso(BE.Patentes.PlanSuscripciones);
             Validar(plan);
             plan.Estado = true;
             dalPlan.Alta(plan);
@@ -58,7 +58,7 @@ namespace BLL
         // Modifica un plan existente.
         public void Modificar(BE.PlanSuscripcion plan)
         {
-            ValidarPermiso("mnuPlanSuscripciones");
+            ValidarPermiso(BE.Patentes.PlanSuscripciones);
             Validar(plan);
             dalPlan.Modificar(plan);
         }
@@ -67,7 +67,7 @@ namespace BLL
         // Falla si hay clientes activos asignados a ese plan.
         public void Desactivar(int idPlan)
         {
-            ValidarPermiso("mnuPlanSuscripciones");
+            ValidarPermiso(BE.Patentes.PlanSuscripciones);
             int clientesActivos = dalCliente.ContarClientesActivosPorPlan(idPlan);
             if (clientesActivos > 0)
                 throw new BE.AppException("err.bll.plan.tiene_clientes",
@@ -81,7 +81,7 @@ namespace BLL
         // Reactiva un plan previamente desactivado.
         public void Activar(int idPlan)
         {
-            ValidarPermiso("mnuPlanSuscripciones");
+            ValidarPermiso(BE.Patentes.PlanSuscripciones);
             dalPlan.Activar(idPlan);
         }
 
