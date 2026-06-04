@@ -122,13 +122,20 @@ namespace DAL
 
                     using (var cmdPr = new SqlCommand(
                         "UPDATE Prenda SET Estado=@Estado, IdClienteActual=@IdCliente " +
-                        "WHERE IdPrenda=@IdPrenda",
+                        "WHERE IdPrenda=@IdPrenda AND Estado=@EstadoDisponible",
                         conexion, tx))
                     {
-                        cmdPr.Parameters.AddWithValue("@Estado",    (int)BE.EstadoPrenda.EnUso);
-                        cmdPr.Parameters.AddWithValue("@IdCliente", pedido.IdCliente);
-                        cmdPr.Parameters.AddWithValue("@IdPrenda",  prenda.IdPrenda);
-                        cmdPr.ExecuteNonQuery();
+                        cmdPr.Parameters.AddWithValue("@Estado",           (int)BE.EstadoPrenda.EnUso);
+                        cmdPr.Parameters.AddWithValue("@IdCliente",        pedido.IdCliente);
+                        cmdPr.Parameters.AddWithValue("@IdPrenda",         prenda.IdPrenda);
+                        cmdPr.Parameters.AddWithValue("@EstadoDisponible", (int)BE.EstadoPrenda.Disponible);
+                        // Control de concurrencia (anti-TOCTOU): si otra operación tomó la prenda
+                        // entre la validación y este UPDATE, no se afecta ninguna fila → se aborta
+                        // la transacción (rollback en EjecutarTransaccion) en vez de pisar el estado.
+                        if (cmdPr.ExecuteNonQuery() == 0)
+                            throw new BE.AppException("err.dal.pedido.prenda_tomada",
+                                "La prenda '{0}' ya no está disponible. Actualizá la selección e intentá de nuevo.",
+                                prenda.Nombre);
                     }
                 }
             });
@@ -181,19 +188,64 @@ namespace DAL
             RecalcularDV();   // T07
         }
 
-        // Pasa las prendas del pedido a EnLimpieza y limpia IdClienteActual.
-        public void RegistrarDevolucion(int idPedido)
+        // Pasa a EnLimpieza SOLO las prendas del pedido que siguen EnUso por este cliente.
+        // Es idempotente: una segunda devolución del mismo pedido no afecta filas (las prendas
+        // ya no están EnUso) y no pisa prendas que ya hayan vuelto a circular en otro pedido.
+        // Devuelve la cantidad de prendas efectivamente devueltas.
+        public int RegistrarDevolucion(int idPedido, int idCliente)
         {
+            int afectadas = 0;
             acceso.EjecutarTransaccion((conexion, tx) =>
             {
-                // Prendas del pedido → EnLimpieza, sin cliente asignado
                 using (var cmd = new SqlCommand(
                     "UPDATE Prenda SET Estado=@Estado, IdClienteActual=NULL " +
-                    "WHERE IdPrenda IN " +
+                    "WHERE Estado=@EstadoEnUso AND IdClienteActual=@IdCliente AND IdPrenda IN " +
                     "  (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
                     conexion, tx))
                 {
-                    cmd.Parameters.AddWithValue("@Estado",   (int)BE.EstadoPrenda.EnLimpieza);
+                    cmd.Parameters.AddWithValue("@Estado",      (int)BE.EstadoPrenda.EnLimpieza);
+                    cmd.Parameters.AddWithValue("@EstadoEnUso", (int)BE.EstadoPrenda.EnUso);
+                    cmd.Parameters.AddWithValue("@IdCliente",   idCliente);
+                    cmd.Parameters.AddWithValue("@IdPedido",    idPedido);
+                    afectadas = cmd.ExecuteNonQuery();
+                }
+            });
+            if (afectadas > 0) RecalcularDV();   // T07 — mantener el DV del pedido consistente
+            return afectadas;
+        }
+
+        // Reconcilia el estado de las prendas del pedido con el estado ACTUAL del pedido.
+        // Se usa tras restaurar un pedido desde el historial: si quedó en un estado activo
+        // (Pendiente/Despachado/Entregado) sus prendas deben estar EnUso del cliente; si quedó
+        // Cancelado, deben estar Disponibles. Evita dejar el stock inconsistente.
+        public void ReconciliarPrendasConEstado(int idPedido)
+        {
+            acceso.EjecutarTransaccion((conexion, tx) =>
+            {
+                int estado, idCliente;
+                using (var cmd = new SqlCommand(
+                    "SELECT Estado, IdCliente FROM Pedido WHERE IdPedido=@IdPedido", conexion, tx))
+                {
+                    cmd.Parameters.AddWithValue("@IdPedido", idPedido);
+                    using (var rd = cmd.ExecuteReader())
+                    {
+                        if (!rd.Read()) return;
+                        estado    = Convert.ToInt32(rd["Estado"]);
+                        idCliente = Convert.ToInt32(rd["IdCliente"]);
+                    }
+                }
+
+                bool cancelado = estado == (int)BE.EstadoPedido.Cancelado;
+
+                using (var cmd = new SqlCommand(
+                    "UPDATE Prenda SET Estado=@Estado, IdClienteActual=@IdCliente " +
+                    "WHERE IdPrenda IN (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
+                    conexion, tx))
+                {
+                    cmd.Parameters.AddWithValue("@Estado",
+                        cancelado ? (int)BE.EstadoPrenda.Disponible : (int)BE.EstadoPrenda.EnUso);
+                    cmd.Parameters.AddWithValue("@IdCliente",
+                        cancelado ? (object)DBNull.Value : idCliente);
                     cmd.Parameters.AddWithValue("@IdPedido", idPedido);
                     cmd.ExecuteNonQuery();
                 }

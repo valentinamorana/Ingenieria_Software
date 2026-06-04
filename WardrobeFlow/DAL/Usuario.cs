@@ -160,6 +160,9 @@ namespace DAL
                     "UPDATE Usuario SET IntentosFallidos = ISNULL(IntentosFallidos, 0) + 1 " +
                     "WHERE Username = @username",
                     parametros);
+                // T07 — IntentosFallidos forma parte del DVH: recalcular para no dejar la
+                // fila "corrupta" y bloquear la app en el próximo arranque.
+                RecalcularDVHPorUsername(username);
             }
             catch (Exception ex)
             {
@@ -180,6 +183,8 @@ namespace DAL
                 acceso.Escribir(
                     "UPDATE Usuario SET IntentosFallidos = 0 WHERE Username = @username",
                     parametros);
+                // T07 — IntentosFallidos forma parte del DVH: recalcular tras el reset.
+                RecalcularDVHPorUsername(username);
             }
             catch (Exception ex)
             {
@@ -330,6 +335,35 @@ namespace DAL
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError($"[DAL.Usuario.RecalcularDVH] {ex.Message}");
+            }
+        }
+
+        // Igual que RecalcularDVH(int) pero resolviendo la fila por Username (los métodos de
+        // intentos de login operan por username y no tienen el IdUsuario a mano).
+        private void RecalcularDVHPorUsername(string username)
+        {
+            try
+            {
+                var dvDAL = new DigitoVerificador();
+                var filas = dvDAL.ObtenerFilasUsuario();
+                var svc   = Seguridad.CalculadorDV.Crear();
+                foreach (var fila in filas)
+                {
+                    if (string.Equals(fila.Username, username, StringComparison.OrdinalIgnoreCase))
+                    {
+                        int dvh = svc.CalcularDVH(
+                            fila.Id.ToString(), fila.Username, fila.Clave,
+                            fila.Perfil, fila.Estado, fila.IntentosFallidos);
+                        dvDAL.ActualizarDVH(fila.Id, dvh);
+                        fila.DVHAlmacenado = dvh;
+                        break;
+                    }
+                }
+                ActualizarDVV(dvDAL);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError($"[DAL.Usuario.RecalcularDVHPorUsername] {ex.Message}");
             }
         }
 

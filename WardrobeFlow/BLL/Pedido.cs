@@ -140,22 +140,27 @@ namespace BLL
                     "Solo se puede registrar la devolución de pedidos ya Entregados. Este pedido está '{0}'.",
                     pedido.Estado);
 
-            dalPedido.RegistrarDevolucion(pedido.IdPedido);
+            int devueltas = dalPedido.RegistrarDevolucion(pedido.IdPedido, pedido.IdCliente);
+            if (devueltas == 0)
+                throw new BE.AppException("err.bll.pedido.devolucion_ya_hecha",
+                    "El Pedido #{0} no tiene prendas en uso para devolver " +
+                    "(es posible que la devolución ya se haya registrado).",
+                    pedido.IdPedido);
 
             RegistrarHistorial(pedido.IdPedido, "DEVOLUCION", new List<(string, string, string)>
             {
-                ("Prendas", "EnUso", $"EnLimpieza ({pedido.CantidadPrendas} prenda(s))")
+                ("Prendas", "EnUso", $"EnLimpieza ({devueltas} prenda(s))")
             });
 
             bitacora.Registrar(modulo,
                 $"Devolución Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente} — " +
-                $"{pedido.CantidadPrendas} prenda(s) devuelta(s)",
+                $"{devueltas} prenda(s) devuelta(s)",
                 BE.Criticidad.Baja);
 
             bitacoraNeg.Registrar(
                 BE.TipoEventoNegocio.Devolucion,
                 $"Devolución pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente} — " +
-                $"{pedido.CantidadPrendas} prenda(s) pasan a EnLimpieza",
+                $"{devueltas} prenda(s) pasan a EnLimpieza",
                 idPedido:  pedido.IdPedido,
                 idCliente: pedido.IdCliente);
         }
@@ -431,6 +436,11 @@ namespace BLL
 
             foreach (var c in cambios)
                 dalHistorial.RestaurarCampo(idPedido, c.Campo, c.ValorAnterior);
+
+            // Reconciliar el estado de las prendas con el estado restaurado del pedido y
+            // recalcular el DV (la restauración escribió directamente sobre la tabla Pedido).
+            dalPedido.ReconciliarPrendasConEstado(idPedido);
+            dalPedido.RecalcularDV();
 
             RegistrarHistorial(idPedido, "RESTAURAR",
                 cambios.Select(c => (c.Campo, c.ValorNuevo, c.ValorAnterior)).ToList());
