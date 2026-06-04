@@ -57,24 +57,5 @@ namespace BE
                     return false;
             }
         }
-
-        /// <summary>
-        /// Devuelve el motivo por el que la transición no está permitida,
-        /// o null si la transición es válida.
-        /// </summary>
-        public string MotivoTransicionNoPermitida(EstadoPrenda nuevo)
-        {
-            if (TransicionPermitida(nuevo)) return null;
-            switch (Estado)
-            {
-                case EstadoPrenda.Baja:
-                    return "Una prenda dada de baja no puede cambiar de estado.";
-                case EstadoPrenda.EnUso:
-                    return "No se puede cambiar manualmente el estado de una prenda en uso.\n" +
-                           "El estado se actualiza automáticamente al procesar pedidos.";
-                default:
-                    return $"La transición de '{Estado}' a '{nuevo}' no está permitida.";
-            }
-        }
     }
 }
