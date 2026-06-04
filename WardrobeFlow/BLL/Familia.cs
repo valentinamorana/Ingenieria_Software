@@ -20,6 +20,8 @@ namespace BLL
         private Servicios.Bitacora _bitacoraLazy;
         private Servicios.Bitacora _bitacora => _bitacoraLazy ?? (_bitacoraLazy = new Servicios.Bitacora());
 
+        private const string RolAdministrador = BE.Roles.Administrador;
+
         // Inyección de dependencias: el constructor por defecto usa el DAL real;
         // el segundo permite inyectar un doble de prueba (tests unitarios sin BD).
         public Familia() : this(new DAL.Permiso()) { }
@@ -28,18 +30,18 @@ namespace BLL
             this.permisoDAL = permisoDAL;
         }
 
-        // T04 — Re-validación en el BACKEND vía Composite: administrar el árbol de permisos
-        // requiere la patente 'mnuUsuarios' (el Administrador pasa por el bypass de
-        // TienePermiso). Antes se comparaba el Perfil contra "Administrador" por string.
+        // Re-validación en el BACKEND: administrar el árbol de permisos es una operación
+        // EXCLUSIVA del Administrador. Se verifica el rol en sesión por Perfil.
         private static void VerificarAdmin()
         {
             // Fail-closed: sin sesión NO se permite la operación.
             if (!Seguridad.SessionManager.IsLoggedIn)
                 throw new BE.AppException("err.bll.sesion_expirada",
                     "La sesión expiró. Volvé a iniciar sesión.");
-            if (!Seguridad.SessionManager.GetInstance().TienePermiso(BE.Patentes.Usuarios))
+            string perfil = Seguridad.SessionManager.GetInstance().Usuario.Perfil ?? "";
+            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
                 throw new BE.AppException("err.bll.familia.sin_permiso",
-                    "No tiene permiso para modificar permisos de roles.");
+                    "Solo un Administrador puede modificar permisos de roles.");
         }
 
         // Retorna la lista de roles disponibles en el sistema.

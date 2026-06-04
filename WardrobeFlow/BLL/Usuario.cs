@@ -23,19 +23,19 @@ namespace BLL
         private const string RolAdministrador    = BE.Roles.Administrador;
         private const string ClaveTemporalDefault = "Wardrobe1!";
 
-        // T04 — Re-validación en el BACKEND vía Composite: gestionar usuarios requiere la
-        // patente 'mnuUsuarios' (el Administrador pasa por el bypass de TienePermiso). Antes
-        // se comparaba el Perfil contra "Administrador" por string, lo que dejaba el rol
-        // hardcodeado y hacía que la patente solo controlara la visibilidad del menú.
-        private static void ValidarPermisoGestionUsuarios()
+        // Re-validación en el BACKEND: la gestión de usuarios es una operación EXCLUSIVA del
+        // Administrador. Se verifica el rol en sesión por Perfil, de forma consistente con
+        // SessionManager.TienePermiso (que también identifica al admin por su Perfil).
+        private static void ValidarEsAdministrador()
         {
             // Fail-closed: sin sesión NO se permite la operación.
             if (!SessionManager.IsLoggedIn)
                 throw new BE.AppException("err.bll.sesion_expirada",
                     "La sesión expiró. Volvé a iniciar sesión.");
-            if (!SessionManager.GetInstance().TienePermiso(BE.Patentes.Usuarios))
+            string perfil = SessionManager.GetInstance().Usuario.Perfil ?? "";
+            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
                 throw new BE.AppException("err.bll.usuario.sin_permiso",
-                    "No tiene permiso para gestionar usuarios.");
+                    "Solo un Administrador puede gestionar usuarios.");
         }
 
         /// <summary>Autentica al usuario y establece la sesión. Bloquea la cuenta tras 3 intentos fallidos.</summary>
@@ -126,7 +126,7 @@ namespace BLL
         // Devuelve la ruta del archivo de credenciales generado.
         public string Alta(string modulo, string username, string perfil)
         {
-            ValidarPermisoGestionUsuarios();
+            ValidarEsAdministrador();
 
             // T07 — Verificar integridad de la base ANTES de modificar usuarios.
             Configuracion.AsegurarIntegridadUsuarios();
@@ -164,7 +164,7 @@ namespace BLL
         // Devuelve la ruta del archivo de credenciales generado.
         public string ResetearClave(string modulo, int idUsuario, string usernameObjetivo)
         {
-            ValidarPermisoGestionUsuarios();
+            ValidarEsAdministrador();
 
             // T07 — Verificar integridad de la base ANTES de modificar usuarios.
             Configuracion.AsegurarIntegridadUsuarios();
@@ -194,7 +194,7 @@ namespace BLL
         // Desbloquea la cuenta de un usuario y resetea el contador de intentos. Solo Administrador.
         public void Desbloquear(string modulo, int idUsuario, string usernameObjetivo)
         {
-            ValidarPermisoGestionUsuarios();
+            ValidarEsAdministrador();
 
             // T07 — Verificar integridad de la base ANTES de modificar usuarios.
             Configuracion.AsegurarIntegridadUsuarios();
@@ -221,7 +221,7 @@ namespace BLL
         // Resetea la contraseña de TODOS los usuarios a una clave temporal. Solo Administrador.
         public void ResetearTodasLasClaves(string modulo, string claveTemporal)
         {
-            ValidarPermisoGestionUsuarios();
+            ValidarEsAdministrador();
 
             var (valida, mensaje) = Encriptador.ValidarContrasena(claveTemporal);
             if (!valida)
