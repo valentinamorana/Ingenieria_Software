@@ -135,6 +135,8 @@ namespace BLL
                 if (todosEnCero && (dvvIni == null || dvvIni == 0))
                 {
                     RecalcularTodoDV(dvDAL, svc, filas);
+                    int? dvvInicializado = dvDAL.ObtenerDVV("Usuario");
+                    LogearVerificacion("Usuario", dvvInicializado, dvvInicializado ?? 0, true, 0, "Arranque");
                     return VerificarTablasAdicionales(out resultado);
                 }
 
@@ -156,6 +158,8 @@ namespace BLL
                         "[Configuracion] Detectados DVH del algoritmo anterior (mod 10). " +
                         "Recalculando con nuevo algoritmo (mod 999.983)...");
                     RecalcularTodoDV(dvDAL, svc, filas);
+                    int? dvvMigAlg = dvDAL.ObtenerDVV("Usuario");
+                    LogearVerificacion("Usuario", dvvMigAlg, dvvMigAlg ?? 0, true, 0, "Arranque");
                     return VerificarTablasAdicionales(out resultado);
                 }
 
@@ -171,6 +175,8 @@ namespace BLL
                         $"[Configuracion] Migrando formato del DVH de Usuario a v{FormatoDVUsuarioActual} " +
                         "(ahora incluye Rol). Recalculando una vez...");
                     RecalcularTodoDV(dvDAL, svc, filas);
+                    int? dvvMigFmt = dvDAL.ObtenerDVV("Usuario");
+                    LogearVerificacion("Usuario", dvvMigFmt, dvvMigFmt ?? 0, true, 0, "Arranque");
                     return VerificarTablasAdicionales(out resultado);
                 }
 
@@ -411,6 +417,8 @@ namespace BLL
             if (todosNull && (dvvAlm == null || dvvAlm == 0))
             {
                 recalcular();
+                int? dvvNuevoTbl = dvDAL.ObtenerDVV(tabla);
+                LogearVerificacion(tabla, dvvNuevoTbl, dvvNuevoTbl ?? 0, true, 0, "Arranque");
                 return;
             }
 

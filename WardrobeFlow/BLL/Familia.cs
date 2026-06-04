@@ -168,6 +168,12 @@ namespace BLL
             _bitacora.Registrar("Gestión de Perfiles",
                 $"Asignación del rol '{rol}' actualizada: +{agregados} / -{quitados}",
                 BE.Criticidad.Alta);
+
+            if (agregados > 0 || quitados > 0)
+                GrabarVersionesUsuariosConRol(rol,
+                    Seguridad.SessionManager.GetInstance().Usuario.Username,
+                    $"Permisos del rol '{rol}' modificados: +{agregados} / -{quitados}");
+
             return (agregados, quitados);
         }
 
@@ -256,6 +262,19 @@ namespace BLL
             VerificarAdmin();
             permisoDAL.BajaComponente(idPermiso);
             _bitacora.Registrar("Gestión de Perfiles", $"Componente {idPermiso} eliminado", BE.Criticidad.Alta);
+        }
+
+        private void GrabarVersionesUsuariosConRol(string rol, string actor, string detalle)
+        {
+            try
+            {
+                var bllUsr = new Usuario();
+                var bllVer = new VersionUsuario();
+                foreach (var u in bllUsr.ObtenerTodos())
+                    if (string.Equals(u.Perfil, rol, StringComparison.OrdinalIgnoreCase))
+                        bllVer.GrabarVersion(u.Id, actor, detalle);
+            }
+            catch { }
         }
 
         // ── Helpers privados de recorrido recursivo ─────────────────────────────

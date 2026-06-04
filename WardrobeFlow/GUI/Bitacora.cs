@@ -557,8 +557,8 @@ namespace GUI
 
                 using (var brSub = new SolidBrush(vinoMedio))
                     g.DrawString(
-                        $"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}   |   " +
-                        $"{_tablaImpresion.Rows.Count} registro(s)",
+                        $"{T("rpt.txt.generado", "Generado")}: {DateTime.Now:dd/MM/yyyy HH:mm}   |   " +
+                        string.Format(T("msg.bit.registros", "{0} registro(s)"), _tablaImpresion.Rows.Count),
                         _fuenteCelda, brSub, xIzq, y);
                 y += _fuenteCelda.GetHeight(g) + 6;
 
