@@ -66,8 +66,10 @@ El patrón Composite es el **motor real de autorización**:
 
 ## Seguridad y Datos Sensibles (T03)
 
-- **Contraseñas**: hash **PBKDF2-SHA256** con salt aleatorio y 100.000 iteraciones (`Seguridad.Encriptador`). Nunca se almacenan en texto plano.
+- **Contraseñas**: hash **PBKDF2-SHA256** con salt aleatorio y 100.000 iteraciones (`Seguridad.Encriptador`). Nunca se almacenan en texto plano. La verificación compara los hashes en **tiempo constante** (XOR acumulado sobre los 32 bytes), para no filtrar información por temporización.
 - **DNI** de Cliente y Empleado: **cifrado AES-128-CBC** (IV aleatorio por registro). Se descifra al leer; la unicidad de DNI se valida en la capa de negocio (comparando en memoria, ya que el cifrado no es determinista).
+- **Login resistente a enumeración de usuarios**: ante un usuario inexistente el login ejecuta igualmente un PBKDF2 contra un **hash señuelo** (iguala el costo temporal del caso real, cerrando el canal lateral de temporización), cuenta el intento en la sesión (`ContadorSesion`) y lo registra en la bitácora. La GUI muestra el **mismo mensaje genérico** ("Usuario o contraseña incorrectos") tanto si el usuario no existe como si la contraseña es incorrecta, sin revelar cuál de los dos falló.
+- **Autorización de operaciones sensibles**: la gestión de usuarios (`BLL.Usuario`) y del árbol de perfiles/permisos (`BLL.Familia`) es **exclusiva del Administrador**, re-validada en el backend de forma *fail-closed* (sin sesión, se rechaza).
 - **Manejo de excepciones**: las excepciones de dominio (`BE.AppException`) llevan clave de traducción y se muestran en el idioma activo; las excepciones inesperadas se registran en la bitácora con criticidad alta.
 
 ---
