@@ -320,9 +320,7 @@ namespace DAL
                 {
                     if (fila.Id == idUsuario)
                     {
-                        int dvh = svc.CalcularDVH(
-                            fila.Id.ToString(), fila.Username, fila.Clave,
-                            fila.Perfil, fila.Estado, fila.IntentosFallidos);
+                        int dvh = svc.CalcularDVH(fila.CamposParaDVH());
                         dvDAL.ActualizarDVH(idUsuario, dvh);
                         fila.DVHAlmacenado = dvh;
                         break;
@@ -351,9 +349,7 @@ namespace DAL
                 {
                     if (string.Equals(fila.Username, username, StringComparison.OrdinalIgnoreCase))
                     {
-                        int dvh = svc.CalcularDVH(
-                            fila.Id.ToString(), fila.Username, fila.Clave,
-                            fila.Perfil, fila.Estado, fila.IntentosFallidos);
+                        int dvh = svc.CalcularDVH(fila.CamposParaDVH());
                         dvDAL.ActualizarDVH(fila.Id, dvh);
                         fila.DVHAlmacenado = dvh;
                         break;
@@ -379,9 +375,7 @@ namespace DAL
 
                 foreach (var fila in filas)
                 {
-                    int dvh = svc.CalcularDVH(
-                        fila.Id.ToString(), fila.Username, fila.Clave,
-                        fila.Perfil, fila.Estado, fila.IntentosFallidos);
+                    int dvh = svc.CalcularDVH(fila.CamposParaDVH());
                     dvDAL.ActualizarDVH(fila.Id, dvh);
                     fila.DVHAlmacenado = dvh;
                 }

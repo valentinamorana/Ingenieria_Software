@@ -94,6 +94,12 @@ namespace BLL
             }
         }
 
+        // T07 — Versión del FORMATO del DVH de Usuario. Se incrementa cuando cambian los
+        // campos que entran al cálculo (v2 = se agregó Rol). Se persiste como marcador en
+        // DVVertical para poder migrar UNA vez (recalcular) en bases existentes sin bloquear.
+        private const string FormatoDVUsuarioMarcador = "__FormatoDVUsuario__";
+        private const int    FormatoDVUsuarioActual   = 2;
+
         /// <summary>
         /// T07 — Verifica la integridad de la tabla Usuario mediante DVH y DVV.
         /// Sobrecarga legacy: devuelve el mensaje de error en español para compatibilidad.
@@ -153,14 +159,27 @@ namespace BLL
                     return VerificarTablasAdicionales(out resultado);
                 }
 
+                // Migración de FORMATO del DVH (v2: el cálculo ahora incluye Rol). Si la base
+                // trae un formato anterior — o sin marcador —, se recalcula UNA sola vez en
+                // lugar de bloquear, y se sella el formato nuevo (RecalcularTodoDV graba el
+                // marcador). Misma estrategia que la migración de algoritmo de arriba. A partir
+                // de acá, manipular el Rol en BD queda detectado por la verificación de integridad.
+                int? formatoDV = dvDAL.ObtenerDVV(FormatoDVUsuarioMarcador);
+                if (formatoDV == null || formatoDV < FormatoDVUsuarioActual)
+                {
+                    System.Diagnostics.Trace.TraceInformation(
+                        $"[Configuracion] Migrando formato del DVH de Usuario a v{FormatoDVUsuarioActual} " +
+                        "(ahora incluye Rol). Recalculando una vez...");
+                    RecalcularTodoDV(dvDAL, svc, filas);
+                    return VerificarTablasAdicionales(out resultado);
+                }
+
                 var dvhsRecalculados = new List<int>();
                 var filasCorruptas   = new List<string>();
 
                 foreach (var fila in filas)
                 {
-                    int dvhCalculado = svc.CalcularDVH(
-                        fila.Id.ToString(), fila.Username, fila.Clave,
-                        fila.Perfil, fila.Estado, fila.IntentosFallidos);
+                    int dvhCalculado = svc.CalcularDVH(fila.CamposParaDVH());
                     dvhsRecalculados.Add(dvhCalculado);
                     if (fila.DVHAlmacenado == null || fila.DVHAlmacenado != dvhCalculado)
                         filasCorruptas.Add($"'{fila.Username}' (ID {fila.Id})");
@@ -267,9 +286,7 @@ namespace BLL
 
             foreach (var fila in filas)
             {
-                int dvhCalc = svc.CalcularDVH(
-                    fila.Id.ToString(), fila.Username, fila.Clave,
-                    fila.Perfil, fila.Estado, fila.IntentosFallidos);
+                int dvhCalc = svc.CalcularDVH(fila.CamposParaDVH());
 
                 dvhsRecalc.Add(dvhCalc);
 
@@ -299,16 +316,14 @@ namespace BLL
             foreach (var fila in todas)
             {
                 if (!idsSet.Contains(fila.Id)) continue;
-                int dvh = svc.CalcularDVH(
-                    fila.Id.ToString(), fila.Username, fila.Clave,
-                    fila.Perfil, fila.Estado, fila.IntentosFallidos);
+                int dvh = svc.CalcularDVH(fila.CamposParaDVH());
                 dvDAL.ActualizarDVH(fila.Id, dvh);
             }
 
             var todasActualizadas = dvDAL.ObtenerFilasUsuario();
             var dvhValues = new List<int>();
             foreach (var f in todasActualizadas)
-                dvhValues.Add(svc.CalcularDVH(f.Id.ToString(), f.Username, f.Clave, f.Perfil, f.Estado, f.IntentosFallidos));
+                dvhValues.Add(svc.CalcularDVH(f.CamposParaDVH()));
             dvDAL.GuardarDVV("Usuario", svc.CalcularDVV(dvhValues));
         }
 
@@ -335,14 +350,15 @@ namespace BLL
             var dvhValues = new List<int>();
             foreach (var fila in filas)
             {
-                int dvh = svc.CalcularDVH(
-                    fila.Id.ToString(), fila.Username, fila.Clave,
-                    fila.Perfil, fila.Estado, fila.IntentosFallidos);
+                int dvh = svc.CalcularDVH(fila.CamposParaDVH());
                 dvDAL.ActualizarDVH(fila.Id, dvh);
                 dvhValues.Add(dvh);
             }
             int dvv = svc.CalcularDVV(dvhValues);
             dvDAL.GuardarDVV("Usuario", dvv);
+            // Sellar el formato vigente del DVH: marca que estas filas se calcularon con la
+            // fórmula actual (incluye Rol), para que la migración no vuelva a dispararse.
+            dvDAL.GuardarDVV(FormatoDVUsuarioMarcador, FormatoDVUsuarioActual);
         }
 
         // ── DV en tablas ADICIONALES (Cliente, Empleado) — T07 ──────────────────

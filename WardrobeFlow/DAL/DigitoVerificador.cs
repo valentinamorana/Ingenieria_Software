@@ -69,7 +69,7 @@ namespace DAL
             try
             {
                 DataTable tabla = acceso.Leer(
-                    "SELECT IdUsuario, Username, Clave, Perfil, Estado, IntentosFallidos, DVH " +
+                    "SELECT IdUsuario, Username, Clave, Rol, Perfil, Estado, IntentosFallidos, DVH " +
                     "FROM Usuario ORDER BY IdUsuario",
                     null);
 
@@ -82,6 +82,7 @@ namespace DAL
                         Id               = Convert.ToInt32(row["IdUsuario"]),
                         Username         = row["Username"].ToString(),
                         Clave            = row["Clave"].ToString(),
+                        Rol              = row["Rol"] != DBNull.Value ? row["Rol"].ToString() : "",
                         Perfil           = row["Perfil"] != DBNull.Value ? row["Perfil"].ToString() : "",
                         Estado           = row["Estado"] != DBNull.Value ? Convert.ToInt32(row["Estado"]).ToString() : "0",
                         IntentosFallidos = row["IntentosFallidos"] != DBNull.Value ? Convert.ToInt32(row["IntentosFallidos"]).ToString() : "0",
