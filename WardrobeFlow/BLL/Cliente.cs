@@ -82,7 +82,7 @@ namespace BLL
             var actual = dalCliente.ObtenerPorId(cliente.IdCliente);
 
             // Bloquear si el nuevo plan tiene menos capacidad que prendas en uso
-            if (cliente.IdPlan.HasValue && cliente.IdPlan != actual?.IdPlan)
+            if (actual != null && cliente.IdPlan.HasValue && cliente.IdPlan != actual.IdPlan)
             {
                 var nuevoPlan = dalPlan.ObtenerPorId(cliente.IdPlan.Value);
                 if (nuevoPlan != null && actual.StockUtilizado > nuevoPlan.LimitePrendas)
