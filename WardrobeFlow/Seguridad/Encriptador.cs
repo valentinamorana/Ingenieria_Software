@@ -56,11 +56,28 @@ namespace Seguridad
             {
                 byte[] hashCalculado = pbkdf2.GetBytes(HashSize);
 
+                // Comparación en TIEMPO CONSTANTE: recorre siempre los 32 bytes y acumula
+                // las diferencias con XOR, en vez de cortar en el primer byte distinto. Así
+                // el tiempo de respuesta no filtra cuántos bytes coincidieron (canal lateral).
+                int diferencia = 0;
                 for (int i = 0; i < HashSize; i++)
-                    if (hashBytes[i + SaltSize] != hashCalculado[i])
-                        return false;
-                return true;
+                    diferencia |= hashBytes[i + SaltSize] ^ hashCalculado[i];
+                return diferencia == 0;
             }
+        }
+
+        // Hash "señuelo" precalculado una sola vez. Se usa para verificar contra un hash
+        // VÁLIDO cuando el usuario no existe, de modo que el login consuma el mismo tiempo
+        // de PBKDF2 que con un usuario real y no se pueda enumerar usuarios por temporización.
+        private static readonly string _hashSenuelo = Hash("\0senuelo-sin-usuario\0");
+
+        /// <summary>
+        /// Ejecuta una verificación PBKDF2 contra el hash señuelo. Siempre devuelve false;
+        /// su único objetivo es igualar el costo temporal del camino "usuario inexistente".
+        /// </summary>
+        public static bool VerificacionSenuelo(string contrasena)
+        {
+            return VerificarContrasena(contrasena, _hashSenuelo);
         }
 
         // ── Validacion de requisitos de contraseña ────────────────────────────

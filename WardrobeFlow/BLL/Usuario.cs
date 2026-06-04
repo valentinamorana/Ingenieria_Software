@@ -23,6 +23,21 @@ namespace BLL
         private const string RolAdministrador    = BE.Roles.Administrador;
         private const string ClaveTemporalDefault = "Wardrobe1!";
 
+        // T04 — Re-validación en el BACKEND vía Composite: gestionar usuarios requiere la
+        // patente 'mnuUsuarios' (el Administrador pasa por el bypass de TienePermiso). Antes
+        // se comparaba el Perfil contra "Administrador" por string, lo que dejaba el rol
+        // hardcodeado y hacía que la patente solo controlara la visibilidad del menú.
+        private static void ValidarPermisoGestionUsuarios()
+        {
+            // Fail-closed: sin sesión NO se permite la operación.
+            if (!SessionManager.IsLoggedIn)
+                throw new BE.AppException("err.bll.sesion_expirada",
+                    "La sesión expiró. Volvé a iniciar sesión.");
+            if (!SessionManager.GetInstance().TienePermiso(BE.Patentes.Usuarios))
+                throw new BE.AppException("err.bll.usuario.sin_permiso",
+                    "No tiene permiso para gestionar usuarios.");
+        }
+
         /// <summary>Autentica al usuario y establece la sesión. Bloquea la cuenta tras 3 intentos fallidos.</summary>
         public bool Login(string modulo, string username, string contraseña)
         {
@@ -36,7 +51,21 @@ namespace BLL
                     "Reiniciá la aplicación para volver a intentarlo.");
 
             BE.Usuario usuario = usuarioDAL.ObtenerPorUsername(username);
-            if (usuario == null) return false;
+            if (usuario == null)
+            {
+                // Anti-enumeración: igualar el costo temporal de un usuario real (corre PBKDF2
+                // contra un hash señuelo), contar el intento en la sesión y registrarlo. Se
+                // devuelve false y la GUI muestra el MISMO mensaje genérico que para
+                // credenciales inválidas, sin revelar si el usuario existe.
+                Encriptador.VerificacionSenuelo(contraseña);
+                ContadorSesion.GetInstance().RegistrarIntento();
+                bitacora.RegistrarSinSesion(
+                    modulo:     modulo ?? "Login",
+                    actividad:  "Intento Fallido Login",
+                    criticidad: BE.Criticidad.IntentosLogin,
+                    detalle:    $"Intento de login para usuario inexistente '{username}' a las {DateTime.Now:HH:mm:ss}.");
+                return false;
+            }
 
             if (usuario.Bloqueado)
                 throw new BE.LoginException(BE.LoginException.TipoError.CuentaBloqueada,
@@ -97,14 +126,7 @@ namespace BLL
         // Devuelve la ruta del archivo de credenciales generado.
         public string Alta(string modulo, string username, string perfil)
         {
-            if (!SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada",
-                    "La sesión expiró. Volvé a iniciar sesión.");
-
-            string perfilActual = SessionManager.GetInstance().Usuario.Perfil ?? "";
-            if (!perfilActual.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
-                throw new BE.AppException("err.bll.usuario.alta_sin_permiso",
-                    "Solo un Administrador puede crear nuevos usuarios.");
+            ValidarPermisoGestionUsuarios();
 
             // T07 — Verificar integridad de la base ANTES de modificar usuarios.
             Configuracion.AsegurarIntegridadUsuarios();
@@ -142,13 +164,7 @@ namespace BLL
         // Devuelve la ruta del archivo de credenciales generado.
         public string ResetearClave(string modulo, int idUsuario, string usernameObjetivo)
         {
-            if (!SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada", "La sesión expiró. Volvé a iniciar sesión.");
-
-            string perfil = SessionManager.GetInstance().Usuario.Perfil ?? "";
-            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
-                throw new BE.AppException("err.bll.usuario.reset_sin_permiso",
-                    "Solo un Administrador puede resetear contraseñas.");
+            ValidarPermisoGestionUsuarios();
 
             // T07 — Verificar integridad de la base ANTES de modificar usuarios.
             Configuracion.AsegurarIntegridadUsuarios();
@@ -178,13 +194,7 @@ namespace BLL
         // Desbloquea la cuenta de un usuario y resetea el contador de intentos. Solo Administrador.
         public void Desbloquear(string modulo, int idUsuario, string usernameObjetivo)
         {
-            if (!SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada", "La sesión expiró. Volvé a iniciar sesión.");
-
-            string perfil = SessionManager.GetInstance().Usuario.Perfil ?? "";
-            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
-                throw new BE.AppException("err.bll.usuario.desbloquear_sin_permiso",
-                    "Solo un Administrador puede desbloquear cuentas.");
+            ValidarPermisoGestionUsuarios();
 
             // T07 — Verificar integridad de la base ANTES de modificar usuarios.
             Configuracion.AsegurarIntegridadUsuarios();
@@ -211,13 +221,7 @@ namespace BLL
         // Resetea la contraseña de TODOS los usuarios a una clave temporal. Solo Administrador.
         public void ResetearTodasLasClaves(string modulo, string claveTemporal)
         {
-            if (!SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada", "La sesión expiró. Volvé a iniciar sesión.");
-
-            string perfil = SessionManager.GetInstance().Usuario.Perfil ?? "";
-            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
-                throw new BE.AppException("err.bll.usuario.resetmasivo_sin_permiso",
-                    "Solo un Administrador puede realizar esta operación.");
+            ValidarPermisoGestionUsuarios();
 
             var (valida, mensaje) = Encriptador.ValidarContrasena(claveTemporal);
             if (!valida)
