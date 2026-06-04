@@ -537,6 +537,39 @@ ELSE
     PRINT 'FechaVencimiento ya existe en Cliente — sin cambios.';
 GO
 
+-- FechaNacimiento en Cliente (para validar mayoría de edad)
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+               WHERE TABLE_NAME = 'Cliente' AND COLUMN_NAME = 'FechaNacimiento')
+BEGIN
+    ALTER TABLE Cliente ADD FechaNacimiento DATE NULL;
+    PRINT 'Columna FechaNacimiento agregada a Cliente.';
+END
+ELSE
+    PRINT 'FechaNacimiento ya existe en Cliente — sin cambios.';
+GO
+
+-- Permisos adicionales para Supervisor (mismo acceso que Vendedor + auditoría ya tenía)
+INSERT INTO RolPermiso (Rol, IdPermiso)
+SELECT r.Rol, p.IdPermiso
+FROM (VALUES
+    ('Supervisor','mnuPrendas'),
+    ('Supervisor','mnuClientes'),
+    ('Supervisor','mnuPlanSuscripciones'),
+    ('Supervisor','mnuPedidosVenta')
+) AS r(Rol, NombreMenu)
+JOIN Permiso p ON p.NombreMenu = r.NombreMenu AND ISNULL(p.EsFamilia,0) = 0
+WHERE NOT EXISTS (SELECT 1 FROM RolPermiso x WHERE x.Rol = r.Rol AND x.IdPermiso = p.IdPermiso);
+
+-- Regenerar aristas Composite para el nodo Supervisor
+INSERT INTO PermisoRelacion (IdPadre, IdHijo)
+SELECT pr.IdPermiso, rp.IdPermiso
+FROM   RolPermiso rp
+INNER JOIN Permiso pr ON pr.Nombre = rp.Rol AND pr.EsRol = 1 AND pr.IdPermiso <> rp.IdPermiso
+WHERE  NOT EXISTS (SELECT 1 FROM PermisoRelacion x
+                   WHERE x.IdPadre = pr.IdPermiso AND x.IdHijo = rp.IdPermiso);
+PRINT 'Permisos de Supervisor actualizados (mnuPrendas/mnuClientes/mnuPlanSuscripciones/mnuPedidosVenta).';
+GO
+
 -- MantenimientoPrenda (historial de limpieza/mantenimiento por prenda)
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'MantenimientoPrenda')
 BEGIN

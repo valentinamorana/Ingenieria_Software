@@ -108,6 +108,15 @@ namespace BLL
         public List<BE.MantenimientoPrenda> ObtenerHistorialMantenimiento(int idPrenda)
             => dalMantenimiento.ObtenerPorPrenda(idPrenda);
 
+        public List<BE.MantenimientoPrenda> ObtenerEnMantenimiento()
+        {
+            var todos    = dalMantenimiento.ObtenerTodos();
+            var abiertos = new List<BE.MantenimientoPrenda>();
+            foreach (var m in todos)
+                if (m.EstaAbierto) abiertos.Add(m);
+            return abiertos;
+        }
+
         // Devuelve el resumen de ocupación del stock para el Dashboard.
         public BE.OcupacionStock ObtenerOcupacion()
         {

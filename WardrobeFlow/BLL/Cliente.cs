@@ -199,6 +199,14 @@ namespace BLL
                 if (!char.IsDigit(c))
                     throw new BE.AppException("err.bll.cliente.dni_numeros",
                         "El DNI solo puede contener números.");
+
+            if (!cliente.FechaNacimiento.HasValue)
+                throw new BE.AppException("err.bll.cliente.fechanac_requerida",
+                    "La fecha de nacimiento es obligatoria.");
+
+            if (cliente.FechaNacimiento.Value.Date > DateTime.Today.AddYears(-18))
+                throw new BE.AppException("err.bll.cliente.menor_edad",
+                    "El cliente debe ser mayor de 18 años.");
         }
     }
 }

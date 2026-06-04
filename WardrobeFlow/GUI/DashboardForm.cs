@@ -37,7 +37,7 @@ namespace GUI
         private readonly BLL.Bitacora _bllBitacora = new BLL.Bitacora();
 
         // ── Visibilidad por rol ───────────────────────────────────────────────
-        private readonly bool _verPrendas, _verClientes, _verPedidos, _verBackup;
+        private readonly bool _verPrendas, _verClientes, _verPedidos, _verBackup, _verStock;
 
         // ── Controles de tarjetas (null si el rol no tiene permiso) ───────────
         private Label _numPrendas,  _txtPrendas;
@@ -61,6 +61,11 @@ namespace GUI
         private Label        _lblStTitulo;
         private DataGridView _dgvActividad;
 
+        // ── Panel de Tareas Pendientes ────────────────────────────────────────
+        private Panel        _panelTareas;
+        private DataGridView _dgvTareas;
+        private Label        _lblTareasTitulo;
+
         public DashboardForm(List<BE.Permiso> permisos)
         {
             var nombres = new HashSet<string>();
@@ -72,6 +77,7 @@ namespace GUI
             _verClientes = nombres.Contains("mnuClientes");
             _verPedidos  = nombres.Contains("mnuPedidosVenta") || nombres.Contains("mnuPedidosRealizados");
             _verBackup   = nombres.Contains("mnuUsuarios");
+            _verStock    = nombres.Contains("mnuStock");
 
             this.Text            = "Panel de Control";
             this.Size            = new Size(870, 570);
@@ -95,6 +101,7 @@ namespace GUI
             ActualizarMetricas();
             CargarActividadReciente();
             CargarMiniStats();
+            CargarTareasPendientes();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -111,6 +118,7 @@ namespace GUI
             ActualizarMetricas();
             CargarActividadReciente();
             CargarMiniStats();
+            CargarTareasPendientes();
         }
 
         private string T(string key, string fallback)
@@ -622,9 +630,58 @@ namespace GUI
             }
             panelCentro.Resize += (s, e) => AjustarAnchuras();
 
+            // ── Panel Tareas Pendientes ───────────────────────────────────────
+            bool hayTareas = _verPedidos || _verStock;
+            _panelTareas = new Panel
+            {
+                Dock      = DockStyle.Top,
+                Height    = hayTareas ? 140 : 0,
+                Visible   = hayTareas,
+                BackColor = Color.White,
+                Padding   = new Padding(0)
+            };
+
+            _lblTareasTitulo = new Label
+            {
+                Text      = "Mis Tareas Pendientes",
+                Font      = new Font("Segoe UI", 9f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(146, 62, 96),
+                Dock      = DockStyle.Top,
+                Height    = 26,
+                Padding   = new Padding(10, 5, 0, 0),
+                BackColor = Color.FromArgb(252, 240, 248)
+            };
+
+            _dgvTareas = new DataGridView
+            {
+                Dock                      = DockStyle.Fill,
+                BackgroundColor           = Color.White,
+                BorderStyle               = BorderStyle.None,
+                RowHeadersVisible         = false,
+                AllowUserToAddRows        = false,
+                AllowUserToResizeRows     = false,
+                ReadOnly                  = true,
+                SelectionMode             = DataGridViewSelectionMode.FullRowSelect,
+                EnableHeadersVisualStyles = false,
+                Font                      = new Font("Segoe UI", 8f),
+                AutoSizeColumnsMode       = DataGridViewAutoSizeColumnsMode.Fill,
+                CellBorderStyle           = DataGridViewCellBorderStyle.SingleHorizontal,
+                GridColor                 = Color.FromArgb(235, 225, 232)
+            };
+            _dgvTareas.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(176, 62, 96);
+            _dgvTareas.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            _dgvTareas.ColumnHeadersDefaultCellStyle.Font      = new Font("Segoe UI", 8f, FontStyle.Bold);
+            _dgvTareas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colTipo",  HeaderText = "Tipo",        FillWeight = 22 });
+            _dgvTareas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colDesc",  HeaderText = "Descripción", FillWeight = 56 });
+            _dgvTareas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colFecha", HeaderText = "Desde",       FillWeight = 22 });
+
+            _panelTareas.Controls.Add(_dgvTareas);
+            _panelTareas.Controls.Add(_lblTareasTitulo);
+
             // ── Ensamblar controles al formulario (orden: Dock procesa al revés)
             // Bottom → Top → Fill
             this.Controls.Add(panelCentro);
+            this.Controls.Add(_panelTareas);
             this.Controls.Add(_lblAviso);
             this.Controls.Add(_flowCards);
             this.Controls.Add(_panelHeader);
@@ -642,6 +699,67 @@ namespace GUI
                         card.Width = cardW;
                 }
             };
+        }
+
+        private void CargarTareasPendientes()
+        {
+            if (_dgvTareas == null || !_panelTareas.Visible) return;
+            _dgvTareas.Rows.Clear();
+
+            string tipoMant   = T("dash.tarea.mantenimiento", "Mantenimiento");
+            string tipoPedido = T("dash.tarea.pedido",        "Pedido");
+
+            try
+            {
+                if (_verStock)
+                {
+                    var enMant = _bllPrenda.ObtenerEnMantenimiento();
+                    foreach (var m in enMant)
+                    {
+                        int dias = (int)(DateTime.Today - m.FechaEntrada.Date).TotalDays;
+                        string desde = dias == 0
+                            ? T("dash.hoy", "hoy")
+                            : string.Format(T("dash.hace_dias", "hace {0}d"), dias);
+                        var fila = _dgvTareas.Rows[_dgvTareas.Rows.Add(tipoMant, m.NombrePrenda, desde)];
+                        fila.DefaultCellStyle.ForeColor = dias >= 3
+                            ? Color.FromArgb(160, 60, 0)
+                            : Color.FromArgb(60, 100, 60);
+                    }
+                }
+
+                if (_verPedidos)
+                {
+                    var pendientes = _bllPedido.ObtenerPendientes();
+                    foreach (var p in pendientes)
+                    {
+                        int dias = (int)(DateTime.Today - p.FechaPedido.Date).TotalDays;
+                        string desde = dias == 0
+                            ? T("dash.hoy", "hoy")
+                            : string.Format(T("dash.hace_dias", "hace {0}d"), dias);
+                        string desc = $"#{p.IdPedido} — {p.NombreCliente ?? $"Cliente {p.IdCliente}"}";
+                        var fila = _dgvTareas.Rows[_dgvTareas.Rows.Add(tipoPedido, desc, desde)];
+                        fila.DefaultCellStyle.ForeColor = dias >= 2
+                            ? Color.FromArgb(160, 40, 40)
+                            : Color.FromArgb(40, 80, 140);
+                    }
+                }
+
+                if (_dgvTareas.Rows.Count == 0)
+                {
+                    _dgvTareas.Rows.Add("—", T("dash.tareas.sinpendientes", "Sin tareas pendientes"), "—");
+                    _dgvTareas.Rows[0].DefaultCellStyle.ForeColor = Color.Gray;
+                }
+
+                _lblTareasTitulo.Text = string.Format(
+                    T("dash.tareas.titulo", "Mis Tareas Pendientes ({0})"),
+                    _dgvTareas.Rows.Count == 1 && _dgvTareas.Rows[0].Cells["colTipo"].Value?.ToString() == "—"
+                        ? 0
+                        : _dgvTareas.Rows.Count);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[DashboardForm.CargarTareasPendientes] " + ex.Message);
+            }
         }
 
         private void CargarActividadReciente()

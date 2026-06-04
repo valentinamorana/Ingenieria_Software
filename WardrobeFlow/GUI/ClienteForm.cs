@@ -60,13 +60,14 @@ namespace GUI
             btnGuardar.Text = _esEdicion ? T("btn.guardar.cambios",  "Guardar Cambios")
                                          : T("btn.registrar.cliente","Registrar Cliente");
             btnCancelar.Text  = T("btn.cancelar",        "Cancelar");
-            lblNombre.Text    = T("lbl.cli.nombre",      "Nombre *");
-            lblApellido.Text  = T("lbl.cli.apellido",    "Apellido *");
-            lblDNI.Text       = T("lbl.cli.dni",         "DNI * (7-8 dígitos)");
-            lblEmail.Text     = T("lbl.cli.email",       "Email");
-            lblMetodoPago.Text= T("lbl.cli.metodopago",  "Método de Pago *");
-            lblPlan.Text           = T("lbl.cli.plan",        "Plan de Suscripción");
-            chkVencimiento.Text    = T("lbl.cli.vencimiento", "Fecha de Vencimiento");
+            lblNombre.Text          = T("lbl.cli.nombre",      "Nombre *");
+            lblApellido.Text        = T("lbl.cli.apellido",    "Apellido *");
+            lblDNI.Text             = T("lbl.cli.dni",         "DNI * (7-8 dígitos)");
+            lblEmail.Text           = T("lbl.cli.email",       "Email");
+            lblFechaNacimiento.Text = T("lbl.cli.fechanac",    "Fecha de Nacimiento *");
+            lblMetodoPago.Text      = T("lbl.cli.metodopago",  "Método de Pago *");
+            lblPlan.Text            = T("lbl.cli.plan",        "Plan de Suscripción *");
+            chkVencimiento.Text     = T("lbl.cli.vencimiento", "Fecha de Vencimiento");
 
             // Actualizar ítem "— Sin plan —" del combo de planes (índice 0)
             if (cmbPlan.Items.Count > 0)
@@ -171,6 +172,11 @@ namespace GUI
                 cmbPlan.SelectedIndex = planIdx >= 0 ? planIdx + 1 : 0;  // +1 por "Sin plan"
             }
 
+            // Fecha de nacimiento
+            dtpFechaNacimiento.Value = _clienteOriginal.FechaNacimiento.HasValue
+                ? _clienteOriginal.FechaNacimiento.Value
+                : DateTime.Today.AddYears(-18);
+
             // Fecha de vencimiento
             if (_clienteOriginal.FechaVencimiento.HasValue)
             {
@@ -186,10 +192,20 @@ namespace GUI
 
             try
             {
+                var tc = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string TC(string k, string fb) => tc.ContainsKey(k) ? tc[k].Texto : fb;
+
                 // Determinar plan seleccionado
                 int? idPlan = null;
                 if (cmbPlan.SelectedIndex > 0 && _planes != null && _planes.Count >= cmbPlan.SelectedIndex)
                     idPlan = _planes[cmbPlan.SelectedIndex - 1].IdPlan;
+
+                // Bloquear guardado si no hay plan asignado
+                if (idPlan == null)
+                {
+                    lblMensaje.Text = TC("err.cli.plan_requerido", "Debe seleccionar un plan de suscripción.");
+                    return;
+                }
 
                 ClienteEditado = new BE.Cliente
                 {
@@ -200,6 +216,7 @@ namespace GUI
                     Email            = string.IsNullOrWhiteSpace(txtEmail.Text) ? null : txtEmail.Text.Trim(),
                     MetodoPago       = (cmbMetodoPago.SelectedItem as MetodoItem)?.Value ?? "Efectivo",
                     IdPlan           = idPlan,
+                    FechaNacimiento  = dtpFechaNacimiento.Value.Date,
                     FechaAlta        = _esEdicion ? _clienteOriginal.FechaAlta : DateTime.Now,
                     FechaVencimiento = chkVencimiento.Checked ? dtpVencimiento.Value.Date : (DateTime?)null
                 };

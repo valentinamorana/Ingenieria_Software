@@ -31,6 +31,9 @@ namespace BLL.Interfaces
         // Devuelve el historial de registros de mantenimiento/limpieza de una prenda.
         System.Collections.Generic.List<BE.MantenimientoPrenda> ObtenerHistorialMantenimiento(int idPrenda);
 
+        // Devuelve las prendas que actualmente están en mantenimiento (sin fecha de salida).
+        System.Collections.Generic.List<BE.MantenimientoPrenda> ObtenerEnMantenimiento();
+
         // Devuelve el resumen de ocupación del stock (total, en uso, en limpieza, disponibles).
         BE.OcupacionStock ObtenerOcupacion();
     }

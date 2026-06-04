@@ -196,16 +196,17 @@ GO
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Cliente')
 BEGIN
     CREATE TABLE Cliente (
-        IdCliente   INT           IDENTITY(1,1) PRIMARY KEY,
-        Nombre      NVARCHAR(100) NOT NULL,
-        Apellido    NVARCHAR(100) NOT NULL,
-        DNI         NVARCHAR(200) NOT NULL,  -- T03: almacena el DNI CIFRADO (AES Base64)
-        Email       NVARCHAR(200) NULL,
-        MetodoPago  NVARCHAR(100) NULL,
-        IdPlan      INT           NULL REFERENCES PlanSuscripcion(IdPlan),
-        FechaAlta   DATETIME      NOT NULL DEFAULT GETDATE(),
-        Activo      BIT           NOT NULL DEFAULT 1,
-        DVH         INT           NULL              -- T07: dígito verificador horizontal
+        IdCliente        INT           IDENTITY(1,1) PRIMARY KEY,
+        Nombre           NVARCHAR(100) NOT NULL,
+        Apellido         NVARCHAR(100) NOT NULL,
+        DNI              NVARCHAR(200) NOT NULL,  -- T03: almacena el DNI CIFRADO (AES Base64)
+        Email            NVARCHAR(200) NULL,
+        MetodoPago       NVARCHAR(100) NULL,
+        IdPlan           INT           NULL REFERENCES PlanSuscripcion(IdPlan),
+        FechaAlta        DATETIME      NOT NULL DEFAULT GETDATE(),
+        FechaNacimiento  DATE          NULL,
+        Activo           BIT           NOT NULL DEFAULT 1,
+        DVH              INT           NULL              -- T07: dígito verificador horizontal
     );
     PRINT 'Tabla Cliente creada.';
 END
@@ -425,8 +426,10 @@ FROM (VALUES
     ('Administrador','mnuCategorias'),('Administrador','mnuStock'),
     ('Administrador','mnuClientes'),('Administrador','mnuPlanSuscripciones'),
     ('Administrador','mnuPedidosVenta'),('Administrador','mnuPedidosRealizados'),
-    -- Supervisor: auditoría
+    -- Supervisor: auditoría + mismos permisos que Vendedor
     ('Supervisor','mnuAuditoria'),
+    ('Supervisor','mnuPrendas'),('Supervisor','mnuClientes'),
+    ('Supervisor','mnuPlanSuscripciones'),('Supervisor','mnuPedidosVenta'),
     -- Vendedor: prendas + clientes + planes + ventas
     ('Vendedor','mnuPrendas'),('Vendedor','mnuClientes'),
     ('Vendedor','mnuPlanSuscripciones'),('Vendedor','mnuPedidosVenta'),
