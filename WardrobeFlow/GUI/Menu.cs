@@ -285,9 +285,27 @@ namespace GUI
         {
             foreach (Form hijo in this.MdiChildren)
             {
-                if (hijo is DashboardForm) { hijo.BringToFront(); return; }
+                if (hijo is DashboardForm || hijo is DashboardVendedor ||
+                    hijo is DashboardControlStock || hijo is DashboardOperador || hijo is DashboardSupervisor)
+                { hijo.BringToFront(); return; }
             }
-            new DashboardForm(_usuarioActivo?.Permisos) { MdiParent = this }.Show();
+            CrearDashboardDelRol().Show();
+        }
+
+        private Form CrearDashboardDelRol()
+        {
+            string perfil = _usuarioActivo?.Perfil ?? "";
+            Form dash;
+            switch (perfil)
+            {
+                case "Vendedor":             dash = new DashboardVendedor();    break;
+                case "ControladorDeStock":   dash = new DashboardControlStock(); break;
+                case "OperadorDeInventario": dash = new DashboardOperador();    break;
+                case "Supervisor":           dash = new DashboardSupervisor();  break;
+                default:                     dash = new DashboardForm(_usuarioActivo?.Permisos); break;
+            }
+            dash.MdiParent = this;
+            return dash;
         }
 
         private void bitSistemaToolStripMenuItem_Click(object sender, EventArgs e)
@@ -518,8 +536,8 @@ namespace GUI
                 Traducir(GestorIdioma.IdiomaActual);
             }
 
-            // Abrir Panel de Control al iniciar sesión (permisos filtran las tarjetas visibles)
-            new DashboardForm(_usuarioActivo?.Permisos) { MdiParent = this }.Show();
+            // Abrir Panel de Control al iniciar sesión — formulario específico por rol
+            CrearDashboardDelRol().Show();
 
             // ── Timer de verificación periódica de integridad (C) ─────────────
             // Cada 30 minutos verifica DVH/DVV en background y loguea el resultado.

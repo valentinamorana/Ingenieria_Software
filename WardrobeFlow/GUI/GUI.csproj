@@ -50,6 +50,18 @@
     <Compile Include="DashboardForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="DashboardVendedor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DashboardControlStock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DashboardOperador.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DashboardSupervisor.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FormBase.cs">
       <SubType>Form</SubType>
     </Compile>
