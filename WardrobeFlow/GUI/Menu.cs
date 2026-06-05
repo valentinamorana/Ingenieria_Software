@@ -92,6 +92,10 @@ namespace GUI
             {
                 this.Text = "WardrobeFlow  —  " + _usuarioActivo.Username +
                             (_usuarioActivo.Perfil != null ? "  [" + _usuarioActivo.Perfil + "]" : "");
+
+                // Cargar y aplicar las preferencias de UI del usuario (fuente/tamaño/tema).
+                PreferenciasUI.Cargar(_usuarioActivo.Id);
+                PreferenciasUI.Aplicar(this);
             }
 
             // "Mi Perfil" — preferencias del usuario (idioma). Disponible para TODOS los usuarios.
@@ -523,7 +527,9 @@ namespace GUI
             _timerIntegridad.Start();
 
             // 3. Abrir dashboard inmediatamente — sus datos cargan en background
-            CrearDashboardDelRol().Show();
+            var dash = CrearDashboardDelRol();
+            dash.Show();
+            try { PreferenciasUI.Aplicar(dash); } catch { }
 
             // 4. Cargar traducciones de BD en background (no bloquea la UI)
             // RF-22/23 — Al ingresar se aplica el idioma PREFERIDO del usuario (persistido en BD).

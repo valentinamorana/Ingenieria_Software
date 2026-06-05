@@ -43,6 +43,9 @@ namespace GUI
                     this.Icon = new Icon(ico);
             }
             catch { }
+
+            // Aplica las preferencias de UI del usuario (fuente/tamaño/tema) a este formulario.
+            try { PreferenciasUI.Aplicar(this); } catch { }
         }
 
         /// <summary>

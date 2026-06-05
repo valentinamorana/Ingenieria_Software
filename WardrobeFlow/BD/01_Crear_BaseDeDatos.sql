@@ -416,6 +416,26 @@ ELSE
     PRINT 'Tabla ClaveRecuperacion ya existe — sin cambios.';
 GO
 
+-- Preferencia (preferencias de UI por usuario: fuente, tamaño, tema, formato de fecha…).
+-- ON DELETE CASCADE: al purgar físicamente un usuario, su fila de preferencias se borra sola.
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Preferencia')
+BEGIN
+    CREATE TABLE Preferencia (
+        IdUsuario      INT          NOT NULL PRIMARY KEY,
+        FuenteFamilia  NVARCHAR(50) NULL,            -- "Segoe UI", "Verdana", "Calibri"…
+        FuenteTamano   VARCHAR(10)  NULL,            -- 'Chico' / 'Normal' / 'Grande'
+        Tema           VARCHAR(20)  NULL,            -- 'Claro' / 'Oscuro'
+        FormatoFecha   VARCHAR(20)  NULL,            -- 'dd/MM/yyyy', 'yyyy-MM-dd'…
+        Notificaciones BIT          NULL,            -- placeholder (se guarda; sin efecto funcional aún)
+        CONSTRAINT FK_Preferencia_Usuario FOREIGN KEY (IdUsuario)
+            REFERENCES Usuario(IdUsuario) ON DELETE CASCADE
+    );
+    PRINT 'Tabla Preferencia creada.';
+END
+ELSE
+    PRINT 'Tabla Preferencia ya existe — sin cambios.';
+GO
+
 -- ============================================================
 -- SEEDS INICIALES
 -- ============================================================

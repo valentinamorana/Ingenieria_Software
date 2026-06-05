@@ -226,6 +226,7 @@
     <Compile Include="MiPerfilForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="PreferenciasUI.cs" />
     <EmbeddedResource Include="Bitacora.resx">
       <DependentUpon>Bitacora.cs</DependentUpon>
     </EmbeddedResource>
