@@ -279,6 +279,24 @@ namespace BLL
             }
         }
 
+        // RF-10 — Genera el set inicial de claves de emergencia (10) si todavía no existe ninguna.
+        // Se llama al arrancar, antes del Login. Devuelve la ruta del .txt si se generaron en esta
+        // ejecución, o null si ya existían (no hace nada) o si la tabla aún no está migrada.
+        public static string SeedClavesEmergencia()
+        {
+            try
+            {
+                var dal = new DAL.ClaveRecuperacion();
+                if (dal.ContarTotal() > 0) return null;   // ya hay un set cargado
+                return Usuario.GenerarClavesEmergencia(10);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError($"[Configuracion.SeedClavesEmergencia] {ex.Message}");
+                return null;
+            }
+        }
+
         // ── Métodos de diagnóstico y reparación granular ──────────────────────
 
         public static ResultadoDiagnostico ObtenerDiagnostico()

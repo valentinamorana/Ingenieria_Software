@@ -40,6 +40,19 @@ namespace GUI
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
 
+            // RF-10 — Genera el set inicial de 10 claves de emergencia (1 solo uso) para que un
+            // Administrador bloqueado pueda autodesbloquearse sin depender de otro admin.
+            string rutaClaves = BLL.Configuracion.SeedClavesEmergencia();
+            if (rutaClaves != null)
+                MessageBox.Show(
+                    "Se generaron 10 claves de emergencia de un solo uso.\n" +
+                    "Sirven para desbloquear una cuenta de Administrador bloqueada.\n\n" +
+                    "Se guardaron en:\n" + rutaClaves +
+                    "\n\nGuardá ese archivo en un lugar seguro.",
+                    "Claves de emergencia generadas",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+
             using (var frmLogin = new Login())
             {
                 if (frmLogin.ShowDialog() == DialogResult.OK)

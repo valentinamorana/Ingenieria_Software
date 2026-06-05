@@ -15,6 +15,9 @@ namespace Servicios
         private static readonly char[] Simbolos   = "!@#$%&*?".ToCharArray();
         private static readonly char[] Todos;
 
+        // Alfabeto SIN caracteres ambiguos (sin O/0, I/1, etc.) para las claves de emergencia.
+        private static readonly char[] CaracteresClave = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".ToCharArray();
+
         static GeneradorCredenciales()
         {
             var lista = new System.Collections.Generic.List<char>();
@@ -62,6 +65,49 @@ namespace Servicios
             sb.AppendLine("Usuario: "    + username);
             sb.AppendLine("Contraseña: " + contrasena);
             sb.AppendLine("Fecha: "      + DateTime.Now.ToString("dd/MM/yyyy HH:mm"));
+
+            File.WriteAllText(ruta, sb.ToString(), Encoding.UTF8);
+            return ruta;
+        }
+
+        // Genera una clave de recuperación legible: 3 grupos de 4 (ej: "A7K9-3MQP-XR2T").
+        // Sin caracteres ambiguos para que el admin la transcriba sin errores.
+        public static string GenerarClaveRecuperacion()
+        {
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                var grupos = new string[3];
+                for (int g = 0; g < grupos.Length; g++)
+                {
+                    char[] buf = new char[4];
+                    for (int i = 0; i < buf.Length; i++)
+                        buf[i] = ElegirAleatorio(rng, CaracteresClave);
+                    grupos[g] = new string(buf);
+                }
+                return string.Join("-", grupos);
+            }
+        }
+
+        // Exporta el set de claves de emergencia a un .txt en CredencialesGeneradas/.
+        // Devuelve la ruta del archivo generado. Es la copia física del admin (texto plano);
+        // en la BD las claves se guardan hasheadas.
+        public static string ExportarClavesRecuperacion(System.Collections.Generic.IList<string> claves)
+        {
+            string carpeta = ObtenerCarpeta();
+            string nombre  = string.Format("ClavesEmergencia_{0:yyyyMMdd_HHmm}.txt", DateTime.Now);
+            string ruta    = Path.Combine(carpeta, nombre);
+
+            var sb = new StringBuilder();
+            sb.AppendLine("=== CLAVES DE EMERGENCIA — WardrobeFlow ===");
+            sb.AppendLine("Sirven para DESBLOQUEAR una cuenta de Administrador bloqueada.");
+            sb.AppendLine("Cada clave es de UN SOLO USO. Guardá este archivo en un lugar seguro.");
+            sb.AppendLine("Generadas: " + DateTime.Now.ToString("dd/MM/yyyy HH:mm"));
+            sb.AppendLine(new string('-', 44));
+            int n = 1;
+            foreach (var c in claves)
+                sb.AppendLine(string.Format("  {0,2}. {1}", n++, c));
+            sb.AppendLine(new string('-', 44));
+            sb.AppendLine("Uso: en el Login → \"¿Cuenta bloqueada? Usar clave de emergencia\".");
 
             File.WriteAllText(ruta, sb.ToString(), Encoding.UTF8);
             return ruta;

@@ -220,6 +220,9 @@
     <Compile Include="ReparacionAsistidaForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="DesbloqueoEmergenciaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <EmbeddedResource Include="Bitacora.resx">
       <DependentUpon>Bitacora.cs</DependentUpon>
     </EmbeddedResource>

@@ -441,6 +441,24 @@ GO
 UPDATE Usuario SET Activo = 1 WHERE Activo IS NULL;
 GO
 
+-- Claves de emergencia (1 solo uso) para autodesbloqueo de un Administrador.
+-- Hasheadas (PBKDF2); el .txt con las claves en texto plano es la copia del admin.
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'ClaveRecuperacion')
+BEGIN
+    CREATE TABLE ClaveRecuperacion (
+        IdClave       INT           IDENTITY(1,1) PRIMARY KEY,
+        ClaveHash     NVARCHAR(500) NOT NULL,
+        Usada         BIT           NOT NULL DEFAULT 0,
+        UsadaPor      NVARCHAR(100) NULL,
+        FechaUso      DATETIME      NULL,
+        FechaCreacion DATETIME      NOT NULL DEFAULT GETDATE()
+    );
+    PRINT 'Tabla ClaveRecuperacion creada (claves de emergencia).';
+END
+ELSE
+    PRINT 'Tabla ClaveRecuperacion ya existe — sin cambios.';
+GO
+
 -- ============================================================
 -- MIGRACIÓN COMPOSITE (T04)
 -- Genera nodos Familia desde TipoComponente si no existen aún.
@@ -496,6 +514,61 @@ INNER JOIN Permiso pr ON pr.Nombre = rp.Rol AND pr.EsRol = 1 AND pr.IdPermiso <>
 WHERE  NOT EXISTS (SELECT 1 FROM PermisoRelacion x
                    WHERE x.IdPadre = pr.IdPermiso AND x.IdHijo = rp.IdPermiso);
 PRINT 'Nodos-rol y aristas rol→permiso migrados (T04 v7.0).';
+GO
+
+-- ============================================================
+-- JERARQUÍA DE ROLES (T04) — roles nuevos con vistas + rol-dentro-de-rol
+-- Idempotente. Crea los nodos-rol nuevos, les asigna sus patentes (vistas)
+-- propias y arma las aristas rol→rol para que el padre HEREDE recursivamente
+-- las vistas del hijo (demostración real del Composite con jerarquía de roles).
+--
+--   Auditor                                → Auditoría
+--   GerenteComercial  ⊃ Vendedor           → (Vendedor) + Pedidos Realizados
+--   EncargadoDeStock  ⊃ OperadorLogistico  → (despacho) + Prendas + Stock
+--   GerenteInventario ⊃ EncargadoDeStock   → (lo anterior) + Categorías + Outfits
+-- ============================================================
+
+-- 1) Nodos-rol para los roles nuevos (si faltan).
+INSERT INTO Permiso (Nombre, NombreMenu, TipoComponente, Estado, EsFamilia, EsRol)
+SELECT v.Rol, v.Rol, 'Rol', 1, 1, 1
+FROM (VALUES
+    ('Auditor'), ('GerenteComercial'), ('OperadorLogistico'),
+    ('EncargadoDeStock'), ('GerenteInventario')
+) AS v(Rol)
+WHERE NOT EXISTS (SELECT 1 FROM Permiso p WHERE p.Nombre = v.Rol AND p.EsRol = 1);
+GO
+
+-- 2) Patentes PROPIAS (vistas directas) de cada rol nuevo (aristas rol→patente).
+INSERT INTO PermisoRelacion (IdPadre, IdHijo)
+SELECT rol.IdPermiso, pat.IdPermiso
+FROM (VALUES
+    ('Auditor',           'mnuAuditoria'),
+    ('GerenteComercial',  'mnuPedidosRealizados'),
+    ('OperadorLogistico', 'mnuPedidosRealizados'),
+    ('EncargadoDeStock',  'mnuPrendas'),
+    ('EncargadoDeStock',  'mnuStock'),
+    ('GerenteInventario', 'mnuCategorias'),
+    ('GerenteInventario', 'mnuOutfits')
+) AS v(Rol, NombreMenu)
+INNER JOIN Permiso rol ON rol.Nombre = v.Rol AND rol.EsRol = 1
+INNER JOIN Permiso pat ON pat.NombreMenu = v.NombreMenu
+                       AND ISNULL(pat.EsFamilia,0) = 0 AND ISNULL(pat.EsRol,0) = 0
+WHERE NOT EXISTS (SELECT 1 FROM PermisoRelacion x
+                  WHERE x.IdPadre = rol.IdPermiso AND x.IdHijo = pat.IdPermiso);
+GO
+
+-- 3) Jerarquía rol→rol: el padre hereda recursivamente las vistas del hijo.
+INSERT INTO PermisoRelacion (IdPadre, IdHijo)
+SELECT padre.IdPermiso, hijo.IdPermiso
+FROM (VALUES
+    ('GerenteComercial',  'Vendedor'),
+    ('EncargadoDeStock',  'OperadorLogistico'),
+    ('GerenteInventario', 'EncargadoDeStock')
+) AS v(Padre, Hijo)
+INNER JOIN Permiso padre ON padre.Nombre = v.Padre AND padre.EsRol = 1
+INNER JOIN Permiso hijo  ON hijo.Nombre  = v.Hijo  AND hijo.EsRol  = 1
+WHERE NOT EXISTS (SELECT 1 FROM PermisoRelacion x
+                  WHERE x.IdPadre = padre.IdPermiso AND x.IdHijo = hijo.IdPermiso);
 GO
 
 -- ============================================================

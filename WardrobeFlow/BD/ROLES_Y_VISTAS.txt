@@ -1,0 +1,101 @@
+================================================================
+ WardrobeFlow — JERARQUÍA DE ROLES Y SUS VISTAS
+ (agregado en la 2da entrega — patrón Composite, rol-dentro-de-rol)
+================================================================
+
+QUÉ SE AGREGÓ
+-------------
+Antes, los roles GerenteComercial, GerenteInventario, EncargadoDeStock,
+OperadorLogistico y Auditor existían como opción en "Gestión de Usuarios"
+pero NO tenían permisos asignados → un usuario con esos roles veía el menú vacío.
+
+Ahora cada uno tiene VISTAS reales y, además, se armó una JERARQUÍA de roles
+(rol-dentro-de-rol) donde el rol padre HEREDA recursivamente las vistas del hijo,
+demostrando el patrón Composite con jerarquía de roles (RF-11).
+
+Todo se seedea de forma idempotente en los scripts:
+  • BD/01_Crear_BaseDeDatos.sql      (instalación limpia)
+  • BD/02_Actualizar_BaseDeDatos.sql (bases existentes)
+mediante la tabla PermisoRelacion (única fuente de verdad del árbol).
+
+
+LAS "VISTAS" (PATENTES) DEL SISTEMA
+-----------------------------------
+Cada vista es un ítem de menú (patente) que habilita una pantalla:
+
+  mnuUsuarios            → Gestionar Usuarios        (ABM de usuarios + claves/integridad)
+  mnuAuditoria           → Ver Auditoría             (Bitácora del sistema y de negocio)
+  mnuPrendas             → Ver Prendas               (catálogo de prendas)
+  mnuOutfits             → Ver Outfits               (combinaciones)
+  mnuCategorias          → Ver Categorías            (categorías de prendas)
+  mnuStock               → Gestionar Stock           (control de stock)
+  mnuClientes            → Gestionar Clientes        (ABM de clientes)
+  mnuPlanSuscripciones   → Planes de Suscripción     (ABM de planes)
+  mnuPedidosVenta        → Realizar Ventas           (alta de pedidos)
+  mnuPedidosRealizados   → Ver Pedidos Realizados    (despacho / seguimiento)
+
+
+JERARQUÍA NUEVA (⊃ = "contiene / hereda de")
+--------------------------------------------
+
+  GerenteComercial  ⊃  Vendedor
+  GerenteInventario ⊃  EncargadoDeStock ⊃ OperadorLogistico
+  Auditor           (rol plano, sin hijos)
+
+
+ROLES NUEVOS Y SUS VISTAS EFECTIVAS
+-----------------------------------
+
+▸ Auditor
+    Propias:   Ver Auditoría
+    Heredadas: —
+    VE: Ver Auditoría
+    (Rol de solo lectura para control/auditoría.)
+
+▸ OperadorLogistico
+    Propias:   Ver Pedidos Realizados
+    Heredadas: —
+    VE: Ver Pedidos Realizados
+    (Despacho de pedidos. Es la base de la rama de inventario.)
+
+▸ EncargadoDeStock   (⊃ OperadorLogistico)
+    Propias:   Ver Prendas, Gestionar Stock
+    Heredadas: Ver Pedidos Realizados
+    VE: Ver Prendas, Gestionar Stock, Ver Pedidos Realizados
+
+▸ GerenteInventario  (⊃ EncargadoDeStock)
+    Propias:   Ver Categorías, Ver Outfits
+    Heredadas: Ver Prendas, Gestionar Stock, Ver Pedidos Realizados
+    VE: Ver Prendas, Gestionar Stock, Ver Pedidos Realizados,
+        Ver Categorías, Ver Outfits
+
+▸ GerenteComercial   (⊃ Vendedor)
+    Propias:   Ver Pedidos Realizados
+    Heredadas: Ver Prendas, Gestionar Clientes, Planes de Suscripción, Realizar Ventas
+    VE: Ver Prendas, Gestionar Clientes, Planes de Suscripción,
+        Realizar Ventas, Ver Pedidos Realizados
+
+
+ROLES EXISTENTES (referencia)
+-----------------------------
+▸ Administrador        → TODO (las 10 vistas) + módulos de seguridad
+                         (Backup, Diagnóstico de Integridad, Usuarios).
+▸ Vendedor             → Ver Prendas, Gestionar Clientes, Planes, Realizar Ventas.
+▸ Supervisor (legacy)  → Auditoría + lo de Vendedor.
+▸ ControladorDeStock   → Ver Prendas, Gestionar Stock.   (legacy)
+▸ OperadorDeInventario → Ver Pedidos Realizados.         (legacy)
+
+
+CÓMO PROBARLO / DEMOSTRARLO
+---------------------------
+1. Correr 02_Actualizar_BaseDeDatos.sql (o 01 en instalación limpia).
+2. En "Gestión de Usuarios", crear un usuario con rol GerenteInventario.
+3. Iniciar sesión con ese usuario: el menú muestra exactamente sus 5 vistas
+   (las propias + las heredadas de EncargadoDeStock y OperadorLogistico).
+4. En "Gestión de Permisos" se ve el árbol Composite con los roles anidados
+   (botón "Embeber" para anidar/desanidar roles en vivo).
+
+NOTA: el motor resuelve los permisos RECURSIVAMENTE y deduplica los que llegan
+por varios caminos (BLL.Familia.ObtenerPermisosEfectivos). La asignación de un
+rol dentro de otro valida que NO se genere dependencia circular (RF-12/13).
+================================================================

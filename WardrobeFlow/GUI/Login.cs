@@ -28,6 +28,8 @@ namespace GUI
         private readonly Dictionary<string, Button> _loginBtnsIdioma = new Dictionary<string, Button>();
         // Etiqueta de descripción de marca (creada en código para ser traducible)
         private Label _lblBrandDesc;
+        // RF-10 — link a autodesbloqueo con clave de emergencia (admin bloqueado)
+        private LinkLabel _lnkEmergencia;
 
         public Login()
         {
@@ -80,6 +82,21 @@ namespace GUI
 
             // ── Pastillas de idioma en el panel izquierdo ─────────────────────────
             AgregarBotonesIdioma();
+
+            // ── Link de autodesbloqueo con clave de emergencia (RF-10) ────────────
+            _lnkEmergencia = new LinkLabel
+            {
+                Text         = "¿Cuenta bloqueada? Usar clave de emergencia",
+                AutoSize     = true,
+                Location     = new Point(lnkOlvidaste.Left, lnkOlvidaste.Bottom + 6),
+                Font         = new Font("Segoe UI", 8.25f),
+                LinkColor    = Color.FromArgb(146, 62, 96),
+                ActiveLinkColor = Color.FromArgb(176, 62, 96),
+                Tag          = "emg.link"
+            };
+            _lnkEmergencia.LinkClicked += LnkEmergencia_LinkClicked;
+            (lnkOlvidaste.Parent ?? (Control)this).Controls.Add(_lnkEmergencia);
+            _lnkEmergencia.BringToFront();
 
             this.AcceptButton = btnIngresar;
         }
@@ -399,6 +416,9 @@ namespace GUI
             var olvide = Tx(lnkOlvidaste.Tag?.ToString());
             if (olvide != null) lnkOlvidaste.Text = olvide;
 
+            var emg = Tx(_lnkEmergencia?.Tag?.ToString());
+            if (emg != null && _lnkEmergencia != null) _lnkEmergencia.Text = emg;
+
             // Separador
             var divider = Tx(lblDivider.Tag?.ToString());
             if (divider != null) lblDivider.Text = divider;
@@ -486,6 +506,24 @@ namespace GUI
         {
             using (var form = new OlvideContrasenaForm())
                 form.ShowDialog(this);
+        }
+
+        // RF-10 — Abre el diálogo de autodesbloqueo con clave de emergencia. Si la cuenta queda
+        // desbloqueada, se reactivan los campos del login para que el admin ingrese normalmente.
+        private void LnkEmergencia_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            using (var form = new DesbloqueoEmergenciaForm(txtUsuario.Text))
+            {
+                if (form.ShowDialog(this) == DialogResult.OK)
+                {
+                    txtUsuario.Enabled    = true;
+                    txtContraseña.Enabled = true;
+                    btnIngresar.Enabled   = true;
+                    this.AcceptButton     = btnIngresar;
+                    lblError.Text         = string.Empty;
+                    txtContraseña.Focus();
+                }
+            }
         }
     }
 }
