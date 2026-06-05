@@ -45,6 +45,8 @@ namespace GUI
         private readonly Dictionary<string, ToolStripButton> _btnIdiomas = new Dictionary<string, ToolStripButton>();
         // Label "Idioma:" / "Language:" / "Язык:" — dinámico por Observer
         private ToolStripLabel _lblIdioma;
+        // Item "Mi Perfil" (preferencias del usuario) — creado dinámicamente, traducible por Observer
+        private ToolStripMenuItem _miPerfilItem;
         // Usuario cargado en el constructor; reutilizado en OnLoad para no hacer dos SELECT
         private BE.Usuario _usuarioActivo;
 
@@ -92,8 +94,24 @@ namespace GUI
                             (_usuarioActivo.Perfil != null ? "  [" + _usuarioActivo.Perfil + "]" : "");
             }
 
+            // "Mi Perfil" — preferencias del usuario (idioma). Disponible para TODOS los usuarios.
+            // Se inserta al inicio del menú "Perfil", antes de "Cerrar Sesión".
+            _miPerfilItem = new System.Windows.Forms.ToolStripMenuItem(
+                Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual).ContainsKey("perfil.menu")
+                    ? Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual)["perfil.menu"].Texto
+                    : "Mi Perfil");
+            _miPerfilItem.Click += MiPerfil_Click;
+            usuarioToolStripMenuItem.DropDownItems.Insert(0, _miPerfilItem);
+
             // Construir menú dinámico según permisos del rol
             AplicarPermisos(_usuarioActivo?.Permisos);
+        }
+
+        // Abre "Mi Perfil" como diálogo modal (preferencias del usuario en sesión).
+        private void MiPerfil_Click(object sender, EventArgs e)
+        {
+            using (var f = new MiPerfilForm(_usuarioActivo))
+                f.ShowDialog(this);
         }
 
         /// <summary>
@@ -508,7 +526,9 @@ namespace GUI
             CrearDashboardDelRol().Show();
 
             // 4. Cargar traducciones de BD en background (no bloquea la UI)
-            string codigoPref = GestorIdioma.IdiomaActual?.Id ?? "ES";
+            // RF-22/23 — Al ingresar se aplica el idioma PREFERIDO del usuario (persistido en BD).
+            // El login queda en el idioma elegido en esa pantalla; el Menú ya abre en el del usuario.
+            string codigoPref = _usuarioActivo?.IdIdioma ?? GestorIdioma.IdiomaActual?.Id ?? "ES";
             System.Threading.Tasks.Task.Run(() =>
             {
                 try
@@ -623,6 +643,10 @@ namespace GUI
             // Label dinámico "Idioma:" / "Language:" / "Язык:"
             if (t.ContainsKey("lbl.idioma"))
                 _lblIdioma.Text = t["lbl.idioma"].Texto;
+
+            // Item "Mi Perfil" (creado en código, sin Tag del Designer)
+            if (_miPerfilItem != null)
+                _miPerfilItem.Text = t.ContainsKey("perfil.menu") ? t["perfil.menu"].Texto : "Mi Perfil";
 
             Aplicar(usuarioToolStripMenuItem,           t);
             Aplicar(panelControlToolStripMenuItem,      t);

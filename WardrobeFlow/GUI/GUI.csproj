@@ -223,6 +223,9 @@
     <Compile Include="DesbloqueoEmergenciaForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="MiPerfilForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <EmbeddedResource Include="Bitacora.resx">
       <DependentUpon>Bitacora.cs</DependentUpon>
     </EmbeddedResource>
