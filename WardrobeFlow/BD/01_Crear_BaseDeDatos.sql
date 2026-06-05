@@ -627,6 +627,52 @@ WHERE NOT EXISTS (SELECT 1 FROM PermisoRelacion x
 GO
 
 -- ============================================================
+-- USUARIOS DEMO DE LOS ROLES NUEVOS + SUPERVISOR COMPUESTO
+-- Idempotente. Crea un usuario por rol nuevo (claves en Contraseñas.txt) y convierte a
+-- Supervisor en rol COMPUESTO (Supervisor ⊃ Vendedor) conservando su Auditoría propia:
+-- mismos permisos efectivos que antes, pero ahora obtenidos por HERENCIA (no copiados).
+-- Las claves se guardan hasheadas (PBKDF2). Texto plano: usuario1! (ver Contraseñas.txt).
+-- ============================================================
+
+INSERT INTO Usuario (Username, Clave, Rol, Perfil, Estado, IntentosFallidos, DVH, IdIdioma, Activo)
+SELECT v.Username, v.Clave, v.Rol, v.Perfil, 1, 0, 0, 'ES', 1
+FROM (VALUES
+  ('auditor',     'SmnGp5hqSC+FXdbLiccYieNpC6vEaWn6nVpgZFrlyyeOXqx8yTjJYOgaw+oXAP7B', 'Auditor',           'Auditor'),
+  ('gcomercial',  '1KWgyl8MkMcuisigf4fRBDb2f803LIsA/hvfKpzfwcMbRboUiS5CwuvFQq64GJft', 'GerenteComercial',  'GerenteComercial'),
+  ('ginventario', 'G89lxogCulMeAK+WA5rNHSyWpuz5QKF/DBH8PSfiPbUv5SBKStFVQYXylikq+OMw', 'GerenteInventario', 'GerenteInventario'),
+  ('encargado',   'H9LyJ5OBv0m2atrETHrimO5mBcVpKLn46uy/hiTgw4130wCo2H7/sgqAoZ/zroA8', 'EncargadoDeStock',  'EncargadoDeStock'),
+  ('logistico',   'U3g703lDqDJfLgaXpOaNiAQpDOaBSq1LUMzEu3X7x8hh6097jTcMUNAsPfl1SCVG', 'OperadorLogistico', 'OperadorLogistico')
+) AS v(Username, Clave, Rol, Perfil)
+WHERE NOT EXISTS (SELECT 1 FROM Usuario u WHERE u.Username = v.Username);
+PRINT 'Usuarios demo de roles nuevos inicializados.';
+GO
+
+-- Supervisor → COMPUESTO: se quitan las patentes de Vendedor asignadas directo (quedan por
+-- herencia) y se agrega la arista Supervisor → Vendedor; conserva su Auditoría propia.
+DELETE r FROM PermisoRelacion r
+JOIN Permiso sup ON sup.IdPermiso = r.IdPadre AND sup.Nombre = 'Supervisor' AND sup.EsRol = 1
+JOIN Permiso pat ON pat.IdPermiso = r.IdHijo
+                AND pat.NombreMenu IN ('mnuPrendas','mnuClientes','mnuPlanSuscripciones','mnuPedidosVenta');
+INSERT INTO PermisoRelacion (IdPadre, IdHijo)
+SELECT sup.IdPermiso, ven.IdPermiso
+FROM Permiso sup JOIN Permiso ven ON ven.Nombre = 'Vendedor' AND ven.EsRol = 1
+WHERE sup.Nombre = 'Supervisor' AND sup.EsRol = 1
+  AND NOT EXISTS (SELECT 1 FROM PermisoRelacion x WHERE x.IdPadre = sup.IdPermiso AND x.IdHijo = ven.IdPermiso);
+PRINT 'Supervisor convertido en rol compuesto (Supervisor → Vendedor).';
+GO
+
+-- Si se insertaron usuarios nuevos en una BD ya inicializada, resetear el DV para que la app
+-- lo recalcule limpio en el próximo arranque (evita una falsa alarma de integridad por mezcla).
+IF EXISTS (SELECT 1 FROM Usuario WHERE Username IN ('auditor','gcomercial','ginventario','encargado','logistico') AND DVH = 0)
+   AND EXISTS (SELECT 1 FROM Usuario WHERE DVH <> 0)
+BEGIN
+    UPDATE Usuario SET DVH = 0;
+    UPDATE DVVertical SET DVV = 0 WHERE NombreTabla = 'Usuario';
+    PRINT 'DV de Usuario reseteado para recálculo en el próximo arranque.';
+END
+GO
+
+-- ============================================================
 -- MIGRACIONES INCREMENTALES
 -- ============================================================
 

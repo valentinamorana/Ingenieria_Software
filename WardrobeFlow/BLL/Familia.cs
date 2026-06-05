@@ -73,7 +73,14 @@ namespace BLL
 
             if (nodoRol != null)
             {
-                RecolectarPatentes(nodoRol, resultado, new HashSet<int>());
+                // La recursión vive en el Composite: el propio nodo-rol resuelve sus hojas
+                // (patentes) atravesando familias y roles anidados. Acá sólo se mapea a BE.Permiso.
+                foreach (var pat in nodoRol.ObtenerPatentesEfectivas())
+                    if (!resultado.ContainsKey(pat.Id))
+                        resultado[pat.Id] = new BE.Permiso
+                        {
+                            Id = pat.Id, Nombre = pat.Nombre, NombreMenu = pat.NombreMenu, Estado = true
+                        };
             }
             else
             {
@@ -334,23 +341,6 @@ namespace BLL
                 }
             }
             return null;
-        }
-
-        // Recorre recursivamente acumulando las Patentes (hojas) sin duplicados.
-        private static void RecolectarPatentes(BE.Componente nodo, Dictionary<int, BE.Permiso> acc, HashSet<int> visit)
-        {
-            if (nodo.Id != 0 && !visit.Add(nodo.Id)) return; // evita ciclos
-            if (nodo is BE.Patente pat)
-            {
-                if (!acc.ContainsKey(pat.Id))
-                    acc[pat.Id] = new BE.Permiso
-                    {
-                        Id = pat.Id, Nombre = pat.Nombre, NombreMenu = pat.NombreMenu, Estado = true
-                    };
-                return;
-            }
-            foreach (var hijo in nodo.Hijos)
-                RecolectarPatentes(hijo, acc, visit);
         }
 
         // Recolecta familias (no-rol) y/o patentes del árbol, según las listas provistas.

@@ -8,12 +8,42 @@ vendedor - vendedor1!
 
 Supervisor
 Controla y audita. Revisa bitácoras, valida incidencias y puede modificar planes, pero no opera directamente.
+(rol COMPUESTO: Supervisor ⊃ Vendedor + Auditoría — hereda lo de Vendedor)
 supervisor - supervisor1!
 
 Operador de Inventario
 Solo despacha pedidos. Ve pedidos listos, los verifica y notifica al cliente. No accede a stock ni clientes.
 operador - operador1!
 
-Controlador de Stock 
+Controlador de Stock
 Maneja las prendas. Controla devoluciones, registra incidencias y administra el stock.
 stock - controladorstock1!
+
+================================================================
+ROLES JERÁRQUICOS NUEVOS (Composite — rol dentro de rol)
+================================================================
+
+Auditor
+Solo lectura de control. Revisa la bitácora del sistema y de negocio. No opera.
+Ve: Auditoría.
+auditor - auditor1!
+
+Operador Logístico
+Solo despacho. Ve los pedidos realizados para despacharlos. (Base de la rama de inventario.)
+Ve: Pedidos Realizados.
+logistico - logistico1!
+
+Encargado de Stock   (⊃ Operador Logístico)
+Controla stock y prendas, y hereda el despacho del Operador Logístico.
+Ve: Prendas, Stock, Pedidos Realizados.
+encargado - encargado1!
+
+Gerente de Inventario   (⊃ Encargado de Stock ⊃ Operador Logístico)
+Gestión de inventario completa: hereda todo lo de Encargado de Stock y suma Categorías y Outfits.
+Ve: Prendas, Stock, Pedidos Realizados, Categorías, Outfits.
+ginventario - ginventario1!
+
+Gerente Comercial   (⊃ Vendedor)
+Gestión comercial completa: hereda todo lo de Vendedor y suma la vista de Pedidos Realizados.
+Ve: Prendas, Clientes, Planes, Pedidos Venta, Pedidos Realizados.
+gcomercial - gcomercial1!
