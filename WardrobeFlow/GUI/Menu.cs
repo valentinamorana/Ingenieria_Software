@@ -40,9 +40,10 @@ namespace GUI
         // Timer de verificación periódica de integridad (C — background check)
         private System.Windows.Forms.Timer _timerIntegridad;
 
-        // Botones de idioma — índice por código de idioma para soporte dinámico
+        // Barra de idioma con un DROPDOWN (reemplaza los botones). Soporta idiomas dinámicos de BD.
         private ToolStrip _tsIdioma;
-        private readonly Dictionary<string, ToolStripButton> _btnIdiomas = new Dictionary<string, ToolStripButton>();
+        private ToolStripComboBox _cmbIdiomaMenu;
+        private bool _suprimirIdiomaMenu = false;
         // Label "Idioma:" / "Language:" / "Язык:" — dinámico por Observer
         private ToolStripLabel _lblIdioma;
         // Item "Mi Perfil" (preferencias del usuario) — creado dinámicamente, traducible por Observer
@@ -76,14 +77,21 @@ namespace GUI
 
             _tsIdioma.Items.Add(_lblIdioma);
             _tsIdioma.Items.Add(new ToolStripSeparator());
-            ReconstruirBotonesIdioma(Traductor.ObtenerIdiomas());
+
+            _cmbIdiomaMenu = new ToolStripComboBox
+            {
+                AutoSize      = false,
+                Width         = 140,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Font          = new System.Drawing.Font("Segoe UI", 8.5f)
+            };
+            _cmbIdiomaMenu.ComboBox.SelectedIndexChanged += CmbIdiomaMenu_Changed;
+            _tsIdioma.Items.Add(_cmbIdiomaMenu);
+            ReconstruirComboIdioma(Traductor.ObtenerIdiomas());
 
             // Insertar el ToolStrip después del MenuStrip (índice 0 = primero visible abajo del borde)
             this.Controls.Add(_tsIdioma);
             _tsIdioma.BringToFront();
-
-            // Marcar idioma activo según el seleccionado hasta ahora
-            MarcarIdiomaActivo(GestorIdioma.IdiomaActual?.Id ?? "ES");
 
             // Obtener usuario activo via BLL (GUI nunca toca SessionManager directamente)
             _usuarioActivo = new BLL.Usuario().ObtenerUsuarioActivo();
@@ -549,13 +557,13 @@ namespace GUI
                         if (idiomas.Count > 0)
                         {
                             GestorIdioma.SetIdiomasDisponibles(idiomas);
-                            ReconstruirBotonesIdioma(idiomas);
+                            ReconstruirComboIdioma(idiomas);
                         }
                         foreach (var idm in Traductor.ObtenerIdiomas())
                         {
                             if (idm.Id != codigoPref) continue;
                             GestorIdioma.CambiarIdioma(idm, dictTrad);
-                            MarcarIdiomaActivo(codigoPref);
+                            SeleccionarIdiomaEnCombo(codigoPref);
                             break;
                         }
                     }));
@@ -634,7 +642,7 @@ namespace GUI
         public void UpdateLanguage(Idioma idioma)
         {
             Traducir(idioma);
-            MarcarIdiomaActivo(idioma.Id);
+            SeleccionarIdiomaEnCombo(idioma.Id);
         }
 
         /// <summary>
@@ -689,95 +697,68 @@ namespace GUI
                 item.Text = t[item.Tag.ToString()].Texto;
         }
 
-        // ── Helpers de la barra de idioma ─────────────────────────────────────
+        // ── Helpers de la barra de idioma (dropdown) ──────────────────────────
 
         /// <summary>
-        /// Crea un botón de idioma para el ToolStrip. Al hacer click llama a
-        /// GestorIdioma.CambiarIdioma() que notifica a todos los observers.
+        /// Llena el combo del ToolStrip con los idiomas (de BD o fallback). Un idioma nuevo
+        /// aparece solo, sin tocar este código.
         /// </summary>
-        private ToolStripButton CrearBotonIdioma(string texto, string codigoIdioma)
+        private void ReconstruirComboIdioma(IList<Idioma> idiomas)
         {
-            var btn = new ToolStripButton
-            {
-                Text        = texto,
-                ForeColor   = Color.FromArgb(210, 210, 220),
-                BackColor   = Color.Transparent,
-                Font        = new System.Drawing.Font("Segoe UI", 8.5f),
-                AutoSize    = true,
-                DisplayStyle = ToolStripItemDisplayStyle.Text,
-                Padding     = new Padding(6, 0, 6, 0)
-            };
-            btn.Click += (s, e) =>
-            {
-                foreach (var idioma in Traductor.ObtenerIdiomas())
+            if (_cmbIdiomaMenu == null) return;
+            _suprimirIdiomaMenu = true;
+            _cmbIdiomaMenu.ComboBox.DataSource    = null;
+            _cmbIdiomaMenu.ComboBox.DisplayMember = "Nombre";
+            _cmbIdiomaMenu.ComboBox.ValueMember   = "Id";
+            _cmbIdiomaMenu.ComboBox.DataSource    = new List<Idioma>(idiomas);
+            _suprimirIdiomaMenu = false;
+            SeleccionarIdiomaEnCombo(GestorIdioma.IdiomaActual?.Id ?? "ES");
+        }
+
+        /// <summary>Selecciona en el combo el idioma indicado, SIN disparar el cambio (uso interno).</summary>
+        private void SeleccionarIdiomaEnCombo(string codigo)
+        {
+            if (_cmbIdiomaMenu?.ComboBox?.Items == null) return;
+            for (int i = 0; i < _cmbIdiomaMenu.ComboBox.Items.Count; i++)
+                if (_cmbIdiomaMenu.ComboBox.Items[i] is Idioma idm &&
+                    string.Equals(idm.Id, codigo, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (idioma.Id != codigoIdioma) continue;
-
-                    try
+                    if (_cmbIdiomaMenu.SelectedIndex != i)
                     {
-                        // Un solo SELECT a BD → cache en GestorIdioma → todos los forms se traducen
-                        var dictTrad = new BLL.IdiomaService().CargarTraducciones(codigoIdioma);
-                        GestorIdioma.CambiarIdioma(idioma, dictTrad);
-                    }
-                    catch
-                    {
-                        // Sin conexión: usa fallback hardcodeado
-                        GestorIdioma.CambiarIdioma(idioma);
-                    }
-
-                    // Persistir preferencia en BD — reutiliza el campo del formulario
-                    try
-                    {
-                        if (_usuarioActivo != null)
-                            new BLL.Usuario().GuardarPreferenciaIdioma(_usuarioActivo.Id, codigoIdioma);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Trace.TraceError(
-                            $"[Menu] Error al guardar preferencia de idioma: {ex.Message}");
+                        bool prev = _suprimirIdiomaMenu;
+                        _suprimirIdiomaMenu = true;
+                        _cmbIdiomaMenu.SelectedIndex = i;
+                        _suprimirIdiomaMenu = prev;
                     }
                     break;
                 }
-            };
-            return btn;
         }
 
         /// <summary>
-        /// Reemplaza los botones de idioma del ToolStrip por los de la lista recibida.
-        /// Permite agregar un nuevo idioma desde BD sin tocar este código.
+        /// Cambio de idioma desde el combo: aplica vía Observer (todos los forms se traducen)
+        /// y persiste la preferencia del usuario en BD.
         /// </summary>
-        private void ReconstruirBotonesIdioma(IList<Idioma> idiomas)
+        private void CmbIdiomaMenu_Changed(object sender, EventArgs e)
         {
-            var toRemove = new List<ToolStripItem>();
-            foreach (ToolStripItem item in _tsIdioma.Items)
-                if (item is ToolStripButton) toRemove.Add(item);
-            foreach (var item in toRemove) _tsIdioma.Items.Remove(item);
+            if (_suprimirIdiomaMenu) return;
+            var idioma = _cmbIdiomaMenu.SelectedItem as Idioma;
+            if (idioma == null) return;
 
-            _btnIdiomas.Clear();
-
-            foreach (var idioma in idiomas)
+            try
             {
-                var btn = CrearBotonIdioma(idioma.Nombre, idioma.Id);
-                _tsIdioma.Items.Add(btn);
-                _btnIdiomas[idioma.Id] = btn;
+                var dictTrad = new BLL.IdiomaService().CargarTraducciones(idioma.Id);
+                GestorIdioma.CambiarIdioma(idioma, dictTrad);
             }
-        }
+            catch { GestorIdioma.CambiarIdioma(idioma); }
 
-        /// <summary>
-        /// Resalta en negrita el botón del idioma activo y normaliza los demás.
-        /// </summary>
-        private void MarcarIdiomaActivo(string codigoIdioma)
-        {
-            var fontNormal  = new System.Drawing.Font("Segoe UI", 8.5f, FontStyle.Regular);
-            var fontActivo  = new System.Drawing.Font("Segoe UI", 8.5f, FontStyle.Bold);
-            var colorActivo = Color.White;
-            var colorNormal = Color.FromArgb(170, 170, 180);
-
-            foreach (var kv in _btnIdiomas)
+            try
             {
-                bool activo = kv.Key == codigoIdioma;
-                kv.Value.Font      = activo ? fontActivo  : fontNormal;
-                kv.Value.ForeColor = activo ? colorActivo : colorNormal;
+                if (_usuarioActivo != null)
+                    new BLL.Usuario().GuardarPreferenciaIdioma(_usuarioActivo.Id, idioma.Id);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError($"[Menu] Error al guardar preferencia de idioma: {ex.Message}");
             }
         }
 
