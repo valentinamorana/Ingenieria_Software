@@ -486,7 +486,7 @@ namespace GUI
         {
             base.OnLoad(e);
 
-            // Fondo MDI rosa con monograma WF
+            // 1. Fondo MDI (solo GDI, sin BD)
             foreach (Control c in Controls)
             {
                 if (c.GetType().Name == "MdiClient")
@@ -498,53 +498,50 @@ namespace GUI
                 }
             }
 
-            // Suscribirse al Observer de idioma
+            // 2. Observer + timer de integridad
             GestorIdioma.SuscribirObservador(this);
-
-            // Continuar con el idioma activo en el Login (seleccionado por el usuario).
-            // El DB preference se aplica cuando el usuario clickea un botón en el Menu.
-            string codigoPref = GestorIdioma.IdiomaActual?.Id ?? "ES";
-
-            try
-            {
-                var svc = new BLL.IdiomaService();
-
-                // CargarTraducciones hace el seeding inicial si la BD está vacía
-                var dictTrad = svc.CargarTraducciones(codigoPref);
-
-                // Cargar idiomas activos desde BD y registrarlos en el gestor
-                var idiomas = svc.ObtenerIdiomasActivosComoIdioma();
-                if (idiomas.Count > 0)
-                {
-                    GestorIdioma.SetIdiomasDisponibles(idiomas);
-                    ReconstruirBotonesIdioma(idiomas);
-                }
-
-                foreach (var idm in Traductor.ObtenerIdiomas())
-                {
-                    if (idm.Id == codigoPref)
-                    {
-                        GestorIdioma.CambiarIdioma(idm, dictTrad);
-                        MarcarIdiomaActivo(codigoPref);
-                        break;
-                    }
-                }
-            }
-            catch
-            {
-                // Sin conexión: usa fallback hardcodeado
-                Traducir(GestorIdioma.IdiomaActual);
-            }
-
-            // Abrir Panel de Control al iniciar sesión — formulario específico por rol
-            CrearDashboardDelRol().Show();
-
-            // ── Timer de verificación periódica de integridad (C) ─────────────
-            // Cada 30 minutos verifica DVH/DVV en background y loguea el resultado.
-            // Si detecta problema avisa con un MessageBox no bloqueante.
             _timerIntegridad = new System.Windows.Forms.Timer { Interval = 30 * 60 * 1000 };
             _timerIntegridad.Tick += TimerIntegridad_Tick;
             _timerIntegridad.Start();
+
+            // 3. Abrir dashboard inmediatamente — sus datos cargan en background
+            CrearDashboardDelRol().Show();
+
+            // 4. Cargar traducciones de BD en background (no bloquea la UI)
+            string codigoPref = GestorIdioma.IdiomaActual?.Id ?? "ES";
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                try
+                {
+                    var svc      = new BLL.IdiomaService();
+                    var dictTrad = svc.CargarTraducciones(codigoPref);
+                    var idiomas  = svc.ObtenerIdiomasActivosComoIdioma();
+
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        if (IsDisposed) return;
+                        if (idiomas.Count > 0)
+                        {
+                            GestorIdioma.SetIdiomasDisponibles(idiomas);
+                            ReconstruirBotonesIdioma(idiomas);
+                        }
+                        foreach (var idm in Traductor.ObtenerIdiomas())
+                        {
+                            if (idm.Id != codigoPref) continue;
+                            GestorIdioma.CambiarIdioma(idm, dictTrad);
+                            MarcarIdiomaActivo(codigoPref);
+                            break;
+                        }
+                    }));
+                }
+                catch
+                {
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        if (!IsDisposed) Traducir(GestorIdioma.IdiomaActual);
+                    }));
+                }
+            });
         }
 
         /// <summary>
