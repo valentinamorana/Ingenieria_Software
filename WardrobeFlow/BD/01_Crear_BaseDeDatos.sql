@@ -11,7 +11,11 @@
 --
 -- Para ACTUALIZAR una BD ya existente, usar: 02_Actualizar_BaseDeDatos.sql
 --
--- Orden: 1) crear BD  2) tablas  3) seeds  4) migración Composite
+-- Orden: 1) crear BD  2) tablas  3) seeds  4) migración Composite  5) datos demo
+--
+-- NOTA DE CODIFICACIÓN: este archivo es UTF-8 y contiene acentos (Básico, Lucía…).
+--   • En SSMS se ejecuta sin problemas.
+--   • Con sqlcmd usar el codepage UTF-8:  sqlcmd -S .\SQLEXPRESS -E -f 65001 -i 01_Crear_BaseDeDatos.sql
 -- ============================================================
 
 IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = 'WardrobeFlowDB')
@@ -204,7 +208,7 @@ BEGIN
         MetodoPago       NVARCHAR(100) NULL,
         IdPlan           INT           NULL REFERENCES PlanSuscripcion(IdPlan),
         FechaAlta        DATETIME      NOT NULL DEFAULT GETDATE(),
-        FechaNacimiento  DATE          NULL,
+        FechaNacimiento  DATE          NOT NULL,  -- obligatoria: validar mayoría de edad
         Activo           BIT           NOT NULL DEFAULT 1,
         DVH              INT           NULL              -- T07: dígito verificador horizontal
     );
@@ -561,6 +565,29 @@ ELSE
     PRINT 'FechaVencimiento ya existe en Cliente — sin cambios.';
 GO
 
+-- FechaNacimiento en Cliente — OBLIGATORIA (NOT NULL) para validar mayoría de edad.
+-- 1) Agregar la columna como NULL si todavía no existe.
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+               WHERE TABLE_NAME = 'Cliente' AND COLUMN_NAME = 'FechaNacimiento')
+BEGIN
+    ALTER TABLE Cliente ADD FechaNacimiento DATE NULL;
+    PRINT 'Columna FechaNacimiento agregada a Cliente.';
+END
+GO
+-- 2) Backfill de filas legacy sin fecha (placeholder mayor de edad) para poder imponer NOT NULL.
+UPDATE Cliente SET FechaNacimiento = '1990-01-01' WHERE FechaNacimiento IS NULL;
+GO
+-- 3) Imponer NOT NULL si la columna todavía admite nulos.
+IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+           WHERE TABLE_NAME='Cliente' AND COLUMN_NAME='FechaNacimiento' AND IS_NULLABLE='YES')
+BEGIN
+    ALTER TABLE Cliente ALTER COLUMN FechaNacimiento DATE NOT NULL;
+    PRINT 'Cliente.FechaNacimiento ahora es NOT NULL (obligatoria).';
+END
+ELSE
+    PRINT 'Cliente.FechaNacimiento ya es NOT NULL — sin cambios.';
+GO
+
 -- MantenimientoPrenda (historial de limpieza/mantenimiento por prenda)
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'MantenimientoPrenda')
 BEGIN
@@ -575,6 +602,123 @@ BEGIN
 END
 ELSE
     PRINT 'Tabla MantenimientoPrenda ya existe — sin cambios.';
+GO
+
+-- ============================================================
+-- DATOS DEMO (presentación / pruebas)
+-- ------------------------------------------------------------
+-- Idempotente: cada bloque sólo inserta si el registro falta.
+-- El DNI se guarda en TEXTO PLANO; la app lo tolera (TryDesencriptar
+-- acepta registros legacy sin cifrar) y lo muestra tal cual.
+-- DVH=0 → recalcular el DV desde la app (Usuarios → Recalcular DV)
+-- antes del primer uso para que la verificación de integridad cierre.
+-- ============================================================
+
+-- Planes de suscripción
+INSERT INTO PlanSuscripcion (Nombre, LimitePrendas, Precio, Estado)
+SELECT v.Nombre, v.Limite, v.Precio, 1
+FROM (VALUES
+    (N'Básico',   5,  8000.00),
+    (N'Estándar', 15, 15000.00),
+    (N'Premium',  30, 25000.00)
+) AS v(Nombre, Limite, Precio)
+WHERE NOT EXISTS (SELECT 1 FROM PlanSuscripcion p WHERE p.Nombre = v.Nombre);
+PRINT 'Demo: planes de suscripción.';
+GO
+
+-- Empleados (vinculados a los usuarios del sistema por Username)
+INSERT INTO Empleado (Nombre, Apellido, DNI, Email, FechaIngreso, Puesto, Legajo, IdUsuario, DVH)
+SELECT v.Nombre, v.Apellido, v.DNI, v.Email, GETDATE(), v.Puesto, v.Legajo,
+       (SELECT TOP 1 IdUsuario FROM Usuario u WHERE u.Username = v.Username), 0
+FROM (VALUES
+    (N'Valentina', N'Morana', '33111000', 'vendedor@wardrobeflow.com', N'Vendedora',           'L-001', 'vendedor'),
+    (N'Bruno',     N'Díaz',   '31222000', 'operador@wardrobeflow.com', N'Operador Inventario', 'L-002', 'operador'),
+    (N'Carla',     N'Méndez', '32333000', 'stock@wardrobeflow.com',    N'Controlador Stock',   'L-003', 'stock')
+) AS v(Nombre, Apellido, DNI, Email, Puesto, Legajo, Username)
+WHERE NOT EXISTS (SELECT 1 FROM Empleado e WHERE e.Legajo = v.Legajo);
+PRINT 'Demo: empleados.';
+GO
+
+-- Clientes (todos mayores de edad; FechaNacimiento obligatoria)
+INSERT INTO Cliente (Nombre, Apellido, DNI, Email, MetodoPago, IdPlan, FechaAlta, FechaNacimiento, Activo, DVH)
+SELECT v.Nombre, v.Apellido, v.DNI, v.Email, v.MetodoPago,
+       (SELECT TOP 1 IdPlan FROM PlanSuscripcion p WHERE p.Nombre = v.PlanNom),
+       GETDATE(), v.FechaNac, 1, 0
+FROM (VALUES
+    (N'Lucía',  N'Fernández', '30111222', 'lucia.fernandez@mail.com', 'Efectivo',      N'Premium',  CONVERT(date,'1990-03-15')),
+    (N'Martín', N'Gómez',     '28999111', 'martin.gomez@mail.com',    'Crédito',       N'Estándar', CONVERT(date,'1985-07-22')),
+    (N'Sofía',  N'Rossi',     '35444555', 'sofia.rossi@mail.com',     'Débito',        N'Básico',   CONVERT(date,'1998-11-02')),
+    (N'Diego',  N'Paz',       '27333444', 'diego.paz@mail.com',       'Transferencia', N'Estándar', CONVERT(date,'1982-01-30')),
+    (N'Camila', N'Torres',    '40222333', 'camila.torres@mail.com',   'Efectivo',      N'Premium',  CONVERT(date,'2001-06-10'))
+) AS v(Nombre, Apellido, DNI, Email, MetodoPago, PlanNom, FechaNac)
+WHERE NOT EXISTS (SELECT 1 FROM Cliente c WHERE c.Nombre = v.Nombre AND c.Apellido = v.Apellido);
+PRINT 'Demo: clientes.';
+GO
+
+-- Prendas (catálogo de stock; todas Disponible inicialmente)
+INSERT INTO Prenda (Nombre, Descripcion, Talle, Color, Categoria, Estado, IdClienteActual, FechaAlta)
+SELECT v.Nombre, v.Descripcion, v.Talle, v.Color, v.Categoria, 0, NULL, GETDATE()
+FROM (VALUES
+    (N'Vestido Largo Negro',    N'Vestido de fiesta largo',  'M',  N'Negro',      N'Vestido'),
+    (N'Blazer Beige',           N'Blazer entallado',         'L',  N'Beige',      N'Saco'),
+    (N'Camisa Blanca Clásica',  N'Camisa de algodón',        'M',  N'Blanco',     N'Camisa'),
+    (N'Pantalón Sastre Gris',   N'Pantalón de vestir',       '42', N'Gris',       N'Pantalón'),
+    (N'Abrigo Largo Camel',     N'Tapado de paño',           'L',  N'Camel',      N'Abrigo'),
+    (N'Vestido Floral',         N'Vestido estampado verano', 'S',  N'Estampado',  N'Vestido'),
+    (N'Camisa Celeste',         N'Camisa de lino',           'L',  N'Celeste',    N'Camisa'),
+    (N'Jean Recto Azul',        N'Jean clásico',             '40', N'Azul',       N'Pantalón'),
+    (N'Saco a Cuadros',         N'Saco príncipe de Gales',   'M',  N'Multicolor', N'Saco'),
+    (N'Falda Plisada Negra',    N'Falda midi plisada',       'S',  N'Negro',      N'Falda'),
+    (N'Sweater Oversize Crema', N'Sweater de lana',          'L',  N'Crema',      N'Sweater'),
+    (N'Gabardina Verde',        N'Gabardina impermeable',    'M',  N'Verde',      N'Abrigo')
+) AS v(Nombre, Descripcion, Talle, Color, Categoria)
+WHERE NOT EXISTS (SELECT 1 FROM Prenda pr WHERE pr.Nombre = v.Nombre);
+PRINT 'Demo: prendas (stock).';
+GO
+
+-- Pedidos demo (sólo si aún no hay pedidos) + prendas EnUso asignadas a su cliente,
+-- replicando lo que hace la app al crear/despachar (Prenda.Estado=EnUso, IdClienteActual).
+IF NOT EXISTS (SELECT 1 FROM Pedido)
+   AND EXISTS (SELECT 1 FROM Empleado WHERE Legajo = 'L-001')
+   AND EXISTS (SELECT 1 FROM Cliente WHERE Nombre = N'Lucía' AND Apellido = N'Fernández')
+BEGIN
+    DECLARE @emp     INT = (SELECT TOP 1 IdEmpleado FROM Empleado WHERE Legajo = 'L-001');
+    DECLARE @cLucia  INT = (SELECT TOP 1 IdCliente FROM Cliente WHERE Nombre=N'Lucía'  AND Apellido=N'Fernández');
+    DECLARE @cMartin INT = (SELECT TOP 1 IdCliente FROM Cliente WHERE Nombre=N'Martín' AND Apellido=N'Gómez');
+    DECLARE @cSofia  INT = (SELECT TOP 1 IdCliente FROM Cliente WHERE Nombre=N'Sofía'  AND Apellido=N'Rossi');
+
+    DECLARE @pr1 INT = (SELECT IdPrenda FROM Prenda WHERE Nombre=N'Vestido Largo Negro');
+    DECLARE @pr2 INT = (SELECT IdPrenda FROM Prenda WHERE Nombre=N'Blazer Beige');
+    DECLARE @pr3 INT = (SELECT IdPrenda FROM Prenda WHERE Nombre=N'Camisa Blanca Clásica');
+    DECLARE @pr4 INT = (SELECT IdPrenda FROM Prenda WHERE Nombre=N'Pantalón Sastre Gris');
+
+    -- Pedido 1: Lucía — Entregado (2 prendas)
+    INSERT INTO Pedido (IdCliente, IdEmpleado, Estado, FechaPedido, FechaDespacho, FechaEntrega, DVH)
+    VALUES (@cLucia, @emp, 2, DATEADD(day,-20,GETDATE()), DATEADD(day,-18,GETDATE()), DATEADD(day,-15,GETDATE()), 0);
+    DECLARE @ped1 INT = SCOPE_IDENTITY();
+    INSERT INTO PedidoPrenda (IdPedido, IdPrenda) VALUES (@ped1, @pr1), (@ped1, @pr2);
+
+    -- Pedido 2: Martín — Despachado (1 prenda)
+    INSERT INTO Pedido (IdCliente, IdEmpleado, Estado, FechaPedido, FechaDespacho, DVH)
+    VALUES (@cMartin, @emp, 1, DATEADD(day,-5,GETDATE()), DATEADD(day,-3,GETDATE()), 0);
+    DECLARE @ped2 INT = SCOPE_IDENTITY();
+    INSERT INTO PedidoPrenda (IdPedido, IdPrenda) VALUES (@ped2, @pr3);
+
+    -- Pedido 3: Sofía — Pendiente (1 prenda)
+    INSERT INTO Pedido (IdCliente, IdEmpleado, Estado, FechaPedido, DVH)
+    VALUES (@cSofia, @emp, 0, DATEADD(day,-1,GETDATE()), 0);
+    DECLARE @ped3 INT = SCOPE_IDENTITY();
+    INSERT INTO PedidoPrenda (IdPedido, IdPrenda) VALUES (@ped3, @pr4);
+
+    -- Marcar prendas EnUso (Estado=1) con su cliente
+    UPDATE Prenda SET Estado=1, IdClienteActual=@cLucia  WHERE IdPrenda IN (@pr1,@pr2);
+    UPDATE Prenda SET Estado=1, IdClienteActual=@cMartin WHERE IdPrenda=@pr3;
+    UPDATE Prenda SET Estado=1, IdClienteActual=@cSofia  WHERE IdPrenda=@pr4;
+
+    PRINT 'Demo: 3 pedidos (Entregado/Despachado/Pendiente) + prendas asignadas.';
+END
+ELSE
+    PRINT 'Demo: pedidos ya existen o faltan datos base — sin cambios.';
 GO
 
 PRINT '';
