@@ -228,20 +228,12 @@ namespace BLL
             Configuracion.AsegurarIntegridadUsuarios();
 
             var admin = SessionManager.GetInstance().Usuario;
-            if (admin.Id == idUsuario)
-                throw new BE.AppException("err.bll.usuario.autobaja",
-                    "No podés archivar tu propio usuario mientras tenés la sesión abierta.");
 
             // Determinar el perfil del usuario objetivo para la protección del último admin.
             var objetivo = usuarioDAL.ObtenerPorUsername(usernameObjetivo);
             string perfilObjetivo = objetivo?.Perfil ?? "";
-            if (perfilObjetivo.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase)
-                && usuarioDAL.ContarAdministradoresActivos() <= 1)
-            {
-                throw new BE.AppException("err.bll.usuario.ultimo_admin",
-                    "No se puede archivar al último Administrador activo del sistema. " +
-                    "Creá o activá otro Administrador antes de archivar este.");
-            }
+            ValidarPuedeArchivar(perfilObjetivo, idUsuario, admin.Id,
+                                 usuarioDAL.ContarAdministradoresActivos());
 
             // Snapshot del estado actual antes de archivar (control de cambios).
             new VersionUsuario().GrabarVersion(idUsuario, admin.Username,
@@ -255,6 +247,24 @@ namespace BLL
                 criticidad: BE.Criticidad.Alta,
                 idUsuario:  admin.Id,
                 detalle:    $"Admin '{admin.Username}' archivó al usuario '{usernameObjetivo}' (ID {idUsuario}) a las {DateTime.Now:HH:mm:ss}.");
+        }
+
+        // RF-10 — Reglas PURAS de protección para archivar un usuario. Se extraen acá para poder
+        // testearlas sin sesión ni base de datos (caso de prueba "eliminar el último admin"):
+        //   • No se puede archivar al usuario que tiene la sesión abierta.
+        //   • No se puede archivar al último Administrador activo del sistema.
+        public static void ValidarPuedeArchivar(string perfilObjetivo, int idObjetivo,
+                                                 int idEnSesion, int adminsActivos)
+        {
+            if (idEnSesion == idObjetivo)
+                throw new BE.AppException("err.bll.usuario.autobaja",
+                    "No podés archivar tu propio usuario mientras tenés la sesión abierta.");
+
+            if ((perfilObjetivo ?? "").Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase)
+                && adminsActivos <= 1)
+                throw new BE.AppException("err.bll.usuario.ultimo_admin",
+                    "No se puede archivar al último Administrador activo del sistema. " +
+                    "Creá o activá otro Administrador antes de archivar este.");
         }
 
         // RF-10 — Lista de usuarios archivados (Activo=0) para la vista de gestión.
