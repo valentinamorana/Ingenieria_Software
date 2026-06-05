@@ -9,6 +9,9 @@ namespace GUI
     {
         private readonly BLL.Backup _bll = new BLL.Backup();
 
+        // RF-06 — botón de backup de instalación limpia (creado dinámicamente)
+        private Button _btnInicial;
+
         private static readonly string DirBackups =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups");
 
@@ -22,6 +25,28 @@ namespace GUI
             base.OnLoad(e);
             try { string ico = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (System.IO.File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
             GestorIdioma.SuscribirObservador(this);
+
+            // RF-06 — Botón "Backup de instalación limpia". Se ubica debajo de la fila de
+            // restauración y se agranda el formulario para no solapar la nota informativa.
+            this.ClientSize = new System.Drawing.Size(this.ClientSize.Width, this.ClientSize.Height + 44);
+            lblInfo.Top += 44;
+            _btnInicial = new Button
+            {
+                Tag       = "btn.backup.inicial",
+                Text      = "Backup de instalación limpia",
+                Size      = new System.Drawing.Size(btnCrear.Width, 32),
+                Location  = new System.Drawing.Point(btnCrear.Left, btnExterno.Bottom + 8),
+                FlatStyle = btnCrear.FlatStyle,
+                BackColor = System.Drawing.Color.FromArgb(70, 110, 90),
+                ForeColor = System.Drawing.Color.White,
+                Font      = btnCrear.Font,
+                Cursor    = Cursors.Hand
+            };
+            _btnInicial.FlatAppearance.BorderSize = 0;
+            _btnInicial.Click += btnInicial_Click;
+            (btnCrear.Parent ?? this).Controls.Add(_btnInicial);
+            _btnInicial.BringToFront();
+
             Traducir(GestorIdioma.IdiomaActual);
             lblRuta.Text = DirBackups;
             CargarLista();
@@ -59,6 +84,8 @@ namespace GUI
             colFecha.Text     = T("col.backup.fecha",     "Fecha");
             colAutor.Text     = T("col.backup.autor",     "Autor");
             colTamanio.Text   = T("col.backup.tamanio",   "Tamaño");
+            if (_btnInicial != null)
+                _btnInicial.Text = T("btn.backup.inicial", "Backup de instalación limpia");
         }
 
         // Carga los .bak de la carpeta Backups/ ordenados por fecha descendente (más reciente primero).
@@ -124,6 +151,27 @@ namespace GUI
             }
         }
 
+        private void btnInicial_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!Directory.Exists(DirBackups))
+                    Directory.CreateDirectory(DirBackups);
+
+                string filename = _bll.RealizarBackupInicial(this.Text, DirBackups);
+                MessageBox.Show(
+                    string.Format(T("msg.backup.inicialexito", "Backup de instalación limpia generado:\n{0}"), filename),
+                    T("rpt.dlg.exito.titulo", "Éxito"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CargarLista();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    string.Format(T("msg.backup.errorgenerar", "Error al generar copia de seguridad:\n{0}"), ex.Message),
+                    T("msg.error.titulo", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void btnRestaurar_Click(object sender, EventArgs e)
         {
             if (lstBackups.SelectedItems.Count == 0) return;
@@ -176,10 +224,30 @@ namespace GUI
         {
             if (string.IsNullOrEmpty(ruta)) return;
 
+            // RF-08 — Informar el ALCANCE de la pérdida: todo lo creado/modificado después de la
+            // fecha del backup se perderá. Se lee la fecha real del header del .bak.
+            string alcance;
+            DateTime? fechaBackup = null;
+            try { fechaBackup = _bll.ObtenerFechaBackup(ruta); } catch { /* header ilegible */ }
+            if (fechaBackup.HasValue)
+            {
+                var antiguedad = DateTime.Now - fechaBackup.Value;
+                alcance = string.Format(
+                    T("msg.backup.alcance",
+                      "\n\nEl backup es del {0} (hace {1} día(s)).\nSe PERDERÁN todos los cambios posteriores a esa fecha."),
+                    fechaBackup.Value.ToString("dd/MM/yyyy HH:mm"),
+                    Math.Max(0, (int)antiguedad.TotalDays));
+            }
+            else
+            {
+                alcance = T("msg.backup.alcance.desconocido",
+                    "\n\nNo se pudo determinar la fecha del backup. Se perderán todos los cambios posteriores a su creación.");
+            }
+
             string msg = string.Format(
                 T("msg.backup.confirmrestaura",
                     "¿Restaurar la base de datos desde:\n\"{0}\"?\n\nEsta operación sobrescribirá todos los datos actuales\ny reiniciará la aplicación."),
-                Path.GetFileName(ruta));
+                Path.GetFileName(ruta)) + alcance;
 
             if (MessageBox.Show(msg, T("msg.backup.titulorestaura", "Confirmar Restauración"),
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)

@@ -6,6 +6,7 @@ namespace DAL.Interfaces
     public interface IUsuarioDAL
     {
         List<BE.Usuario> ObtenerTodos();
+        List<BE.Usuario> ObtenerArchivados();
         BE.Usuario       ObtenerPorUsername(string username);
         void             Alta(string username, string clave, string perfil);
         void             Bloquear(int idUsuario);
@@ -15,5 +16,10 @@ namespace DAL.Interfaces
         void             ResetearTodasLasClaves(string claveHasheada);
         void             ResetearClave(int idUsuario, string claveHasheada);
         void             GuardarIdioma(int idUsuario, string idIdioma);
+        // RF-10 — baja lógica (archivar) y purga física diferida.
+        void             BajaLogica(int idUsuario);
+        void             EliminarFisico(int idUsuario);
+        int              ContarAdministradoresActivos();
+        List<BE.Usuario> ObtenerArchivadosParaPurga(int diasRetencion);
     }
 }

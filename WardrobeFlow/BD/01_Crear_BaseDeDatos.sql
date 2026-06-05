@@ -47,6 +47,8 @@ BEGIN
         IntentosFallidos INT           NOT NULL DEFAULT 0,
         DVH              INT           NULL,
         IdIdioma         VARCHAR(5)    NULL,
+        Activo           BIT           NOT NULL DEFAULT 1,   -- RF-10: 1=activo, 0=archivado (baja lógica)
+        FechaBaja        DATETIME      NULL,                 -- RF-10: fecha de archivado (para purga >1 año)
         CONSTRAINT UQ_Usuario_Username UNIQUE (Username)
     );
     PRINT 'Tabla Usuario creada.';

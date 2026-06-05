@@ -23,6 +23,11 @@ namespace BLL
         private const string RolAdministrador    = BE.Roles.Administrador;
         private const string ClaveTemporalDefault = "Wardrobe1!";
 
+        // RF-10 — Días de retención antes de habilitar la purga física de un usuario archivado.
+        // Como en una empresa real: el ex-empleado queda "archivado" 1 año (no contamina la
+        // operación ni las métricas) y recién después puede eliminarse definitivamente.
+        public const int DiasRetencionPurga = 365;
+
         // Re-validación en el BACKEND: la gestión de usuarios es una operación EXCLUSIVA del
         // Administrador. Se verifica el rol en sesión por Perfil, de forma consistente con
         // SessionManager.TienePermiso (que también identifica al admin por su Perfil).
@@ -208,6 +213,88 @@ namespace BLL
             bitacora.Registrar(modulo,
                 $"Desbloqueo de Cuenta: '{usernameObjetivo}'",
                 BE.Criticidad.Alta);
+        }
+
+        // RF-10 — Baja LÓGICA (archivar) de un usuario. Solo Administrador.
+        // Reglas de protección:
+        //   • No se puede archivar al propio usuario en sesión.
+        //   • No se puede archivar al ÚLTIMO Administrador activo del sistema.
+        // Se graba un snapshot (Memento) antes para preservar trazabilidad (RF-14/18).
+        public void Eliminar(string modulo, int idUsuario, string usernameObjetivo)
+        {
+            ValidarEsAdministrador();
+
+            // T07 — Verificar integridad de la base ANTES de modificar usuarios.
+            Configuracion.AsegurarIntegridadUsuarios();
+
+            var admin = SessionManager.GetInstance().Usuario;
+            if (admin.Id == idUsuario)
+                throw new BE.AppException("err.bll.usuario.autobaja",
+                    "No podés archivar tu propio usuario mientras tenés la sesión abierta.");
+
+            // Determinar el perfil del usuario objetivo para la protección del último admin.
+            var objetivo = usuarioDAL.ObtenerPorUsername(usernameObjetivo);
+            string perfilObjetivo = objetivo?.Perfil ?? "";
+            if (perfilObjetivo.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase)
+                && usuarioDAL.ContarAdministradoresActivos() <= 1)
+            {
+                throw new BE.AppException("err.bll.usuario.ultimo_admin",
+                    "No se puede archivar al último Administrador activo del sistema. " +
+                    "Creá o activá otro Administrador antes de archivar este.");
+            }
+
+            // Snapshot del estado actual antes de archivar (control de cambios).
+            new VersionUsuario().GrabarVersion(idUsuario, admin.Username,
+                $"Snapshot antes de archivar (baja lógica) por '{admin.Username}'.");
+
+            usuarioDAL.BajaLogica(idUsuario);
+
+            bitacora.RegistrarSinSesion(
+                modulo:     modulo,
+                actividad:  "Baja Logica Usuario",
+                criticidad: BE.Criticidad.Alta,
+                idUsuario:  admin.Id,
+                detalle:    $"Admin '{admin.Username}' archivó al usuario '{usernameObjetivo}' (ID {idUsuario}) a las {DateTime.Now:HH:mm:ss}.");
+        }
+
+        // RF-10 — Lista de usuarios archivados (Activo=0) para la vista de gestión.
+        public List<BE.Usuario> ObtenerArchivados()
+        {
+            return usuarioDAL.ObtenerArchivados();
+        }
+
+        // RF-10 — Usuarios archivados elegibles para purga física (archivados hace más de 1 año).
+        public List<BE.Usuario> ObtenerArchivadosParaPurga()
+        {
+            return usuarioDAL.ObtenerArchivadosParaPurga(DiasRetencionPurga);
+        }
+
+        // RF-10 — Purga FÍSICA de todos los usuarios archivados con más de DiasRetencionPurga
+        // días de antigüedad. Solo Administrador. Devuelve cuántos se eliminaron definitivamente.
+        public int PurgarArchivados(string modulo)
+        {
+            ValidarEsAdministrador();
+            Configuracion.AsegurarIntegridadUsuarios();
+
+            var purgables = usuarioDAL.ObtenerArchivadosParaPurga(DiasRetencionPurga);
+            if (purgables.Count == 0) return 0;
+
+            var admin = SessionManager.GetInstance().Usuario;
+            int eliminados = 0;
+            foreach (var u in purgables)
+            {
+                usuarioDAL.EliminarFisico(u.Id);
+                eliminados++;
+            }
+
+            bitacora.RegistrarSinSesion(
+                modulo:     modulo,
+                actividad:  "Purga Usuarios Archivados",
+                criticidad: BE.Criticidad.Alta,
+                idUsuario:  admin.Id,
+                detalle:    $"Admin '{admin.Username}' purgó definitivamente {eliminados} usuario(s) archivado(s) con más de {DiasRetencionPurga} días a las {DateTime.Now:HH:mm:ss}.");
+
+            return eliminados;
         }
 
         // Resetea la contraseña de TODOS los usuarios a la clave temporal por defecto. Solo Administrador.

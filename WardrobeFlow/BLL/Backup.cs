@@ -21,11 +21,28 @@ namespace BLL
                     "Solo un Administrador puede realizar operaciones de backup y restauración.");
         }
 
+        // RF-04 — Antes de generar un backup se verifica la integridad (DVH/DVV) de la
+        // información a respaldar. Si la base está comprometida, se cancela el backup para
+        // no perpetuar datos corruptos en la copia. Lanza AppException con el detalle.
+        private static void VerificarIntegridadAntesDeRespaldar()
+        {
+            if (!Configuracion.VerificarIntegridadDV(out ResultadoIntegridad r))
+            {
+                string detalle = r?.MensajeES ?? "Se detectaron inconsistencias en los dígitos verificadores.";
+                throw new BE.AppException("err.bll.backup.integridad",
+                    "No se puede generar el backup: la base tiene problemas de integridad.\n" +
+                    "Reparalos desde Administrar → Diagnóstico de Integridad antes de respaldar.\n\n" + detalle);
+            }
+        }
+
         // Construye el nombre del archivo embebiendo el usuario activo.
         // Formato: WardrobeFlow_Backup_yyyyMMddHHmmss_USUARIO.bak
         // El usuario en el nombre permite saber quién hizo cada backup desde la lista.
         public string RealizarBackup(string modulo, string dirDestino)
         {
+            ValidarAdministrador();
+            VerificarIntegridadAntesDeRespaldar();   // RF-04
+
             string usuario = Seguridad.SessionManager.IsLoggedIn
                 ? Seguridad.SessionManager.GetInstance().Usuario.Username
                 : "sistema";
@@ -40,6 +57,38 @@ namespace BLL
                 BE.Criticidad.Alta);
 
             return filename;
+        }
+
+        // RF-06 — Genera un backup de INSTALACIÓN LIMPIA (estado inicial del sistema).
+        // Se nombra con el marcador "Inicial" para distinguirlo en la lista y poder volver
+        // siempre al punto de partida conocido. También valida integridad antes de generarlo.
+        // Formato: WardrobeFlow_Inicial_yyyyMMddHHmmss_USUARIO.bak
+        public string RealizarBackupInicial(string modulo, string dirDestino)
+        {
+            ValidarAdministrador();
+            VerificarIntegridadAntesDeRespaldar();   // RF-04
+
+            string usuario = Seguridad.SessionManager.IsLoggedIn
+                ? Seguridad.SessionManager.GetInstance().Usuario.Username
+                : "sistema";
+
+            string usuarioSanitizado = Regex.Replace(usuario, @"[^\w]", "_");
+            string filename   = $"WardrobeFlow_Inicial_{DateTime.Now:yyyyMMddHHmmss}_{usuarioSanitizado}.bak";
+            string rutaArchivo = Path.Combine(dirDestino, filename);
+
+            _dal.RealizarBackup(rutaArchivo);
+            _bitacora.Registrar(modulo,
+                $"Backup de instalación limpia generado: '{filename}'",
+                BE.Criticidad.Alta);
+
+            return filename;
+        }
+
+        // RF-08 — Fecha en que se completó un backup (para informar el alcance de la pérdida
+        // antes de restaurar). Devuelve null si no puede leerse.
+        public DateTime? ObtenerFechaBackup(string rutaArchivo)
+        {
+            return _dal.ObtenerFechaBackup(rutaArchivo);
         }
 
         public void RestaurarBackup(string modulo, string rutaArchivo)

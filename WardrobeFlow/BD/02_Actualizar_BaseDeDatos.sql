@@ -416,6 +416,31 @@ GO
 UPDATE Usuario SET IdIdioma = 'ES' WHERE IdIdioma IS NULL;
 GO
 
+-- RF-10 — Baja lógica de usuarios (archivado) + purga diferida.
+-- Activo:    1=activo, 0=archivado (no puede loguear ni aparece en la lista).
+-- FechaBaja: cuándo se archivó (la purga física solo aplica a archivados con >1 año).
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+               WHERE TABLE_NAME='Usuario' AND COLUMN_NAME='Activo')
+BEGIN
+    ALTER TABLE Usuario ADD Activo BIT NOT NULL DEFAULT 1;
+    PRINT 'Columna Activo agregada a Usuario (RF-10 baja lógica).';
+END
+ELSE
+    PRINT 'Usuario.Activo ya existe — sin cambios.';
+GO
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+               WHERE TABLE_NAME='Usuario' AND COLUMN_NAME='FechaBaja')
+BEGIN
+    ALTER TABLE Usuario ADD FechaBaja DATETIME NULL;
+    PRINT 'Columna FechaBaja agregada a Usuario (RF-10 purga diferida).';
+END
+ELSE
+    PRINT 'Usuario.FechaBaja ya existe — sin cambios.';
+GO
+-- Usuarios existentes quedan activos por defecto.
+UPDATE Usuario SET Activo = 1 WHERE Activo IS NULL;
+GO
+
 -- ============================================================
 -- MIGRACIÓN COMPOSITE (T04)
 -- Genera nodos Familia desde TipoComponente si no existen aún.

@@ -35,6 +35,13 @@ namespace BE
 
         public string IdIdioma { get; set; } = "ES";
 
+        // ── RF-10 — Baja lógica (archivado) ─────────────────────────────────────
+        // Activo=false → usuario archivado: no puede iniciar sesión ni aparece en la
+        // lista de gestión. FechaBaja registra cuándo se archivó (para la purga >1 año).
+        public bool Activo { get; set; } = true;
+
+        public DateTime? FechaBaja { get; set; }
+
         // ── Patrón MEMENTO — rol Originator ─────────────────────────────────────
 
         /// <summary>

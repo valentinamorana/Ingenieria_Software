@@ -80,10 +80,71 @@ namespace DAL
             }
         }
 
+        // RNF-02 — Verifica que un archivo .bak sea un backup VÁLIDO y no esté corrupto,
+        // usando RESTORE VERIFYONLY (chequea integridad del conjunto de backup sin restaurar).
+        // Lanza excepción si el backup es ilegible/corrupto. Se llama ANTES de cualquier restauración.
+        public void VerificarBackup(string rutaArchivo)
+        {
+            if (string.IsNullOrEmpty(_cadenaConexionMaster))
+                throw new InvalidOperationException("Cadena de conexión no configurada.");
+            if (!File.Exists(rutaArchivo))
+                throw new FileNotFoundException("El archivo de backup no existe.", rutaArchivo);
+
+            try
+            {
+                using (var conn = new SqlConnection(_cadenaConexionMaster))
+                using (var cmd  = new SqlCommand("RESTORE VERIFYONLY FROM DISK = @Ruta;", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Ruta", rutaArchivo);
+                    cmd.CommandTimeout = 120;
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                // VERIFYONLY falla cuando el .bak está corrupto, truncado o no es un backup válido.
+                throw new BE.AppException("err.dal.backup_corrupto",
+                    "El archivo de backup es inválido o está corrupto y no puede restaurarse.\n\nDetalle: " + ex.Message);
+            }
+        }
+
+        // RF-08 — Devuelve la fecha en que se completó el backup (BackupFinishDate del header),
+        // para informar al administrador el alcance de la pérdida antes de restaurar.
+        // Retorna null si no puede leerse el header.
+        public DateTime? ObtenerFechaBackup(string rutaArchivo)
+        {
+            if (string.IsNullOrEmpty(_cadenaConexionMaster) || !File.Exists(rutaArchivo))
+                return null;
+            try
+            {
+                using (var conn = new SqlConnection(_cadenaConexionMaster))
+                using (var cmd  = new SqlCommand("RESTORE HEADERONLY FROM DISK = @Ruta;", conn))
+                {
+                    cmd.Parameters.AddWithValue("@Ruta", rutaArchivo);
+                    cmd.CommandTimeout = 120;
+                    conn.Open();
+                    using (var rd = cmd.ExecuteReader())
+                    {
+                        if (rd.Read())
+                        {
+                            int col = rd.GetOrdinal("BackupFinishDate");
+                            if (!rd.IsDBNull(col)) return rd.GetDateTime(col);
+                        }
+                    }
+                }
+            }
+            catch { /* header ilegible → null (la verificación de corrupción se hace en VerificarBackup) */ }
+            return null;
+        }
+
         public void RestaurarBackup(string rutaOrigen)
         {
             if (string.IsNullOrEmpty(_cadenaConexionMaster))
                 throw new InvalidOperationException("Cadena de conexión no configurada.");
+
+            // RNF-02 — No se restaura un backup corrupto: validar integridad del .bak primero.
+            VerificarBackup(rutaOrigen);
 
             string dirTemp  = ObtenerDirectorioTemp();
             string rutaTemp = Path.Combine(dirTemp, $"WardrobeFlow_Restore_{Guid.NewGuid():N}.bak");

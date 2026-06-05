@@ -39,6 +39,11 @@ namespace GUI
         // Referencias a botones dinámicos para poder traducirlos en UpdateLanguage
         private Button _btnResetMasivo;
         private Button _btnRecalcularDV;
+        // RF-10 — baja lógica / archivado / purga
+        private Button _btnEliminar;
+        private Button _btnVerArchivados;
+        private Button _btnPurgar;
+        private bool   _viendoArchivados = false;
 
         /// <summary>
         /// Constructor: inicializa el formulario y construye la interfaz de gestión de usuarios.
@@ -91,6 +96,9 @@ namespace GUI
             Aplicar(lblListaTitulo,       t);
             Aplicar(_btnResetMasivo,      t);
             Aplicar(_btnRecalcularDV,     t);
+            Aplicar(_btnEliminar,         t);
+            Aplicar(_btnVerArchivados,    t);
+            Aplicar(_btnPurgar,           t);
             RellenarComboPerfil(t);
             TraducirHeadersGrilla();
         }
@@ -165,6 +173,10 @@ namespace GUI
             // Se crean aquí (en Load, no en constructor) para que la escala DPI del
             // formulario ya esté aplicada y las posiciones/tamaños sean correctos.
 
+            // El panel lateral muestra varias acciones apiladas; con scroll se garantiza que
+            // todas queden accesibles aunque la resolución/DPI reduzca el alto disponible.
+            panelAlta.AutoScroll = true;
+
             // Botón reset masivo — debajo del último control del panel
             _btnResetMasivo = new Button
             {
@@ -199,6 +211,56 @@ namespace GUI
             _btnRecalcularDV.Click += BtnRecalcularDV_Click;
             panelAlta.Controls.Add(_btnRecalcularDV);
 
+            // ── RF-10 — Archivar / Ver archivados / Purgar ────────────────────────
+            _btnEliminar = new Button
+            {
+                Tag       = "btn.usr.eliminar",
+                Text      = "🗑 Archivar usuario",
+                Size      = new Size(216, 30),
+                Location  = new Point(12, _btnRecalcularDV.Bottom + 18),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(170, 50, 50),
+                ForeColor = Color.White,
+                Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold),
+                Cursor    = Cursors.Hand,
+                Enabled   = false
+            };
+            _btnEliminar.FlatAppearance.BorderSize = 0;
+            _btnEliminar.Click += BtnEliminar_Click;
+            panelAlta.Controls.Add(_btnEliminar);
+
+            _btnVerArchivados = new Button
+            {
+                Tag       = "btn.usr.verarchivados",
+                Text      = "Ver archivados",
+                Size      = new Size(106, 28),
+                Location  = new Point(12, _btnEliminar.Bottom + 8),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(110, 110, 120),
+                ForeColor = Color.White,
+                Font      = new Font("Segoe UI", 8.5f),
+                Cursor    = Cursors.Hand
+            };
+            _btnVerArchivados.FlatAppearance.BorderSize = 0;
+            _btnVerArchivados.Click += BtnVerArchivados_Click;
+            panelAlta.Controls.Add(_btnVerArchivados);
+
+            _btnPurgar = new Button
+            {
+                Tag       = "btn.usr.purgar",
+                Text      = "Purgar (>1 año)",
+                Size      = new Size(106, 28),
+                Location  = new Point(122, _btnEliminar.Bottom + 8),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(60, 60, 70),
+                ForeColor = Color.White,
+                Font      = new Font("Segoe UI", 8.5f),
+                Cursor    = Cursors.Hand
+            };
+            _btnPurgar.FlatAppearance.BorderSize = 0;
+            _btnPurgar.Click += BtnPurgar_Click;
+            panelAlta.Controls.Add(_btnPurgar);
+
             // Campo de contraseña oculto: la contraseña se genera automáticamente en la BLL.
             lblPass.Visible      = false;
             txtContraseña.Visible = false;
@@ -214,7 +276,18 @@ namespace GUI
         private void DgvUsuarios_SelectionChanged(object sender, EventArgs e)
         {
             bool haySeleccion = dgvUsuarios.SelectedRows.Count > 0;
+
+            // En la vista de archivados no hay acciones individuales (solo purga masiva).
+            if (_viendoArchivados)
+            {
+                btnResetearClave.Enabled = false;
+                btnDesbloquear.Enabled   = false;
+                if (_btnEliminar != null) _btnEliminar.Enabled = false;
+                return;
+            }
+
             btnResetearClave.Enabled = haySeleccion;
+            if (_btnEliminar != null) _btnEliminar.Enabled = haySeleccion;
 
             // Desbloquear solo se habilita si el usuario seleccionado está bloqueado.
             // Usamos la columna interna _BloqueadoKey (int) para ser independientes del idioma.
@@ -239,46 +312,60 @@ namespace GUI
         {
             try
             {
-                List<BE.Usuario> usuarios = usuarioBLL.ObtenerTodos();
+                List<BE.Usuario> usuarios = _viendoArchivados
+                    ? usuarioBLL.ObtenerArchivados()
+                    : usuarioBLL.ObtenerTodos();
 
                 var t = Traductor.ObtenerTraducciones(_idioma);
                 string lblActivo    = t.ContainsKey("usr.activo")   ? t["usr.activo"].Texto   : "Activo";
                 string lblBloqueada = t.ContainsKey("usr.bloqueada") ? t["usr.bloqueada"].Texto : "Bloqueada";
+                string lblArchivado = t.ContainsKey("usr.archivado") ? t["usr.archivado"].Texto : "Archivado";
 
                 var tabla = new DataTable();
                 tabla.Columns.Add("ID",           typeof(int));
                 tabla.Columns.Add("Username",     typeof(string));
                 tabla.Columns.Add("Perfil",       typeof(string));
                 tabla.Columns.Add("Estado",       typeof(string));
-                // Columna interna: 1 = bloqueado, 0 = activo — independiente del idioma
+                // Columna interna: 1 = bloqueado/archivado, 0 = activo — independiente del idioma
                 tabla.Columns.Add("_BloqueadoKey", typeof(int));
 
                 foreach (var u in usuarios)
+                {
+                    string estado = _viendoArchivados
+                        ? (u.FechaBaja.HasValue ? $"{lblArchivado} ({u.FechaBaja.Value:dd/MM/yyyy})" : lblArchivado)
+                        : (u.Bloqueado ? lblBloqueada : lblActivo);
                     tabla.Rows.Add(
                         u.Id,
                         u.Username,
                         TraducirPerfil(u.Perfil, t),
-                        u.Bloqueado ? lblBloqueada : lblActivo,
-                        u.Bloqueado ? 1 : 0);
+                        estado,
+                        (_viendoArchivados || u.Bloqueado) ? 1 : 0);
+                }
 
                 dgvUsuarios.DataSource = tabla;
                 TraducirHeadersGrilla();
 
-                // Colorear filas bloqueadas usando la columna interna (independiente del idioma)
+                // Colorear filas bloqueadas/archivadas usando la columna interna (independiente del idioma)
                 foreach (DataGridViewRow fila in dgvUsuarios.Rows)
                 {
                     if (fila.Cells["_BloqueadoKey"].Value?.ToString() == "1")
                     {
-                        fila.DefaultCellStyle.BackColor = Color.FromArgb(255, 220, 220);
-                        fila.DefaultCellStyle.ForeColor = Color.DarkRed;
+                        fila.DefaultCellStyle.BackColor = _viendoArchivados ? Color.FromArgb(235, 235, 235) : Color.FromArgb(255, 220, 220);
+                        fila.DefaultCellStyle.ForeColor = _viendoArchivados ? Color.DimGray : Color.DarkRed;
                     }
                 }
 
-                string fmt = t.ContainsKey("msg.usr.cargados")
-                    ? t["msg.usr.cargados"].Texto
-                    : "{0} usuario(s) registrado(s).";
+                string fmt = _viendoArchivados
+                    ? (t.ContainsKey("msg.usr.archivados") ? t["msg.usr.archivados"].Texto : "{0} usuario(s) archivado(s).")
+                    : (t.ContainsKey("msg.usr.cargados")   ? t["msg.usr.cargados"].Texto   : "{0} usuario(s) registrado(s).");
                 lblMensaje.ForeColor = Color.DarkGreen;
                 lblMensaje.Text      = string.Format(fmt, usuarios.Count);
+
+                // En vista de archivados, las acciones sobre activos no aplican.
+                btnAgregar.Enabled       = !_viendoArchivados;
+                btnResetearClave.Enabled = false;
+                btnDesbloquear.Enabled   = false;
+                _btnEliminar.Enabled     = false;
             }
             catch (Exception ex)
             {
@@ -425,6 +512,86 @@ namespace GUI
             {
                 string claveUsada = usuarioBLL.ResetearTodasLasClaves(this.Text);
                 MostrarOk(string.Format(T_m("msg.usr.resetmasivo", "Todas las claves fueron reseteadas a: {0}"), claveUsada));
+            }
+            catch (Exception ex)
+            {
+                MostrarError(ex);
+            }
+        }
+
+        // ── RF-10 — Archivar / Ver archivados / Purgar ────────────────────────
+
+        // Archiva (baja lógica) el usuario seleccionado. La BLL protege al último admin y al self.
+        private void BtnEliminar_Click(object sender, EventArgs e)
+        {
+            if (_viendoArchivados || dgvUsuarios.SelectedRows.Count == 0) return;
+
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            string T_e(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
+            int    idUsuario = Convert.ToInt32(dgvUsuarios.SelectedRows[0].Cells["ID"].Value);
+            string username  = dgvUsuarios.SelectedRows[0].Cells["Username"].Value?.ToString() ?? "";
+
+            var confirm = MessageBox.Show(
+                string.Format(T_e("conf.usr.archivar.body",
+                    "¿Archivar al usuario '{0}'?\n\nNo podrá iniciar sesión y saldrá de la lista, pero se conserva su historial.\nPodrá eliminarse definitivamente tras 1 año."), username),
+                T_e("conf.usr.archivar.titulo", "Confirmar Archivado"),
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+
+            if (confirm != DialogResult.Yes) return;
+
+            try
+            {
+                usuarioBLL.Eliminar(this.Text, idUsuario, username);
+                CargarUsuarios();
+                MostrarOk(string.Format(T_e("msg.usr.archivado", "Usuario '{0}' archivado correctamente."), username));
+            }
+            catch (Exception ex)
+            {
+                MostrarError(ex);
+            }
+        }
+
+        // Alterna entre la lista de usuarios activos y la de archivados.
+        private void BtnVerArchivados_Click(object sender, EventArgs e)
+        {
+            _viendoArchivados = !_viendoArchivados;
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            _btnVerArchivados.Text = _viendoArchivados
+                ? (t.ContainsKey("btn.usr.veractivos")   ? t["btn.usr.veractivos"].Texto   : "Ver activos")
+                : (t.ContainsKey("btn.usr.verarchivados") ? t["btn.usr.verarchivados"].Texto : "Ver archivados");
+            CargarUsuarios();
+        }
+
+        // Purga (eliminación física) de todos los usuarios archivados hace más de 1 año.
+        private void BtnPurgar_Click(object sender, EventArgs e)
+        {
+            var t = Traductor.ObtenerTraducciones(_idioma);
+            string T_p(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
+            int elegibles;
+            try { elegibles = usuarioBLL.ObtenerArchivadosParaPurga().Count; }
+            catch (Exception ex) { MostrarError(ex); return; }
+
+            if (elegibles == 0)
+            {
+                MostrarOk(T_p("msg.usr.purga.ninguno", "No hay usuarios archivados con más de 1 año para purgar."));
+                return;
+            }
+
+            var confirm = MessageBox.Show(
+                string.Format(T_p("conf.usr.purgar.body",
+                    "Se eliminarán DEFINITIVAMENTE {0} usuario(s) archivado(s) hace más de 1 año.\nEsta acción no se puede deshacer.\n\n¿Continuar?"), elegibles),
+                T_p("conf.usr.purgar.titulo", "Confirmar Purga"),
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+
+            if (confirm != DialogResult.Yes) return;
+
+            try
+            {
+                int eliminados = usuarioBLL.PurgarArchivados(this.Text);
+                CargarUsuarios();
+                MostrarOk(string.Format(T_p("msg.usr.purga.ok", "{0} usuario(s) eliminado(s) definitivamente."), eliminados));
             }
             catch (Exception ex)
             {
