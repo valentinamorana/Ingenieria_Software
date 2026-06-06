@@ -5,7 +5,11 @@ namespace BLL
     /// </summary>
     public class Preferencia
     {
-        private readonly DAL.Preferencia _dal = new DAL.Preferencia();
+        private readonly DAL.Interfaces.IPreferenciaDAL _dal;
+
+        // DI: el constructor por defecto usa el DAL real; el otro permite inyectar un doble de prueba.
+        public Preferencia() : this(new DAL.Preferencia()) { }
+        public Preferencia(DAL.Interfaces.IPreferenciaDAL dal) { _dal = dal; }
 
         public BE.Preferencia Obtener(int idUsuario)
         {

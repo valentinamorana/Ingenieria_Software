@@ -11,7 +11,6 @@ namespace BLL
         private readonly DAL.Interfaces.IUsuarioDAL usuarioDAL;
         private readonly BLL.Familia        perfilesBLL = new BLL.Familia();
         private readonly Servicios.Bitacora bitacora   = new Servicios.Bitacora();
-        private readonly DAL.ClaveRecuperacion claveDAL = new DAL.ClaveRecuperacion();
 
         // DI: el constructor por defecto usa el DAL real; el otro permite inyectar un doble.
         public Usuario() : this(new DAL.Usuario()) { }
@@ -338,92 +337,7 @@ namespace BLL
             );
         }
 
-        // ── RF-10 / Recuperación — Claves de emergencia (tipo Steam, 1 solo uso) ──
-
-        // Genera N claves de emergencia: las hashea, persiste y exporta el .txt (copia del admin).
-        // Estático para poder seedearlo al instalar (sin sesión). Devuelve la ruta del .txt.
-        public static string GenerarClavesEmergencia(int cantidad)
-        {
-            var dal    = new DAL.ClaveRecuperacion();
-            var planas = new List<string>();
-            for (int i = 0; i < cantidad; i++)
-            {
-                string clave = GeneradorCredenciales.GenerarClaveRecuperacion();
-                planas.Add(clave);
-                dal.Insertar(Encriptador.Hash(clave));
-            }
-            return GeneradorCredenciales.ExportarClavesRecuperacion(planas);
-        }
-
-        // Regenera el set completo (admin): borra las anteriores y crea N nuevas. Devuelve la ruta del .txt.
-        public string RegenerarClavesEmergencia(string modulo, int cantidad = 10)
-        {
-            ValidarEsAdministrador();
-            claveDAL.EliminarTodas();
-            string ruta = GenerarClavesEmergencia(cantidad);
-            bitacora.Registrar(modulo, $"Regeneración de {cantidad} claves de emergencia", BE.Criticidad.Alta);
-            return ruta;
-        }
-
-        // Claves de emergencia todavía disponibles.
-        public int ContarClavesEmergenciaDisponibles()
-        {
-            return claveDAL.ContarDisponibles();
-        }
-
-        // Autodesbloqueo de un Administrador bloqueado mediante una clave de emergencia de un solo uso.
-        // Valida: usuario existe, es Administrador y está bloqueado; la clave es válida y no usada.
-        // Si todo OK: consume la clave (uso único), desbloquea la cuenta y registra en bitácora.
-        public bool DesbloquearConClaveEmergencia(string modulo, string username, string clavePlana)
-        {
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(clavePlana))
-                throw new BE.AppException("err.bll.emergencia.campos",
-                    "Ingresá tu usuario y una clave de emergencia.");
-
-            string user  = username.Trim();
-            string clave = clavePlana.Trim().ToUpperInvariant();   // las claves son en mayúsculas
-
-            var usuario = usuarioDAL.ObtenerPorUsername(user);
-            if (usuario == null)
-                throw new BE.AppException("err.bll.emergencia.invalida",
-                    "Usuario o clave de emergencia inválidos.");
-
-            // Solo Administradores pueden autodesbloquearse con clave de emergencia.
-            string perfil = usuario.Perfil ?? "";
-            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
-                throw new BE.AppException("err.bll.emergencia.solo_admin",
-                    "Las claves de emergencia solo desbloquean cuentas de Administrador.");
-
-            if (!usuario.Bloqueado)
-                throw new BE.AppException("err.bll.emergencia.no_bloqueada",
-                    "La cuenta no está bloqueada: podés iniciar sesión normalmente.");
-
-            var disponibles = claveDAL.ObtenerDisponibles();
-            if (disponibles.Count == 0)
-                throw new BE.AppException("err.bll.emergencia.sin_claves",
-                    "No quedan claves de emergencia. Pedile a otro Administrador que genere un nuevo set.");
-
-            foreach (var kv in disponibles)
-            {
-                if (!Encriptador.VerificarContrasena(clave, kv.Value)) continue;
-
-                // Consumir la clave (uso único). Si otro la consumió en paralelo, abortar.
-                if (!claveDAL.MarcarUsada(kv.Key, user))
-                    break;
-
-                usuarioDAL.Desbloquear(usuario.Id);
-                bitacora.RegistrarSinSesion(
-                    modulo:     modulo ?? "Login",
-                    actividad:  "Desbloqueo con Clave de Emergencia",
-                    criticidad: BE.Criticidad.Alta,
-                    idUsuario:  usuario.Id,
-                    detalle:    $"La cuenta '{user}' se autodesbloqueó con una clave de emergencia a las {DateTime.Now:HH:mm:ss}. Claves restantes: {claveDAL.ContarDisponibles()}.");
-                return true;
-            }
-
-            throw new BE.AppException("err.bll.emergencia.invalida",
-                "Usuario o clave de emergencia inválidos.");
-        }
+        // Las claves de emergencia (autodesbloqueo de Admin) viven en BLL.RecuperacionAdmin (SRP).
 
         // Retorna el usuario en sesión (con sus permisos) desde el SessionManager.
         public BE.Usuario ObtenerUsuarioActivo()

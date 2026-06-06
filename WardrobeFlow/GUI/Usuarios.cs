@@ -337,7 +337,7 @@ namespace GUI
                     tabla.Rows.Add(
                         u.Id,
                         u.Username,
-                        TraducirPerfil(u.Perfil, t),
+                        TraductorPerfil.Nombre(u.Perfil),
                         estado,
                         (_viendoArchivados || u.Bloqueado) ? 1 : 0);
                 }
@@ -596,25 +596,6 @@ namespace GUI
             catch (Exception ex)
             {
                 MostrarError(ex);
-            }
-        }
-
-        private string TraducirPerfil(string perfil, IDictionary<string, Traduccion> t)
-        {
-            string TT(string k) => t.ContainsKey(k) ? t[k].Texto : null;
-            switch (perfil)
-            {
-                case "Administrador":         return TT("perfil.administrador")    ?? perfil;
-                case "Auditor":               return TT("perfil.auditor")          ?? perfil;
-                case "GerenteComercial":      return TT("perfil.gerentecomercial") ?? perfil;
-                case "Vendedor":              return TT("perfil.vendedor")         ?? perfil;
-                case "GerenteInventario":     return TT("perfil.gerenteinventario")?? perfil;
-                case "EncargadoDeStock":      return TT("perfil.encargadodestock") ?? perfil;
-                case "OperadorLogistico":     return TT("perfil.operadorlogistico")?? perfil;
-                case "Supervisor":            return TT("perfil.supervisor")       ?? perfil;
-                case "ControladorDeStock":    return TT("perfil.stock")            ?? perfil;
-                case "OperadorDeInventario":  return TT("perfil.operador")         ?? perfil;
-                default:                      return perfil ?? "—";
             }
         }
 

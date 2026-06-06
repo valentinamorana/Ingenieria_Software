@@ -56,7 +56,7 @@ namespace GUI
             _lblUsuarioVal = new Label { Text = _usuario?.Username ?? "—", Location = new Point(170, 52), AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold) };
 
             _lblPerfilCap = new Label { Text = T("perfil.perfil", "Perfil / Rol:"), Location = new Point(24, 76), AutoSize = true, ForeColor = Color.FromArgb(90,90,100) };
-            _lblPerfilVal = new Label { Text = TraducirPerfil(_usuario?.Perfil), Location = new Point(170, 76), AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold) };
+            _lblPerfilVal = new Label { Text = TraductorPerfil.Nombre(_usuario?.Perfil), Location = new Point(170, 76), AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold) };
 
             _lblSeccion = new Label { Text = T("perfil.seccion", "Preferencias"), Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.FromArgb(146, 62, 96), Location = new Point(20, 108), AutoSize = true };
 
@@ -200,7 +200,7 @@ namespace GUI
             _lblTitulo.Text     = T("perfil.frm.titulo", "Mi Perfil");
             _lblUsuarioCap.Text = T("perfil.usuario", "Usuario:");
             _lblPerfilCap.Text  = T("perfil.perfil", "Perfil / Rol:");
-            _lblPerfilVal.Text  = TraducirPerfil(_usuario?.Perfil);
+            _lblPerfilVal.Text  = TraductorPerfil.Nombre(_usuario?.Perfil);
             _lblSeccion.Text    = T("perfil.seccion", "Preferencias");
             _lblIdiomaCap.Text  = T("perfil.idioma", "Idioma preferido:");
             _lblFuenteCap.Text  = T("perfil.fuente", "Tipografía:");
@@ -211,25 +211,5 @@ namespace GUI
             _btnGuardar.Text    = T("perfil.btn.guardar", "Guardar preferencias");
         }
 
-        private string TraducirPerfil(string perfil)
-        {
-            if (string.IsNullOrEmpty(perfil)) return "—";
-            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
-            string Key(string k) => t.ContainsKey(k) ? t[k].Texto : null;
-            switch (perfil)
-            {
-                case "Administrador":        return Key("perfil.administrador")    ?? perfil;
-                case "Auditor":              return Key("perfil.auditor")          ?? perfil;
-                case "GerenteComercial":     return Key("perfil.gerentecomercial") ?? perfil;
-                case "Vendedor":             return Key("perfil.vendedor")         ?? perfil;
-                case "GerenteInventario":    return Key("perfil.gerenteinventario")?? perfil;
-                case "EncargadoDeStock":     return Key("perfil.encargadodestock") ?? perfil;
-                case "OperadorLogistico":    return Key("perfil.operadorlogistico")?? perfil;
-                case "Supervisor":           return Key("perfil.supervisor")       ?? perfil;
-                case "ControladorDeStock":   return Key("perfil.stock")            ?? perfil;
-                case "OperadorDeInventario": return Key("perfil.operador")         ?? perfil;
-                default:                     return perfil;
-            }
-        }
     }
 }

@@ -50,6 +50,7 @@
     <Compile Include="Multiidioma\Idioma.cs" />
     <Compile Include="Multiidioma\Traduccion.cs" />
     <Compile Include="Multiidioma\Traductor.cs" />
+    <Compile Include="Multiidioma\TraductorPerfil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

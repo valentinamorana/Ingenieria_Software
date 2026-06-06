@@ -12,7 +12,7 @@ namespace GUI
     /// </summary>
     public class DesbloqueoEmergenciaForm : Form
     {
-        private readonly BLL.Usuario _usuarioBLL = new BLL.Usuario();
+        private readonly BLL.RecuperacionAdmin _recBLL = new BLL.RecuperacionAdmin();
 
         private TextBox _txtUsuario;
         private TextBox _txtClave;
@@ -138,7 +138,7 @@ namespace GUI
             _btnDesbloquear.Enabled = false;
             try
             {
-                bool ok = _usuarioBLL.DesbloquearConClaveEmergencia(this.Text, _txtUsuario.Text, _txtClave.Text);
+                bool ok = _recBLL.DesbloquearConClave(this.Text, _txtUsuario.Text, _txtClave.Text);
                 if (ok)
                 {
                     MessageBox.Show(

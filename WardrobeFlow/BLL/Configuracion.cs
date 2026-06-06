@@ -288,7 +288,7 @@ namespace BLL
             {
                 var dal = new DAL.ClaveRecuperacion();
                 if (dal.ContarTotal() > 0) return null;   // ya hay un set cargado
-                return Usuario.GenerarClavesEmergencia(10);
+                return RecuperacionAdmin.GenerarClavesEmergencia(10);
             }
             catch (Exception ex)
             {

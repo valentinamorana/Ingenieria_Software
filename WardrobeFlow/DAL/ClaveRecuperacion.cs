@@ -10,7 +10,7 @@ namespace DAL
     /// Las claves se guardan HASHEADAS (PBKDF2). Esta capa nunca ve la clave en texto plano:
     /// recibe/almacena hashes y controla el consumo de uso único.
     /// </summary>
-    public class ClaveRecuperacion
+    public class ClaveRecuperacion : Interfaces.IClaveRecuperacionDAL
     {
         private readonly Acceso acceso = Acceso.GetInstance();
 
