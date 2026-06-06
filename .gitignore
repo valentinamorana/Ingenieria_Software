@@ -1,22 +1,18 @@
 # Build output
 bin/
 obj/
+.vs/
 *.user
 *.suo
-.vs/
-
-# NuGet
-packages/
-*.nupkg
-
-# AES encryption key — regenerate per environment, never commit
-key.dat
 
 # Backups de base de datos — nunca versionar (contienen hashes, DNI cifrados, datos de clientes)
 *.bak
 
 # Credenciales generadas en texto plano — nunca versionar
 CredencialesGeneradas/
+
+# Clave de cifrado AES — se regenera por entorno, nunca versionar
+key.dat
 
 # Resultados de tests
 TestResults/
