@@ -200,7 +200,7 @@ namespace GUI
 
                 using (var ofd = new OpenFileDialog())
                 {
-                    ofd.Filter = "Copia de Seguridad SQL (*.bak)|*.bak";
+                    ofd.Filter = "Copias de Seguridad (*.wfbak;*.bak)|*.wfbak;*.bak";
                     ofd.Title  = "Seleccionar Backup para Restaurar";
 
                     if (ofd.ShowDialog() != DialogResult.OK) return;
@@ -213,9 +213,23 @@ namespace GUI
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Warning) != DialogResult.Yes) return;
 
+                    // Si el backup está cifrado (.wfbak), pedir la contraseña para descifrarlo.
+                    string clave = null;
+                    if (Backup.EsCifrado(ofd.FileName))
+                    {
+                        using (var dlg = new InputDialog(
+                            TC("dlg.backup.clave.titulo", "Contraseña del backup"),
+                            TC("dlg.backup.clave.ingresar", "Ingresá la contraseña con la que se cifró este backup:"),
+                            esPassword: true))
+                        {
+                            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+                            clave = dlg.InputText;
+                        }
+                    }
+
                     try
                     {
-                        new Backup().RestaurarBackup("RestauracionIntegridad", ofd.FileName);
+                        new Backup().RestaurarBackup("RestauracionIntegridad", ofd.FileName, clave);
                         var t2 = Servicios.Multiidioma.Traductor.ObtenerTraducciones(Servicios.Multiidioma.GestorIdioma.IdiomaActual);
                         string T2(string k, string fb) => t2.ContainsKey(k) ? t2[k].Texto : fb;
                         MessageBox.Show(T2("msg.backup.restauradaexito", "Base de datos restaurada con éxito.\nLa aplicación se reiniciará."),

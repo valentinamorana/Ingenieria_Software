@@ -45,6 +45,7 @@
     <Compile Include="DigitoVerificador.cs" />
     <Compile Include="ICalculadorDV.cs" />
     <Compile Include="CalculadorDV.cs" />
+    <Compile Include="CifradorArchivos.cs" />
     <Compile Include="Encriptador.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ContadorSesion.cs" />

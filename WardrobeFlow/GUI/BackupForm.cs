@@ -1,6 +1,7 @@
 using Servicios.Multiidioma;
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace GUI
@@ -101,7 +102,10 @@ namespace GUI
                 return;
             }
 
-            var archivos = new DirectoryInfo(DirBackups).GetFiles("*.bak");
+            // Incluye los backups cifrados (.wfbak) y los .bak planos legacy.
+            var archivos = new DirectoryInfo(DirBackups).GetFiles("*.bak")
+                .Concat(new DirectoryInfo(DirBackups).GetFiles("*" + BLL.Backup.ExtensionCifrada))
+                .ToArray();
             Array.Sort(archivos, (a, b) => b.LastWriteTime.CompareTo(a.LastWriteTime));
 
             foreach (var fi in archivos)
@@ -137,7 +141,10 @@ namespace GUI
                 if (!Directory.Exists(DirBackups))
                     Directory.CreateDirectory(DirBackups);
 
-                string filename = _bll.RealizarBackup(this.Text, DirBackups);
+                string clave = PedirClaveNueva();
+                if (clave == null) return;   // cancelado o inválido
+
+                string filename = _bll.RealizarBackup(this.Text, DirBackups, clave);
                 MessageBox.Show(
                     string.Format(T("msg.backup.creadoexito", "Copia de seguridad generada con éxito:\n{0}"), filename),
                     T("rpt.dlg.exito.titulo", "Éxito"), MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -158,7 +165,10 @@ namespace GUI
                 if (!Directory.Exists(DirBackups))
                     Directory.CreateDirectory(DirBackups);
 
-                string filename = _bll.RealizarBackupInicial(this.Text, DirBackups);
+                string clave = PedirClaveNueva();
+                if (clave == null) return;
+
+                string filename = _bll.RealizarBackupInicial(this.Text, DirBackups, clave);
                 MessageBox.Show(
                     string.Format(T("msg.backup.inicialexito", "Backup de instalación limpia generado:\n{0}"), filename),
                     T("rpt.dlg.exito.titulo", "Éxito"), MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -210,7 +220,7 @@ namespace GUI
         {
             using (var ofd = new OpenFileDialog())
             {
-                ofd.Filter = "Copia de Seguridad SQL (*.bak)|*.bak";
+                ofd.Filter = "Copias de Seguridad (*.wfbak;*.bak)|*.wfbak;*.bak";
                 ofd.Title  = "Seleccionar Copia de Seguridad para Restaurar";
                 if (Directory.Exists(DirBackups))
                     ofd.InitialDirectory = DirBackups;
@@ -253,9 +263,17 @@ namespace GUI
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 return;
 
+            // Si el backup está cifrado (.wfbak), pedir la contraseña para descifrarlo.
+            string clave = null;
+            if (BLL.Backup.EsCifrado(ruta))
+            {
+                clave = PedirClaveExistente();
+                if (clave == null) return;   // cancelado
+            }
+
             try
             {
-                _bll.RestaurarBackup(this.Text, ruta);
+                _bll.RestaurarBackup(this.Text, ruta, clave);
                 MessageBox.Show(
                     T("msg.backup.restauradaexito", "Base de datos restaurada con éxito.\nLa aplicación se reiniciará."),
                     T("msg.backup.restauradatitulo", "Restauración Exitosa"), MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -266,6 +284,51 @@ namespace GUI
                 MessageBox.Show(
                     string.Format(T("msg.backup.errorrestaurar", "Error al restaurar:\n{0}"), ex.Message),
                     T("msg.error.titulo", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Pide una contraseña NUEVA (con confirmación) para cifrar un backup. null = cancelar/invalida.
+        private string PedirClaveNueva()
+        {
+            using (var d1 = new InputDialog(
+                T("dlg.backup.clave.titulo", "Contraseña del backup"),
+                T("dlg.backup.clave.nueva", "Ingresá una contraseña para CIFRAR el backup.\nLa vas a necesitar para restaurarlo (no se puede recuperar)."),
+                esPassword: true))
+            {
+                if (d1.ShowDialog(this) != DialogResult.OK) return null;
+                string p1 = d1.InputText;
+                if (string.IsNullOrEmpty(p1))
+                {
+                    MessageBox.Show(T("dlg.backup.clave.vacia", "La contraseña no puede estar vacía."),
+                        T("msg.error.titulo", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return null;
+                }
+                using (var d2 = new InputDialog(
+                    T("dlg.backup.clave.titulo", "Contraseña del backup"),
+                    T("dlg.backup.clave.repetir", "Repetí la contraseña para confirmar:"),
+                    esPassword: true))
+                {
+                    if (d2.ShowDialog(this) != DialogResult.OK) return null;
+                    if (d2.InputText != p1)
+                    {
+                        MessageBox.Show(T("dlg.backup.clave.nocoincide", "Las contraseñas no coinciden."),
+                            T("msg.error.titulo", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return null;
+                    }
+                }
+                return p1;
+            }
+        }
+
+        // Pide la contraseña de un backup EXISTENTE para descifrarlo. null = cancelar.
+        private string PedirClaveExistente()
+        {
+            using (var d = new InputDialog(
+                T("dlg.backup.clave.titulo", "Contraseña del backup"),
+                T("dlg.backup.clave.ingresar", "Ingresá la contraseña con la que se cifró este backup:"),
+                esPassword: true))
+            {
+                return d.ShowDialog(this) == DialogResult.OK ? d.InputText : null;
             }
         }
     }
