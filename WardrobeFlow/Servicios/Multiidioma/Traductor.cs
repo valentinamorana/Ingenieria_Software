@@ -1145,6 +1145,9 @@ namespace Servicios.Multiidioma
             { "err.bll.plan.nombre_requerido",       "El nombre del plan es obligatorio."                                        },
             { "err.bll.plan.limite_invalido",        "El límite de prendas debe ser mayor que cero."                             },
             { "err.bll.plan.precio_negativo",        "El precio no puede ser negativo."                                          },
+            { "err.plan.nombre_requerido",           "El nombre del plan es obligatorio."                                        },
+            { "err.plan.nombre_letras",              "El nombre solo puede contener letras."                                     },
+            { "err.plan.precio_cero",                "El precio debe ser mayor a cero."                                          },
             // DiagnosticoIntegridadForm — estado DVV
             { "diag.estado.integro",               "Estado: INTEGRO"                                                             },
             { "diag.estado.comprometido",          "Estado: COMPROMETIDO"                                                        },
@@ -2096,6 +2099,9 @@ namespace Servicios.Multiidioma
             { "err.bll.plan.nombre_requerido",       "Plan name is required."                                                   },
             { "err.bll.plan.limite_invalido",        "Garment limit must be greater than zero."                                 },
             { "err.bll.plan.precio_negativo",        "Price cannot be negative."                                                },
+            { "err.plan.nombre_requerido",           "Plan name is required."                                                   },
+            { "err.plan.nombre_letras",              "The name can only contain letters."                                       },
+            { "err.plan.precio_cero",                "Price must be greater than zero."                                         },
             // DiagnosticoIntegridadForm — DVV status
             { "diag.estado.integro",               "Status: INTACT"                                                              },
             { "diag.estado.comprometido",          "Status: COMPROMISED"                                                         },
@@ -3046,6 +3052,9 @@ namespace Servicios.Multiidioma
             { "err.bll.plan.nombre_requerido",       "Название плана обязательно."                                              },
             { "err.bll.plan.limite_invalido",        "Лимит вещей должен быть больше нуля."                                    },
             { "err.bll.plan.precio_negativo",        "Цена не может быть отрицательной."                                       },
+            { "err.plan.nombre_requerido",           "Название плана обязательно."                                              },
+            { "err.plan.nombre_letras",              "Название может содержать только буквы."                                  },
+            { "err.plan.precio_cero",                "Цена должна быть больше нуля."                                           },
             // DiagnosticoIntegridadForm — статус DVV
             { "diag.estado.integro",               "Статус: ЦЕЛО"                                                                },
             { "diag.estado.comprometido",          "Статус: НАРУШЕНО"                                                            },
@@ -3957,6 +3966,9 @@ namespace Servicios.Multiidioma
             { "err.bll.plan.nombre_requerido",       "O nome do plano é obrigatório."    },
             { "err.bll.plan.limite_invalido",        "O limite de roupas deve ser maior que zero." },
             { "err.bll.plan.precio_negativo",        "O preço não pode ser negativo."    },
+            { "err.plan.nombre_requerido",           "O nome do plano é obrigatório."    },
+            { "err.plan.nombre_letras",              "O nome só pode conter letras."     },
+            { "err.plan.precio_cero",                "O preço deve ser maior que zero."  },
             // DiagnosticoIntegridadForm
             { "diag.estado.integro",               "Estado: ÍNTEGRO"                     },
             { "diag.estado.comprometido",          "Estado: COMPROMETIDO"                 },
