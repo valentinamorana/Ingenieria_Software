@@ -102,6 +102,14 @@ namespace BLL
                     break;
 
                 usuarioDAL.Desbloquear(usuario.Id);
+
+                // Resetear el contador de intentos EN MEMORIA de esta ejecución de la app.
+                // La cuenta ya quedó desbloqueada en BD (Desbloquear pone IntentosFallidos=0),
+                // pero ContadorSesion es un singleton por ejecución: si quedó en el límite, el
+                // próximo login dispararía "demasiados intentos, la app se cerrará" aunque la
+                // cuenta ya esté desbloqueada. Reseteamos para permitir reingresar de inmediato.
+                ContadorSesion.GetInstance().Resetear();
+
                 bitacora.RegistrarSinSesion(
                     modulo:     modulo ?? "Login",
                     actividad:  "Desbloqueo con Clave de Emergencia",
