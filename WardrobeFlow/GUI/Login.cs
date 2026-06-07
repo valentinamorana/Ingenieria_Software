@@ -85,14 +85,19 @@ namespace GUI
             AgregarComboIdioma();
 
             // ── Link de autodesbloqueo con clave de emergencia (RF-10) ────────────
+            // Fila propia entre "¿Olvidaste tu contraseña?" (y=271) y el cartel de error
+            // (y=311), para que el link NO se superponga con el mensaje "cuenta bloqueada".
             _lnkEmergencia = new LinkLabel
             {
                 Text         = "¿Cuenta bloqueada? Usar clave de emergencia",
-                AutoSize     = true,
-                Location     = new Point(lnkOlvidaste.Left, lnkOlvidaste.Bottom + 6),
+                AutoSize     = false,
+                TextAlign    = ContentAlignment.MiddleLeft,
+                Location     = new Point(lnkOlvidaste.Left, lnkOlvidaste.Bottom + 4),
+                Size         = new Size(lnkOlvidaste.Width, 18),
+                BackColor    = Color.Transparent,
                 Font         = new Font("Segoe UI", 8.25f),
-                LinkColor    = Color.FromArgb(146, 62, 96),
-                ActiveLinkColor = Color.FromArgb(176, 62, 96),
+                LinkColor    = Color.FromArgb(176, 62, 96),
+                ActiveLinkColor = Color.FromArgb(146, 62, 96),
                 Tag          = "emg.link"
             };
             _lnkEmergencia.LinkClicked += LnkEmergencia_LinkClicked;
