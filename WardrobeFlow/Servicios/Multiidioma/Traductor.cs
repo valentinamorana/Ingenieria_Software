@@ -932,7 +932,7 @@ namespace Servicios.Multiidioma
             { "lbl.rest.titulo",         "Integridad del Sistema Comprometida"                    },
             { "lbl.rest.subtitulo",      "Se detectaron discrepancias en los dígitos verificadores. El acceso está bloqueado." },
             { "lbl.rest.detalle",        "Detalle del error:"                                     },
-            { "btn.rest.recalcular",     "Recalcular Dígitos Verificadores"                       },
+            { "btn.rest.recalcular",     "Recalcular Dígitos"                       },
             { "btn.rest.backup",         "Restaurar desde Backup"                                 },
             { "btn.rest.salir",          "Salir"                                                  },
             // RestauracionForm — detalle del error (txtDetalle)
@@ -3789,7 +3789,7 @@ namespace Servicios.Multiidioma
             { "lbl.rest.titulo",         "Integridade do Sistema Comprometida"           },
             { "lbl.rest.subtitulo",      "Foram detectadas discrepâncias nos dígitos verificadores. O acesso está bloqueado." },
             { "lbl.rest.detalle",        "Detalhe do erro:"                              },
-            { "btn.rest.recalcular",     "Recalcular Dígitos Verificadores"              },
+            { "btn.rest.recalcular",     "Recalcular Dígitos"              },
             { "btn.rest.backup",         "Restaurar a partir de Backup"                  },
             { "btn.rest.salir",          "Sair"                                          },
             { "dv.alerta.titulo",        "ALERTA DE INTEGRIDADE — Tabela Usuario"        },

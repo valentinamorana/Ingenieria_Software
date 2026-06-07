@@ -63,8 +63,9 @@ namespace GUI
             pnlHeader.Controls.Add(_cmbIdioma);
             _cmbIdioma.BringToFront();
 
-            // Limitar ancho del subtítulo para que no llegue hasta el combo
-            lblSubtitulo.MaximumSize = new Size(pnlHeader.Width - w - 40, 0);
+            // El subtítulo va DEBAJO del combo, así que puede usar el ancho completo del header
+            // (antes se le restaba el ancho del combo y el texto se cortaba).
+            lblSubtitulo.Size = new Size(pnlHeader.Width - 40, lblSubtitulo.Height);
 
             SeleccionarIdioma(GestorIdioma.IdiomaActual?.Id ?? "ES");
         }
@@ -118,7 +119,7 @@ namespace GUI
             lblTitulo.Text          = T("lbl.rest.titulo",    "Integridad del Sistema Comprometida");
             lblSubtitulo.Text       = T("lbl.rest.subtitulo", "Se detectaron discrepancias en los dígitos verificadores. El acceso está bloqueado.");
             lblDetalle.Text         = T("lbl.rest.detalle",   "Detalle del error:");
-            btnRecalcular.Text      = T("btn.rest.recalcular","Recalcular Dígitos Verificadores");
+            btnRecalcular.Text      = T("btn.rest.recalcular","Recalcular Dígitos");
             btnRestaurarBackup.Text = T("btn.rest.backup",    "Restaurar desde Backup");
             btnSalir.Text           = T("btn.rest.salir",     "Salir");
 
