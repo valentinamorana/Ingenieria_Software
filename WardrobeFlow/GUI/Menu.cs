@@ -328,10 +328,13 @@ namespace GUI
             Form dash;
             switch (perfil)
             {
-                case "Vendedor":             dash = new DashboardVendedor();    break;
-                case "ControladorDeStock":   dash = new DashboardControlStock(); break;
-                case "OperadorDeInventario": dash = new DashboardOperador();    break;
-                case "Supervisor":           dash = new DashboardSupervisor();  break;
+                case "Vendedor":             dash = new DashboardVendedor();     break;
+                // Inventario consolidado: OperadorDeInventario = mantenimiento de prendas/stock,
+                // OperadorLogistico = pedidos/despacho. Cada uno usa el dashboard acorde.
+                case "OperadorDeInventario": dash = new DashboardControlStock(); break;
+                case "OperadorLogistico":    dash = new DashboardOperador();     break;
+                // Gerentes / Auditor / Administrador → dashboard general (se adapta por permisos;
+                // la "Actividad reciente" solo aparece con permiso de auditoría).
                 default:                     dash = new DashboardForm(_usuarioActivo?.Permisos); break;
             }
             dash.MdiParent = this;

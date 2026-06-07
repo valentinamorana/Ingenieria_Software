@@ -110,18 +110,17 @@ namespace GUI
 
             var items = new[]
             {
-                // Roles de la jerarquía nueva (T04)
+                // Jerarquía consolidada (2da entrega):
+                //   Comercial:   GerenteComercial ⊃ Vendedor
+                //   Inventario:  GerenteInventario ⊃ OperadorLogistico + OperadorDeInventario
+                //   Transversal: Auditor (solo lectura) · Administrador (todo)
                 new PerfilItem("Administrador",       TT("perfil.administrador",       "Administrador")),
                 new PerfilItem("Auditor",             TT("perfil.auditor",             "Auditor")),
                 new PerfilItem("GerenteComercial",    TT("perfil.gerentecomercial",    "Gerente Comercial")),
                 new PerfilItem("Vendedor",            TT("perfil.vendedor",            "Vendedor")),
                 new PerfilItem("GerenteInventario",   TT("perfil.gerenteinventario",   "Gerente de Inventario")),
-                new PerfilItem("EncargadoDeStock",    TT("perfil.encargadodestock",    "Encargado de Stock")),
+                new PerfilItem("OperadorDeInventario",TT("perfil.operador",            "Operador de Inventario")),
                 new PerfilItem("OperadorLogistico",   TT("perfil.operadorlogistico",   "Operador Logístico")),
-                // Roles legacy (mantenidos por compatibilidad)
-                new PerfilItem("Supervisor",          TT("perfil.supervisor",          "Supervisor (legacy)")),
-                new PerfilItem("ControladorDeStock",  TT("perfil.stock",               "Controlador de Stock (legacy)")),
-                new PerfilItem("OperadorDeInventario",TT("perfil.operador",            "Operador de Inventario (legacy)")),
             };
 
             int prevIdx = cmbPerfil.SelectedIndex < 0 ? 2 : cmbPerfil.SelectedIndex;

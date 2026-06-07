@@ -681,6 +681,76 @@ WHERE sup.Nombre = 'Supervisor' AND sup.EsRol = 1
 PRINT 'Supervisor convertido en rol compuesto (Supervisor → Vendedor).';
 GO
 
+-- ============================================================
+-- CONSOLIDACIÓN DE ROLES (v8) — decisión de diseño 2da entrega
+-- Lleva la jerarquía al ESTADO OBJETIVO (idempotente, sin importar el estado previo):
+--   • Inventario — dos operadores con responsabilidades CLARAS, sin duplicados:
+--       - OperadorLogistico    → pedidos / despacho       (Ver Pedidos Realizados)
+--       - OperadorDeInventario → mantenimiento de prendas (Ver Prendas + Gestionar Stock)
+--       - GerenteInventario ⊃ AMBOS                       (+ Categorías + Outfits)
+--     Se RETIRAN EncargadoDeStock y ControladorDeStock (eran redundantes con lo anterior).
+--   • Comercial — se RETIRA Supervisor; el jefe es GerenteComercial ⊃ Vendedor.
+-- Este bloque SUPERSEDE los bloques previos para los nodos afectados.
+-- ============================================================
+
+-- (a) Asegurar el nodo-rol OperadorDeInventario (por si la BD no lo tenía).
+INSERT INTO Permiso (Nombre, NombreMenu, TipoComponente, Estado, EsFamilia, EsRol)
+SELECT 'OperadorDeInventario', 'OperadorDeInventario', 'Rol', 1, 1, 1
+WHERE NOT EXISTS (SELECT 1 FROM Permiso WHERE Nombre = 'OperadorDeInventario' AND EsRol = 1);
+GO
+
+-- (b) OperadorDeInventario: sus patentes propias deben ser EXACTAMENTE Prendas + Stock.
+--     Se quita cualquier patente vieja (p. ej. el legacy 'Ver Pedidos Realizados') y se agregan las nuevas.
+DELETE r FROM PermisoRelacion r
+JOIN Permiso rol ON rol.IdPermiso = r.IdPadre AND rol.Nombre = 'OperadorDeInventario' AND rol.EsRol = 1
+JOIN Permiso pat ON pat.IdPermiso = r.IdHijo  AND ISNULL(pat.EsRol,0) = 0
+WHERE pat.NombreMenu NOT IN ('mnuPrendas','mnuStock');
+INSERT INTO PermisoRelacion (IdPadre, IdHijo)
+SELECT rol.IdPermiso, pat.IdPermiso
+FROM (VALUES ('mnuPrendas'), ('mnuStock')) AS v(NombreMenu)
+JOIN Permiso rol ON rol.Nombre = 'OperadorDeInventario' AND rol.EsRol = 1
+JOIN Permiso pat ON pat.NombreMenu = v.NombreMenu AND ISNULL(pat.EsFamilia,0) = 0 AND ISNULL(pat.EsRol,0) = 0
+WHERE NOT EXISTS (SELECT 1 FROM PermisoRelacion x WHERE x.IdPadre = rol.IdPermiso AND x.IdHijo = pat.IdPermiso);
+GO
+
+-- (c) GerenteInventario ⊃ OperadorLogistico + OperadorDeInventario (y se quita la arista vieja a EncargadoDeStock).
+DELETE r FROM PermisoRelacion r
+JOIN Permiso gi ON gi.IdPermiso = r.IdPadre AND gi.Nombre = 'GerenteInventario' AND gi.EsRol = 1
+JOIN Permiso ed ON ed.IdPermiso = r.IdHijo  AND ed.Nombre = 'EncargadoDeStock'  AND ed.EsRol = 1;
+INSERT INTO PermisoRelacion (IdPadre, IdHijo)
+SELECT gi.IdPermiso, h.IdPermiso
+FROM (VALUES ('OperadorLogistico'), ('OperadorDeInventario')) AS v(Hijo)
+JOIN Permiso gi ON gi.Nombre = 'GerenteInventario' AND gi.EsRol = 1
+JOIN Permiso h  ON h.Nombre  = v.Hijo AND h.EsRol = 1
+WHERE NOT EXISTS (SELECT 1 FROM PermisoRelacion x WHERE x.IdPadre = gi.IdPermiso AND x.IdHijo = h.IdPermiso);
+GO
+
+-- (d) Migrar usuarios de los roles que se retiran ANTES de desactivarlos.
+DECLARE @rolesCambiados INT = 0;
+UPDATE Usuario SET Rol = 'OperadorDeInventario', Perfil = 'OperadorDeInventario'
+WHERE Rol IN ('EncargadoDeStock','ControladorDeStock') OR Perfil IN ('EncargadoDeStock','ControladorDeStock','Controlador de Stock');
+SET @rolesCambiados = @rolesCambiados + @@ROWCOUNT;
+UPDATE Usuario SET Rol = 'GerenteComercial', Perfil = 'GerenteComercial'
+WHERE Rol = 'Supervisor' OR Perfil = 'Supervisor';
+SET @rolesCambiados = @rolesCambiados + @@ROWCOUNT;
+
+-- (e) Retirar los roles redundantes: quitar TODAS sus aristas (como padre o como hijo) y desactivar el nodo.
+DELETE r FROM PermisoRelacion r
+JOIN Permiso p ON (p.IdPermiso = r.IdPadre OR p.IdPermiso = r.IdHijo)
+WHERE p.EsRol = 1 AND p.Nombre IN ('EncargadoDeStock','ControladorDeStock','Supervisor');
+UPDATE Permiso SET Estado = 0 WHERE EsRol = 1 AND Nombre IN ('EncargadoDeStock','ControladorDeStock','Supervisor');
+
+-- (f) Si cambió el Rol de algún usuario, el DVH (que incluye el Rol) quedó desfasado:
+--     resetear el DV de Usuario para que la app lo recalcule limpio en el próximo arranque.
+IF @rolesCambiados > 0
+BEGIN
+    UPDATE Usuario SET DVH = 0;
+    UPDATE DVVertical SET DVV = 0 WHERE NombreTabla = 'Usuario';
+    PRINT 'Roles consolidados; DV de Usuario reseteado para recálculo en el próximo arranque.';
+END
+PRINT 'Consolidación de roles (v8) aplicada.';
+GO
+
 -- Si se insertaron usuarios nuevos en una BD ya inicializada, resetear el DV para que la app
 -- lo recalcule limpio en el próximo arranque (evita una falsa alarma de integridad por mezcla).
 IF EXISTS (SELECT 1 FROM Usuario WHERE Username IN ('auditor','gcomercial','ginventario','encargado','logistico') AND DVH = 0)
