@@ -364,6 +364,20 @@ namespace BLL
             dvDAL.RecalcularTabla(DAL.Cliente.DV_Tabla,  DAL.Cliente.DV_Pk,  DAL.Cliente.DV_Columnas);
             dvDAL.RecalcularTabla(DAL.Empleado.DV_Tabla, DAL.Empleado.DV_Pk, DAL.Empleado.DV_Columnas);
             new DAL.Pedido().RecalcularDV();   // objeto multi-tabla (pedido + líneas)
+
+            // Trazabilidad: dejar constancia en bitácora del recálculo de dígitos verificadores.
+            // Se usa RegistrarSinSesion porque esta operación también puede dispararse desde el
+            // form de integridad en el ARRANQUE, antes de que haya una sesión iniciada.
+            int? idActor = Seguridad.SessionManager.IsLoggedIn
+                           ? (int?)Seguridad.SessionManager.GetInstance().Usuario.Id : null;
+            string actor = Seguridad.SessionManager.IsLoggedIn
+                           ? Seguridad.SessionManager.GetInstance().Usuario.Username : "(arranque/sin sesión)";
+            new Servicios.Bitacora().RegistrarSinSesion(
+                modulo:     "Integridad de Datos",
+                actividad:  "Recálculo de Dígitos Verificadores",
+                criticidad: BE.Criticidad.Alta,
+                idUsuario:  idActor,
+                detalle:    $"{actor} ejecutó el recálculo de DVH/DVV (Usuario, Cliente, Empleado, Pedido) a las {DateTime.Now:HH:mm:ss}.");
         }
 
         // Helper compartido entre VerificarIntegridadDV (primer arranque) y RecalcularIntegridadDV.
