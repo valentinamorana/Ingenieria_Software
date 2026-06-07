@@ -113,9 +113,22 @@ namespace Servicios
             return ruta;
         }
 
+        // Carpeta de salida de credenciales/claves: Documentos\WardrobeFlow\CredencialesGeneradas.
+        // Antes se usaba la carpeta del ejecutable (bin\Debug al correr desde Visual Studio), poco
+        // visible y que se pierde al recompilar/limpiar. Documentos es persistente y fácil de hallar.
+        // Fallback a la carpeta del ejecutable si Documentos no estuviera disponible.
         private static string ObtenerCarpeta()
         {
-            string ruta = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, CarpetaCredenciales);
+            string baseDir;
+            try
+            {
+                baseDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                if (string.IsNullOrEmpty(baseDir)) baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                else baseDir = Path.Combine(baseDir, "WardrobeFlow");
+            }
+            catch { baseDir = AppDomain.CurrentDomain.BaseDirectory; }
+
+            string ruta = Path.Combine(baseDir, CarpetaCredenciales);
             if (!Directory.Exists(ruta))
                 Directory.CreateDirectory(ruta);
             return ruta;
