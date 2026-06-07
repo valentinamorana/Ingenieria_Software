@@ -1,22 +1,35 @@
 ================================================================
  WardrobeFlow — JERARQUÍA DE ROLES Y SUS VISTAS
- (agregado en la 2da entrega — patrón Composite, rol-dentro-de-rol)
+ (2da entrega — patrón Composite, rol-dentro-de-rol)
+ Actualizado: consolidación de roles v8.
 ================================================================
 
-QUÉ SE AGREGÓ
--------------
-Antes, los roles GerenteComercial, GerenteInventario, EncargadoDeStock,
-OperadorLogistico y Auditor existían como opción en "Gestión de Usuarios"
-pero NO tenían permisos asignados → un usuario con esos roles veía el menú vacío.
+QUÉ CAMBIÓ EN LA CONSOLIDACIÓN (v8)
+-----------------------------------
+Se limpió la jerarquía para que NO haya roles duplicados ni sueltos:
 
-Ahora cada uno tiene VISTAS reales y, además, se armó una JERARQUÍA de roles
-(rol-dentro-de-rol) donde el rol padre HEREDA recursivamente las vistas del hijo,
-demostrando el patrón Composite con jerarquía de roles (RF-11).
+  • Inventario — dos operadores con responsabilidades CLARAS + un jefe que los hereda:
+      - OperadorLogistico    → pedidos / despacho
+      - OperadorDeInventario → mantenimiento / limpieza de prendas (stock)
+      - GerenteInventario ⊃ AMBOS operadores
+    Antes "Operador de Inventario" y "Operador Logístico" eran casi idénticos (los dos
+    sólo veían "Ver Pedidos Realizados") y "Encargado de Stock" los englobaba.
 
-Todo se seedea de forma idempotente en los scripts:
+  • Comercial — un solo jefe del área:
+      - GerenteComercial ⊃ Vendedor
+    Se retiró "Supervisor" (se confundía con GerenteComercial).
+
+ROLES RETIRADOS (Estado = 0, ya no se ofrecen al crear usuarios):
+  • Supervisor          → sus usuarios se migran a GerenteComercial.
+  • EncargadoDeStock    → sus usuarios se migran a OperadorDeInventario.
+  • ControladorDeStock  → sus usuarios se migran a OperadorDeInventario.
+
+Todo se seedea de forma idempotente en:
   • BD/01_Crear_BaseDeDatos.sql      (instalación limpia)
   • BD/02_Actualizar_BaseDeDatos.sql (bases existentes)
-mediante la tabla PermisoRelacion (única fuente de verdad del árbol).
+mediante la tabla PermisoRelacion (única fuente de verdad del árbol). El bloque
+"CONSOLIDACIÓN DE ROLES (v8)" va al final de las migraciones de roles y deja el árbol
+en el estado objetivo sin importar el estado previo.
 
 
 LAS "VISTAS" (PATENTES) DEL SISTEMA
@@ -35,55 +48,67 @@ Cada vista es un ítem de menú (patente) que habilita una pantalla:
   mnuPedidosRealizados   → Ver Pedidos Realizados    (despacho / seguimiento)
 
 
-JERARQUÍA NUEVA (⊃ = "contiene / hereda de")
---------------------------------------------
+JERARQUÍA VIGENTE (⊃ = "contiene / hereda de")
+----------------------------------------------
 
   GerenteComercial  ⊃  Vendedor
-  GerenteInventario ⊃  EncargadoDeStock ⊃ OperadorLogistico
+  GerenteInventario ⊃  OperadorLogistico
+  GerenteInventario ⊃  OperadorDeInventario
   Auditor           (rol plano, sin hijos)
+  Administrador     (acceso total, no se modela por patentes)
 
 
-ROLES NUEVOS Y SUS VISTAS EFECTIVAS
------------------------------------
+ROLES Y SUS VISTAS EFECTIVAS
+----------------------------
+
+▸ Administrador
+    VE: TODO (las 10 vistas) + módulos de seguridad (Backup, Diagnóstico de Integridad, Usuarios).
 
 ▸ Auditor
     Propias:   Ver Auditoría
-    Heredadas: —
     VE: Ver Auditoría
-    (Rol de solo lectura para control/auditoría.)
+    (Rol transversal de solo lectura para control/auditoría.)
 
-▸ OperadorLogistico
-    Propias:   Ver Pedidos Realizados
-    Heredadas: —
-    VE: Ver Pedidos Realizados
-    (Despacho de pedidos. Es la base de la rama de inventario.)
-
-▸ EncargadoDeStock   (⊃ OperadorLogistico)
-    Propias:   Ver Prendas, Gestionar Stock
-    Heredadas: Ver Pedidos Realizados
-    VE: Ver Prendas, Gestionar Stock, Ver Pedidos Realizados
-
-▸ GerenteInventario  (⊃ EncargadoDeStock)
-    Propias:   Ver Categorías, Ver Outfits
-    Heredadas: Ver Prendas, Gestionar Stock, Ver Pedidos Realizados
-    VE: Ver Prendas, Gestionar Stock, Ver Pedidos Realizados,
-        Ver Categorías, Ver Outfits
+▸ Vendedor
+    Propias:   Ver Prendas, Gestionar Clientes, Planes de Suscripción, Realizar Ventas
+    VE: las cuatro de arriba.
 
 ▸ GerenteComercial   (⊃ Vendedor)
     Propias:   Ver Pedidos Realizados
     Heredadas: Ver Prendas, Gestionar Clientes, Planes de Suscripción, Realizar Ventas
-    VE: Ver Prendas, Gestionar Clientes, Planes de Suscripción,
-        Realizar Ventas, Ver Pedidos Realizados
+    VE: Ver Prendas, Gestionar Clientes, Planes de Suscripción, Realizar Ventas,
+        Ver Pedidos Realizados
+    (Jefe del área comercial.)
+
+▸ OperadorLogistico
+    Propias:   Ver Pedidos Realizados
+    VE: Ver Pedidos Realizados
+    (Se encarga de los pedidos y el despacho.)
+
+▸ OperadorDeInventario
+    Propias:   Ver Prendas, Gestionar Stock
+    VE: Ver Prendas, Gestionar Stock
+    (Se encarga del mantenimiento / limpieza de las prendas y del stock.)
+
+▸ GerenteInventario  (⊃ OperadorLogistico + OperadorDeInventario)
+    Propias:   Ver Categorías, Ver Outfits
+    Heredadas: Ver Pedidos Realizados, Ver Prendas, Gestionar Stock
+    VE: Ver Pedidos Realizados, Ver Prendas, Gestionar Stock,
+        Ver Categorías, Ver Outfits
+    (Jefe del área de inventario: ve lo de los dos operadores + categorías/outfits.)
 
 
-ROLES EXISTENTES (referencia)
------------------------------
-▸ Administrador        → TODO (las 10 vistas) + módulos de seguridad
-                         (Backup, Diagnóstico de Integridad, Usuarios).
-▸ Vendedor             → Ver Prendas, Gestionar Clientes, Planes, Realizar Ventas.
-▸ Supervisor (legacy)  → Auditoría + lo de Vendedor.
-▸ ControladorDeStock   → Ver Prendas, Gestionar Stock.   (legacy)
-▸ OperadorDeInventario → Ver Pedidos Realizados.         (legacy)
+USUARIOS DEMO (clave: usuario1!  —  admin: admin1!)
+---------------------------------------------------
+  admin        → Administrador
+  admin2       → Administrador
+  auditor      → Auditor
+  gcomercial   → GerenteComercial
+  vendedor     → Vendedor
+  ginventario  → GerenteInventario
+  logistico    → OperadorLogistico
+  operador     → OperadorDeInventario
+  (encargado / stock / supervisor: usuarios legacy migrados automáticamente a los roles vigentes.)
 
 
 CÓMO PROBARLO / DEMOSTRARLO
@@ -91,9 +116,11 @@ CÓMO PROBARLO / DEMOSTRARLO
 1. Correr 02_Actualizar_BaseDeDatos.sql (o 01 en instalación limpia).
 2. En "Gestión de Usuarios", crear un usuario con rol GerenteInventario.
 3. Iniciar sesión con ese usuario: el menú muestra exactamente sus 5 vistas
-   (las propias + las heredadas de EncargadoDeStock y OperadorLogistico).
-4. En "Gestión de Permisos" se ve el árbol Composite con los roles anidados
-   (botón "Embeber" para anidar/desanidar roles en vivo).
+   (Categorías + Outfits propias + las heredadas de los dos operadores).
+4. En "Gestión de Permisos":
+   • el árbol de la derecha muestra la composición recursiva del rol elegido;
+   • el toggle "Ver todos los roles" muestra el bosque completo de un vistazo;
+   • "Embeber" permite anidar/desanidar roles en vivo.
 
 NOTA: el motor resuelve los permisos RECURSIVAMENTE y deduplica los que llegan
 por varios caminos (BLL.Familia.ObtenerPermisosEfectivos). La asignación de un
