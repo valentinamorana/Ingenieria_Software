@@ -22,7 +22,7 @@ namespace GUI
         private Label    _lblIdiomaCap, _lblFuenteCap, _lblTamanoCap, _lblTemaCap, _lblFechaCap;
         private ComboBox _cmbIdioma, _cmbFuente, _cmbTamano, _cmbTema, _cmbFecha;
         private CheckBox _chkNotif;
-        private Button   _btnGuardar;
+        private Button   _btnGuardar, _btnDefault;
         private Label    _lblEstado;
 
         public MiPerfilForm(BE.Usuario usuario)
@@ -42,7 +42,7 @@ namespace GUI
         private void BuildUI()
         {
             this.Text            = T("perfil.frm.titulo", "Mi Perfil");
-            this.ClientSize      = new Size(440, 430);
+            this.ClientSize      = new Size(440, 474);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.StartPosition   = FormStartPosition.CenterParent;
             this.MaximizeBox     = false;
@@ -87,13 +87,18 @@ namespace GUI
             _btnGuardar.FlatAppearance.BorderSize = 0;
             _btnGuardar.Click += (s, e) => Guardar();
 
-            _lblEstado = new Label { Location = new Point(24, y + 78), Size = new Size(392, 28), ForeColor = Color.FromArgb(40, 140, 60) };
+            // Volver a la apariencia "de fábrica" (Segoe UI / Normal / Claro / dd-MM-yyyy / notif. on).
+            _btnDefault = new Button { Text = T("perfil.btn.default", "Restaurar valores de fábrica"), Location = new Point(xCtl, y + 74), Size = new Size(w, 30), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(146, 62, 96), Cursor = Cursors.Hand };
+            _btnDefault.FlatAppearance.BorderColor = Color.FromArgb(210, 180, 195);
+            _btnDefault.Click += (s, e) => RestaurarDefault();
+
+            _lblEstado = new Label { Location = new Point(24, y + 112), Size = new Size(392, 28), ForeColor = Color.FromArgb(40, 140, 60) };
 
             this.Controls.AddRange(new Control[]
             {
                 _lblTitulo, _lblUsuarioCap, _lblUsuarioVal, _lblPerfilCap, _lblPerfilVal, _lblSeccion,
                 _lblIdiomaCap, _cmbIdioma, _lblFuenteCap, _cmbFuente, _lblTamanoCap, _cmbTamano,
-                _lblTemaCap, _cmbTema, _lblFechaCap, _cmbFecha, _chkNotif, _btnGuardar, _lblEstado
+                _lblTemaCap, _cmbTema, _lblFechaCap, _cmbFecha, _chkNotif, _btnGuardar, _btnDefault, _lblEstado
             });
         }
 
@@ -209,6 +214,19 @@ namespace GUI
             _lblFechaCap.Text   = T("perfil.fecha", "Formato de fecha:");
             _chkNotif.Text      = T("perfil.notif", "Recibir notificaciones");
             _btnGuardar.Text    = T("perfil.btn.guardar", "Guardar preferencias");
+            _btnDefault.Text    = T("perfil.btn.default", "Restaurar valores de fábrica");
+        }
+
+        // Restaura las preferencias de UI a los valores por defecto y las guarda/aplica.
+        // (El idioma no se toca: es una preferencia aparte.)
+        private void RestaurarDefault()
+        {
+            SeleccionarOAgregar(_cmbFuente, "Segoe UI",   "Segoe UI");
+            SeleccionarOAgregar(_cmbTamano, "Normal",     "Normal");
+            SeleccionarOAgregar(_cmbTema,   "Claro",      "Claro");
+            SeleccionarOAgregar(_cmbFecha,  "dd/MM/yyyy", "dd/MM/yyyy");
+            _chkNotif.Checked = true;
+            Guardar();
         }
 
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
 namespace GUI
@@ -15,6 +16,15 @@ namespace GUI
     internal static class PreferenciasUI
     {
         public static BE.Preferencia Actual { get; private set; } = new BE.Preferencia();
+
+        // Punto de referencia (pt) del tamaño "Normal": la escala se calcula relativa a esto.
+        private const float TamanoBase = 9f;
+
+        // Recuerda la fuente de DISEÑO de cada control la primera vez que se lo toca. Así el tamaño
+        // se escala SIEMPRE desde el original (no se va acumulando en cada re-aplicación) y se
+        // preserva la jerarquía tipográfica (un título grande sigue siendo proporcionalmente grande).
+        private static readonly ConditionalWeakTable<Control, Font> _fuenteOriginal =
+            new ConditionalWeakTable<Control, Font>();
 
         // Carga la preferencia del usuario desde BD (defaults si no hay / tabla sin migrar).
         public static void Cargar(int idUsuario)
@@ -44,8 +54,12 @@ namespace GUI
 
         private static void AplicarRec(Control c, string familia, float tam, bool oscuro, bool esRaiz)
         {
-            // Fuente: se respeta el estilo (negrita/itálica) propio de cada control.
-            try { c.Font = new Font(familia, tam, c.Font.Style); } catch { }
+            // Escalar la fuente DESDE el tamaño de diseño original de cada control, no a un tamaño
+            // absoluto único (eso aplanaba toda la tipografía y rompía los layouts). Se conserva
+            // el estilo (negrita/itálica) y la proporción entre títulos y textos.
+            Font original = _fuenteOriginal.GetValue(c, ctrl => ctrl.Font);
+            float factor  = tam / TamanoBase;
+            try { c.Font = new Font(familia, original.Size * factor, original.Style); } catch { }
 
             if (oscuro)
             {
