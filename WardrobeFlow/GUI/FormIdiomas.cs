@@ -107,6 +107,22 @@ namespace GUI
             catch (Exception ex) { MostrarError(ex); }
         }
 
+        // Actualiza la lista GLOBAL de idiomas disponibles y notifica a los observers (Menu, etc.)
+        // para que sus dropdowns se reconstruyan al instante tras activar/desactivar/crear un idioma.
+        private void RefrescarIdiomasGlobales()
+        {
+            try
+            {
+                var activos = _bllIdioma.ObtenerIdiomasActivosComoIdioma();
+                if (activos != null && activos.Count > 0)
+                {
+                    GestorIdioma.SetIdiomasDisponibles(activos);
+                    GestorIdioma.CambiarIdioma(GestorIdioma.IdiomaActual); // re-notifica sin cambiar el idioma activo
+                }
+            }
+            catch { /* si falla el refresco no debe romper la operación principal */ }
+        }
+
         // Mini cuadro de entrada de texto (sin dependencias externas).
         private static string Pedir(string titulo, string prompt)
         {
@@ -358,6 +374,7 @@ namespace GUI
                 var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
                 MostrarOk(t.ContainsKey("msg.idiomas.activado") ? t["msg.idiomas.activado"].Texto : "Idioma activado.");
                 CargarIdiomas();
+                RefrescarIdiomasGlobales();   // que el nuevo idioma aparezca al instante en los dropdowns
             }
             catch (Exception ex) { MostrarError(ex); }
         }
@@ -380,6 +397,7 @@ namespace GUI
                 var t2 = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
                 MostrarOk(t2.ContainsKey("msg.idiomas.desactivado") ? t2["msg.idiomas.desactivado"].Texto : "Idioma desactivado.");
                 CargarIdiomas();
+                RefrescarIdiomasGlobales();   // que el dropdown deje de ofrecerlo al instante
             }
             catch (Exception ex) { MostrarError(ex); }
         }

@@ -30,16 +30,19 @@ namespace DAL
         }
 
         // Devuelve filas completas para mostrar en el FormIdiomas (DataGridView).
+        // LEFT JOIN desde Control: aparecen TODAS las claves del sistema; las que aún no tienen
+        // traducción en este idioma vienen con Texto vacío. Así un idioma recién creado muestra
+        // toda la grilla (ID/Clave/Formulario) lista para que un traductor complete los textos a mano.
         public List<BE.FilaTraduccion> ObtenerPorIdioma(int idIdioma)
         {
             var lista = new List<BE.FilaTraduccion>();
             var p = new SqlParameter[] { new SqlParameter("@IdIdioma", idIdioma) };
 
             DataTable dt = acceso.Leer(
-                "SELECT c.IdControl, t.IdIdioma, c.Clave, c.Formulario, t.Texto " +
-                "FROM Traduccion t " +
-                "JOIN Control c ON t.IdControl = c.IdControl " +
-                "WHERE t.IdIdioma = @IdIdioma " +
+                "SELECT c.IdControl, @IdIdioma AS IdIdioma, c.Clave, c.Formulario, " +
+                "       ISNULL(t.Texto, '') AS Texto " +
+                "FROM Control c " +
+                "LEFT JOIN Traduccion t ON t.IdControl = c.IdControl AND t.IdIdioma = @IdIdioma " +
                 "ORDER BY c.Formulario, c.Clave", p);
 
             foreach (DataRow row in dt.Rows)
@@ -55,7 +58,9 @@ namespace DAL
             return lista;
         }
 
-        // Actualiza el texto de una traducción existente.
+        // Guarda (UPSERT) el texto de una traducción. Si la fila no existía aún para ese
+        // idioma (caso típico de un idioma nuevo que se está traduciendo por primera vez),
+        // la inserta; si existía, la actualiza.
         public void GuardarTraduccion(int idControl, int idIdioma, string texto)
         {
             var p = new SqlParameter[]
@@ -65,8 +70,10 @@ namespace DAL
                 new SqlParameter("@Texto",     texto ?? "")
             };
             acceso.Escribir(
-                "UPDATE Traduccion SET Texto = @Texto " +
-                "WHERE IdControl = @IdControl AND IdIdioma = @IdIdioma", p);
+                "IF EXISTS (SELECT 1 FROM Traduccion WHERE IdControl = @IdControl AND IdIdioma = @IdIdioma) " +
+                "    UPDATE Traduccion SET Texto = @Texto WHERE IdControl = @IdControl AND IdIdioma = @IdIdioma " +
+                "ELSE " +
+                "    INSERT INTO Traduccion (IdControl, IdIdioma, Texto) VALUES (@IdControl, @IdIdioma, @Texto)", p);
         }
 
         // Obtiene o crea un Control por su clave y devuelve su ID.

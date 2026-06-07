@@ -644,6 +644,11 @@ namespace GUI
         /// </summary>
         public void UpdateLanguage(Idioma idioma)
         {
+            // Reconstruir el combo por si cambió el CONJUNTO de idiomas disponibles
+            // (p. ej. el admin activó/creó un idioma en Gestión de Idiomas): así el nuevo
+            // idioma aparece al instante en el dropdown, sin reiniciar la aplicación.
+            if (GestorIdioma.IdiomasDisponibles != null && GestorIdioma.IdiomasDisponibles.Count > 0)
+                ReconstruirComboIdioma(GestorIdioma.IdiomasDisponibles);
             Traducir(idioma);
             SeleccionarIdiomaEnCombo(idioma.Id);
         }
