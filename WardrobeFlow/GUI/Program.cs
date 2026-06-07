@@ -11,6 +11,12 @@ namespace GUI
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            // Handler GLOBAL de excepciones no controladas: las registra en la bitácora (criticidad
+            // Alta) y muestra un aviso, en vez de cerrar la app de forma muda. (Patrón de Stach.)
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            Application.ThreadException += (s, a) => ManejarExcepcionGlobal(a.Exception);
+            AppDomain.CurrentDomain.UnhandledException += (s, a) => ManejarExcepcionGlobal(a.ExceptionObject as Exception);
+
             if (!BLL.Configuracion.VerificarConexionDAL(out string errConexion))
             {
                 MessageBox.Show(errConexion, "Error de Conexión", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -60,6 +66,27 @@ namespace GUI
                 else
                     Application.Exit();
             }
+        }
+
+        // Registra cualquier excepción no controlada en la bitácora y avisa al usuario.
+        // Nunca relanza: el logueo no debe tapar el error original ni provocar un segundo crash.
+        private static void ManejarExcepcionGlobal(Exception ex)
+        {
+            if (ex == null) return;
+            try
+            {
+                int? idUsuario = Seguridad.SessionManager.IsLoggedIn
+                    ? (int?)Seguridad.SessionManager.GetInstance().Usuario.Id : null;
+                new Servicios.Bitacora().RegistrarSinSesion(
+                    modulo:     "Aplicación",
+                    actividad:  "Excepción no controlada: " + ex.GetType().Name,
+                    criticidad: BE.Criticidad.Alta,
+                    idUsuario:  idUsuario,
+                    detalle:    ex.ToString());
+            }
+            catch { /* si falla el logueo, igual mostramos el error */ }
+
+            MessageBox.Show(ex.Message, "Error inesperado", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }
