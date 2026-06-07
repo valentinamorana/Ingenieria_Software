@@ -441,6 +441,32 @@ GO
 UPDATE Usuario SET Activo = 1 WHERE Activo IS NULL;
 GO
 
+-- Bloqueo de login PROGRESIVO (Etapa 3): escalado temporal de bloqueos por intentos fallidos.
+-- CantidadBloqueos: cuántas veces se bloqueó la cuenta (define la duración: 1/5/15/60 min).
+-- FechaBloqueo:     instante del último bloqueo (para calcular cuándo expira). NULL = no bloqueada
+--                   por tiempo (o bloqueo manual del admin, que no auto-expira).
+-- NO forman parte del DVH: son metadata operativa anti-fuerza-bruta, no identidad protegida.
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+               WHERE TABLE_NAME='Usuario' AND COLUMN_NAME='CantidadBloqueos')
+BEGIN
+    ALTER TABLE Usuario ADD CantidadBloqueos INT NOT NULL DEFAULT 0;
+    PRINT 'Columna CantidadBloqueos agregada a Usuario (bloqueo progresivo).';
+END
+ELSE
+    PRINT 'Usuario.CantidadBloqueos ya existe — sin cambios.';
+GO
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+               WHERE TABLE_NAME='Usuario' AND COLUMN_NAME='FechaBloqueo')
+BEGIN
+    ALTER TABLE Usuario ADD FechaBloqueo DATETIME NULL;
+    PRINT 'Columna FechaBloqueo agregada a Usuario (bloqueo progresivo).';
+END
+ELSE
+    PRINT 'Usuario.FechaBloqueo ya existe — sin cambios.';
+GO
+UPDATE Usuario SET CantidadBloqueos = 0 WHERE CantidadBloqueos IS NULL;
+GO
+
 -- Claves de emergencia (1 solo uso) para autodesbloqueo de un Administrador.
 -- Hasheadas (PBKDF2); el .txt con las claves en texto plano es la copia del admin.
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'ClaveRecuperacion')

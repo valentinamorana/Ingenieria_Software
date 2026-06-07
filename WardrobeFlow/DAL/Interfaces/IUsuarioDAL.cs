@@ -10,6 +10,9 @@ namespace DAL.Interfaces
         BE.Usuario       ObtenerPorUsername(string username);
         void             Alta(string username, string clave, string perfil);
         void             Bloquear(int idUsuario);
+        // Bloqueo progresivo: marca el bloqueo con timestamp e incrementa la escala / auto-desbloqueo al expirar.
+        void             BloquearConTiempo(int idUsuario);
+        void             AutoDesbloquear(int idUsuario);
         void             Desbloquear(int idUsuario);
         void             IncrementarIntentosFallidos(string username);
         void             ResetearIntentosFallidos(string username);

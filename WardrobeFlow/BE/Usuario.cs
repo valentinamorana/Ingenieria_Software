@@ -33,6 +33,14 @@ namespace BE
 
         public int IntentosFallidos { get; set; }
 
+        // ── Bloqueo de login PROGRESIVO ─────────────────────────────────────────
+        // CantidadBloqueos: cuántas veces se bloqueó la cuenta (define la duración del bloqueo:
+        // 1/5/15/60 min). FechaBloqueo: instante del último bloqueo (para saber cuándo expira);
+        // null = no bloqueada por tiempo. No forman parte del DVH (metadata operativa).
+        public int CantidadBloqueos { get; set; }
+
+        public DateTime? FechaBloqueo { get; set; }
+
         public string IdIdioma { get; set; } = "ES";
 
         // ── RF-10 — Baja lógica (archivado) ─────────────────────────────────────

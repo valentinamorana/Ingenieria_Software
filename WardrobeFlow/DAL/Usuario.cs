@@ -75,7 +75,12 @@ namespace DAL
                                        ? Convert.ToInt32(row["IntentosFallidos"]) : 0,
                 IdIdioma         = tieneIdIdioma && row["IdIdioma"] != DBNull.Value
                                        ? row["IdIdioma"].ToString()
-                                       : (idiomaDefault ?? "ES")
+                                       : (idiomaDefault ?? "ES"),
+                // Bloqueo progresivo (columnas opcionales; 0/null si la BD no está migrada).
+                CantidadBloqueos = tabla.Columns.Contains("CantidadBloqueos") && row["CantidadBloqueos"] != DBNull.Value
+                                       ? Convert.ToInt32(row["CantidadBloqueos"]) : 0,
+                FechaBloqueo     = tabla.Columns.Contains("FechaBloqueo") && row["FechaBloqueo"] != DBNull.Value
+                                       ? (DateTime?)Convert.ToDateTime(row["FechaBloqueo"]) : null
             };
         }
 
@@ -93,12 +98,14 @@ namespace DAL
                 // RF-10 — los usuarios archivados (Activo=0) NO pueden iniciar sesión.
                 return LeerUsuarioPorQuery(
                     "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
-                    "       Estado, IntentosFallidos, ISNULL(IdIdioma, 'ES') AS IdIdioma " +
+                    "       Estado, IntentosFallidos, ISNULL(IdIdioma, 'ES') AS IdIdioma, " +
+                    "       CantidadBloqueos, FechaBloqueo " +
                     "FROM Usuario WHERE Username = @Username AND ISNULL(Activo, 1) = 1",
                     parametros);
             }
             catch (System.Data.SqlClient.SqlException sqlEx)
-                when (sqlEx.Message.Contains("IdIdioma") || sqlEx.Message.Contains("Activo"))
+                when (sqlEx.Message.Contains("IdIdioma") || sqlEx.Message.Contains("Activo")
+                      || sqlEx.Message.Contains("CantidadBloqueos") || sqlEx.Message.Contains("FechaBloqueo"))
             {
                 // Columna IdIdioma/Activo no existe: migración pendiente. Funciona con "ES" por
                 // defecto y sin filtro de archivado (en una BD sin migrar nadie está archivado).
@@ -131,15 +138,84 @@ namespace DAL
             }
         }
 
+        // Bloqueo PROGRESIVO: marca el bloqueo con timestamp e incrementa la escala (1/5/15/60 min).
+        // Reemplaza a Bloquear() en el flujo de login. Si la BD no está migrada, cae a bloqueo simple.
+        public void BloquearConTiempo(int idUsuario)
+        {
+            try
+            {
+                try
+                {
+                    acceso.Escribir(
+                        "UPDATE Usuario SET Estado = 0, FechaBloqueo = GETDATE(), " +
+                        "       CantidadBloqueos = ISNULL(CantidadBloqueos, 0) + 1 " +
+                        "WHERE IdUsuario = @idUsuario",
+                        new SqlParameter[] { new SqlParameter("@idUsuario", idUsuario) });
+                }
+                catch (System.Data.SqlClient.SqlException sqlEx)
+                    when (sqlEx.Message.Contains("FechaBloqueo") || sqlEx.Message.Contains("CantidadBloqueos"))
+                {
+                    // BD sin migrar: bloqueo simple permanente (comportamiento anterior).
+                    acceso.Escribir(
+                        "UPDATE Usuario SET Estado = 0 WHERE IdUsuario = @idUsuario",
+                        new SqlParameter[] { new SqlParameter("@idUsuario", idUsuario) });
+                }
+                RecalcularDVH(idUsuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al bloquear (progresivo) el usuario ID {idUsuario}.", ex);
+            }
+        }
+
+        // Auto-desbloqueo al EXPIRAR el bloqueo temporal: reactiva, limpia intentos y la fecha de
+        // bloqueo (pero conserva CantidadBloqueos: la próxima vez el bloqueo dura más).
+        public void AutoDesbloquear(int idUsuario)
+        {
+            try
+            {
+                try
+                {
+                    acceso.Escribir(
+                        "UPDATE Usuario SET Estado = 1, IntentosFallidos = 0, FechaBloqueo = NULL " +
+                        "WHERE IdUsuario = @idUsuario",
+                        new SqlParameter[] { new SqlParameter("@idUsuario", idUsuario) });
+                }
+                catch (System.Data.SqlClient.SqlException sqlEx) when (sqlEx.Message.Contains("FechaBloqueo"))
+                {
+                    acceso.Escribir(
+                        "UPDATE Usuario SET Estado = 1, IntentosFallidos = 0 WHERE IdUsuario = @idUsuario",
+                        new SqlParameter[] { new SqlParameter("@idUsuario", idUsuario) });
+                }
+                RecalcularDVH(idUsuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al auto-desbloquear el usuario ID {idUsuario}.", ex);
+            }
+        }
+
         // Desbloquea la cuenta de un usuario (Estado=1) y resetea el contador de intentos.
-        // Solo puede ejecutarlo un Administrador desde la GUI de Usuarios.
+        // Reset COMPLETO (también la escala de bloqueos y la fecha): es una acción explícita del
+        // Administrador (o de una clave de emergencia), no un auto-desbloqueo por tiempo.
         public void Desbloquear(int idUsuario)
         {
             try
             {
-                acceso.Escribir(
-                    "UPDATE Usuario SET Estado = 1, IntentosFallidos = 0 WHERE IdUsuario = @idUsuario",
-                    new SqlParameter[] { new SqlParameter("@idUsuario", idUsuario) });
+                try
+                {
+                    acceso.Escribir(
+                        "UPDATE Usuario SET Estado = 1, IntentosFallidos = 0, " +
+                        "       CantidadBloqueos = 0, FechaBloqueo = NULL WHERE IdUsuario = @idUsuario",
+                        new SqlParameter[] { new SqlParameter("@idUsuario", idUsuario) });
+                }
+                catch (System.Data.SqlClient.SqlException sqlEx)
+                    when (sqlEx.Message.Contains("FechaBloqueo") || sqlEx.Message.Contains("CantidadBloqueos"))
+                {
+                    acceso.Escribir(
+                        "UPDATE Usuario SET Estado = 1, IntentosFallidos = 0 WHERE IdUsuario = @idUsuario",
+                        new SqlParameter[] { new SqlParameter("@idUsuario", idUsuario) });
+                }
                 RecalcularDVH(idUsuario);
             }
             catch (Exception ex)
