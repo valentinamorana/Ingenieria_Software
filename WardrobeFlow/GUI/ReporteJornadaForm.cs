@@ -122,7 +122,7 @@ namespace GUI
 
             banner.Paint += (s, pe) =>
             {
-                using (var br = new SolidBrush(Color.FromArgb(146, 62, 96)))
+                using (var br = new SolidBrush(Color.FromArgb(176, 62, 96)))
                     pe.Graphics.FillRectangle(br, 0, panelH - 3, banner.Width, 3);
                 using (var pen = new Pen(Color.FromArgb(220, 180, 200), 1))
                     for (int i = 1; i < n; i++)
@@ -152,7 +152,7 @@ namespace GUI
                     Location  = new Point(x, 39),
                     Size      = new Size(cellW, 20),
                     Font      = new Font("Segoe UI", 7.5F, FontStyle.Regular),
-                    ForeColor = Color.FromArgb(146, 62, 96),
+                    ForeColor = Color.FromArgb(176, 62, 96),
                     TextAlign = ContentAlignment.MiddleCenter,
                     BackColor = Color.Transparent
                 };
@@ -258,7 +258,7 @@ namespace GUI
                 int      lineIndex = 0;
                 int      pageNum   = 0;
 
-                var vinoOscuro = Color.FromArgb(146, 62, 96);
+                var vinoOscuro = Color.FromArgb(176, 62, 96);
                 var vinoMedio  = Color.FromArgb(110, 40, 70);
 
                 using (var pd = new PrintDocument())

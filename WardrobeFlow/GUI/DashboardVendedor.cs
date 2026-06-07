@@ -186,7 +186,7 @@ namespace GUI
             _flowCards = new FlowLayoutPanel { Height = 168, Dock = DockStyle.Top, Padding = new Padding(10, 10, 10, 4), BackColor = Color.FromArgb(240, 240, 245), FlowDirection = FlowDirection.LeftToRight, WrapContents = false };
             _flowCards.Controls.Add(CrearTarjeta(Color.FromArgb(252, 228, 235), Color.FromArgb(80, 28, 52),   out _numPedidos,  out _txtPedidos));
             _flowCards.Controls.Add(CrearTarjeta(Color.FromArgb(244, 212, 226), Color.FromArgb(110, 42, 74),  out _numClientes, out _txtClientes));
-            _flowCards.Controls.Add(CrearTarjeta(Color.FromArgb(236, 196, 215), Color.FromArgb(146, 62, 96),  out _numPlanes,   out _txtPlanes));
+            _flowCards.Controls.Add(CrearTarjeta(Color.FromArgb(236, 196, 215), Color.FromArgb(176, 62, 96),  out _numPlanes,   out _txtPlanes));
             _flowCards.Resize += (s, e) =>
             {
                 int cnt  = _flowCards.Controls.Count;
@@ -196,7 +196,7 @@ namespace GUI
                 foreach (Control c in _flowCards.Controls) c.Width = w;
             };
 
-            _lblColPend = new Label { Text = "Pendiente",  Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(146, 62, 96),  BackColor = Color.FromArgb(252, 228, 235), Padding = new Padding(8, 6, 0, 0) };
+            _lblColPend = new Label { Text = "Pendiente",  Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96),  BackColor = Color.FromArgb(252, 228, 235), Padding = new Padding(8, 6, 0, 0) };
             _lblColDesp = new Label { Text = "Despachado", Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(40, 80, 140),   BackColor = Color.FromArgb(220, 230, 250), Padding = new Padding(8, 6, 0, 0) };
             _lblColEntr = new Label { Text = "Entregado",  Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(15, 85, 35),    BackColor = Color.FromArgb(215, 240, 220), Padding = new Padding(8, 6, 0, 0) };
 

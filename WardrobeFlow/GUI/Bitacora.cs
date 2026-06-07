@@ -544,7 +544,7 @@ namespace GUI
             float xIzq       = margen.Left;
             float anchoTotal = margen.Width;
 
-            var vinoOscuro = Color.FromArgb(146, 62, 96);
+            var vinoOscuro = Color.FromArgb(176, 62, 96);
             var vinoClaro  = Color.FromArgb(252, 228, 235);
             var vinoMedio  = Color.FromArgb(110, 40, 70);
 

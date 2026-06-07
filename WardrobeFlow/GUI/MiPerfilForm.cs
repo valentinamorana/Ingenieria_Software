@@ -50,7 +50,7 @@ namespace GUI
             this.Font            = new Font("Segoe UI", 9f);
             this.BackColor       = Color.White;
 
-            _lblTitulo = new Label { Text = T("perfil.frm.titulo", "Mi Perfil"), Font = new Font("Segoe UI", 13f, FontStyle.Bold), ForeColor = Color.FromArgb(146, 62, 96), Location = new Point(20, 14), AutoSize = true };
+            _lblTitulo = new Label { Text = T("perfil.frm.titulo", "Mi Perfil"), Font = new Font("Segoe UI", 13f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96), Location = new Point(20, 14), AutoSize = true };
 
             _lblUsuarioCap = new Label { Text = T("perfil.usuario", "Usuario:"), Location = new Point(24, 52), AutoSize = true, ForeColor = Color.FromArgb(90,90,100) };
             _lblUsuarioVal = new Label { Text = _usuario?.Username ?? "—", Location = new Point(170, 52), AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold) };
@@ -58,7 +58,7 @@ namespace GUI
             _lblPerfilCap = new Label { Text = T("perfil.perfil", "Perfil / Rol:"), Location = new Point(24, 76), AutoSize = true, ForeColor = Color.FromArgb(90,90,100) };
             _lblPerfilVal = new Label { Text = TraductorPerfil.Nombre(_usuario?.Perfil), Location = new Point(170, 76), AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold) };
 
-            _lblSeccion = new Label { Text = T("perfil.seccion", "Preferencias"), Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.FromArgb(146, 62, 96), Location = new Point(20, 108), AutoSize = true };
+            _lblSeccion = new Label { Text = T("perfil.seccion", "Preferencias"), Font = new Font("Segoe UI", 10f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96), Location = new Point(20, 108), AutoSize = true };
 
             int xCap = 24, xCtl = 170, w = 244, y = 138, dy = 32;
 
@@ -83,12 +83,12 @@ namespace GUI
 
             y += dy; _chkNotif = new CheckBox { Text = T("perfil.notif", "Recibir notificaciones"), Location = new Point(xCtl, y), AutoSize = true };
 
-            _btnGuardar = new Button { Text = T("perfil.btn.guardar", "Guardar preferencias"), Location = new Point(xCtl, y + 36), Size = new Size(w, 34), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(146, 62, 96), ForeColor = Color.White, Cursor = Cursors.Hand };
+            _btnGuardar = new Button { Text = T("perfil.btn.guardar", "Guardar preferencias"), Location = new Point(xCtl, y + 36), Size = new Size(w, 34), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(176, 62, 96), ForeColor = Color.White, Cursor = Cursors.Hand };
             _btnGuardar.FlatAppearance.BorderSize = 0;
             _btnGuardar.Click += (s, e) => Guardar();
 
             // Volver a la apariencia "de fábrica" (Segoe UI / Normal / Claro / dd-MM-yyyy / notif. on).
-            _btnDefault = new Button { Text = T("perfil.btn.default", "Restaurar valores de fábrica"), Location = new Point(xCtl, y + 74), Size = new Size(w, 30), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(146, 62, 96), Cursor = Cursors.Hand };
+            _btnDefault = new Button { Text = T("perfil.btn.default", "Restaurar valores de fábrica"), Location = new Point(xCtl, y + 74), Size = new Size(w, 30), FlatStyle = FlatStyle.Flat, BackColor = Color.White, ForeColor = Color.FromArgb(176, 62, 96), Cursor = Cursors.Hand };
             _btnDefault.FlatAppearance.BorderColor = Color.FromArgb(210, 180, 195);
             _btnDefault.Click += (s, e) => RestaurarDefault();
 

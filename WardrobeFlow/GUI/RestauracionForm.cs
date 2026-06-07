@@ -51,7 +51,7 @@ namespace GUI
                 Anchor        = AnchorStyles.Top | AnchorStyles.Right,
                 FlatStyle     = FlatStyle.Flat,
                 Font          = new Font("Segoe UI", 8.5f),
-                ForeColor     = Color.FromArgb(146, 62, 96),
+                ForeColor     = Color.FromArgb(176, 62, 96),
                 BackColor     = Color.White,
                 DisplayMember = "Nombre",
                 ValueMember   = "Id"

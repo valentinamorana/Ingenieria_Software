@@ -30,7 +30,7 @@ namespace GUI
             this.SuspendLayout();
 
             // pnlHeader
-            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(176, 62, 96);
             this.pnlHeader.Controls.Add(this.lblSubtitulo);
             this.pnlHeader.Controls.Add(this.lblTitulo);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
@@ -111,7 +111,7 @@ namespace GUI
             this.pnlBotones.Controls.Add(this.btnConfirmar);
 
             // btnConfirmar
-            this.btnConfirmar.BackColor = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.btnConfirmar.BackColor = System.Drawing.Color.FromArgb(176, 62, 96);
             this.btnConfirmar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnConfirmar.FlatAppearance.BorderSize = 0;
             this.btnConfirmar.Font = new System.Drawing.Font("Segoe UI", 9f, System.Drawing.FontStyle.Bold);

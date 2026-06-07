@@ -97,7 +97,7 @@ namespace GUI
                 BackColor    = Color.Transparent,
                 Font         = new Font("Segoe UI", 8.25f),
                 LinkColor    = Color.FromArgb(176, 62, 96),
-                ActiveLinkColor = Color.FromArgb(146, 62, 96),
+                ActiveLinkColor = Color.FromArgb(176, 62, 96),
                 Tag          = "emg.link"
             };
             _lnkEmergencia.LinkClicked += LnkEmergencia_LinkClicked;
@@ -145,15 +145,15 @@ namespace GUI
             int w = pnlCard.Width, h = pnlCard.Height;
 
             // Círculo superior-derecho
-            using (var b = new SolidBrush(Color.FromArgb(14, 146, 62, 96)))
+            using (var b = new SolidBrush(Color.FromArgb(14, 176, 62, 96)))
                 g.FillEllipse(b, w - 170, -90, 180, 180);
 
             // Círculo inferior-izquierdo
-            using (var b = new SolidBrush(Color.FromArgb(11, 146, 62, 96)))
+            using (var b = new SolidBrush(Color.FromArgb(11, 176, 62, 96)))
                 g.FillEllipse(b, -80, h - 150, 200, 200);
 
             // Círculo de contorno
-            using (var pen = new Pen(Color.FromArgb(25, 146, 62, 96), 0.8f))
+            using (var pen = new Pen(Color.FromArgb(25, 176, 62, 96), 0.8f))
                 g.DrawEllipse(pen, w - 100, 220, 80, 80);
         }
 
@@ -186,7 +186,7 @@ namespace GUI
 
                 // Fondo vino redondeado
                 using (var path = BuildRoundedRect(new Rectangle(0, 0, 35, 35), 8))
-                using (var br   = new SolidBrush(Color.FromArgb(146, 62, 96)))
+                using (var br   = new SolidBrush(Color.FromArgb(176, 62, 96)))
                     g.FillPath(br, path);
 
                 // Ícono de percha blanca (equivalente a ti-hanger de Tabler Icons)
@@ -223,7 +223,7 @@ namespace GUI
                         e.Graphics.DrawString("Wardrobe", fnt, bDark, 0, 0);
                     // Posicionar "Flow" inmediatamente después de "Wardrobe"
                     var sz = e.Graphics.MeasureString("Wardrobe", fnt);
-                    using (var bVino = new SolidBrush(Color.FromArgb(146, 62, 96)))
+                    using (var bVino = new SolidBrush(Color.FromArgb(176, 62, 96)))
                         e.Graphics.DrawString("Flow", fnt, bVino, sz.Width - 4f, 0);
                 }
             };
@@ -269,7 +269,7 @@ namespace GUI
                 Location      = new Point(22, pnlLeft.Height - 56),
                 FlatStyle     = FlatStyle.Flat,
                 Font          = new Font("Segoe UI", 8.5f),
-                ForeColor     = Color.FromArgb(146, 62, 96),
+                ForeColor     = Color.FromArgb(176, 62, 96),
                 BackColor     = Color.White,
                 TabStop       = false
             };

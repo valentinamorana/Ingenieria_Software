@@ -86,7 +86,7 @@ namespace GUI
             this.pnlBotones.Controls.Add(this.btnRecalcular);
 
             // btnRecalcular
-            this.btnRecalcular.BackColor = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.btnRecalcular.BackColor = System.Drawing.Color.FromArgb(176, 62, 96);
             this.btnRecalcular.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRecalcular.FlatAppearance.BorderSize = 0;
             this.btnRecalcular.Font = new System.Drawing.Font("Segoe UI", 8.5f, System.Drawing.FontStyle.Bold);

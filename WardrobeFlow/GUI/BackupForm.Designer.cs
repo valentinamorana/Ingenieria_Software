@@ -49,7 +49,7 @@ namespace GUI
 
             // ── lblTitulo ────────────────────────────────────────────────────
             this.lblTitulo.Font      = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
-            this.lblTitulo.ForeColor = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.lblTitulo.ForeColor = System.Drawing.Color.FromArgb(176, 62, 96);
             this.lblTitulo.Location  = new System.Drawing.Point(20, 16);
             this.lblTitulo.Name      = "lblTitulo";
             this.lblTitulo.Size      = new System.Drawing.Size(460, 28);
@@ -117,7 +117,7 @@ namespace GUI
             this.lblConteo.Text      = "";
 
             // ── btnCrear ─────────────────────────────────────────────────────
-            this.btnCrear.BackColor                         = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.btnCrear.BackColor                         = System.Drawing.Color.FromArgb(176, 62, 96);
             this.btnCrear.FlatStyle                         = System.Windows.Forms.FlatStyle.Flat;
             this.btnCrear.FlatAppearance.BorderSize         = 0;
             this.btnCrear.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(120, 50, 78);

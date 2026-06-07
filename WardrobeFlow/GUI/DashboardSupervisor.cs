@@ -212,7 +212,7 @@ namespace GUI
                 foreach (Control c in _flowCards.Controls) c.Width = w;
             };
 
-            _lblColPed  = new Label { Text = "Pedidos pendientes", Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(146, 62, 96),  BackColor = Color.FromArgb(252, 228, 235), Padding = new Padding(8, 6, 0, 0) };
+            _lblColPed  = new Label { Text = "Pedidos pendientes", Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96),  BackColor = Color.FromArgb(252, 228, 235), Padding = new Padding(8, 6, 0, 0) };
             _lblColMant = new Label { Text = "En mantenimiento",   Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(120, 80, 0),   BackColor = Color.FromArgb(255, 248, 210), Padding = new Padding(8, 6, 0, 0) };
             _lblColBit  = new Label { Text = "Actividad reciente", Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(40, 20, 100),  BackColor = Color.FromArgb(230, 225, 248), Padding = new Padding(8, 6, 0, 0) };
 

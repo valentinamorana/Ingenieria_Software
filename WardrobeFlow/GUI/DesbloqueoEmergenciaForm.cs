@@ -55,7 +55,7 @@ namespace GUI
             {
                 Text      = T("emg.encabezado", "Cuenta de Administrador bloqueada"),
                 Font      = new Font("Segoe UI", 12f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(146, 62, 96),
+                ForeColor = Color.FromArgb(176, 62, 96),
                 Location  = new Point(20, 18),
                 AutoSize  = true
             };
@@ -95,7 +95,7 @@ namespace GUI
                 Location  = new Point(214, 240),
                 Size      = new Size(120, 34),
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(146, 62, 96),
+                BackColor = Color.FromArgb(176, 62, 96),
                 ForeColor = Color.White,
                 Cursor    = Cursors.Hand
             };

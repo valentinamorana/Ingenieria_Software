@@ -356,7 +356,7 @@ namespace GUI
                 {
                     Text = T("dash.cfg.guardar", "Guardar"), Left = 80, Top = 104, Width = 90, Height = 30,
                     DialogResult = DialogResult.OK,
-                    BackColor    = Color.FromArgb(146, 62, 96),
+                    BackColor    = Color.FromArgb(176, 62, 96),
                     ForeColor    = Color.White, FlatStyle = FlatStyle.Flat
                 };
                 btnOk.FlatAppearance.BorderSize = 0;
@@ -464,7 +464,7 @@ namespace GUI
 
             if (_verPedidos)
                 _flowCards.Controls.Add(CrearTarjeta(
-                    Color.FromArgb(236, 196, 215), Color.FromArgb(146, 62, 96),
+                    Color.FromArgb(236, 196, 215), Color.FromArgb(176, 62, 96),
                     out _numPedidos, out _txtPedidos, out _));
 
             if (_verBackup)
@@ -527,7 +527,7 @@ namespace GUI
             {
                 Text      = "Actividad reciente",
                 Font      = new Font("Segoe UI", 9f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(146, 62, 96),
+                ForeColor = Color.FromArgb(176, 62, 96),
                 Dock      = DockStyle.Top,
                 Height    = 28,
                 Padding   = new Padding(10, 6, 0, 0),
@@ -644,7 +644,7 @@ namespace GUI
             {
                 Text      = "Mis Tareas Pendientes",
                 Font      = new Font("Segoe UI", 9f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(146, 62, 96),
+                ForeColor = Color.FromArgb(176, 62, 96),
                 Dock      = DockStyle.Top,
                 Height    = 26,
                 Padding   = new Padding(10, 5, 0, 0),
@@ -805,7 +805,7 @@ namespace GUI
                             conteos[tipo]++;
                         }
                         foreach (var kv in conteos)
-                            fl.Controls.Add(CrearMiniStatRow(kv.Key, kv.Value.ToString(), Color.FromArgb(146, 62, 96)));
+                            fl.Controls.Add(CrearMiniStatRow(kv.Key, kv.Value.ToString(), Color.FromArgb(176, 62, 96)));
                     }
                 }));
             });

@@ -161,11 +161,11 @@ namespace GUI
             this.txtContraseña.TabIndex    = 3;
 
             // ── lnkOlvidaste — link alineado a la derecha bajo contraseña ─
-            this.lnkOlvidaste.ActiveLinkColor = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.lnkOlvidaste.ActiveLinkColor = System.Drawing.Color.FromArgb(176, 62, 96);
             this.lnkOlvidaste.AutoSize        = false;
             this.lnkOlvidaste.BackColor       = System.Drawing.Color.Transparent;
             this.lnkOlvidaste.Font            = new System.Drawing.Font("Segoe UI", 8.5F);
-            this.lnkOlvidaste.LinkColor       = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.lnkOlvidaste.LinkColor       = System.Drawing.Color.FromArgb(176, 62, 96);
             this.lnkOlvidaste.Location        = new System.Drawing.Point(32, 271);
             this.lnkOlvidaste.Name            = "lnkOlvidaste";
             this.lnkOlvidaste.Size            = new System.Drawing.Size(376, 16);
@@ -188,7 +188,7 @@ namespace GUI
             this.lblError.TextAlign   = System.Drawing.ContentAlignment.MiddleCenter;
 
             // ── btnIngresar — botón primario ancho completo (vino) ─────────
-            this.btnIngresar.BackColor                         = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.btnIngresar.BackColor                         = System.Drawing.Color.FromArgb(176, 62, 96);
             this.btnIngresar.Cursor                            = System.Windows.Forms.Cursors.Hand;
             this.btnIngresar.FlatAppearance.BorderSize         = 0;
             this.btnIngresar.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(118, 48, 76);
