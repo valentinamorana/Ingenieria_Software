@@ -117,7 +117,7 @@ namespace GUI
             // 
             // lblPerfil
             // 
-            this.lblPerfil.Location = new System.Drawing.Point(12, 150);
+            this.lblPerfil.Location = new System.Drawing.Point(12, 100);
             this.lblPerfil.Name = "lblPerfil";
             this.lblPerfil.Size = new System.Drawing.Size(200, 15);
             this.lblPerfil.TabIndex = 5;
@@ -133,7 +133,7 @@ namespace GUI
             "Vendedor",
             "Controlador de Stock",
             "Operador de Inventario"});
-            this.cmbPerfil.Location = new System.Drawing.Point(12, 168);
+            this.cmbPerfil.Location = new System.Drawing.Point(12, 118);
             this.cmbPerfil.Name = "cmbPerfil";
             this.cmbPerfil.Size = new System.Drawing.Size(210, 21);
             this.cmbPerfil.TabIndex = 6;
@@ -144,7 +144,7 @@ namespace GUI
             this.btnAgregar.FlatAppearance.BorderSize = 0;
             this.btnAgregar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAgregar.ForeColor = System.Drawing.Color.White;
-            this.btnAgregar.Location = new System.Drawing.Point(12, 210);
+            this.btnAgregar.Location = new System.Drawing.Point(12, 160);
             this.btnAgregar.Name = "btnAgregar";
             this.btnAgregar.Size = new System.Drawing.Size(210, 34);
             this.btnAgregar.TabIndex = 7;
@@ -155,7 +155,7 @@ namespace GUI
             // 
             // btnRefrescar
             // 
-            this.btnRefrescar.Location = new System.Drawing.Point(12, 253);
+            this.btnRefrescar.Location = new System.Drawing.Point(12, 203);
             this.btnRefrescar.Name = "btnRefrescar";
             this.btnRefrescar.Size = new System.Drawing.Size(210, 28);
             this.btnRefrescar.TabIndex = 8;
@@ -166,7 +166,7 @@ namespace GUI
             // separador1
             // 
             this.separador1.BackColor = System.Drawing.Color.Silver;
-            this.separador1.Location = new System.Drawing.Point(12, 292);
+            this.separador1.Location = new System.Drawing.Point(12, 242);
             this.separador1.Name = "separador1";
             this.separador1.Size = new System.Drawing.Size(210, 1);
             this.separador1.TabIndex = 9;
@@ -174,7 +174,7 @@ namespace GUI
             // lblResetTitulo
             // 
             this.lblResetTitulo.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.lblResetTitulo.Location = new System.Drawing.Point(12, 302);
+            this.lblResetTitulo.Location = new System.Drawing.Point(12, 252);
             this.lblResetTitulo.Name = "lblResetTitulo";
             this.lblResetTitulo.Size = new System.Drawing.Size(210, 23);
             this.lblResetTitulo.TabIndex = 10;
@@ -185,7 +185,7 @@ namespace GUI
             // 
             this.lblResetInfo.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblResetInfo.ForeColor = System.Drawing.Color.DimGray;
-            this.lblResetInfo.Location = new System.Drawing.Point(12, 325);
+            this.lblResetInfo.Location = new System.Drawing.Point(12, 275);
             this.lblResetInfo.Name = "lblResetInfo";
             this.lblResetInfo.Size = new System.Drawing.Size(210, 36);
             this.lblResetInfo.TabIndex = 11;
@@ -199,7 +199,7 @@ namespace GUI
             this.btnResetearClave.FlatAppearance.BorderSize = 0;
             this.btnResetearClave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnResetearClave.ForeColor = System.Drawing.Color.White;
-            this.btnResetearClave.Location = new System.Drawing.Point(12, 366);
+            this.btnResetearClave.Location = new System.Drawing.Point(12, 316);
             this.btnResetearClave.Name = "btnResetearClave";
             this.btnResetearClave.Size = new System.Drawing.Size(210, 34);
             this.btnResetearClave.TabIndex = 12;
@@ -211,7 +211,7 @@ namespace GUI
             // separador2
             // 
             this.separador2.BackColor = System.Drawing.Color.Silver;
-            this.separador2.Location = new System.Drawing.Point(12, 408);
+            this.separador2.Location = new System.Drawing.Point(12, 358);
             this.separador2.Name = "separador2";
             this.separador2.Size = new System.Drawing.Size(210, 1);
             this.separador2.TabIndex = 13;
@@ -219,7 +219,7 @@ namespace GUI
             // lblDesbloquearTitulo
             // 
             this.lblDesbloquearTitulo.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.lblDesbloquearTitulo.Location = new System.Drawing.Point(12, 418);
+            this.lblDesbloquearTitulo.Location = new System.Drawing.Point(12, 368);
             this.lblDesbloquearTitulo.Name = "lblDesbloquearTitulo";
             this.lblDesbloquearTitulo.Size = new System.Drawing.Size(210, 23);
             this.lblDesbloquearTitulo.TabIndex = 14;
@@ -230,7 +230,7 @@ namespace GUI
             // 
             this.lblDesbloquearInfo.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblDesbloquearInfo.ForeColor = System.Drawing.Color.DimGray;
-            this.lblDesbloquearInfo.Location = new System.Drawing.Point(12, 441);
+            this.lblDesbloquearInfo.Location = new System.Drawing.Point(12, 391);
             this.lblDesbloquearInfo.Name = "lblDesbloquearInfo";
             this.lblDesbloquearInfo.Size = new System.Drawing.Size(210, 36);
             this.lblDesbloquearInfo.TabIndex = 15;
@@ -244,7 +244,7 @@ namespace GUI
             this.btnDesbloquear.FlatAppearance.BorderSize = 0;
             this.btnDesbloquear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDesbloquear.ForeColor = System.Drawing.Color.White;
-            this.btnDesbloquear.Location = new System.Drawing.Point(12, 482);
+            this.btnDesbloquear.Location = new System.Drawing.Point(12, 432);
             this.btnDesbloquear.Name = "btnDesbloquear";
             this.btnDesbloquear.Size = new System.Drawing.Size(210, 34);
             this.btnDesbloquear.TabIndex = 16;
