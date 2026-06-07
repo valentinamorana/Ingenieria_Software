@@ -46,6 +46,8 @@ namespace GUI
         private ComboBox _cmbRol, _cmbEmbeber;
         private CheckedListBox _clbFamilias, _clbPatentes;
         private TreeView _treeView;
+        // Toggle: ver la composición del rol seleccionado (off) o TODOS los roles a la vez (on).
+        private CheckBox _chkVerTodos;
         private Button   _btnGuardar, _btnEmbeber, _btnNuevoRol, _btnEliminarRol,
                          _btnNuevaPatente, _btnNuevaFamilia, _btnExplorador, _btnCerrar,
                          _btnModificarComp, _btnEliminarComp;
@@ -84,6 +86,7 @@ namespace GUI
             _lblFamilias.Text      = T("lbl.permisos.familias",   "Lista de Familias (compuestos)");
             _lblPatentes.Text      = T("lbl.permisos.patentes",   "Lista de Patentes (simples)");
             _lblArbol.Text         = T("lbl.permisos.composicion","Composición efectiva (recursiva)");
+            _chkVerTodos.Text      = T("chk.permisos.vertodos",   "Ver todos los roles");
             _lblEmbeber.Text       = T("lbl.permisos.embeber",    "Embeber rol:");
             _btnNuevoRol.Text      = T("btn.permisos.nuevorol",     "➕ Nuevo rol");
             _btnEliminarRol.Text   = T("btn.permisos.eliminarrol",  "🗑 Eliminar rol");
@@ -137,8 +140,46 @@ namespace GUI
                         _cmbEmbeber.Items.Add(new Item { Id = 0, Nombre = r });
                 if (_cmbEmbeber.Items.Count > 0) _cmbEmbeber.SelectedIndex = 0;
 
-                MostrarComposicion();
+                RefrescarArbol();
                 _btnGuardar.Enabled = true;
+            }
+            catch (Exception ex) { MostrarError(string.Format(T("err.generico.cargar", "Error al cargar: {0}"), ex.Message)); }
+        }
+
+        // Decide qué mostrar en el árbol según el toggle "Ver todos los roles".
+        private void RefrescarArbol()
+        {
+            if (_chkVerTodos != null && _chkVerTodos.Checked) MostrarTodosLosRoles();
+            else MostrarComposicion();
+        }
+
+        // Vista GENERAL: todos los roles del sistema con su composición efectiva (recursiva),
+        // colgados de una raíz común. Útil para comparar de un vistazo qué hace cada rol.
+        private void MostrarTodosLosRoles()
+        {
+            try
+            {
+                _treeView.BeginUpdate();
+                _treeView.Nodes.Clear();
+                var raiz = new TreeNode("🗂 " + T("perm.todoslosroles", "Todos los roles"))
+                {
+                    NodeFont  = new Font("Segoe UI", 9f, FontStyle.Bold),
+                    ForeColor = Color.FromArgb(64, 0, 64)
+                };
+                foreach (BE.Componente comp in _familiaBLL.ObtenerArbol())
+                {
+                    string icono = comp is BE.Rol ? "👥 " : comp is BE.Familia ? "📁 " : "• ";
+                    var nodo = new TreeNode(icono + comp.Nombre)
+                    {
+                        Tag      = comp,
+                        NodeFont = new Font("Segoe UI", 9f, FontStyle.Bold)
+                    };
+                    raiz.Nodes.Add(nodo);
+                    AgregarNodos(comp, nodo);
+                }
+                _treeView.Nodes.Add(raiz);
+                _treeView.ExpandAll();
+                _treeView.EndUpdate();
             }
             catch (Exception ex) { MostrarError(string.Format(T("err.generico.cargar", "Error al cargar: {0}"), ex.Message)); }
         }
@@ -399,6 +440,10 @@ namespace GUI
             // Árbol de composición
             _lblArbol = new Label { Text = "Composición efectiva (recursiva)", Location = new Point(588, 112),
                 AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(40, 80, 140) };
+            _chkVerTodos = new CheckBox { Text = "Ver todos los roles", Location = new Point(760, 112),
+                AutoSize = true, Font = new Font("Segoe UI", 8.5f), ForeColor = Color.FromArgb(64, 0, 64),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right };
+            _chkVerTodos.CheckedChanged += (s, e) => RefrescarArbol();
             _treeView = new TreeView { Location = new Point(588, 134), Size = new Size(324, 360),
                 Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right,
                 Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.WhiteSmoke };
@@ -421,7 +466,7 @@ namespace GUI
                 _lblPatentes, _clbPatentes, _btnNuevaPatente,
                 _lblEmbeber, _cmbEmbeber, _btnEmbeber,
                 _btnModificarComp, _btnEliminarComp,
-                _lblArbol, _treeView,
+                _lblArbol, _chkVerTodos, _treeView,
                 _btnGuardar, _btnExplorador, _btnCerrar
             });
         }
