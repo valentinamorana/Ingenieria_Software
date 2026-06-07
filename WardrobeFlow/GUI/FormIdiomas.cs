@@ -50,9 +50,13 @@ namespace GUI
         // ── Alta / modificación de idiomas (T05) — botones creados por código ────
         private void CrearBotonesIdioma()
         {
+            // Se agregan al MISMO panel que Activar/Desactivar (panelBotonesIdioma), en la misma
+            // fila y con el mismo espaciado, para que no se superpongan (antes iban a panelIdiomas
+            // con coordenadas absolutas y se pisaban con los otros botones al reescalar).
+            //   Activar(0) · Desactivar(140) · Nuevo idioma(280) · Renombrar(420)
             _btnNuevoIdioma = new Button
             {
-                Text = Tx("btn.idiomas.nuevo", "➕ Nuevo idioma"), Location = new System.Drawing.Point(320, 167),
+                Text = Tx("btn.idiomas.nuevo", "➕ Nuevo idioma"), Location = new System.Drawing.Point(280, 4),
                 Size = new System.Drawing.Size(130, 28), FlatStyle = FlatStyle.Flat,
                 BackColor = System.Drawing.Color.FromArgb(80, 100, 150), ForeColor = System.Drawing.Color.White,
                 Cursor = Cursors.Hand
@@ -62,7 +66,7 @@ namespace GUI
 
             _btnRenombrarIdioma = new Button
             {
-                Text = Tx("btn.idiomas.renombrar", "✏ Renombrar"), Location = new System.Drawing.Point(458, 167),
+                Text = Tx("btn.idiomas.renombrar", "✏ Renombrar"), Location = new System.Drawing.Point(420, 4),
                 Size = new System.Drawing.Size(120, 28), FlatStyle = FlatStyle.Flat,
                 BackColor = System.Drawing.Color.FromArgb(110, 90, 150), ForeColor = System.Drawing.Color.White,
                 Cursor = Cursors.Hand
@@ -70,9 +74,8 @@ namespace GUI
             _btnRenombrarIdioma.FlatAppearance.BorderSize = 0;
             _btnRenombrarIdioma.Click += BtnRenombrarIdioma_Click;
 
-            // panelIdiomas es el panel superior (declarado en el Designer).
-            this.panelIdiomas.Controls.Add(_btnNuevoIdioma);
-            this.panelIdiomas.Controls.Add(_btnRenombrarIdioma);
+            this.panelBotonesIdioma.Controls.Add(_btnNuevoIdioma);
+            this.panelBotonesIdioma.Controls.Add(_btnRenombrarIdioma);
         }
 
         private void BtnNuevoIdioma_Click(object sender, EventArgs e)

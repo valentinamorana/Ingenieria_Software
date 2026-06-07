@@ -66,7 +66,8 @@ namespace GUI
             this.panelBotonesIdioma.Dock     = System.Windows.Forms.DockStyle.None;
             this.panelBotonesIdioma.Location = new System.Drawing.Point(8, 163);
             this.panelBotonesIdioma.Name     = "panelBotonesIdioma";
-            this.panelBotonesIdioma.Size     = new System.Drawing.Size(300, 36);
+            // Ancho para 4 botones en fila: Activar(0) Desactivar(140) Nuevo idioma(280) Renombrar(420..540)
+            this.panelBotonesIdioma.Size     = new System.Drawing.Size(560, 36);
             //
             // btnActivar
             //
