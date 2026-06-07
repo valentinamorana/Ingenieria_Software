@@ -233,6 +233,7 @@ namespace GUI
 
                 var (agregados, quitados) = _familiaBLL.GuardarAsignacionRol(rol, ids);
                 CargarListas();
+                GUI.Menu.RefrescarSeguridadAbierta();   // Etapa 2 — re-aplica seguridad en vivo
                 MostrarOk(string.Format(T("perm.ok.guardado", "Cambios guardados para '{0}': {1} agregado(s), {2} quitado(s)."), rol, agregados, quitados));
             }
             catch (Exception ex) { MostrarError(string.Format(T("err.generico.guardar", "Error al guardar: {0}"), ex.Message)); }
@@ -250,6 +251,7 @@ namespace GUI
                 if (idPadre == 0 || idHijo == 0) { MostrarError(T("perm.msg.norol", "No se pudo resolver el rol.")); return; }
                 _familiaBLL.AgregarComponente(idPadre, idHijo);
                 CargarListas();
+                GUI.Menu.RefrescarSeguridadAbierta();   // Etapa 2 — re-aplica seguridad en vivo
                 MostrarOk(string.Format(T("perm.ok.embebido", "Rol '{0}' embebido dentro de '{1}'."), hijo.Nombre, rol));
             }
             catch (Exception ex) { MostrarError(string.Format(T("perm.err.embeber", "No se pudo embeber: {0}"), ex.Message)); }
@@ -289,7 +291,7 @@ namespace GUI
             if (string.IsNullOrEmpty(rol)) return;
             if (MessageBox.Show(string.Format(T("perm.conf.elirol", "¿Eliminar el rol '{0}'?"), rol), T("perm.conf.titulo", "Confirmar"),
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
-            try { _familiaBLL.EliminarRol(rol); CargarRoles(); MostrarOk(string.Format(T("perm.ok.roleli", "Rol '{0}' eliminado."), rol)); }
+            try { _familiaBLL.EliminarRol(rol); CargarRoles(); GUI.Menu.RefrescarSeguridadAbierta(); MostrarOk(string.Format(T("perm.ok.roleli", "Rol '{0}' eliminado."), rol)); }
             catch (Exception ex) { MostrarError(ex.Message); }
         }
 
