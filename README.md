@@ -38,14 +38,18 @@ El patrón Composite es el **motor real de autorización**:
 - `GUI.GestorPermisos`: asignación por **dos listas** (Familias / Patentes), TreeView recursivo en vivo, CRUD de patentes/familias/roles y opción de **embeber un rol dentro de otro** (con prevención de referencias circulares).
 - No se puede **eliminar un rol** si tiene usuarios asignados (se avisa cuáles).
 - **Validación en dos niveles**: la GUI oculta menús según permisos *y* la BLL **re-valida** en el backend (`SessionManager.TienePermiso`) de forma *fail-closed* (sin sesión, se rechaza).
+- **Permisos a nivel de control**: además del menú, una patente puede gobernar **cualquier control** (botón, ítem de menú) de cualquier formulario, mapeado desde la UI (**Administrar → Perfiles → "Mapear controles"**). El `GUI.ManejadorSeguridad` muestra/oculta los controles mapeados según las patentes efectivas del usuario; el mapeo se persiste en la tabla **`ControlMapeado`**. El Administrador siempre ve todo (bypass).
+- **Re-aplicación en vivo**: al cambiar permisos, la seguridad se re-aplica a los formularios abiertos sin reiniciar (`ManejadorSeguridad.ActualizarSeguridadFormulariosAbiertos`).
+- La gestión de permisos puede **delegarse**: la realiza el Administrador o cualquier rol que tenga la patente *Gestión de Usuarios*. Un usuario no-admin **no puede quitarse a sí mismo** ese acceso (anti-autobloqueo).
 
 ### Observer — Multiidioma (T05)
 - `GestorIdioma` (Subject) notifica a todos los formularios abiertos al cambiar el idioma.
 - Cada formulario implementa `IIdiomaObserver` (suscribe en `Load`, desuscribe en `FormClosing`). Cambio **dinámico e inmediato**, en login y en el menú principal.
+- Idiomas soportados: **Español, English, Русский, Português**. Se pueden **agregar idiomas nuevos** en caliente desde la administración.
 - Modelo de datos: **Idioma** (`Id`, `Nombre`, `Activo`), **Control** (`Clave`, `Formulario`) y **Traducción** (`IdControl`, `IdIdioma`, `Texto`). No se usan recursos estáticos `.resx`.
-- Administración (`FormIdiomas`): grillas de **Idiomas**, **Controles** y **Traducciones**.
-- **Fallback por clave**: si falta una traducción, se usa el texto del idioma por defecto en lugar de dejar el control sin traducir. Al activar un idioma incompleto, se avisa.
-- La preferencia de idioma se **persiste por usuario** (`Usuario.IdIdioma`) y se restaura al hacer login.
+- Administración (`FormIdiomas`): grillas de **Idiomas**, **Controles** y **Traducciones**. La grilla de traducciones muestra una columna **"Referencia (por defecto)"** con el texto del idioma base, para que un traductor complete un idioma nuevo viendo el original al lado (las claves sin traducir aparecen con texto vacío, listas para completar).
+- **Fallback por clave**: si falta una traducción, se usa el texto del idioma por defecto en lugar de dejar el control sin traducir. Al activar un idioma incompleto, se avisa. Al activar/desactivar un idioma, los selectores de idioma se actualizan al instante.
+- La preferencia de idioma se **persiste por usuario** (`Usuario.IdIdioma`) y se **restaura al hacer login** (la pantalla de login también respeta el idioma elegido).
 
 ### Memento — Control de Cambios (T06)
 - **Originator** → `BE.Usuario` (`CrearMemento` / `RestaurarDesde`).
@@ -69,8 +73,16 @@ El patrón Composite es el **motor real de autorización**:
 - **Contraseñas**: hash **PBKDF2-SHA256** con salt aleatorio y 100.000 iteraciones (`Seguridad.Encriptador`). Nunca se almacenan en texto plano. La verificación compara los hashes en **tiempo constante** (XOR acumulado sobre los 32 bytes), para no filtrar información por temporización.
 - **DNI** de Cliente y Empleado: **cifrado AES-128-CBC** (IV aleatorio por registro). Se descifra al leer; la unicidad de DNI se valida en la capa de negocio (comparando en memoria, ya que el cifrado no es determinista).
 - **Login resistente a enumeración de usuarios**: ante un usuario inexistente el login ejecuta igualmente un PBKDF2 contra un **hash señuelo** (iguala el costo temporal del caso real, cerrando el canal lateral de temporización), cuenta el intento en la sesión (`ContadorSesion`) y lo registra en la bitácora. La GUI muestra el **mismo mensaje genérico** ("Usuario o contraseña incorrectos") tanto si el usuario no existe como si la contraseña es incorrecta, sin revelar cuál de los dos falló.
-- **Autorización de operaciones sensibles**: la gestión de usuarios (`BLL.Usuario`) y del árbol de perfiles/permisos (`BLL.Familia`) es **exclusiva del Administrador**, re-validada en el backend de forma *fail-closed* (sin sesión, se rechaza).
-- **Manejo de excepciones**: las excepciones de dominio (`BE.AppException`) llevan clave de traducción y se muestran en el idioma activo; las excepciones inesperadas se registran en la bitácora con criticidad alta.
+- **Bloqueo de login progresivo**: tras 3 intentos fallidos la cuenta se bloquea por un tiempo **escalonado** (1 → 5 → 15 → 60 minutos según cuántas veces se bloqueó); al expirar se reactiva sola en el próximo login. Superada la escala, queda bloqueada de forma permanente (requiere Administrador o clave de emergencia). Los bloqueos manuales del Administrador no auto-expiran.
+- **Claves de emergencia (autodesbloqueo)**: set de claves de un solo uso (tipo códigos de respaldo) que permiten a un Administrador desbloquear su propia cuenta desde el login sin depender de otro admin.
+- **Autorización de operaciones sensibles**: re-validada en el backend de forma *fail-closed* (sin sesión, se rechaza). La gestión de usuarios (`BLL.Usuario`) es exclusiva del Administrador; la gestión de perfiles/permisos (`BLL.Familia`) la puede hacer el Administrador o un rol con la patente *Gestión de Usuarios*.
+- **Confirmación de Administrador**: las operaciones críticas (restaurar backup, recalcular DV) piden credenciales en `ConfirmarAdminForm`, que además acepta una **Clave Maestra de Recuperación** (hash en `App.config`, desactivada si está vacía) como "break glass" cuando la BD está corrupta y no se puede iniciar sesión.
+- **Manejo de excepciones**: las excepciones de dominio (`BE.AppException`) llevan clave de traducción y se muestran en el idioma activo; las inesperadas se registran en la bitácora con criticidad alta. Un **handler global** (`Program.cs`) captura cualquier excepción no controlada, la registra y avisa, evitando cierres mudos.
+
+### Backups y Restauración
+- **Backups cifrados con contraseña**: las copias nuevas se generan cifradas (`.wfbak`) con **AES-128** y clave derivada de la contraseña por **PBKDF2** (`Seguridad.CifradorArchivos`). La restauración pide la contraseña y descifra (mensaje claro si es incorrecta); se mantiene compatibilidad para restaurar `.bak` planos anteriores.
+- **Validación previa**: antes de generar un backup se verifica la integridad (DVH/DVV) para no respaldar datos corruptos; no se permite restaurar un backup ilegible/corrupto (`RESTORE VERIFYONLY`). Antes de restaurar se informa el **alcance de la pérdida** (fecha del backup).
+- Los archivos de credenciales/claves generadas se guardan en **`Documentos\WardrobeFlow\`** (persistente y visible).
 
 ---
 
@@ -81,9 +93,11 @@ El patrón Composite es el **motor real de autorización**:
 - Control de stock de prendas y seguimiento de su estado (con historial).
 - Creación y gestión de pedidos; asignación de prendas según plan.
 - Bitácora de auditoría (sistema y negocio) con búsquedas combinadas.
-- Gestión de usuarios con bloqueo por intentos fallidos y **control de cambios** (rollback).
-- Gestor de perfiles y permisos por rol (Composite, motor real de autorización).
-- Soporte multiidioma dinámico: Español, English, Русский (Observer).
+- Gestión de usuarios con **bloqueo de login progresivo**, baja lógica (archivado) + purga diferida y **control de cambios** (rollback).
+- Gestor de perfiles y permisos por rol (Composite, motor real de autorización) con **mapeo de controles** y delegación de la gestión.
+- Soporte multiidioma dinámico: Español, English, Русский, Português (Observer), con alta de idiomas y traducción asistida.
+- **Mi Perfil**: preferencias de UI por usuario (idioma, tipografía, tamaño, tema, formato de fecha) aplicadas en vivo, con opción de volver a valores de fábrica.
+- Backups **cifrados** con verificación de integridad + asistente de restauración.
 - Dígitos verificadores de integridad en Usuario, Cliente y Empleado.
 
 ---
@@ -112,17 +126,21 @@ Los scripts SQL están consolidados en **`WardrobeFlow/BD/`** (idempotentes):
 
 Los dígitos verificadores se inicializan solos en el primer arranque; también pueden recalcularse desde **Administrar → Usuarios → Recalcular DV**.
 
-> Los backups (`.bak`) se conservan en `Ingenieria_Software/BD/`.
+> Los backups generados desde la app son **cifrados** (`.wfbak`) y se crean en la carpeta `Backups/` del ejecutable; las credenciales/claves generadas se guardan en `Documentos\WardrobeFlow\`. Los `.bak` planos quedan fuera del control de versiones (ver `.gitignore`).
 
-### Usuarios iniciales (script `01_Crear`)
+### Usuarios iniciales (script de BD)
 
 | Usuario | Contraseña | Rol |
 |---|---|---|
 | `admin` | `administrador1!` | Administrador |
-| `supervisor` | `supervisor1!` | Supervisor |
+| `gcomercial` | `usuario1!` | Gerente Comercial |
 | `vendedor` | `vendedor1!` | Vendedor |
-| `stock` | `controladorstock1!` | Controlador de Stock |
+| `ginventario` | `usuario1!` | Gerente de Inventario |
 | `operador` | `operador1!` | Operador de Inventario |
+| `logistico` | `usuario1!` | Operador Logístico |
+| `auditor` | `usuario1!` | Auditor |
+
+> Los usuarios `supervisor`, `stock` y `encargado` de versiones anteriores se **migran automáticamente** a los roles vigentes al actualizar la BD (Supervisor → Gerente Comercial; Controlador de Stock / Encargado de Stock → Operador de Inventario).
 
 ### String de conexión
 
@@ -140,12 +158,14 @@ Configurar en `GUI/App.config` el servidor SQL:
 
 ## Roles del Sistema
 
-| Rol | Acceso |
-|-----|--------|
-| Administrador | Todo: Inventario, Ventas, Administrar, Bitácora, Perfiles, Diagnóstico |
-| Supervisor | Bitácora / Auditoría |
-| Vendedor | Prendas, Clientes, Planes, Pedidos de Venta |
-| ControladorDeStock | Prendas, Stock |
-| OperadorDeInventario | Pedidos Realizados |
+| Rol | Acceso | Jerarquía (Composite) |
+|-----|--------|-----------------------|
+| Administrador | Todo: Inventario, Ventas, Administrar, Bitácora, Perfiles, Diagnóstico | — (acceso total) |
+| Auditor | Bitácora / Auditoría | rol plano |
+| Vendedor | Prendas, Clientes, Planes, Realizar Ventas | rol base comercial |
+| Gerente Comercial | lo de Vendedor + Ver Pedidos Realizados | ⊃ Vendedor |
+| Operador Logístico | Ver Pedidos Realizados (despacho) | rol base inventario |
+| Operador de Inventario | Ver Prendas, Gestionar Stock (mantenimiento) | rol base inventario |
+| Gerente de Inventario | lo de ambos operadores + Categorías/Outfits | ⊃ Operador Logístico + Operador de Inventario |
 
-> Los roles son nodos del árbol Composite y pueden crearse/editarse desde **Administrar → Perfiles**.
+> Los roles son nodos del árbol Composite y pueden crearse/editarse (y anidarse entre sí) desde **Administrar → Perfiles**. Ver detalle en `WardrobeFlow/BD/ROLES_Y_VISTAS.txt`.
