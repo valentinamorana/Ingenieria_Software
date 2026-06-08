@@ -58,6 +58,7 @@
     <Compile Include="RecuperacionAdmin.cs" />
     <Compile Include="Prenda.cs" />
     <Compile Include="Backup.cs" />
+    <Compile Include="ControlMapeado.cs" />
     <Compile Include="Usuario.cs" />
     <Compile Include="VersionUsuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

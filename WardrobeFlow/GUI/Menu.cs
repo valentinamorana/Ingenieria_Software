@@ -263,6 +263,8 @@ namespace GUI
                 var permisos = new BLL.Familia().ObtenerPermisosEfectivos(usuario.Rol ?? usuario.Perfil);
                 usuario.Permisos = permisos;   // _usuarioActivo es la MISMA referencia que la sesión
                 AplicarPermisos(permisos);
+                // Etapa 4 — re-aplicar también la seguridad a nivel de control en los forms abiertos.
+                ManejadorSeguridad.ActualizarSeguridadFormulariosAbiertos(usuario);
             }
             catch (Exception ex)
             {
