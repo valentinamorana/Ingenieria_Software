@@ -300,12 +300,22 @@ namespace GUI
                 var colIdControl = new DataGridViewTextBoxColumn { Name = "colIdControl", HeaderText = "ID", Width = 40, ReadOnly = true };
                 var colClave     = new DataGridViewTextBoxColumn { Name = "colClave",     HeaderText = "Clave",      ReadOnly = true };
                 var colFormulario= new DataGridViewTextBoxColumn { Name = "colFormulario",HeaderText = "Formulario", ReadOnly = true, Width = 120 };
-                var colTexto     = new DataGridViewTextBoxColumn { Name = "colTexto",     HeaderText = "Texto",      ReadOnly = false };
+                // Referencia: el texto del idioma por defecto (completo), para que un traductor vea
+                // el original mientras completa el idioma destino. Solo lectura.
+                var colReferencia= new DataGridViewTextBoxColumn { Name = "colReferencia",HeaderText = "Referencia (por defecto)", ReadOnly = true };
+                colReferencia.DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(110, 110, 120);
+                var colTexto     = new DataGridViewTextBoxColumn { Name = "colTexto",     HeaderText = "Texto / Traducción", ReadOnly = false };
 
-                dgvTraducciones.Columns.AddRange(colIdControl, colClave, colFormulario, colTexto);
+                dgvTraducciones.Columns.AddRange(colIdControl, colClave, colFormulario, colReferencia, colTexto);
+
+                // Diccionario del idioma por defecto (ES), keyed por clave → texto de referencia.
+                var refDict = Traductor.ObtenerTraduccionesHardcode(Traductor.ObtenerIdiomaDefault());
 
                 foreach (var f in filas)
-                    dgvTraducciones.Rows.Add(f.IdControl, f.Clave, f.Formulario, f.Texto);
+                {
+                    string referencia = refDict != null && refDict.ContainsKey(f.Clave) ? refDict[f.Clave].Texto : "";
+                    dgvTraducciones.Rows.Add(f.IdControl, f.Clave, f.Formulario, referencia, f.Texto);
+                }
 
                 var tOk = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
                 string fmtOk = tOk.ContainsKey("msg.idiomas.cargadas") ? tOk["msg.idiomas.cargadas"].Texto : "{0} traducción(es) cargadas.";
