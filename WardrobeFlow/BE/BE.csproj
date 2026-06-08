@@ -50,6 +50,7 @@
     <Compile Include="Idioma.cs" />
     <Compile Include="Cliente.cs" />
     <Compile Include="Componente.cs" />
+    <Compile Include="ControlMapeado.cs" />
     <Compile Include="Familia.cs" />
     <Compile Include="Rol.cs" />
     <Compile Include="Patente.cs" />

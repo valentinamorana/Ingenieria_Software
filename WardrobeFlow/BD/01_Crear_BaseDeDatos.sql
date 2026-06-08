@@ -753,6 +753,45 @@ END
 PRINT 'Consolidación de roles (v8) aplicada.';
 GO
 
+-- ============================================================
+-- Etapa 4 — Permisos a nivel de CONTROL (mapeo patente ↔ control de un formulario)
+-- ============================================================
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'ControlMapeado')
+BEGIN
+    CREATE TABLE ControlMapeado (
+        IdControlMapeado INT           IDENTITY(1,1) PRIMARY KEY,
+        IdPermiso        INT           NOT NULL,
+        Formulario       NVARCHAR(100) NOT NULL,
+        NombreControl    NVARCHAR(100) NOT NULL,
+        CONSTRAINT FK_ControlMapeado_Permiso FOREIGN KEY (IdPermiso) REFERENCES Permiso(IdPermiso),
+        CONSTRAINT UQ_ControlMapeado UNIQUE (Formulario, NombreControl)
+    );
+    PRINT 'Tabla ControlMapeado creada (Etapa 4 - permisos por control).';
+END
+ELSE
+    PRINT 'Tabla ControlMapeado ya existe — sin cambios.';
+GO
+
+-- Seed inicial: mapea cada patente con NombreMenu al item de menu correspondiente del Menu
+-- principal, como punto de partida coherente con la visibilidad actual. Idempotente.
+INSERT INTO ControlMapeado (IdPermiso, Formulario, NombreControl)
+SELECT p.IdPermiso, v.Formulario, v.NombreControl
+FROM (VALUES
+    ('mnuPrendas',           'Menu', 'prendasToolStripMenuItem'),
+    ('mnuClientes',          'Menu', 'clientesToolStripMenuItem'),
+    ('mnuPlanSuscripciones', 'Menu', 'planesToolStripMenuItem'),
+    ('mnuPedidosVenta',      'Menu', 'pedidosVentaToolStripMenuItem'),
+    ('mnuPedidosRealizados', 'Menu', 'pedidosRealizadosToolStripMenuItem'),
+    ('mnuUsuarios',          'Menu', 'usuariosToolStripMenuItem'),
+    ('mnuAuditoria',         'Menu', 'bitacoraToolStripMenuItem')
+) AS v(NombreMenu, Formulario, NombreControl)
+INNER JOIN Permiso p ON p.NombreMenu = v.NombreMenu
+                    AND ISNULL(p.EsFamilia,0) = 0 AND ISNULL(p.EsRol,0) = 0
+WHERE NOT EXISTS (SELECT 1 FROM ControlMapeado x
+                  WHERE x.Formulario = v.Formulario AND x.NombreControl = v.NombreControl);
+PRINT 'Seed de ControlMapeado (mapeos de menu) aplicado.';
+GO
+
 -- Si se insertaron usuarios nuevos en una BD ya inicializada, resetear el DV para que la app
 -- lo recalcule limpio en el próximo arranque (evita una falsa alarma de integridad por mezcla).
 IF EXISTS (SELECT 1 FROM Usuario WHERE Username IN ('auditor','gcomercial','ginventario','encargado','logistico') AND DVH = 0)

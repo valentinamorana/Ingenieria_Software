@@ -45,6 +45,8 @@
     <Compile Include="Acceso.cs" />
     <Compile Include="BaseDAL.cs" />
     <Compile Include="Interfaces\IPermisoDAL.cs" />
+    <Compile Include="Interfaces\IControlMapeadoDAL.cs" />
+    <Compile Include="ControlMapeado.cs" />
     <Compile Include="Interfaces\IClienteDAL.cs" />
     <Compile Include="Interfaces\IUsuarioDAL.cs" />
     <Compile Include="Interfaces\IPreferenciaDAL.cs" />
