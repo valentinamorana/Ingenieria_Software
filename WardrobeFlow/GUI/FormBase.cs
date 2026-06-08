@@ -47,10 +47,11 @@ namespace GUI
             // Aplica las preferencias de UI del usuario (fuente/tamaño/tema) a este formulario.
             try { PreferenciasUI.Aplicar(this); } catch { }
 
-            // Etapa 4 — Seguridad a nivel de control: muestra/oculta los controles mapeados a
-            // patentes que el usuario en sesión no tiene. Sin mapeos para este form, no hace nada.
+            // Etapa 4 — Registrar los controles de este form (C1) y aplicar la seguridad a nivel de
+            // control: muestra/oculta los mapeados a patentes que el usuario no tiene. Sin mapeos, no hace nada.
             try
             {
+                RegistroControles.Registrar(this);
                 if (Seguridad.SessionManager.IsLoggedIn)
                     ManejadorSeguridad.AplicarSeguridad(this, Seguridad.SessionManager.GetInstance().Usuario);
             }

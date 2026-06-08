@@ -116,6 +116,7 @@ namespace GUI
             usuarioToolStripMenuItem.DropDownItems.Insert(0, _miPerfilItem);
 
             // Construir menú dinámico según permisos del rol
+            RegistroControles.Registrar(this);   // Etapa 4 (C1) — registra los ítems del menú para la pantalla de mapeo
             AplicarPermisos(_usuarioActivo?.Permisos);
         }
 
