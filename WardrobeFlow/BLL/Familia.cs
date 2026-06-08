@@ -30,18 +30,47 @@ namespace BLL
             this.permisoDAL = permisoDAL;
         }
 
-        // Re-validación en el BACKEND: administrar el árbol de permisos es una operación
-        // EXCLUSIVA del Administrador. Se verifica el rol en sesión por Perfil.
-        private static void VerificarAdmin()
+        // Patente que habilita la gestión de usuarios/permisos (acceso a esta misma pantalla).
+        private const string MenuGestion = "mnuUsuarios";
+
+        // ¿El usuario en sesión es Administrador? (acceso total por rol — bypass, decisión B1).
+        private static bool EsAdminEnSesion()
+        {
+            return Seguridad.SessionManager.IsLoggedIn &&
+                   (Seguridad.SessionManager.GetInstance().Usuario.Perfil ?? "")
+                       .Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase);
+        }
+
+        // Re-validación en el BACKEND. Tras la Etapa 4, administrar permisos no es exclusivo del
+        // Administrador: también puede hacerlo un rol que tenga la patente de Gestión de Usuarios
+        // (el Administrador sigue con acceso total por bypass).
+        private static void VerificarPuedeGestionar()
         {
             // Fail-closed: sin sesión NO se permite la operación.
             if (!Seguridad.SessionManager.IsLoggedIn)
                 throw new BE.AppException("err.bll.sesion_expirada",
                     "La sesión expiró. Volvé a iniciar sesión.");
-            string perfil = Seguridad.SessionManager.GetInstance().Usuario.Perfil ?? "";
-            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
+            if (EsAdminEnSesion()) return;
+            var u = Seguridad.SessionManager.GetInstance().Usuario;
+            bool tieneGestion = u.Permisos != null && u.Permisos.Exists(p => p.NombreMenu == MenuGestion);
+            if (!tieneGestion)
                 throw new BE.AppException("err.bll.familia.sin_permiso",
-                    "Solo un Administrador puede modificar permisos de roles.");
+                    "No tenés permiso para gestionar usuarios y permisos.");
+        }
+
+        // Anti-autobloqueo: simula los permisos efectivos que daría un conjunto de ids (resolviendo
+        // sus subárboles en el árbol actual) y dice si CONSERVAN el acceso de gestión.
+        private bool ConservaGestion(IEnumerable<int> ids)
+        {
+            var arbol = permisoDAL.ObtenerArbol();
+            foreach (int id in ids)
+            {
+                var nodo = BuscarPorId(arbol, id, new HashSet<int>());
+                if (nodo == null) continue;
+                foreach (var pat in nodo.ObtenerPatentesEfectivas())
+                    if (pat.NombreMenu == MenuGestion) return true;
+            }
+            return false;
         }
 
         // Retorna la lista de roles disponibles en el sistema.
@@ -145,7 +174,7 @@ namespace BLL
         // Devuelve (agregados, quitados).
         public (int Agregados, int Quitados) GuardarAsignacionRol(string rol, IEnumerable<int> idsSeleccionados)
         {
-            VerificarAdmin();
+            VerificarPuedeGestionar();
             int idRol = permisoDAL.ObtenerIdRol(rol);
             if (idRol == 0)
                 throw new BE.AppException("err.bll.rol_inexistente",
@@ -153,6 +182,17 @@ namespace BLL
 
             var seleccion = new HashSet<int>(idsSeleccionados ?? new List<int>());
             var actuales  = ObtenerIdsDirectosDelRol(rol);
+
+            // Anti-autobloqueo: un usuario NO administrador no puede quitarse a sí mismo el acceso de
+            // gestión editando su PROPIO rol. (El Administrador tiene bypass y no se ve afectado.)
+            if (!EsAdminEnSesion())
+            {
+                var u = Seguridad.SessionManager.GetInstance().Usuario;
+                string rolPropio = u.Rol ?? u.Perfil;
+                if (string.Equals(rol, rolPropio, StringComparison.OrdinalIgnoreCase) && !ConservaGestion(seleccion))
+                    throw new BE.AppException("err.bll.familia.autobloqueo",
+                        "No podés quitarte a vos mismo el acceso de Gestión de Usuarios de tu propio rol.");
+            }
 
             int agregados = 0, quitados = 0;
 
@@ -188,7 +228,7 @@ namespace BLL
 
         public int CrearPatente(string nombre, string nombreMenu)
         {
-            VerificarAdmin();
+            VerificarPuedeGestionar();
             ValidarNombre(nombre);
             int id = permisoDAL.AltaComponente(nombre, nombreMenu, esFamilia: false, esRol: false, tipoComponente: null);
             _bitacora.Registrar("Gestión de Perfiles", $"Patente creada: '{nombre}'", BE.Criticidad.Alta);
@@ -197,7 +237,7 @@ namespace BLL
 
         public int CrearFamilia(string nombre)
         {
-            VerificarAdmin();
+            VerificarPuedeGestionar();
             ValidarNombre(nombre);
             int id = permisoDAL.AltaComponente(nombre, null, esFamilia: true, esRol: false, tipoComponente: "Familia");
             _bitacora.Registrar("Gestión de Perfiles", $"Familia creada: '{nombre}'", BE.Criticidad.Alta);
@@ -206,7 +246,7 @@ namespace BLL
 
         public int CrearRol(string nombre)
         {
-            VerificarAdmin();
+            VerificarPuedeGestionar();
             ValidarNombre(nombre);
             if (permisoDAL.ObtenerIdRol(nombre) != 0)
                 throw new BE.AppException("err.bll.rol_duplicado", "Ya existe un rol llamado '{0}'.", nombre);
@@ -217,7 +257,7 @@ namespace BLL
 
         public void RenombrarComponente(int idPermiso, string nombre, string nombreMenu)
         {
-            VerificarAdmin();
+            VerificarPuedeGestionar();
             ValidarNombre(nombre);
             permisoDAL.ModificarComponente(idPermiso, nombre, nombreMenu);
             _bitacora.Registrar("Gestión de Perfiles", $"Componente {idPermiso} modificado a '{nombre}'", BE.Criticidad.Media);
@@ -226,7 +266,7 @@ namespace BLL
         // Embebe un componente hijo dentro de un nodo padre (familia o rol), validando ciclos.
         public void AgregarComponente(int idPadre, int idHijo)
         {
-            VerificarAdmin();
+            VerificarPuedeGestionar();
             if (idPadre == idHijo)
                 throw new BE.AppException("err.bll.ciclo", "Un componente no puede contenerse a sí mismo.");
             ValidarSinCiclo(idPadre, idHijo);
@@ -236,7 +276,7 @@ namespace BLL
 
         public void QuitarComponente(int idPadre, int idHijo)
         {
-            VerificarAdmin();
+            VerificarPuedeGestionar();
             permisoDAL.QuitarRelacion(idPadre, idHijo);
             _bitacora.Registrar("Gestión de Perfiles", $"Relación quitada {idPadre}→{idHijo}", BE.Criticidad.Alta);
         }
@@ -244,7 +284,7 @@ namespace BLL
         // Elimina (baja lógica) un rol. NO se permite si hay usuarios que lo tienen asignado.
         public void EliminarRol(string rol)
         {
-            VerificarAdmin();
+            VerificarPuedeGestionar();
             int idRol = permisoDAL.ObtenerIdRol(rol);
             if (idRol == 0)
                 throw new BE.AppException("err.bll.rol_inexistente", "El rol '{0}' no existe.", rol);
@@ -266,7 +306,7 @@ namespace BLL
         // Baja lógica de un componente que NO es rol (patente o familia).
         public void EliminarComponente(int idPermiso)
         {
-            VerificarAdmin();
+            VerificarPuedeGestionar();
             permisoDAL.BajaComponente(idPermiso);
             _bitacora.Registrar("Gestión de Perfiles", $"Componente {idPermiso} eliminado", BE.Criticidad.Alta);
         }
