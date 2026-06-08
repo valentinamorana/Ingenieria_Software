@@ -23,6 +23,12 @@ namespace GUI
                 return;
             }
 
+            // Etapa 5 — i18n 100% desde BD: sembrar (si falta) y cargar el idioma por defecto desde
+            // la BD ANTES de mostrar cualquier pantalla, para que toda la app (Login y diálogos de
+            // arranque incluidos) se renderice desde la base. Si la BD/i18n fallara, el Traductor
+            // sigue cayendo a los diccionarios hardcodeados (fallback de seguridad).
+            InicializarIdiomaDesdeBD();
+
             // T07 — Verificar integridad DVH/DVV antes de mostrar el Login.
             // Si se detecta manipulación, abre RestauracionForm para que el admin pueda reparar.
             if (!BLL.Configuracion.VerificarIntegridadDV(out BLL.ResultadoIntegridad resultadoDV))
@@ -65,6 +71,32 @@ namespace GUI
                     Application.Run(new Menu());
                 else
                     Application.Exit();
+            }
+        }
+
+        // Etapa 5 — Deja la BD como fuente de las traducciones desde el arranque: dispara el seed
+        // (idempotente) la primera vez y carga el diccionario del idioma por defecto en el
+        // GestorIdioma, de modo que el Traductor sirva textos de BD ya en la primera pantalla.
+        private static void InicializarIdiomaDesdeBD()
+        {
+            try
+            {
+                var svc = new BLL.IdiomaService();
+                var def = Servicios.Multiidioma.Traductor.ObtenerIdiomaDefault();
+                if (def == null) return;
+
+                var dict = svc.CargarTraducciones(def.Id);   // seedea (1ª vez) + carga desde BD
+                if (dict != null && dict.Count > 0)
+                    Servicios.Multiidioma.GestorIdioma.CambiarIdioma(def, dict);
+
+                var activos = svc.ObtenerIdiomasActivosComoIdioma();
+                if (activos != null && activos.Count > 0)
+                    Servicios.Multiidioma.GestorIdioma.SetIdiomasDisponibles(activos);
+            }
+            catch (Exception ex)
+            {
+                // Sin BD/i18n disponible: el Traductor usa el fallback hardcodeado. No es crítico.
+                System.Diagnostics.Trace.TraceError("[Program.InicializarIdiomaDesdeBD] " + ex.Message);
             }
         }
 
