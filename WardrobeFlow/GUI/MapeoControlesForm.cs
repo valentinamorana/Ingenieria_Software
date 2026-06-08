@@ -110,7 +110,8 @@ namespace GUI
 
                 _cmbFormulario.Items.Clear();
                 foreach (string f in RegistroControles.Formularios())
-                    _cmbFormulario.Items.Add(f);
+                    if (!string.Equals(f, "Menu", StringComparison.OrdinalIgnoreCase))
+                        _cmbFormulario.Items.Add(f);   // el Menú se gobierna por NombreMenu, no por mapeo de control
 
                 if (_cmbFormulario.Items.Count == 0)
                     _lblEstado.Text = T("map.sinforms", "Abrí los formularios que quieras mapear y volvé a entrar acá.");
@@ -182,6 +183,7 @@ namespace GUI
             {
                 _bll.GuardarAsociados(PatenteId, _mapeosPatente);
                 _todosLosMapeos = _bll.ObtenerTodos();
+                ManejadorSeguridad.InvalidarCache();   // cambiaron los mapeos → refrescar la caché
                 // Re-aplica en vivo a los forms abiertos.
                 if (Seguridad.SessionManager.IsLoggedIn)
                     ManejadorSeguridad.ActualizarSeguridadFormulariosAbiertos(Seguridad.SessionManager.GetInstance().Usuario);

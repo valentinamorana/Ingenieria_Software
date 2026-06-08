@@ -19,18 +19,37 @@ namespace GUI
     {
         private static readonly BLL.ControlMapeado _bll = new BLL.ControlMapeado();
 
+        // Caché en memoria de TODOS los mapeos (se recarga sólo cuando cambian, vía InvalidarCache).
+        // Evita leer la tabla completa en cada OnLoad de formulario.
+        private static List<BE.ControlMapeado> _cacheMapeos;
+
         // Controles que ESTE manejador ocultó (clave "Form.Control"), para poder volver a mostrarlos
         // si la patente cambia o el control deja de estar mapeado (no pisar controles ajenos).
         private static readonly HashSet<string> _ocultadosPorNosotros =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        // El Menú principal NO se gobierna por control: tiene su propia lógica por NombreMenu
+        // (Menu.AplicarPermisos). Se excluye acá para no aplicar dos mecanismos sobre los mismos ítems.
+        private const string FormularioMenu = "Menu";
+
+        private static List<BE.ControlMapeado> Mapeos()
+        {
+            if (_cacheMapeos == null) _cacheMapeos = _bll.ObtenerTodos();
+            return _cacheMapeos;
+        }
+
+        /// <summary>Invalida la caché de mapeos (llamar tras editar el mapeo de controles).</summary>
+        public static void InvalidarCache() { _cacheMapeos = null; }
+
         /// <summary>Aplica la seguridad de permisos a los controles mapeados de un formulario.</summary>
         public static void AplicarSeguridad(Form form, BE.Usuario usuario)
         {
             if (form == null || usuario == null) return;
+            // El Menú tiene su propio gateo por NombreMenu; no se le aplican mapeos de control.
+            if (string.Equals(form.Name, FormularioMenu, StringComparison.OrdinalIgnoreCase)) return;
             try
             {
-                List<BE.ControlMapeado> mapeos = _bll.ObtenerTodos()
+                List<BE.ControlMapeado> mapeos = Mapeos()
                     .Where(c => string.Equals(c.Formulario, form.Name, StringComparison.OrdinalIgnoreCase))
                     .ToList();
 
