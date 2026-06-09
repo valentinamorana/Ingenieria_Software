@@ -179,7 +179,7 @@ namespace GUI
                     ? new Font("Segoe UI", 9f, FontStyle.Bold)
                     : new Font("Segoe UI", 9f),
                 ForeColor = esFamilia
-                    ? Color.FromArgb(40, 80, 160)
+                    ? Color.FromArgb(176, 62, 96)
                     : Color.FromArgb(30, 110, 50)
             };
 
@@ -226,7 +226,7 @@ namespace GUI
             {
                 Text      = "Estructura organizacional de WardrobeFlow — Solo lectura",
                 Font      = new Font("Segoe UI", 9f, FontStyle.Italic),
-                ForeColor = Color.FromArgb(220, 180, 220),
+                ForeColor = Color.FromArgb(244, 212, 226),
                 AutoSize  = true,
                 Location  = new Point(16, 42)
             };
@@ -246,7 +246,7 @@ namespace GUI
             {
                 Text      = "📁 Familia (nodo compuesto — Área o Rol)    🔑 Patente (hoja — permiso atómico)",
                 Font      = new Font("Segoe UI", 8.5f),
-                ForeColor = Color.FromArgb(60, 40, 80),
+                ForeColor = Color.FromArgb(110, 42, 74),
                 AutoSize  = true,
                 Location  = new Point(14, 6)
             };
@@ -261,7 +261,7 @@ namespace GUI
                 ShowLines     = true,
                 ShowPlusMinus = true,
                 BorderStyle   = BorderStyle.None,
-                BackColor     = Color.FromArgb(252, 250, 255),
+                BackColor     = Color.FromArgb(252, 250, 252),
                 Indent        = 20,
                 ItemHeight    = 24,
                 FullRowSelect = true,
@@ -295,7 +295,7 @@ namespace GUI
             {
                 Text      = "⊟ Colapsar todo",
                 Size      = new Size(130, 32),
-                BackColor = Color.FromArgb(180, 160, 200),
+                BackColor = Color.FromArgb(210, 100, 135),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font      = new Font("Segoe UI", 9f),

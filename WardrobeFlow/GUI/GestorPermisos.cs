@@ -164,7 +164,7 @@ namespace GUI
                 var raiz = new TreeNode("🗂 " + T("perm.todoslosroles", "Todos los roles"))
                 {
                     NodeFont  = new Font("Segoe UI", 9f, FontStyle.Bold),
-                    ForeColor = Color.FromArgb(64, 0, 64)
+                    ForeColor = Color.FromArgb(176, 62, 96)
                 };
                 foreach (BE.Componente comp in _familiaBLL.ObtenerArbol())
                 {
@@ -213,7 +213,7 @@ namespace GUI
                 if (hijo is BE.Familia)
                 {
                     nodo.NodeFont  = new Font("Segoe UI", 9f, FontStyle.Bold);
-                    nodo.ForeColor = Color.FromArgb(40, 80, 140);
+                    nodo.ForeColor = Color.FromArgb(176, 62, 96);
                 }
                 parent.Nodes.Add(nodo);
                 AgregarNodos(hijo, nodo);
@@ -396,7 +396,7 @@ namespace GUI
             this.BackColor       = Color.White;
 
             _lblTitulo = new Label { Text = "Perfiles y Permisos", Font = new Font("Segoe UI", 13f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(40, 80, 140), AutoSize = true, Location = new Point(12, 12) };
+                ForeColor = Color.FromArgb(176, 62, 96), AutoSize = true, Location = new Point(12, 12) };
             _lblMensaje = new Label { AutoSize = false, Size = new Size(900, 20), Location = new Point(12, 42),
                 Font = new Font("Segoe UI", 8.5f), ForeColor = Color.DimGray };
 
@@ -412,38 +412,38 @@ namespace GUI
 
             // Lista de Familias
             _lblFamilias = new Label { Text = "Lista de Familias (compuestos)", Location = new Point(12, 112),
-                AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(40, 80, 140) };
+                AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96) };
             _clbFamilias = new CheckedListBox { Location = new Point(12, 134), Size = new Size(270, 300),
                 CheckOnClick = true, Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle };
-            _btnNuevaFamilia = Btn("➕ Nueva familia", new Point(12, 440), 130, Color.FromArgb(80, 100, 150));
+            _btnNuevaFamilia = Btn("➕ Nueva familia", new Point(12, 440), 130, Color.FromArgb(210, 100, 135));
             _btnNuevaFamilia.Click += (s, e) => NuevaFamilia();
 
             // Lista de Patentes
             _lblPatentes = new Label { Text = "Lista de Patentes (simples)", Location = new Point(300, 112),
-                AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(40, 80, 140) };
+                AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96) };
             _clbPatentes = new CheckedListBox { Location = new Point(300, 134), Size = new Size(270, 300),
                 CheckOnClick = true, Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle };
-            _btnNuevaPatente = Btn("➕ Nueva patente", new Point(300, 440), 130, Color.FromArgb(80, 100, 150));
+            _btnNuevaPatente = Btn("➕ Nueva patente", new Point(300, 440), 130, Color.FromArgb(210, 100, 135));
             _btnNuevaPatente.Click += (s, e) => NuevaPatente();
 
             // Embeber rol
             _lblEmbeber = new Label { Text = "Embeber rol:", Location = new Point(12, 478), AutoSize = true, Font = new Font("Segoe UI", 9f) };
             _cmbEmbeber = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(95, 474),
                 Size = new Size(185, 24), Font = new Font("Segoe UI", 9f) };
-            _btnEmbeber = Btn("Embeber ➜", new Point(290, 473), 110, Color.FromArgb(64, 0, 64));
+            _btnEmbeber = Btn("Embeber ➜", new Point(290, 473), 110, Color.FromArgb(210, 100, 135));
             _btnEmbeber.Click += (s, e) => EmbeberRol();
 
             // ABM de la patente/familia seleccionada (modificar / eliminar)
-            _btnModificarComp = Btn("✏ Modificar selección", new Point(12, 508), 175, Color.FromArgb(80, 100, 150));
+            _btnModificarComp = Btn("✏ Modificar selección", new Point(12, 508), 175, Color.FromArgb(210, 100, 135));
             _btnModificarComp.Click += (s, e) => ModificarComponente();
             _btnEliminarComp = Btn("🗑 Eliminar selección", new Point(195, 508), 175, Color.FromArgb(170, 50, 50));
             _btnEliminarComp.Click += (s, e) => EliminarComponente();
 
             // Árbol de composición
             _lblArbol = new Label { Text = "Composición efectiva (recursiva)", Location = new Point(588, 112),
-                AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(40, 80, 140) };
+                AutoSize = true, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96) };
             _chkVerTodos = new CheckBox { Text = "Ver todos los roles", Location = new Point(760, 112),
-                AutoSize = true, Font = new Font("Segoe UI", 8.5f), ForeColor = Color.FromArgb(64, 0, 64),
+                AutoSize = true, Font = new Font("Segoe UI", 8.5f), ForeColor = Color.FromArgb(176, 62, 96),
                 Anchor = AnchorStyles.Top | AnchorStyles.Right };
             _chkVerTodos.CheckedChanged += (s, e) => RefrescarArbol();
             _treeView = new TreeView { Location = new Point(588, 134), Size = new Size(324, 360),

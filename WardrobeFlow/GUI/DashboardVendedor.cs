@@ -166,7 +166,7 @@ namespace GUI
             _panelHeader.Paint += (s, pe) =>
             {
                 using (var br = new LinearGradientBrush(_panelHeader.ClientRectangle,
-                    Color.FromArgb(64, 0, 64), Color.FromArgb(176, 62, 96), LinearGradientMode.Horizontal))
+                    Color.FromArgb(210, 100, 135), Color.FromArgb(176, 62, 96), LinearGradientMode.Horizontal))
                     pe.Graphics.FillRectangle(br, _panelHeader.ClientRectangle);
             };
 
@@ -179,8 +179,8 @@ namespace GUI
             var lblSub = new Label { Text = "WardrobeFlow  —  Ventas", Font = new Font("Segoe UI", 8f, FontStyle.Italic), ForeColor = Color.FromArgb(200, 255, 200, 220), AutoSize = true, Location = new Point(14, 36), BackColor = Color.Transparent };
             _panelHeader.Controls.AddRange(new Control[] { _lblTitulo, lblSub, _btnRefrescar });
 
-            var panelSbar = new Panel { Dock = DockStyle.Bottom, Height = 26, BackColor = Color.FromArgb(64, 0, 64) };
-            _lblSesion = new Label { Dock = DockStyle.Fill, ForeColor = Color.FromArgb(200, 180, 210), Font = new Font("Segoe UI", 8f), TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(10, 0, 0, 0) };
+            var panelSbar = new Panel { Dock = DockStyle.Bottom, Height = 26, BackColor = Color.FromArgb(176, 62, 96) };
+            _lblSesion = new Label { Dock = DockStyle.Fill, ForeColor = Color.FromArgb(244, 212, 226), Font = new Font("Segoe UI", 8f), TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(10, 0, 0, 0) };
             panelSbar.Controls.Add(_lblSesion);
 
             _flowCards = new FlowLayoutPanel { Height = 168, Dock = DockStyle.Top, Padding = new Padding(10, 10, 10, 4), BackColor = Color.FromArgb(240, 240, 245), FlowDirection = FlowDirection.LeftToRight, WrapContents = false };
@@ -197,7 +197,7 @@ namespace GUI
             };
 
             _lblColPend = new Label { Text = "Pendiente",  Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96),  BackColor = Color.FromArgb(252, 228, 235), Padding = new Padding(8, 6, 0, 0) };
-            _lblColDesp = new Label { Text = "Despachado", Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(40, 80, 140),   BackColor = Color.FromArgb(220, 230, 250), Padding = new Padding(8, 6, 0, 0) };
+            _lblColDesp = new Label { Text = "Despachado", Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(30, 100, 170),   BackColor = Color.FromArgb(220, 230, 250), Padding = new Padding(8, 6, 0, 0) };
             _lblColEntr = new Label { Text = "Entregado",  Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(15, 85, 35),    BackColor = Color.FromArgb(215, 240, 220), Padding = new Padding(8, 6, 0, 0) };
 
             _colPendiente  = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true, BackColor = Color.FromArgb(250, 244, 248), Padding = new Padding(6, 6, 6, 6) };

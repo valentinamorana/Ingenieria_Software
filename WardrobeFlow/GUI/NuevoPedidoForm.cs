@@ -254,7 +254,7 @@ namespace GUI
             }
             else
             {
-                lblInfoPlan.ForeColor = Color.FromArgb(40, 80, 140);
+                lblInfoPlan.ForeColor = Color.FromArgb(176, 62, 96);
                 lblInfoPlan.Text = infoBase;
             }
         }
@@ -331,7 +331,7 @@ namespace GUI
             else
             {
                 btnConfirmar.Enabled = seleccionadas > 0;
-                lblResumen.ForeColor = Color.FromArgb(40, 80, 140);
+                lblResumen.ForeColor = Color.FromArgb(176, 62, 96);
             }
 
             lblResumen.Text = string.IsNullOrEmpty(linea2)

@@ -279,7 +279,7 @@ namespace GUI
             {
                 Text      = $"Pedido #{_idPedido}",
                 Font      = new Font("Segoe UI", 13f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(40, 80, 140),
+                ForeColor = Color.FromArgb(176, 62, 96),
                 AutoSize  = true,
                 Location  = new Point(12, 12)
             };
@@ -338,7 +338,7 @@ namespace GUI
                 Text      = "🔍 Buscar",
                 Location  = new Point(610, 26),
                 Size      = new Size(100, 28),
-                BackColor = Color.FromArgb(40, 80, 140),
+                BackColor = Color.FromArgb(176, 62, 96),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold),
@@ -373,10 +373,11 @@ namespace GUI
                 GridColor             = Color.FromArgb(220, 220, 220)
             };
             _dgv.ColumnHeadersDefaultCellStyle.Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold);
-            _dgv.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(40, 80, 140);
+            _dgv.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(176, 62, 96);
             _dgv.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             _dgv.EnableHeadersVisualStyles               = false;
-            _dgv.DefaultCellStyle.SelectionBackColor     = Color.FromArgb(200, 220, 255);
+            _dgv.DefaultCellStyle.SelectionBackColor     = Color.FromArgb(255, 182, 193);
+            _dgv.DefaultCellStyle.SelectionForeColor     = Color.Black;
             _dgv.DefaultCellStyle.SelectionForeColor     = Color.Black;
 
             // ── Botones de acción ──────────────────────────────────────────────

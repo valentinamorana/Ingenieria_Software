@@ -147,12 +147,12 @@ namespace GUI
             {
                 Dock      = DockStyle.Bottom,
                 Height    = 26,
-                BackColor = Color.FromArgb(64, 0, 64)
+                BackColor = Color.FromArgb(176, 62, 96)
             };
             var lblSb = new Label
             {
                 Dock      = DockStyle.Fill,
-                ForeColor = Color.FromArgb(200, 180, 210),
+                ForeColor = Color.FromArgb(244, 212, 226),
                 Font      = new Font("Segoe UI", 8f),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding   = new Padding(10, 0, 0, 0)

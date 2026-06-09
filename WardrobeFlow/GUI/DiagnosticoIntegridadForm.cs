@@ -135,7 +135,7 @@ namespace GUI
                 Width     = 170,
                 Height    = 32,
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(60, 120, 180),
+                BackColor = Color.FromArgb(210, 100, 135),
                 ForeColor = Color.White
             };
             _btnReparar.FlatAppearance.BorderSize = 0;

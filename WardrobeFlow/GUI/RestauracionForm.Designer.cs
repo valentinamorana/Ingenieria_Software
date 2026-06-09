@@ -98,9 +98,9 @@ namespace GUI
             this.btnRecalcular.Click += new System.EventHandler(this.btnRecalcular_Click);
 
             // btnRestaurarBackup
-            this.btnRestaurarBackup.BackColor = System.Drawing.Color.FromArgb(238, 228, 248);
+            this.btnRestaurarBackup.BackColor = System.Drawing.Color.FromArgb(252, 228, 235);
             this.btnRestaurarBackup.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRestaurarBackup.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(180, 140, 180);
+            this.btnRestaurarBackup.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(210, 100, 135);
             this.btnRestaurarBackup.FlatAppearance.BorderSize = 1;
             this.btnRestaurarBackup.Font = new System.Drawing.Font("Segoe UI", 8.5f);
             this.btnRestaurarBackup.ForeColor = System.Drawing.Color.FromArgb(100, 40, 80);

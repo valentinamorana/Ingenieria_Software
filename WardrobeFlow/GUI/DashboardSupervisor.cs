@@ -180,24 +180,24 @@ namespace GUI
 
         private void ConstruirUI()
         {
-            _panelHeader = new Panel { Dock = DockStyle.Top, Height = 62, BackColor = Color.FromArgb(80, 40, 100) };
+            _panelHeader = new Panel { Dock = DockStyle.Top, Height = 62, BackColor = Color.FromArgb(176, 62, 96) };
             _panelHeader.Paint += (s, pe) =>
             {
                 using (var br = new LinearGradientBrush(_panelHeader.ClientRectangle,
-                    Color.FromArgb(40, 20, 60), Color.FromArgb(80, 40, 100), LinearGradientMode.Horizontal))
+                    Color.FromArgb(210, 100, 135), Color.FromArgb(176, 62, 96), LinearGradientMode.Horizontal))
                     pe.Graphics.FillRectangle(br, _panelHeader.ClientRectangle);
             };
             _lblTitulo = new Label { Text = "Panel de Supervisor", Font = new Font("Segoe UI", 14f, FontStyle.Bold), ForeColor = Color.White, AutoSize = true, Location = new Point(14, 8), BackColor = Color.Transparent };
-            _btnRefrescar = new Button { Text = "↻  Actualizar", Size = new Size(100, 28), Anchor = AnchorStyles.Top | AnchorStyles.Right, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(110, 60, 140), ForeColor = Color.White, Font = new Font("Segoe UI", 8.5f), Cursor = Cursors.Hand, Location = new Point(756, 17) };
-            _btnRefrescar.FlatAppearance.BorderColor = Color.FromArgb(180, 180, 140, 200);
+            _btnRefrescar = new Button { Text = "↻  Actualizar", Size = new Size(100, 28), Anchor = AnchorStyles.Top | AnchorStyles.Right, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(210, 100, 135), ForeColor = Color.White, Font = new Font("Segoe UI", 8.5f), Cursor = Cursors.Hand, Location = new Point(756, 17) };
+            _btnRefrescar.FlatAppearance.BorderColor = Color.FromArgb(180, 230, 140, 170);
             _btnRefrescar.FlatAppearance.BorderSize  = 1;
             _btnRefrescar.Click += (s, e) => CargarEnBackground();
             _panelHeader.Resize += (s, e) => _btnRefrescar.Left = _panelHeader.Width - 112;
-            var lblSub = new Label { Text = "WardrobeFlow  —  Supervisión", Font = new Font("Segoe UI", 8f, FontStyle.Italic), ForeColor = Color.FromArgb(200, 220, 200, 240), AutoSize = true, Location = new Point(14, 36), BackColor = Color.Transparent };
+            var lblSub = new Label { Text = "WardrobeFlow  —  Supervisión", Font = new Font("Segoe UI", 8f, FontStyle.Italic), ForeColor = Color.FromArgb(200, 255, 200, 220), AutoSize = true, Location = new Point(14, 36), BackColor = Color.Transparent };
             _panelHeader.Controls.AddRange(new Control[] { _lblTitulo, lblSub, _btnRefrescar });
 
-            var panelSbar = new Panel { Dock = DockStyle.Bottom, Height = 26, BackColor = Color.FromArgb(40, 20, 60) };
-            _lblSesion = new Label { Dock = DockStyle.Fill, ForeColor = Color.FromArgb(200, 185, 215), Font = new Font("Segoe UI", 8f), TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(10, 0, 0, 0) };
+            var panelSbar = new Panel { Dock = DockStyle.Bottom, Height = 26, BackColor = Color.FromArgb(176, 62, 96) };
+            _lblSesion = new Label { Dock = DockStyle.Fill, ForeColor = Color.FromArgb(244, 212, 226), Font = new Font("Segoe UI", 8f), TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(10, 0, 0, 0) };
             panelSbar.Controls.Add(_lblSesion);
 
             _flowCards = new FlowLayoutPanel { Height = 168, Dock = DockStyle.Top, Padding = new Padding(10, 10, 10, 4), BackColor = Color.FromArgb(240, 240, 245), FlowDirection = FlowDirection.LeftToRight, WrapContents = false };
@@ -214,7 +214,7 @@ namespace GUI
 
             _lblColPed  = new Label { Text = "Pedidos pendientes", Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96),  BackColor = Color.FromArgb(252, 228, 235), Padding = new Padding(8, 6, 0, 0) };
             _lblColMant = new Label { Text = "En mantenimiento",   Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(120, 80, 0),   BackColor = Color.FromArgb(255, 248, 210), Padding = new Padding(8, 6, 0, 0) };
-            _lblColBit  = new Label { Text = "Actividad reciente", Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(40, 20, 100),  BackColor = Color.FromArgb(230, 225, 248), Padding = new Padding(8, 6, 0, 0) };
+            _lblColBit  = new Label { Text = "Actividad reciente", Dock = DockStyle.Top, Height = 30, Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(100, 80, 160),  BackColor = Color.FromArgb(230, 225, 248), Padding = new Padding(8, 6, 0, 0) };
 
             _colPedidos  = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true, BackColor = Color.FromArgb(250, 244, 248), Padding = new Padding(6) };
             _colMant     = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true, BackColor = Color.FromArgb(252, 250, 240), Padding = new Padding(6) };
@@ -302,7 +302,7 @@ namespace GUI
                 using (var br   = new SolidBrush(card.BackColor))
                     pe.Graphics.FillPath(br, path);
             };
-            card.Controls.Add(new Label { Text = evento, Font = new Font("Segoe UI", 8f, FontStyle.Bold), AutoSize = false, Size = new Size(164, 16), Location = new Point(8, 6), BackColor = Color.Transparent, ForeColor = Color.FromArgb(40, 20, 100) });
+            card.Controls.Add(new Label { Text = evento, Font = new Font("Segoe UI", 8f, FontStyle.Bold), AutoSize = false, Size = new Size(164, 16), Location = new Point(8, 6), BackColor = Color.Transparent, ForeColor = Color.FromArgb(100, 80, 160) });
             card.Controls.Add(new Label { Text = usuario, Font = new Font("Segoe UI", 7.5f), AutoSize = false, Size = new Size(164, 16), Location = new Point(8, 24), BackColor = Color.Transparent, ForeColor = Color.FromArgb(70, 70, 80) });
             card.Controls.Add(new Label { Text = fecha, Font = new Font("Segoe UI", 7f, FontStyle.Italic), AutoSize = true, Location = new Point(8, 44), BackColor = Color.Transparent, ForeColor = Color.FromArgb(120, 110, 140) });
             return card;

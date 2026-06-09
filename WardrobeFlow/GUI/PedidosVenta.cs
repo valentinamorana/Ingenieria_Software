@@ -463,7 +463,7 @@ namespace GUI
             {
                 Text      = histText,
                 Size      = new Size(110, 28),
-                BackColor = Color.FromArgb(60, 110, 160),
+                BackColor = Color.FromArgb(100, 80, 160),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Cursor    = Cursors.Hand,

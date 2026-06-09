@@ -328,7 +328,7 @@ namespace GUI
                     Text         = T("btn.si", "Sí"),
                     Left = 84, Top = 76, Width = 76, Height = 30,
                     DialogResult = DialogResult.Yes,
-                    BackColor    = Color.FromArgb(60, 110, 160),
+                    BackColor    = Color.FromArgb(210, 100, 135),
                     ForeColor    = Color.White,
                     FlatStyle    = FlatStyle.Flat
                 };

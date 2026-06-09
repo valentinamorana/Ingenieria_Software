@@ -94,7 +94,7 @@ namespace GUI
         private static Button Btn(string text, Point loc, int width) => new Button
         {
             Text = text, Location = loc, Size = new Size(width, 30), FlatStyle = FlatStyle.Flat,
-            BackColor = Color.FromArgb(80, 100, 150), ForeColor = Color.White, Font = new Font("Segoe UI", 8f), Cursor = Cursors.Hand
+            BackColor = Color.FromArgb(210, 100, 135), ForeColor = Color.White, Font = new Font("Segoe UI", 8f), Cursor = Cursors.Hand
         };
 
         protected override void OnLoad(EventArgs e)
