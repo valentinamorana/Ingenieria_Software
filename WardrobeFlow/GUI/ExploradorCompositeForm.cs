@@ -89,8 +89,8 @@ namespace GUI
         // Actualiza TODOS los controles de texto del formulario con las traducciones activas.
         private void AplicarIdioma()
         {
-            this.Text               = T("frm.explorador",             "Explorador del Patrón Composite — T04");
-            _lblTitulo.Text         = T("lbl.explorador.titulo",      "Explorador del Patrón Composite");
+            this.Text               = T("frm.explorador",             "Vista completa del sistema");
+            _lblTitulo.Text         = T("lbl.explorador.titulo",      "Vista completa del sistema");
             _lblDescripcion.Text    = T("lbl.explorador.descripcion", "Estructura organizacional de WardrobeFlow — Solo lectura");
             _lblLeyenda.Text        = T("lbl.explorador.leyenda",     "📁 Familia (nodo compuesto — Área o Rol)    🔑 Patente (hoja — permiso atómico)");
             _btnCerrar.Text         = T("btn.explorador.cerrar",      "Cerrar");
@@ -116,7 +116,7 @@ namespace GUI
                 var empresa = new TreeNode("📁 WardrobeFlow")
                 {
                     NodeFont  = new Font("Segoe UI", 9f, FontStyle.Bold),
-                    ForeColor = Color.FromArgb(64, 0, 64)
+                    ForeColor = Color.FromArgb(176, 62, 96)
                 };
                 foreach (BE.Componente raiz in raices)
                     empresa.Nodes.Add(CrearNodoRecursivo(raiz, traducciones));
@@ -197,7 +197,7 @@ namespace GUI
 
         private void ConstruirUI()
         {
-            this.Text            = "Explorador del Patrón Composite — T04";
+            this.Text            = "Vista completa del sistema";
             this.Size            = new Size(680, 660);
             this.MinimumSize     = new Size(500, 500);
             this.StartPosition   = FormStartPosition.CenterScreen;
@@ -209,13 +209,13 @@ namespace GUI
             {
                 Dock      = DockStyle.Top,
                 Height    = 80,
-                BackColor = Color.FromArgb(64, 0, 64),
+                BackColor = Color.FromArgb(176, 62, 96),
                 Padding   = new Padding(14, 10, 14, 10)
             };
 
             _lblTitulo = new Label
             {
-                Text      = "Explorador del Patrón Composite",
+                Text      = "Vista completa del sistema",
                 Font      = new Font("Segoe UI", 14f, FontStyle.Bold),
                 ForeColor = Color.White,
                 AutoSize  = true,
@@ -238,7 +238,7 @@ namespace GUI
             {
                 Dock      = DockStyle.Top,
                 Height    = 30,
-                BackColor = Color.FromArgb(245, 240, 255),
+                BackColor = Color.FromArgb(252, 240, 246),
                 Padding   = new Padding(14, 5, 0, 0)
             };
 
@@ -275,7 +275,7 @@ namespace GUI
                 Height        = 46,
                 FlowDirection = FlowDirection.RightToLeft,
                 Padding       = new Padding(6, 6, 6, 6),
-                BackColor     = Color.FromArgb(245, 240, 255)
+                BackColor     = Color.FromArgb(252, 240, 246)
             };
 
             _btnCerrar = new Button
@@ -308,7 +308,7 @@ namespace GUI
             {
                 Text      = "⊞ Expandir todo",
                 Size      = new Size(130, 32),
-                BackColor = Color.FromArgb(64, 0, 64),
+                BackColor = Color.FromArgb(176, 62, 96),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font      = new Font("Segoe UI", 9f),

@@ -37,8 +37,6 @@ namespace GUI
         private Idioma _idioma = GestorIdioma.IdiomaActual;
 
         // Referencias a botones dinámicos para poder traducirlos en UpdateLanguage
-        private Button _btnResetMasivo;
-        private Button _btnRecalcularDV;
         // RF-10 — baja lógica / archivado / purga
         private Button _btnEliminar;
         private Button _btnVerArchivados;
@@ -94,8 +92,6 @@ namespace GUI
             Aplicar(lblDesbloquearInfo,   t);
             Aplicar(btnDesbloquear,       t);
             Aplicar(lblListaTitulo,       t);
-            Aplicar(_btnResetMasivo,      t);
-            Aplicar(_btnRecalcularDV,     t);
             Aplicar(_btnEliminar,         t);
             Aplicar(_btnVerArchivados,    t);
             Aplicar(_btnPurgar,           t);
@@ -176,47 +172,15 @@ namespace GUI
             // todas queden accesibles aunque la resolución/DPI reduzca el alto disponible.
             panelAlta.AutoScroll = true;
 
-            // Botón reset masivo — debajo del último control del panel
-            _btnResetMasivo = new Button
-            {
-                Tag       = "btn.usr.resetmasivo",
-                Text      = "Resetear todas las claves a temporal",
-                Size      = new Size(210, 30),
-                Location  = new Point(12, btnDesbloquear.Bottom + 20),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(80, 80, 80),
-                ForeColor = Color.White,
-                Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold),
-                Cursor    = Cursors.Hand
-            };
-            _btnResetMasivo.FlatAppearance.BorderSize = 0;
-            _btnResetMasivo.Click += BtnResetMasivo_Click;
-            panelAlta.Controls.Add(_btnResetMasivo);
-
-            // Botón recalcular DV — T07: regenera DVH y DVV para todas las filas de Usuario
-            _btnRecalcularDV = new Button
-            {
-                Tag       = "btn.usr.recalculardv",
-                Text      = "Recalcular integridad (DV)",
-                Size      = new Size(210, 30),
-                Location  = new Point(12, _btnResetMasivo.Bottom + 8),
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(40, 80, 140),
-                ForeColor = Color.White,
-                Font      = new Font("Segoe UI", 8.5f, FontStyle.Bold),
-                Cursor    = Cursors.Hand
-            };
-            _btnRecalcularDV.FlatAppearance.BorderSize = 0;
-            _btnRecalcularDV.Click += BtnRecalcularDV_Click;
-            panelAlta.Controls.Add(_btnRecalcularDV);
-
             // ── RF-10 — Archivar / Ver archivados / Purgar ────────────────────────
+            // (El reseteo masivo de claves y el recálculo de DV se quitaron de acá: el primero es
+            //  una operación peligrosa innecesaria; el recálculo de DV vive en Diagnóstico de Integridad.)
             _btnEliminar = new Button
             {
                 Tag       = "btn.usr.eliminar",
                 Text      = "🗑 Archivar usuario",
                 Size      = new Size(210, 30),
-                Location  = new Point(12, _btnRecalcularDV.Bottom + 18),
+                Location  = new Point(12, btnDesbloquear.Bottom + 20),
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(170, 50, 50),
                 ForeColor = Color.White,
@@ -471,51 +435,6 @@ namespace GUI
                 usuarioBLL.Desbloquear(this.Text, idUsuario, username);
                 CargarUsuarios();
                 MostrarOk(string.Format(T_d("msg.usr.desbloqueada", "Cuenta '{0}' desbloqueada correctamente."), username));
-            }
-            catch (Exception ex)
-            {
-                MostrarError(ex);
-            }
-        }
-
-        // ── Recalcular integridad DV ──────────────────────────────────────────
-
-        private void BtnRecalcularDV_Click(object sender, EventArgs e)
-        {
-            var t = Traductor.ObtenerTraducciones(_idioma);
-            string T(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
-            try
-            {
-                BLL.Configuracion.RecalcularIntegridadDV();
-                MostrarOk(T("msg.usr.dvrecalculados", "DVH y DVV recalculados correctamente para todos los usuarios."));
-            }
-            catch (Exception ex)
-            {
-                MostrarError(string.Format(T("msg.usr.errordv", "Error al recalcular DV: {0}"), ex.Message));
-            }
-        }
-
-        // ── Reset masivo ──────────────────────────────────────────────────────
-
-        private void BtnResetMasivo_Click(object sender, EventArgs e)
-        {
-            var tM = Traductor.ObtenerTraducciones(_idioma);
-            string T_m(string k, string fb) => tM.ContainsKey(k) ? tM[k].Texto : fb;
-
-            var confirm = MessageBox.Show(
-                T_m("conf.resetmasivo.body.generico",
-                    "Esto va a resetear la contraseña de TODOS los usuarios a una clave temporal.\n\nComunicate con cada empleado para que la cambien.\n\n¿Confirmar?"),
-                T_m("conf.resetmasivo.titulo", "Resetear todas las claves"),
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2);
-
-            if (confirm != DialogResult.Yes) return;
-
-            try
-            {
-                string claveUsada = usuarioBLL.ResetearTodasLasClaves(this.Text);
-                MostrarOk(string.Format(T_m("msg.usr.resetmasivo", "Todas las claves fueron reseteadas a: {0}"), claveUsada));
             }
             catch (Exception ex)
             {

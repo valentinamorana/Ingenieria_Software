@@ -320,6 +320,15 @@ namespace GUI
                         estadoFila);
                 }
 
+                // Si no hay filas con problemas, mostrar un aviso claro (en vez de una grilla vacía
+                // que parece un error o un informe que no cargó).
+                if (diag.FilasRotas.Count == 0)
+                {
+                    int fIdx = _gridRotas.Rows.Add("", T("diag.sinfilas", "✓ Todo íntegro — no hay filas con problemas de integridad."), "", "", "");
+                    _gridRotas.Rows[fIdx].DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(40, 140, 60);
+                    _gridRotas.Rows[fIdx].ReadOnly = true;
+                }
+
                 _btnReparar.Enabled        = diag.FilasRotas.Count > 0;
                 _btnRecalcularTodo.Enabled = !diag.Integro;
             }

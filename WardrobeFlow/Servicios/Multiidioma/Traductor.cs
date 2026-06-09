@@ -841,10 +841,10 @@ namespace Servicios.Multiidioma
             { "perm.pat.realizarventas",            "Realizar Ventas"                            },
             { "perm.pat.verpedidosrealizados",      "Ver Pedidos Realizados"                     },
             // GestorPermisos + ExploradorCompositeForm (T04)
-            { "btn.explorador",              "🌳 Ver Explorador Composite"                         },
+            { "btn.explorador",              "🌳 Ver vista completa del sistema"                   },
             // ExploradorCompositeForm — textos completos
-            { "frm.explorador",              "Explorador del Patrón Composite — T04"              },
-            { "lbl.explorador.titulo",       "Explorador del Patrón Composite"                    },
+            { "frm.explorador",              "Vista completa del sistema"                         },
+            { "lbl.explorador.titulo",       "Vista completa del sistema"                         },
             { "lbl.explorador.descripcion",  "Estructura organizacional de WardrobeFlow — Solo lectura" },
             { "lbl.explorador.leyenda",      "📁 Familia (nodo compuesto — Área o Rol)    🔑 Patente (hoja — permiso atómico)" },
             { "btn.explorador.cerrar",       "Cerrar"                                              },
@@ -1799,10 +1799,10 @@ namespace Servicios.Multiidioma
             { "perm.pat.realizarventas",            "Process Sales"                              },
             { "perm.pat.verpedidosrealizados",      "View Fulfilled Orders"                      },
             // GestorPermisos + ExploradorCompositeForm (T04)
-            { "btn.explorador",              "🌳 View Composite Explorer"                          },
+            { "btn.explorador",              "🌳 View full system map"                             },
             // ExploradorCompositeForm
-            { "frm.explorador",              "Composite Pattern Explorer — T04"                   },
-            { "lbl.explorador.titulo",       "Composite Pattern Explorer"                         },
+            { "frm.explorador",              "Full system view"                                   },
+            { "lbl.explorador.titulo",       "Full system view"                                   },
             { "lbl.explorador.descripcion",  "WardrobeFlow organizational structure — Read only"  },
             { "lbl.explorador.leyenda",      "📁 Family (composite node — Area or Role)    🔑 Patent (leaf — atomic permission)" },
             { "btn.explorador.cerrar",       "Close"                                               },
@@ -2756,9 +2756,9 @@ namespace Servicios.Multiidioma
             { "perm.pat.realizarventas",            "Оформление продаж"                          },
             { "perm.pat.verpedidosrealizados",      "Просмотр выполненных заказов"               },
             // GestorPermisos + ExploradorCompositeForm (T04)
-            { "btn.explorador",              "🌳 Обозреватель Composite"                          },
-            { "frm.explorador",              "Обозреватель паттерна Composite — T04"              },
-            { "lbl.explorador.titulo",       "Обозреватель паттерна Composite"                   },
+            { "btn.explorador",              "🌳 Полная схема системы"                            },
+            { "frm.explorador",              "Полная схема системы"                               },
+            { "lbl.explorador.titulo",       "Полная схема системы"                               },
             { "lbl.explorador.descripcion",  "Организационная структура WardrobeFlow — Только чтение" },
             { "lbl.explorador.leyenda",      "📁 Семья (составной узел — Область или Роль)    🔑 Патент (лист — атомарное разрешение)" },
             { "btn.explorador.cerrar",       "Закрыть"                                            },
@@ -3708,9 +3708,9 @@ namespace Servicios.Multiidioma
             { "perm.pat.realizarventas",            "Realizar Vendas"                   },
             { "perm.pat.verpedidosrealizados",      "Ver Pedidos Realizados"            },
             // GestorPermisos + ExploradorCompositeForm (T04)
-            { "btn.explorador",              "🌳 Ver Explorador Composite"               },
-            { "frm.explorador",              "Explorador do Padrão Composite — T04"     },
-            { "lbl.explorador.titulo",       "Explorador do Padrão Composite"            },
+            { "btn.explorador",              "🌳 Ver visão completa do sistema"          },
+            { "frm.explorador",              "Visão completa do sistema"                },
+            { "lbl.explorador.titulo",       "Visão completa do sistema"                },
             { "lbl.explorador.descripcion",  "Estrutura organizacional do WardrobeFlow — Somente leitura" },
             { "lbl.explorador.leyenda",      "📁 Família (nó composto — Área ou Papel)    🔑 Patente (folha — permissão atômica)" },
             { "btn.explorador.cerrar",       "Fechar"                                    },

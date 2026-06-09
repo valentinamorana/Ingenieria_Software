@@ -130,7 +130,9 @@ namespace BLL
 
             if (EsCifrado(rutaArchivo))
             {
-                string tempPlano = Path.Combine(Path.GetTempPath(), $"WF_restore_{Guid.NewGuid():N}.bak");
+                // Descifrar a una carpeta que la cuenta de SQL Server pueda LEER (no al %TEMP% del
+                // usuario, que da Access denied al restaurar).
+                string tempPlano = Path.Combine(DAL.Backup.DirectorioTempSeguro(), $"WF_restore_{Guid.NewGuid():N}.bak");
                 try
                 {
                     try

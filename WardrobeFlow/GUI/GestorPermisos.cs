@@ -50,7 +50,7 @@ namespace GUI
         private CheckBox _chkVerTodos;
         private Button   _btnGuardar, _btnEmbeber, _btnNuevoRol, _btnEliminarRol,
                          _btnNuevaPatente, _btnNuevaFamilia, _btnExplorador, _btnCerrar,
-                         _btnModificarComp, _btnEliminarComp, _btnMapeoControles;
+                         _btnModificarComp, _btnEliminarComp;
 
         public GestorPermisos() { ConstruirUI(); }
 
@@ -96,8 +96,7 @@ namespace GUI
             _btnModificarComp.Text = T("btn.permisos.modificar",    "✏ Modificar selección");
             _btnEliminarComp.Text  = T("btn.permisos.eliminar",     "🗑 Eliminar selección");
             _btnGuardar.Text       = T("btn.permisos.guardar",      "💾 Guardar cambios");
-            _btnExplorador.Text    = T("btn.explorador",            "🌳 Explorador Composite");
-            _btnMapeoControles.Text= T("btn.permisos.mapeo",        "🔧 Mapear controles");
+            _btnExplorador.Text    = T("btn.explorador",            "🌳 Ver vista completa del sistema");
             _btnCerrar.Text        = T("btn.permisos.cerrar",       "Cerrar");
         }
 
@@ -455,12 +454,9 @@ namespace GUI
             _btnGuardar = Btn("💾 Guardar cambios", new Point(12, 558), 160, Color.FromArgb(40, 110, 60));
             _btnGuardar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left; _btnGuardar.Enabled = false;
             _btnGuardar.Click += (s, e) => GuardarCambios();
-            _btnExplorador = Btn("🌳 Explorador Composite", new Point(180, 558), 190, Color.FromArgb(64, 0, 64));
+            _btnExplorador = Btn("🌳 Ver vista completa del sistema", new Point(180, 558), 240, Color.FromArgb(176, 62, 96));
             _btnExplorador.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             _btnExplorador.Click += (s, e) => new ExploradorCompositeForm().Show(this);
-            _btnMapeoControles = Btn("🔧 Mapear controles", new Point(380, 558), 180, Color.FromArgb(80, 100, 150));
-            _btnMapeoControles.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            _btnMapeoControles.Click += (s, e) => { using (var f = new MapeoControlesForm()) f.ShowDialog(this); };
             _btnCerrar = Btn("Cerrar", new Point(814, 558), 98, Color.FromArgb(210, 210, 210));
             _btnCerrar.ForeColor = Color.Black; _btnCerrar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             _btnCerrar.Click += (s, e) => this.Close();
@@ -473,7 +469,7 @@ namespace GUI
                 _lblEmbeber, _cmbEmbeber, _btnEmbeber,
                 _btnModificarComp, _btnEliminarComp,
                 _lblArbol, _chkVerTodos, _treeView,
-                _btnGuardar, _btnExplorador, _btnMapeoControles, _btnCerrar
+                _btnGuardar, _btnExplorador, _btnCerrar
             });
         }
 
