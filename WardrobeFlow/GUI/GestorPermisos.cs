@@ -424,6 +424,10 @@ namespace GUI
                 Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left,
                 Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle, HorizontalScrollbar = true };
 
+            // Doble-clic como atajo: en Disponibles agrega al nodo seleccionado, en Miembros quita.
+            _lstDisponibles.DoubleClick += (s, e) => { if (_lstDisponibles.SelectedItem != null) Agregar(); };
+            _lstMiembros.DoubleClick    += (s, e) => { if (_lstMiembros.SelectedItem    != null) Quitar();  };
+
             // ── Columna derecha: efectivos ──
             _lblEfectivo = new Label { Text = "Permisos efectivos (recursivo)", Location = new Point(602, 64), AutoSize = true,
                 Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96),
