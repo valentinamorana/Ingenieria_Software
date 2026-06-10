@@ -8,6 +8,7 @@ namespace GUI
     public partial class ConfirmarAdminForm : Form
     {
         private readonly Usuario _usuarioBLL = new Usuario();
+        private readonly RecuperacionAdmin _recuperacionBLL = new RecuperacionAdmin();
 
         public bool Autorizado { get; private set; }
 
@@ -54,11 +55,10 @@ namespace GUI
 
             try
             {
-                // Vía 1 — Clave Maestra de Recuperación (hash PBKDF2 en App.config). Permite
-                // autorizar SIN usuario, para cuando ningún admin puede ingresar. (Patrón de Stach.)
-                string hashMaestra = System.Configuration.ConfigurationManager.AppSettings["MasterRecoveryKeyHash"];
-                if (!string.IsNullOrEmpty(hashMaestra) &&
-                    Seguridad.Encriptador.VerificarContrasena(txtClave.Text, hashMaestra))
+                // Vía 1 — Clave Maestra de Recuperación. Permite autorizar SIN usuario, para
+                // cuando ningún admin puede ingresar. La validación (lectura de config + cripto)
+                // la resuelve la BLL; la GUI solo reacciona al booleano. (Patrón de Stach.)
+                if (_recuperacionBLL.ValidarClaveMaestra(txtClave.Text))
                 {
                     Autorizado = true;
                     this.DialogResult = DialogResult.OK;

@@ -1198,6 +1198,11 @@ namespace Servicios.Multiidioma
             { "diag.fila.nocoincide",              "DVH no coincide"                                                             },
             { "diag.hist.ok",                      "OK"                                                                          },
             { "diag.hist.fallo",                   "FALLO"                                                                       },
+            { "diag.tip.fallo.titulo",             "Verificación FALLIDA — tabla {0}"                                            },
+            { "diag.tip.dvv.mismatch",             "• El DVV no coincide: almacenado {0} ≠ calculado {1} (se insertaron, eliminaron o reordenaron filas)." },
+            { "diag.tip.filas.corruptas",          "• {0} fila(s) con DVH inválido: el contenido de esas filas fue modificado directamente en la base." },
+            { "diag.tip.causa",                    "Posible manipulación directa de la base de datos. Reparar desde la pestaña Diagnóstico o restaurar un backup." },
+            { "diag.tip.ok",                       "Verificación correcta: los dígitos verificadores coinciden con los datos." },
         });
 
         // ── Diccionario English (EN) ──────────────────────────────────────────
@@ -2155,6 +2160,11 @@ namespace Servicios.Multiidioma
             { "diag.fila.nocoincide",              "DVH mismatch"                                                                },
             { "diag.hist.ok",                      "OK"                                                                          },
             { "diag.hist.fallo",                   "FAIL"                                                                        },
+            { "diag.tip.fallo.titulo",             "Verification FAILED — table {0}"                                             },
+            { "diag.tip.dvv.mismatch",             "• DVV mismatch: stored {0} ≠ computed {1} (rows were inserted, deleted or reordered)." },
+            { "diag.tip.filas.corruptas",          "• {0} row(s) with invalid DVH: the content of those rows was modified directly in the database." },
+            { "diag.tip.causa",                    "Possible direct manipulation of the database. Repair from the Diagnostics tab or restore a backup." },
+            { "diag.tip.ok",                       "Verification OK: the check digits match the data." },
         });
 
         // ── Diccionario Русский (RU) ──────────────────────────────────────────
@@ -3111,6 +3121,11 @@ namespace Servicios.Multiidioma
             { "diag.fila.nocoincide",              "DVH не совпадает"                                                            },
             { "diag.hist.ok",                      "OK"                                                                          },
             { "diag.hist.fallo",                   "ОШИБКА"                                                                      },
+            { "diag.tip.fallo.titulo",             "Проверка НЕ ПРОЙДЕНА — таблица {0}"                                          },
+            { "diag.tip.dvv.mismatch",             "• DVV не совпадает: сохранён {0} ≠ вычислен {1} (строки были добавлены, удалены или переставлены)." },
+            { "diag.tip.filas.corruptas",          "• {0} строк(и) с неверным DVH: содержимое этих строк было изменено напрямую в базе данных." },
+            { "diag.tip.causa",                    "Возможна прямая подмена данных. Исправьте на вкладке «Диагностика» или восстановите из резервной копии." },
+            { "diag.tip.ok",                       "Проверка пройдена: контрольные цифры совпадают с данными." },
         });
 
         // ── Diccionario Português (PT) ────────────────────────────────────────
@@ -3264,6 +3279,11 @@ namespace Servicios.Multiidioma
             { "diag.fila.nocoincide",      "DVH não coincide" },
             { "diag.hist.ok",              "OK" },
             { "diag.hist.fallo",           "FALHA" },
+            { "diag.tip.fallo.titulo",     "Verificação FALHOU — tabela {0}" },
+            { "diag.tip.dvv.mismatch",     "• O DVV não coincide: armazenado {0} ≠ calculado {1} (linhas foram inseridas, excluídas ou reordenadas)." },
+            { "diag.tip.filas.corruptas",  "• {0} linha(s) com DVH inválido: o conteúdo dessas linhas foi modificado diretamente na base." },
+            { "diag.tip.causa",            "Possível manipulação direta da base de dados. Repare na aba Diagnóstico ou restaure um backup." },
+            { "diag.tip.ok",               "Verificação correta: os dígitos verificadores coincidem com os dados." },
             // Login
             { "frm.login",        "WardrobeFlow — Login"               },
             { "lbl.usuario",      "Usuário"                            },

@@ -30,6 +30,11 @@ namespace Seguridad
 
         public bool LimiteAlcanzado => _intentosFallidos >= MaxIntentos;
 
+        // Intentos que quedan en ESTA sesión antes de alcanzar el límite. Es independiente
+        // de si el usuario tecleado existe o no, por lo que sirve para mostrar el mismo
+        // contador en el login sin filtrar la existencia de la cuenta (anti-enumeración).
+        public int IntentosRestantes => System.Math.Max(0, MaxIntentos - _intentosFallidos);
+
         public void RegistrarIntento()
         {
             _intentosFallidos++;

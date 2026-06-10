@@ -61,6 +61,20 @@ namespace BLL
             return claveDAL.ContarDisponibles();
         }
 
+        // Valida la CLAVE MAESTRA DE RECUPERACIÓN contra su hash PBKDF2 en App.config
+        // (AppSettings["MasterRecoveryKeyHash"]). Es el "break glass" para autorizar operaciones
+        // críticas SIN usuario cuando ningún Administrador puede ingresar (BD corrupta).
+        // Devuelve false si la clave maestra está desactivada (hash vacío) o no coincide.
+        // La lectura de configuración y la verificación criptográfica viven acá, no en la GUI.
+        public bool ValidarClaveMaestra(string clave)
+        {
+            if (string.IsNullOrEmpty(clave)) return false;
+            string hashMaestra =
+                System.Configuration.ConfigurationManager.AppSettings["MasterRecoveryKeyHash"];
+            return !string.IsNullOrEmpty(hashMaestra) &&
+                   Encriptador.VerificarContrasena(clave, hashMaestra);
+        }
+
         // Autodesbloqueo de un Administrador bloqueado mediante una clave de emergencia de un solo uso.
         // Valida: usuario existe, es Administrador y está bloqueado; la clave es válida y no usada.
         // Si todo OK: consume la clave (uso único), desbloquea la cuenta y registra en bitácora.

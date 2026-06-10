@@ -117,15 +117,34 @@ namespace DAL
         }
 
         // ── DV GENÉRICO (reutilizable para cualquier tabla protegida) ───────────
-        // tabla / pkCol / columnas son CONSTANTES del sistema (no entradas de usuario),
-        // por eso es seguro construir el SQL por concatenación (no hay inyección).
+        // tabla / pkCol / columnas son CONSTANTES del sistema (no entradas de usuario).
+        // Como acá los identificadores NO pueden ir parametrizados (SQL no admite @param
+        // para nombres de tabla/columna), se aplica defensa en profundidad: cada identificador
+        // se VALIDA contra una lista blanca de identificadores simples y se encierra en
+        // corchetes [ ], de modo que sea imposible inyectar SQL aunque una constante cambie.
+
+        // Valida que el identificador sea un nombre simple ([A-Za-z_][A-Za-z0-9_]*) y lo
+        // devuelve entre corchetes. Lanza si no cumple — falla cerrado, no concatena algo dudoso.
+        private static string Id(string identificador)
+        {
+            if (string.IsNullOrEmpty(identificador))
+                throw new ArgumentException("Identificador SQL vacío.");
+            foreach (char c in identificador)
+                if (!(char.IsLetterOrDigit(c) || c == '_'))
+                    throw new ArgumentException($"Identificador SQL inválido: '{identificador}'.");
+            if (char.IsDigit(identificador[0]))
+                throw new ArgumentException($"Identificador SQL inválido: '{identificador}'.");
+            return "[" + identificador + "]";
+        }
 
         // Lee las filas de una tabla con sus campos relevantes para el DVH y el DVH almacenado.
         public List<BE.FilaDV> ObtenerFilas(string tabla, string pkCol, string[] columnas)
         {
-            string cols = string.Join(", ", columnas);
+            var colsQuoted = new string[columnas.Length];
+            for (int i = 0; i < columnas.Length; i++) colsQuoted[i] = Id(columnas[i]);
+            string cols = string.Join(", ", colsQuoted);
             DataTable dt = acceso.Leer(
-                "SELECT " + pkCol + ", " + cols + ", DVH FROM " + tabla + " ORDER BY " + pkCol, null);
+                "SELECT " + Id(pkCol) + ", " + cols + ", DVH FROM " + Id(tabla) + " ORDER BY " + Id(pkCol), null);
 
             var lista = new List<BE.FilaDV>();
             if (dt == null) return lista;
@@ -152,7 +171,7 @@ namespace DAL
         public void ActualizarDVH(string tabla, string pkCol, int id, int dvh)
         {
             acceso.Escribir(
-                "UPDATE " + tabla + " SET DVH = @dvh WHERE " + pkCol + " = @id",
+                "UPDATE " + Id(tabla) + " SET DVH = @dvh WHERE " + Id(pkCol) + " = @id",
                 new SqlParameter[] { new SqlParameter("@dvh", dvh), new SqlParameter("@id", id) });
         }
 

@@ -82,8 +82,9 @@ namespace BLL
             {
                 // Anti-enumeración: igualar el costo temporal de un usuario real (corre PBKDF2
                 // contra un hash señuelo), contar el intento en la sesión y registrarlo. Se
-                // devuelve false y la GUI muestra el MISMO mensaje genérico que para
-                // credenciales inválidas, sin revelar si el usuario existe.
+                // lanza EXACTAMENTE la misma excepción, mensaje y contador (de sesión) que para
+                // una contraseña incorrecta, de modo que el atacante no pueda distinguir si el
+                // usuario existe — ni por el texto, ni por la presencia del contador, ni por el tiempo.
                 Encriptador.VerificacionSenuelo(contraseña);
                 ContadorSesion.GetInstance().RegistrarIntento();
                 bitacora.RegistrarSinSesion(
@@ -91,7 +92,9 @@ namespace BLL
                     actividad:  "Intento Fallido Login",
                     criticidad: BE.Criticidad.IntentosLogin,
                     detalle:    $"Intento de login para usuario inexistente '{username}' a las {DateTime.Now:HH:mm:ss}.");
-                return false;
+                throw new BE.LoginException(BE.LoginException.TipoError.CredencialesInvalidas,
+                    "Usuario o contraseña incorrectos.",
+                    intentosRestantes: ContadorSesion.GetInstance().IntentosRestantes);
             }
 
             if (usuario.Bloqueado)
@@ -150,11 +153,12 @@ namespace BLL
                     throw new BE.LoginException(BE.LoginException.TipoError.CuentaBloqueada, msgBloqueo);
                 }
 
-                int restantes = MaxIntentosFallidos - intentos;
+                // Mismo mensaje y mismo contador (de sesión) que el caso "usuario inexistente":
+                // indistinguibles entre sí (anti-enumeración). El bloqueo de la CUENTA ya se
+                // resolvió arriba; acá solo se informa el intento fallido genérico.
                 throw new BE.LoginException(BE.LoginException.TipoError.CredencialesInvalidas,
-                    $"Usuario o contraseña incorrectos.\n" +
-                    $"Intentos restantes antes del bloqueo: {restantes}.",
-                    intentosRestantes: restantes);
+                    "Usuario o contraseña incorrectos.",
+                    intentosRestantes: ContadorSesion.GetInstance().IntentosRestantes);
             }
 
             return esValido;

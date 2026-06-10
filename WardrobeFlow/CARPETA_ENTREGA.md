@@ -23,7 +23,7 @@
 
 ## Descripción del Sistema
 
-**WardrobeFlow** es un sistema de escritorio (MDI) para la gestión de suscripciones de indumentaria. Permite a una empresa de alquiler de ropa administrar clientes, prendas, planes de suscripción y pedidos de venta. El sistema está dirigido a empleados internos (Vendedor, Supervisor, Administrador) y no tiene interfaz pública.
+**WardrobeFlow** es un sistema de escritorio (MDI) para la gestión de suscripciones de indumentaria. Permite a una empresa de alquiler de ropa administrar clientes, prendas, planes de suscripción y pedidos de venta. El sistema está dirigido a empleados internos, con una **jerarquía de roles** (Administrador, Auditor, Vendedor, Gerente Comercial, Operador de Inventario, Operador Logístico, Gerente de Inventario) y no tiene interfaz pública. Los roles son nodos del árbol Composite y pueden crearse/editarse/anidarse desde la administración.
 
 **Entidades principales:**
 - **Usuario** — empleado del sistema con rol y contraseña encriptada
@@ -84,12 +84,12 @@ El formulario `Menu.cs` actúa como contenedor MDI. La barra de menú expone los
 
 ### Patrón Singleton — SessionManager
 
-La sesión del usuario autenticado se gestiona mediante `Seguridad/SessionManager.cs`, implementado como **Singleton thread-safe** con *double-checked locking*:
+La sesión del usuario autenticado se gestiona mediante `Seguridad/SessionManager.cs`, implementado como **Singleton** con constructor privado. La creación y destrucción de la sesión (`Login` / `Logout`) se hacen **bajo `lock`** para que dos hilos no puedan abrir o cerrar sesión a la vez; las lecturas (`GetInstance` / `IsLoggedIn`) son consultas simples del estado actual:
 
 ```csharp
 // Seguridad/SessionManager.cs
-private static volatile SessionManager _session;
-private static readonly object _lock = new object();
+private static SessionManager _session;
+private static object _lock = new object();
 
 public static void Login(Usuario usuario)
 {
@@ -102,6 +102,8 @@ public static void Login(Usuario usuario)
     }
 }
 ```
+
+> `SessionManager.TienePermiso(...)` re-valida los permisos en el **backend** (el Administrador tiene acceso total; sin usuario, se rechaza), de forma que la GUI ocultando menús nunca es la única barrera.
 
 - `SessionManager.IsLoggedIn` — verificación sin excepción (usada en guards de BLL)
 - `SessionManager.GetInstance` — acceso a la sesión activa (lanza excepción si no hay sesión)
@@ -150,9 +152,14 @@ Para datos sensibles que necesitan ser leídos (ej.: DNI de clientes), se usa AE
 
 ```
 Seguridad/Encriptador.cs — Encriptar() / Desencriptar()
-  Clave: derivada de una frase maestra fija + IV aleatorio por operación
+  Clave: 128 bits ALEATORIOS, generados la primera vez y guardados en key.dat
+         junto al ejecutable, PROTEGIDOS con DPAPI (ProtectedData, ámbito del
+         usuario actual). No hay clave embebida en el código.
+  IV:    aleatorio por operación
   Formato: Base64( IV[16] + CipherText )
 ```
+
+> `key.dat` queda fuera del control de versiones (`.gitignore`). Eliminarlo vuelve irrecuperables los DNI ya cifrados. Se migra automáticamente un `key.dat` legacy en texto plano a DPAPI sin cambiar la clave.
 
 ---
 
@@ -167,6 +174,8 @@ El sistema de permisos necesita representar una jerarquía de permisos en árbol
 ```
 BE/Componente.cs       ← Componente abstracto
 ├── BE/Familia.cs      ← Composite (nodo con hijos)
+│   └── BE/Rol.cs      ← Rol : Familia (perfil asignable; puede contener familias,
+│                         patentes y OTROS roles — rol-dentro-de-rol)
 └── BE/Patente.cs      ← Leaf (permiso atómico)
 ```
 
@@ -174,11 +183,16 @@ BE/Componente.cs       ← Componente abstracto
 ```csharp
 public abstract IList<Componente> Hijos { get; }
 public abstract void AgregarHijo(Componente c);
+public abstract void QuitarHijo(Componente c);
 public abstract void VaciarHijos();
+
+// Operación RECURSIVA del Composite (estilo GoF): cada nodo resuelve su subárbol.
+public IList<Patente> ObtenerPatentesEfectivas();   // hojas alcanzables, sin duplicados
 ```
 
-**`Familia`** implementa `Hijos` con una lista interna y `AgregarHijo()` efectivo.  
-**`Patente`** implementa `Hijos` devolviendo una lista vacía y `AgregarHijo()` como no-op — es una hoja.
+**`Familia`** implementa `Hijos` con una lista interna y `AgregarHijo()` efectivo (con **validación anti-ciclos**, así un rol no puede contenerse de forma circular).  
+**`Patente`** implementa `Hijos` devolviendo una lista vacía y `AgregarHijo()` como no-op — es una hoja.  
+**`Rol`** hereda de `Familia`: en la BD es una fila de `Permiso` con `EsFamilia=1` y `EsRol=1`.
 
 ### Construcción del árbol (DAL)
 
@@ -216,8 +230,10 @@ Recorre el TreeView recursivamente y acumula los IDs de patentes a asignar o qui
 
 ### Acceso
 
-- Solo el rol **Administrador** puede gestionar perfiles y permisos (verificado en BLL antes de cada operación)
-- El TreeView muestra el árbol completo del sistema para el rol seleccionado en un ComboBox
+- La gestión de perfiles y permisos la puede hacer el **Administrador** (acceso total por bypass) **o cualquier rol que tenga la patente *Gestión de Usuarios*** (delegación), siempre **re-validado en la BLL** antes de cada operación (*fail-closed*: sin sesión se rechaza).
+- **Anti-autobloqueo:** un usuario no-admin no puede quitarse a sí mismo el acceso de gestión editando su propio rol.
+- El TreeView muestra el árbol completo del sistema para el rol seleccionado; la asignación se maneja por **dos listas** (Familias / Patentes) y permite **embeber un rol dentro de otro** (con prevención de ciclos).
+- Los **permisos efectivos** de un usuario se resuelven **recursivamente** en `BLL.Familia.ObtenerPermisosEfectivos` (rol → roles/familias → patentes, deduplicando).
 
 ---
 
@@ -225,7 +241,7 @@ Recorre el TreeView recursivamente y acumula los IDs de patentes a asignar o qui
 
 ### Diseño
 
-El sistema soporta **3 idiomas: Español (ES), English (EN), Русский (RU)**. El cambio de idioma es **dinámico en tiempo de ejecución** — no requiere reiniciar la aplicación. No se usan archivos `.resx` ni recursos estáticos.
+El sistema soporta **4 idiomas: Español (ES), English (EN), Русский (RU) y Português (PT)**, y se pueden **agregar idiomas nuevos en caliente** desde la administración (`FormIdiomas`). El cambio de idioma es **dinámico en tiempo de ejecución** — no requiere reiniciar la aplicación. No se usan archivos `.resx` ni recursos estáticos.
 
 ### Implementación del patrón Observer
 
@@ -271,7 +287,7 @@ public void UpdateLanguage(Idioma idioma) => Traducir(idioma);  // ← callback 
 
 **Fuente primaria — BD:** `BLL/IdiomaService.CargarTraducciones()` lee todas las traducciones del idioma activo desde la tabla `Traduccion` de SQL Server y las entrega como `Dictionary<string, string>` a `GestorIdioma`.
 
-**Fuente secundaria (fallback) — código:** Si la BD no responde o está vacía (primer arranque), `Servicios/Multiidioma/Traductor.cs` tiene los 3 diccionarios hardcodeados (`_es`, `_en`, `_ru`) con más de 300 claves de traducción cada uno.
+**Fuente secundaria (fallback) — código:** Si la BD no responde o está vacía (primer arranque), `Servicios/Multiidioma/Traductor.cs` tiene los 4 diccionarios hardcodeados (ES, EN, RU, PT) con cientos de claves de traducción cada uno, y un **fallback por clave** (si falta una traducción se usa el texto del idioma por defecto).
 
 **Seeding automático:** Si la tabla `Traduccion` está vacía, `BLL/IdiomaService.SeedearDesdeHardcode()` la puebla automáticamente desde los diccionarios hardcodeados al primer arranque.
 
@@ -297,7 +313,7 @@ El sistema implementa **dos bitácoras independientes**:
 | **Servicio** | `Servicios/Bitacora.cs` | `Servicios/BitacoraNegocio.cs` |
 | **Tabla SQL** | `BitacoraSistema` | `BitacoraNegocio` |
 | **Qué registra** | Autenticación, seguridad, cambios de usuarios, DV | Altas/bajas/modificaciones de clientes, prendas, pedidos, planes |
-| **Quién la ve** | Administrador y Supervisor | Administrador y Supervisor |
+| **Quién la ve** | Administrador y Auditor | Administrador y Auditor |
 
 La UI (`GUI/Bitacora.cs`) muestra las dos en **pestañas separadas** dentro del mismo formulario.
 
@@ -412,31 +428,36 @@ Los dígitos verificadores permiten detectar manipulaciones externas a la base d
 
 Implementado en `Seguridad/DigitoVerificador.cs`:
 
+> **Módulo:** se usa el primo **999_983** (no `mod 10`), lo que da hasta ~1.000.000 de valores posibles de DV en vez de 10 — muchísimo más resistente a colisiones. Cabe en el `INT` de SQL Server.
+
 **DVH (Dígito Verificador Horizontal) — por fila:**
 ```
-suma = 0
-posicion = 1
+suma     = 0
+campoIdx = 1
 para cada campo de la fila:
+    charPos = 1
     para cada carácter del campo:
-        suma += ASCII(carácter) × posicion
-        posicion++
-DVH = suma mod 10
+        suma += ASCII(carácter) × charPos × campoIdx   // doble ponderación
+        charPos++
+    campoIdx++
+DVH = suma mod 999_983
 ```
-Detecta: alteración de cualquier campo individual, intercambio de valores entre campos.
+La doble ponderación (por posición de carácter **y** por índice de campo) hace que mover el mismo carácter entre campos, o intercambiar valores entre campos, produzca DVH distintos. Detecta: alteración de cualquier campo individual e intercambio de valores entre campos.
 
 **DVV (Dígito Verificador Vertical) — por tabla:**
 ```
 suma = 0
 para cada fila i (0-indexed):
     suma += DVH_i × (i + 1)
-DVV = suma mod 10
+DVV = suma mod 999_983
 ```
 Detecta: inserción de filas, eliminación de filas, intercambio del orden de filas.
 
 ### Almacenamiento
 
-- **DVH:** columna `DVH` en la tabla `Usuario` (se recalcula en cada INSERT/UPDATE)
-- **DVV:** tabla separada `DVVertical` con columnas `NombreTabla` y `DVV`
+- **DVH:** columna `DVH` en cada tabla protegida (se recalcula en cada INSERT/UPDATE)
+- **DVV:** tabla separada `DVVertical` con columnas `NombreTabla` y `DVV` (una fila por tabla)
+- **Alcance:** el DV protege **Usuario** (la entidad más sensible) y además **Cliente**, **Empleado** y **Pedido** (objeto multi-tabla: pedido + líneas). La implementación de recálculo/verificación es genérica y reutilizable (`DAL.DigitoVerificador.RecalcularTabla(tabla, pk, columnas)`).
 
 ### Verificación pre-login (Program.cs → BLL/Configuracion.cs)
 
@@ -473,7 +494,7 @@ Verificado en código: ningún archivo de GUI contiene `SqlConnection`. ADO.NET 
 - `GUI/FormBase.cs` provee `MostrarOk()` (verde ✓) y `MostrarError()` (rojo ✗) heredados por todos los formularios
 - Excepciones técnicas se capturan en la capa GUI y se muestran en lenguaje de usuario
 - Excepciones de negocio usan tipos específicos (`LoginException` con `TipoLogin` enum) para feedback contextual
-- Título "Error" y mensajes de error están traducidos a los 3 idiomas
+- Título "Error" y mensajes de error están traducidos a los 4 idiomas (ES/EN/RU/PT)
 
 ### 3. Calidad de código POO ✅
 
@@ -517,9 +538,9 @@ Verificado en código: ningún archivo de GUI contiene `SqlConnection`. ADO.NET 
 
 ### Sobre T07 — Dígitos Verificadores
 
-**Pregunta 1:** El sistema aplica DVH y DVV únicamente sobre la tabla `Usuario`, que es la entidad más sensible (credenciales de acceso). ¿Es suficiente con una sola tabla, o se esperaba aplicar DV sobre más entidades del negocio (ej.: `Cliente`, `Prenda`)?
+**Pregunta 1:** El sistema aplica DVH y DVV sobre `Usuario` (la entidad más sensible, por las credenciales) y además sobre `Cliente`, `Empleado` y `Pedido`. ¿Es adecuado este alcance o se espera cubrir aún más entidades de negocio?
 
-> **Contexto:** El enunciado dice "al menos en la entidad más sensible". Se eligió `Usuario` como la más sensible por manejar autenticación. Extender a otras tablas es posible pero podría impactar en el tiempo de verificación al inicio.
+> **Contexto:** El enunciado pide "al menos en la entidad más sensible". Se extendió a las demás entidades sensibles con una implementación genérica reutilizable (`RecalcularTabla`), midiendo que el impacto en el tiempo de verificación al arranque es despreciable.
 
 **Pregunta 2:** En el caso de primer arranque (tabla con DVH = 0), el sistema recalcula automáticamente sin interrumpir el flujo. ¿Es correcto este comportamiento o debería siempre pedir intervención del administrador aunque sea la primera vez?
 
@@ -539,7 +560,7 @@ Verificado en código: ningún archivo de GUI contiene `SqlConnection`. ADO.NET 
 
 **Pregunta 6:** El patrón Composite se usa para representar el árbol de permisos (Familia → Patente). Los permisos se asignan por **rol** (no por usuario individual). ¿Es correcto este diseño o se esperaba asignación por usuario?
 
-**Pregunta 7:** El sistema tiene 3 roles fijos (Administrador, Supervisor, Vendedor) con permisos editables vía el módulo Perfiles. ¿Se esperaban roles completamente dinámicos (creables desde la UI), o está bien que los roles base sean fijos?
+**Pregunta 7:** El sistema trae **7 roles** precargados con jerarquía (Composite rol-en-rol) y permite **crear, editar, anidar y eliminar roles desde la UI** (un rol no se puede eliminar si tiene usuarios asignados). ¿Este nivel de roles dinámicos es el esperado?
 
 ---
 
@@ -547,7 +568,7 @@ Verificado en código: ningún archivo de GUI contiene `SqlConnection`. ADO.NET 
 
 **Pregunta 8:** Las traducciones se almacenan en BD (tabla `Traduccion`) y se cachean en memoria al cambiar de idioma. El fallback hardcodeado en `Traductor.cs` existe solo para el primer arranque sin BD. ¿Se considera que esto cumple el requisito de "sin recursos estáticos"? Los diccionarios hardcodeados son código C#, no archivos `.resx`.
 
-**Pregunta 9:** Los idiomas se gestionan desde el módulo `FormIdiomas` (activar/desactivar idiomas, editar traducciones clave por clave). ¿Se esperaba también poder agregar idiomas completamente nuevos desde la UI, o con los 3 ya registrados en la BD es suficiente?
+**Pregunta 9:** Los idiomas se gestionan desde el módulo `FormIdiomas`: activar/desactivar, editar traducciones clave por clave **y agregar idiomas completamente nuevos desde la UI** (con una columna "Referencia" que muestra el texto base para asistir la traducción). Hay 4 idiomas registrados (ES/EN/RU/PT). ¿Es suficiente este alcance?
 
 ---
 

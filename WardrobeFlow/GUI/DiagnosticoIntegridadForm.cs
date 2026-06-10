@@ -355,7 +355,7 @@ namespace GUI
                 var lista = BLL.Configuracion.ObtenerHistorialIntegridad(150);
                 foreach (var h in lista)
                 {
-                    _gridHistorial.Rows.Add(
+                    int idx = _gridHistorial.Rows.Add(
                         h.FechaVerificacion.ToString("dd/MM/yyyy HH:mm:ss"),
                         h.NombreTabla,
                         h.DVVAlmacenado?.ToString() ?? "—",
@@ -363,12 +363,48 @@ namespace GUI
                         h.FilasCorruptas.ToString(),
                         h.Resultado ? ok : fallo,
                         h.DisparadoPor);
+
+                    // Corrección pedida: al pasar el mouse sobre una verificación, explicar
+                    // POR QUÉ falló (o por qué está OK). El tooltip se fija en toda la fila.
+                    string tip = ConstruirTooltipHistorial(h);
+                    foreach (DataGridViewCell celda in _gridHistorial.Rows[idx].Cells)
+                        celda.ToolTipText = tip;
                 }
             }
             catch
             {
                 // Si la tabla aún no existe, mostrar vacío silenciosamente
             }
+        }
+
+        // Arma el texto del tooltip de una verificación del historial: si FALLÓ, detalla la causa
+        // (DVV que no coincide y/o filas con DVH inválido); si está OK, lo confirma.
+        private string ConstruirTooltipHistorial(BE.HistorialIntegridad h)
+        {
+            if (h.Resultado)
+                return T("diag.tip.ok", "Verificación correcta: los dígitos verificadores coinciden con los datos.");
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine(string.Format(
+                T("diag.tip.fallo.titulo", "Verificación FALLIDA — tabla {0}"), h.NombreTabla));
+
+            // DVV no coincide → se agregaron/quitaron/reordenaron filas.
+            if (h.DVVAlmacenado == null || h.DVVAlmacenado != h.DVVCalculado)
+                sb.AppendLine(string.Format(
+                    T("diag.tip.dvv.mismatch",
+                      "• El DVV no coincide: almacenado {0} ≠ calculado {1} (se insertaron, eliminaron o reordenaron filas)."),
+                    h.DVVAlmacenado?.ToString() ?? "—", h.DVVCalculado));
+
+            // Filas con DVH inválido → se modificó el contenido de esas filas.
+            if (h.FilasCorruptas > 0)
+                sb.AppendLine(string.Format(
+                    T("diag.tip.filas.corruptas",
+                      "• {0} fila(s) con DVH inválido: el contenido de esas filas fue modificado directamente en la base."),
+                    h.FilasCorruptas));
+
+            sb.Append(T("diag.tip.causa",
+                "Posible manipulación directa de la base de datos. Reparar desde la pestaña Diagnóstico o restaurar un backup."));
+            return sb.ToString();
         }
 
         private void GridHistorial_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)

@@ -413,16 +413,12 @@ namespace GUI
 
             try
             {
-                bool esValido = usuarioBLL.Login(this.Text, txtUsuario.Text, txtContraseña.Text);
-                if (esValido)
+                // La BLL decide TODO: si las credenciales no son válidas lanza LoginException
+                // (mismo mensaje exista o no el usuario). Acá solo reaccionamos al resultado.
+                if (usuarioBLL.Login(this.Text, txtUsuario.Text, txtContraseña.Text))
                 {
                     this.DialogResult = DialogResult.OK;
                     this.Close();
-                }
-                else
-                {
-                    // Usuario no encontrado — mismo mensaje que credenciales inválidas (evita enumeración)
-                    MostrarErrorLogin(Tx("err.login.credenciales", "Usuario o contraseña incorrectos."), false);
                 }
             }
             catch (BE.LoginException ex) when (ex.Tipo == BE.LoginException.TipoError.LimiteAlcanzado)
