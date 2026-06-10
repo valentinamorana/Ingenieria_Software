@@ -80,9 +80,9 @@ namespace GUI
             _lblEfectivo.Text     = T("lbl.permisos.efectivos",  "Permisos efectivos (recursivo)");
             _btnAgregar.Text      = T("btn.permisos.agregar",    "Agregar ↓");
             _btnQuitar.Text       = T("btn.permisos.quitar",     "Quitar ↑");
-            _btnNuevaPatente.Text = T("btn.permisos.nuevapatente","➕ Patente");
-            _btnNuevaFamilia.Text = T("btn.permisos.nuevafamilia","➕ Familia");
-            _btnNuevoRol.Text     = T("btn.permisos.nuevorol",   "➕ Rol");
+            _btnNuevaPatente.Text = T("btn.permisos.crearpatente","➕ Patente");
+            _btnNuevaFamilia.Text = T("btn.permisos.crearfamilia","➕ Familia");
+            _btnNuevoRol.Text     = T("btn.permisos.crearrol",   "➕ Rol");
             _btnRenombrar.Text    = T("btn.permisos.modificar",  "✏ Renombrar");
             _btnEliminar.Text     = T("btn.permisos.eliminar",   "🗑 Eliminar");
             _btnExplorador.Text   = T("btn.explorador",          "🌳 Ver vista completa del sistema");
