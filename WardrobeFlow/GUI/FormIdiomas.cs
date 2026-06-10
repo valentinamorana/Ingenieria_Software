@@ -423,6 +423,12 @@ namespace GUI
                 return;
             }
 
+            // Confirmar la edición en curso ANTES de leer las celdas: si el usuario tipeó una
+            // traducción y clickeó "Guardar" sin salir de la celda, el valor todavía no estaba
+            // volcado a Cells[].Value y se guardaba el texto viejo (o vacío). Esto causaba el
+            // "no se guarda la traducción" reportado.
+            dgvTraducciones.EndEdit();
+
             int guardadas = 0;
             int errores   = 0;
 

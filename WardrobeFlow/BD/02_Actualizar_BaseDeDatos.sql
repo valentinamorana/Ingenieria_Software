@@ -1,4 +1,4 @@
--- ============================================================
+﻿-- ============================================================
 -- WardrobeFlow — 02. ACTUALIZAR BASE DE DATOS EXISTENTE
 -- ------------------------------------------------------------
 -- Aplica de forma IDEMPOTENTE todas las migraciones sobre una

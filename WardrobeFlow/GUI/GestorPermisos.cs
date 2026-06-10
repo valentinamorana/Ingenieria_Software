@@ -42,8 +42,9 @@ namespace GUI
         private int RolActualId => _cmbRol.SelectedItem is Item it ? it.Id : 0;
 
         // ── Controles ──────────────────────────────────────────────────────────
-        private Label    _lblTitulo, _lblMensaje, _lblRol, _lblFamilias, _lblPatentes, _lblArbol, _lblEmbeber;
-        private ComboBox _cmbRol, _cmbEmbeber;
+        private Label    _lblTitulo, _lblMensaje, _lblRol, _lblFamilias, _lblPatentes, _lblArbol, _lblEmbeber, _lblAnidar;
+        private ComboBox _cmbRol, _cmbEmbeber, _cmbFamiliaDestino;
+        private Button   _btnAnidar;
         private CheckedListBox _clbFamilias, _clbPatentes;
         private TreeView _treeView;
         // Toggle: ver la composición del rol seleccionado (off) o TODOS los roles a la vez (on).
@@ -88,6 +89,8 @@ namespace GUI
             _lblArbol.Text         = T("lbl.permisos.composicion","Composición efectiva (recursiva)");
             _chkVerTodos.Text      = T("chk.permisos.vertodos",   "Ver todos los roles");
             _lblEmbeber.Text       = T("lbl.permisos.embeber",    "Embeber rol:");
+            _lblAnidar.Text        = T("lbl.permisos.anidar",     "Anidar en familia:");
+            _btnAnidar.Text        = T("btn.permisos.anidar",     "Anidar selección ➜");
             _btnNuevoRol.Text      = T("btn.permisos.nuevorol",     "➕ Nuevo rol");
             _btnEliminarRol.Text   = T("btn.permisos.eliminarrol",  "🗑 Eliminar rol");
             _btnNuevaFamilia.Text  = T("btn.permisos.nuevafamilia", "➕ Nueva familia");
@@ -125,9 +128,17 @@ namespace GUI
             {
                 var directos = _familiaBLL.ObtenerIdsDirectosDelRol(rol);
 
+                var familias = _familiaBLL.ObtenerFamiliasDisponibles();
+
                 _clbFamilias.Items.Clear();
-                foreach (var f in _familiaBLL.ObtenerFamiliasDisponibles())
+                foreach (var f in familias)
                     _clbFamilias.Items.Add(new Item { Id = f.Id, Nombre = f.Nombre, EsFamilia = true }, directos.Contains(f.Id));
+
+                // Combo destino para "Anidar en familia" (familia-dentro-de-familia).
+                _cmbFamiliaDestino.Items.Clear();
+                foreach (var f in familias)
+                    _cmbFamiliaDestino.Items.Add(new Item { Id = f.Id, Nombre = f.Nombre, EsFamilia = true });
+                if (_cmbFamiliaDestino.Items.Count > 0) _cmbFamiliaDestino.SelectedIndex = 0;
 
                 _clbPatentes.Items.Clear();
                 foreach (var p in _familiaBLL.ObtenerPatentesDisponibles())
@@ -255,6 +266,25 @@ namespace GUI
                 MostrarOk(string.Format(T("perm.ok.embebido", "Rol '{0}' embebido dentro de '{1}'."), hijo.Nombre, rol));
             }
             catch (Exception ex) { MostrarError(string.Format(T("perm.err.embeber", "No se pudo embeber: {0}"), ex.Message)); }
+        }
+
+        // Anida la familia/patente SELECCIONADA (en cualquiera de las dos listas) DENTRO de la
+        // familia elegida en el combo destino — el "lotes de lotes" del Composite. El backend
+        // (BLL.Familia.AgregarComponente) valida que no se genere una referencia circular.
+        private void AnidarEnFamilia()
+        {
+            var hijo = ComponenteSeleccionado();
+            if (hijo == null) { MostrarError(T("perm.msg.selanidar", "Seleccioná en una lista la familia o patente que querés anidar.")); return; }
+            if (!(_cmbFamiliaDestino.SelectedItem is Item destino)) { MostrarError(T("perm.msg.familiadest", "Elegí la familia destino donde anidar.")); return; }
+            if (destino.Id == hijo.Id) { MostrarError(T("perm.msg.mismocomp", "Una familia no puede anidarse dentro de sí misma.")); return; }
+            try
+            {
+                _familiaBLL.AgregarComponente(destino.Id, hijo.Id);
+                CargarListas();
+                GUI.Menu.RefrescarSeguridadAbierta();
+                MostrarOk(string.Format(T("perm.ok.anidado", "'{0}' anidado dentro de la familia '{1}'."), hijo.Nombre, destino.Nombre));
+            }
+            catch (Exception ex) { MostrarError(string.Format(T("perm.err.anidar", "No se pudo anidar: {0}"), ex.Message)); }
         }
 
         // Resuelve el Id de un rol buscando su nodo en el árbol.
@@ -433,6 +463,13 @@ namespace GUI
             _btnEmbeber = Btn("Embeber ➜", new Point(290, 473), 110, Color.FromArgb(210, 100, 135));
             _btnEmbeber.Click += (s, e) => EmbeberRol();
 
+            // Anidar la familia/patente seleccionada DENTRO de otra familia (lotes de lotes).
+            _lblAnidar = new Label { Text = "Anidar en familia:", Location = new Point(412, 478), AutoSize = true, Font = new Font("Segoe UI", 9f) };
+            _cmbFamiliaDestino = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(412, 500),
+                Size = new Size(165, 24), Font = new Font("Segoe UI", 9f) };
+            _btnAnidar = Btn("Anidar selección ➜", new Point(412, 528), 165, Color.FromArgb(150, 90, 160));
+            _btnAnidar.Click += (s, e) => AnidarEnFamilia();
+
             // ABM de la patente/familia seleccionada (modificar / eliminar)
             _btnModificarComp = Btn("✏ Modificar selección", new Point(12, 508), 175, Color.FromArgb(210, 100, 135));
             _btnModificarComp.Click += (s, e) => ModificarComponente();
@@ -467,6 +504,7 @@ namespace GUI
                 _lblFamilias, _clbFamilias, _btnNuevaFamilia,
                 _lblPatentes, _clbPatentes, _btnNuevaPatente,
                 _lblEmbeber, _cmbEmbeber, _btnEmbeber,
+                _lblAnidar, _cmbFamiliaDestino, _btnAnidar,
                 _btnModificarComp, _btnEliminarComp,
                 _lblArbol, _chkVerTodos, _treeView,
                 _btnGuardar, _btnExplorador, _btnCerrar

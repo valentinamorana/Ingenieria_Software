@@ -164,6 +164,17 @@ namespace GUI
                 _dgvActividad.Columns["colTipo"].HeaderText  = T("dash.col.evento",  "Evento");
                 _dgvActividad.Columns["colUser"].HeaderText  = T("dash.col.usuario", "Usuario");
             }
+
+            // Panel "Mis Tareas Pendientes": título y encabezados del grid (antes quedaban
+            // siempre en español porque se fijaban una sola vez al construir la UI).
+            if (_lblTareasTitulo != null)
+                _lblTareasTitulo.Text = string.Format(T("dash.tareas.titulo", "Mis Tareas Pendientes ({0})"), 0);
+            if (_dgvTareas != null && _dgvTareas.Columns.Count >= 3)
+            {
+                _dgvTareas.Columns["colTipo"].HeaderText  = T("dash.tareas.col.tipo",  "Tipo");
+                _dgvTareas.Columns["colDesc"].HeaderText  = T("dash.tareas.col.desc",  "Descripción");
+                _dgvTareas.Columns["colFecha"].HeaderText = T("dash.tareas.col.fecha", "Desde");
+            }
         }
 
         // ── Métricas ──────────────────────────────────────────────────────────
