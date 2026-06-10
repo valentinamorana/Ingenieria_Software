@@ -434,12 +434,11 @@ namespace BLL
 
             string accionOriginal = cambios[0].Accion;
 
-            foreach (var c in cambios)
-                dalHistorial.RestaurarCampo(idPedido, c.Campo, c.ValorAnterior);
-
-            // Reconciliar el estado de las prendas con el estado restaurado del pedido y
-            // recalcular el DV (la restauración escribió directamente sobre la tabla Pedido).
-            dalPedido.ReconciliarPrendasConEstado(idPedido);
+            // Restauración ATÓMICA: revertir todos los campos y reconciliar las prendas en UNA
+            // sola transacción (si algo falla, no queda el pedido con un estado y las prendas con
+            // otro). El DV se recalcula después: es recomputable y no debe abortar el rollback.
+            dalPedido.RestaurarOperacionAtomica(idPedido,
+                cambios.Select(c => (c.Campo, c.ValorAnterior)).ToList());
             dalPedido.RecalcularDV();
 
             RegistrarHistorial(idPedido, "RESTAURAR",
