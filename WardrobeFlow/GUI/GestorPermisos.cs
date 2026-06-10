@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Servicios.Multiidioma;
 
@@ -28,11 +29,12 @@ namespace GUI
         private readonly BLL.Familia _familiaBLL = new BLL.Familia();
 
         // ── Controles ──────────────────────────────────────────────────────────
-        private Label    _lblTitulo, _lblMensaje, _lblEstructura, _lblDisponibles, _lblMiembros, _lblEfectivo;
+        private Panel    _panelHeader, _panelFooter;
+        private Label    _lblTitulo, _lblSubtitulo, _lblMensaje, _lblEstructura, _lblDisponibles, _lblMiembros, _lblEfectivo;
         private TreeView _tvEstructura, _tvEfectivo;
         private ListBox  _lstDisponibles, _lstMiembros;
         private Button   _btnAgregar, _btnQuitar, _btnNuevaPatente, _btnNuevaFamilia, _btnNuevoRol,
-                         _btnRenombrar, _btnEliminar, _btnExplorador, _btnCerrar;
+                         _btnRenombrar, _btnEliminar, _btnActualizar, _btnExplorador, _btnCerrar;
 
         // ── Estado ───────────────────────────────────────────────────────────────
         private List<BE.Componente> _raices = new List<BE.Componente>();
@@ -75,6 +77,7 @@ namespace GUI
         {
             this.Text             = T("frm.gestorpermisos",      "Gestor de Perfiles — Permisos (Composite)");
             _lblTitulo.Text       = T("lbl.permisos.titulo",     "Perfiles y Permisos");
+            _lblSubtitulo.Text    = T("lbl.permisos.subtitulo",  "Gestión de roles, familias y patentes");
             _lblEstructura.Text   = T("lbl.permisos.estructura", "Estructura del sistema (roles, familias y patentes)");
             _lblDisponibles.Text  = T("lbl.permisos.disponibles","Disponibles para agregar");
             _lblEfectivo.Text     = T("lbl.permisos.efectivos",  "Permisos efectivos (recursivo)");
@@ -85,6 +88,7 @@ namespace GUI
             _btnNuevoRol.Text     = T("btn.permisos.crearrol",   "➕ Rol");
             _btnRenombrar.Text    = T("btn.permisos.modificar",  "✏ Renombrar");
             _btnEliminar.Text     = T("btn.permisos.eliminar",   "🗑 Eliminar");
+            _btnActualizar.Text   = T("btn.permisos.actualizar", "↻ Actualizar");
             _btnExplorador.Text   = T("btn.explorador",          "🌳 Ver vista completa del sistema");
             _btnCerrar.Text       = T("btn.permisos.cerrar",     "Cerrar");
             ActualizarLabelMiembros();
@@ -372,96 +376,142 @@ namespace GUI
             }
         }
 
+        // ── Paleta de marca ────────────────────────────────────────────────────────
+        private static readonly Color RosaPrimario = Color.FromArgb(210, 100, 135);  // #D26487
+        private static readonly Color RosaOscuro   = Color.FromArgb(176, 62, 96);    // #B03E60
+        private static readonly Color Peligro      = Color.FromArgb(200, 60, 60);    // #C83C3C
+        private static readonly Color PanelClaro   = Color.FromArgb(245, 245, 250);  // #F5F5FA
+        private static readonly Color Neutro       = Color.FromArgb(236, 236, 242);
+
         // ── Construcción de UI ─────────────────────────────────────────────────────
         private void ConstruirUI()
         {
             this.Text          = "Gestor de Perfiles — Permisos (Composite)";
-            this.Size          = new Size(950, 660);
-            this.MinimumSize   = new Size(900, 600);
+            this.Size          = new Size(980, 700);
+            this.MinimumSize   = new Size(920, 620);
             this.StartPosition = FormStartPosition.CenterParent;
             this.BackColor     = Color.White;
+            this.Font          = new Font("Segoe UI", 9f);
 
-            _lblTitulo  = new Label { Text = "Perfiles y Permisos", Font = new Font("Segoe UI", 13f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(176, 62, 96), AutoSize = true, Location = new Point(12, 12) };
-            _lblMensaje = new Label { AutoSize = false, Size = new Size(910, 20), Location = new Point(12, 40),
-                Font = new Font("Segoe UI", 8.5f), ForeColor = Color.DimGray, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
+            // ── Header con degradé de marca ──────────────────────────────────────
+            _panelHeader = new Panel { Dock = DockStyle.Top, Height = 58 };
+            _panelHeader.Paint += (s, pe) =>
+            {
+                using (var br = new LinearGradientBrush(_panelHeader.ClientRectangle,
+                    RosaPrimario, RosaOscuro, LinearGradientMode.Horizontal))
+                    pe.Graphics.FillRectangle(br, _panelHeader.ClientRectangle);
+            };
+            _lblTitulo = new Label { Text = "Perfiles y Permisos", Font = new Font("Segoe UI", 14f, FontStyle.Bold),
+                ForeColor = Color.White, BackColor = Color.Transparent, AutoSize = true, Location = new Point(18, 8) };
+            _lblSubtitulo = new Label { Text = "Gestión de roles, familias y patentes", Font = new Font("Segoe UI", 8.5f, FontStyle.Italic),
+                ForeColor = Color.FromArgb(255, 224, 236), BackColor = Color.Transparent, AutoSize = true, Location = new Point(20, 34) };
+            _panelHeader.Controls.Add(_lblTitulo);
+            _panelHeader.Controls.Add(_lblSubtitulo);
 
-            // ── Columna izquierda: estructura ──
-            _lblEstructura = new Label { Text = "Estructura del sistema", Location = new Point(12, 64), AutoSize = true,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96) };
-            _tvEstructura = new TreeView { Location = new Point(12, 86), Size = new Size(300, 400),
+            // ── Footer: mensaje (izq) + acciones (der) ───────────────────────────
+            _panelFooter = new Panel { Dock = DockStyle.Bottom, Height = 52, BackColor = PanelClaro };
+
+            // Las acciones van en un FlowLayoutPanel dock-derecha (se acomodan solas, sin
+            // depender de posiciones fijas que se rompen al cambiar el ancho del panel).
+            var flAcciones = new FlowLayoutPanel { Dock = DockStyle.Right, FlowDirection = FlowDirection.RightToLeft,
+                WrapContents = false, AutoSize = false, Width = 500, Padding = new Padding(0, 11, 10, 0), BackColor = PanelClaro };
+            _btnCerrar = MakeBtn("Cerrar", Point.Empty, 96, EstiloBtn.Neutral);
+            _btnCerrar.Margin = new Padding(8, 0, 0, 0); _btnCerrar.Click += (s, e) => this.Close();
+            _btnExplorador = MakeBtn("🌳 Ver vista completa del sistema", Point.Empty, 240, EstiloBtn.Light);
+            _btnExplorador.Margin = new Padding(8, 0, 0, 0); _btnExplorador.Click += (s, e) => new ExploradorCompositeForm().Show(this);
+            _btnActualizar = MakeBtn("↻ Actualizar", Point.Empty, 120, EstiloBtn.Light);
+            _btnActualizar.Margin = new Padding(8, 0, 0, 0); _btnActualizar.Click += (s, e) => CargarArbol();
+            // En RightToLeft, el primero agregado queda más a la derecha → Cerrar, Vista, Actualizar.
+            flAcciones.Controls.Add(_btnCerrar);
+            flAcciones.Controls.Add(_btnExplorador);
+            flAcciones.Controls.Add(_btnActualizar);
+
+            _lblMensaje = new Label { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(16, 0, 0, 0), Font = new Font("Segoe UI", 8.5f), ForeColor = Color.DimGray };
+
+            _panelFooter.Controls.Add(_lblMensaje);
+            _panelFooter.Controls.Add(flAcciones);
+
+            // ── Columna izquierda: estructura ──────────────────────────────────────
+            _lblEstructura = SeccionLbl("Estructura del sistema", new Point(16, 70));
+            _tvEstructura = new TreeView { Location = new Point(16, 92), Size = new Size(304, 420),
                 Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left,
                 Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle, HideSelection = false };
             _tvEstructura.AfterSelect += Tv_AfterSelect;
 
-            _btnNuevaPatente = Btn("➕ Patente", new Point(12, 494),  95, Color.FromArgb(210, 100, 135));
+            _btnNuevaPatente = MakeBtn("➕ Patente", new Point(16, 520),  96, EstiloBtn.Light);
             _btnNuevaPatente.Click += (s, e) => NuevaPatente();
-            _btnNuevaFamilia = Btn("➕ Familia", new Point(110, 494), 95, Color.FromArgb(210, 100, 135));
+            _btnNuevaFamilia = MakeBtn("➕ Familia", new Point(116, 520), 96, EstiloBtn.Light);
             _btnNuevaFamilia.Click += (s, e) => NuevaFamilia();
-            _btnNuevoRol     = Btn("➕ Rol",     new Point(208, 494), 95, Color.FromArgb(40, 110, 60));
+            _btnNuevoRol     = MakeBtn("➕ Rol",     new Point(216, 520), 96, EstiloBtn.Light);
             _btnNuevoRol.Click += (s, e) => NuevoRol();
-            _btnRenombrar    = Btn("✏ Renombrar", new Point(12, 526), 145, Color.FromArgb(210, 100, 135));
+            _btnRenombrar    = MakeBtn("✏ Renombrar", new Point(16, 554), 148, EstiloBtn.Light);
             _btnRenombrar.Click += (s, e) => Renombrar();
-            _btnEliminar     = Btn("🗑 Eliminar",  new Point(160, 526), 152, Color.FromArgb(170, 50, 50));
+            _btnEliminar     = MakeBtn("🗑 Eliminar",  new Point(172, 554), 148, EstiloBtn.Danger);
             _btnEliminar.Click += (s, e) => Eliminar();
             foreach (var b in new[] { _btnNuevaPatente, _btnNuevaFamilia, _btnNuevoRol, _btnRenombrar, _btnEliminar })
                 b.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
 
-            // ── Columna central: dos listas (Disponibles / Miembros) ──
-            _lblDisponibles = new Label { Text = "Disponibles para agregar", Location = new Point(322, 64), AutoSize = true,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96) };
-            _lstDisponibles = new ListBox { Location = new Point(322, 86), Size = new Size(270, 180),
+            // ── Columna central: dos listas (Disponibles / Miembros) ───────────────
+            _lblDisponibles = SeccionLbl("Disponibles para agregar", new Point(336, 70));
+            _lstDisponibles = new ListBox { Location = new Point(336, 92), Size = new Size(280, 180),
                 Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle, HorizontalScrollbar = true };
+            _lstDisponibles.DoubleClick += (s, e) => { if (_lstDisponibles.SelectedItem != null) Agregar(); };
 
-            _btnAgregar = Btn("Agregar ↓", new Point(322, 272), 130, Color.FromArgb(40, 110, 60));
+            _btnAgregar = MakeBtn("Agregar  ↓", new Point(336, 280), 135, EstiloBtn.Primary);
             _btnAgregar.Click += (s, e) => Agregar();
-            _btnQuitar  = Btn("Quitar ↑",  new Point(462, 272), 130, Color.FromArgb(170, 50, 50));
+            _btnQuitar  = MakeBtn("Quitar  ↑",  new Point(481, 280), 135, EstiloBtn.Light);
             _btnQuitar.Click += (s, e) => Quitar();
 
-            _lblMiembros = new Label { Text = "Miembros", Location = new Point(322, 308), AutoSize = true,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96) };
-            _lstMiembros = new ListBox { Location = new Point(322, 330), Size = new Size(270, 156),
+            _lblMiembros = SeccionLbl("Miembros", new Point(336, 318));
+            _lstMiembros = new ListBox { Location = new Point(336, 340), Size = new Size(280, 172),
                 Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left,
                 Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle, HorizontalScrollbar = true };
+            _lstMiembros.DoubleClick += (s, e) => { if (_lstMiembros.SelectedItem != null) Quitar(); };
 
-            // Doble-clic como atajo: en Disponibles agrega al nodo seleccionado, en Miembros quita.
-            _lstDisponibles.DoubleClick += (s, e) => { if (_lstDisponibles.SelectedItem != null) Agregar(); };
-            _lstMiembros.DoubleClick    += (s, e) => { if (_lstMiembros.SelectedItem    != null) Quitar();  };
-
-            // ── Columna derecha: efectivos ──
-            _lblEfectivo = new Label { Text = "Permisos efectivos (recursivo)", Location = new Point(602, 64), AutoSize = true,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96),
-                Anchor = AnchorStyles.Top | AnchorStyles.Right };
-            _tvEfectivo = new TreeView { Location = new Point(602, 86), Size = new Size(330, 400),
+            // ── Columna derecha: efectivos ─────────────────────────────────────────
+            _lblEfectivo = SeccionLbl("Permisos efectivos (recursivo)", new Point(632, 70));
+            _lblEfectivo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _tvEfectivo = new TreeView { Location = new Point(632, 92), Size = new Size(316, 420),
                 Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right,
-                Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.WhiteSmoke };
-
-            // ── Acciones inferiores ──
-            _btnExplorador = Btn("🌳 Ver vista completa del sistema", new Point(322, 568), 270, Color.FromArgb(176, 62, 96));
-            _btnExplorador.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            _btnExplorador.Click += (s, e) => new ExploradorCompositeForm().Show(this);
-            _btnCerrar = Btn("Cerrar", new Point(834, 568), 98, Color.FromArgb(210, 210, 210));
-            _btnCerrar.ForeColor = Color.Black; _btnCerrar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            _btnCerrar.Click += (s, e) => this.Close();
+                Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.FromArgb(250, 246, 250) };
 
             this.Controls.AddRange(new Control[]
             {
-                _lblTitulo, _lblMensaje,
                 _lblEstructura, _tvEstructura,
                 _btnNuevaPatente, _btnNuevaFamilia, _btnNuevoRol, _btnRenombrar, _btnEliminar,
                 _lblDisponibles, _lstDisponibles, _btnAgregar, _btnQuitar, _lblMiembros, _lstMiembros,
-                _lblEfectivo, _tvEfectivo,
-                _btnExplorador, _btnCerrar
+                _lblEfectivo, _tvEfectivo
             });
+            this.Controls.Add(_panelFooter);  _panelFooter.BringToFront();
+            this.Controls.Add(_panelHeader);  _panelHeader.BringToFront();
 
             HabilitarTransfer(false);
         }
 
-        private static Button Btn(string text, Point loc, int width, Color back)
+        // Etiqueta de sección con el estilo de marca.
+        private static Label SeccionLbl(string text, Point loc)
+            => new Label { Text = text, Location = loc, AutoSize = true,
+                Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = RosaOscuro };
+
+        private enum EstiloBtn { Primary, Danger, Light, Neutral }
+
+        // Fábrica de botones con la paleta unificada: un solo primario (rosa), un solo
+        // peligro (rojo), y secundarios "light" (contorno rosa) / neutro (gris).
+        private static Button MakeBtn(string text, Point loc, int width, EstiloBtn estilo)
         {
+            Color back, fore, borde = Color.Empty; int bsize = 0;
+            switch (estilo)
+            {
+                case EstiloBtn.Primary: back = RosaPrimario; fore = Color.White; break;
+                case EstiloBtn.Danger:  back = Peligro;      fore = Color.White; break;
+                case EstiloBtn.Neutral: back = Neutro;       fore = Color.FromArgb(70, 70, 80); break;
+                default:                back = Color.White;   fore = RosaOscuro; bsize = 1; borde = RosaOscuro; break; // Light
+            }
             var b = new Button { Text = text, Location = loc, Size = new Size(width, 30), BackColor = back,
-                ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 8.5f), Cursor = Cursors.Hand };
-            b.FlatAppearance.BorderSize = 0;
+                ForeColor = fore, FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 8.5f), Cursor = Cursors.Hand };
+            b.FlatAppearance.BorderSize = bsize;
+            if (bsize > 0) b.FlatAppearance.BorderColor = borde;
             return b;
         }
     }

@@ -40,6 +40,7 @@ namespace GUI
         private Button   _btnCerrar;
         private Button   _btnExpandir;
         private Button   _btnColapsar;
+        private Button   _btnActualizar;
         private Panel    _panelHeader;
         private Panel    _panelLeyenda;
         private Panel    _panelBotones;
@@ -96,6 +97,7 @@ namespace GUI
             _btnCerrar.Text         = T("btn.explorador.cerrar",      "Cerrar");
             _btnColapsar.Text       = T("btn.explorador.colapsar",    "⊟ Colapsar todo");
             _btnExpandir.Text       = T("btn.explorador.expandir",    "⊞ Expandir todo");
+            _btnActualizar.Text     = T("btn.permisos.actualizar",    "↻ Actualizar");
         }
 
         // ── Construcción del árbol ────────────────────────────────────────────
@@ -317,7 +319,23 @@ namespace GUI
             _btnExpandir.FlatAppearance.BorderSize = 0;
             _btnExpandir.Click += (s, e) => _treeView.ExpandAll();
 
-            _panelBotones.Controls.AddRange(new Control[] { _btnCerrar, _btnColapsar, _btnExpandir });
+            // Actualizar: recarga el árbol desde la BD sin reabrir el form (estilo contorno
+            // para diferenciarlo de expandir/colapsar).
+            _btnActualizar = new Button
+            {
+                Text      = "↻ Actualizar",
+                Size      = new Size(120, 32),
+                BackColor = Color.White,
+                ForeColor = Color.FromArgb(176, 62, 96),
+                FlatStyle = FlatStyle.Flat,
+                Font      = new Font("Segoe UI", 9f),
+                Cursor    = Cursors.Hand
+            };
+            _btnActualizar.FlatAppearance.BorderSize = 1;
+            _btnActualizar.FlatAppearance.BorderColor = Color.FromArgb(176, 62, 96);
+            _btnActualizar.Click += (s, e) => CargarArbol();
+
+            _panelBotones.Controls.AddRange(new Control[] { _btnCerrar, _btnColapsar, _btnExpandir, _btnActualizar });
 
             this.Controls.Add(_treeView);
             this.Controls.Add(_panelBotones);
