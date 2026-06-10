@@ -1219,6 +1219,9 @@ namespace Servicios.Multiidioma
             { "diag.tip.filas.corruptas",          "• {0} fila(s) con DVH inválido: el contenido de esas filas fue modificado directamente en la base." },
             { "diag.tip.causa",                    "Posible manipulación directa de la base de datos. Reparar desde la pestaña Diagnóstico o restaurar un backup." },
             { "diag.tip.ok",                       "Verificación correcta: los dígitos verificadores coinciden con los datos." },
+            { "diag.tabla.corrupta",               "Tabla '{0}'" },
+            { "diag.tabla.dvinvalido",             "DV inválido — usá «Recalcular Todo»" },
+            { "diag.tablas.corruptas",             "Tablas con DV inválido: {0}" },
         });
 
         // ── Diccionario English (EN) ──────────────────────────────────────────
@@ -2197,6 +2200,9 @@ namespace Servicios.Multiidioma
             { "diag.tip.filas.corruptas",          "• {0} row(s) with invalid DVH: the content of those rows was modified directly in the database." },
             { "diag.tip.causa",                    "Possible direct manipulation of the database. Repair from the Diagnostics tab or restore a backup." },
             { "diag.tip.ok",                       "Verification OK: the check digits match the data." },
+            { "diag.tabla.corrupta",               "Table '{0}'" },
+            { "diag.tabla.dvinvalido",             "Invalid CD — use “Recompute All”" },
+            { "diag.tablas.corruptas",             "Tables with invalid CD: {0}" },
         });
 
         // ── Diccionario Русский (RU) ──────────────────────────────────────────
@@ -3174,6 +3180,9 @@ namespace Servicios.Multiidioma
             { "diag.tip.filas.corruptas",          "• {0} строк(и) с неверным DVH: содержимое этих строк было изменено напрямую в базе данных." },
             { "diag.tip.causa",                    "Возможна прямая подмена данных. Исправьте на вкладке «Диагностика» или восстановите из резервной копии." },
             { "diag.tip.ok",                       "Проверка пройдена: контрольные цифры совпадают с данными." },
+            { "diag.tabla.corrupta",               "Таблица «{0}»" },
+            { "diag.tabla.dvinvalido",             "Неверный КЦ — нажмите «Пересчитать всё»" },
+            { "diag.tablas.corruptas",             "Таблицы с неверным КЦ: {0}" },
         });
 
         // ── Diccionario Português (PT) ────────────────────────────────────────
@@ -3339,6 +3348,9 @@ namespace Servicios.Multiidioma
             { "diag.tip.filas.corruptas",  "• {0} linha(s) com DVH inválido: o conteúdo dessas linhas foi modificado diretamente na base." },
             { "diag.tip.causa",            "Possível manipulação direta da base de dados. Repare na aba Diagnóstico ou restaure um backup." },
             { "diag.tip.ok",               "Verificação correta: os dígitos verificadores coincidem com os dados." },
+            { "diag.tabla.corrupta",       "Tabela '{0}'" },
+            { "diag.tabla.dvinvalido",     "DV inválido — use «Recalcular Tudo»" },
+            { "diag.tablas.corruptas",     "Tabelas com DV inválido: {0}" },
             // Login
             { "frm.login",        "WardrobeFlow — Login"               },
             { "lbl.usuario",      "Usuário"                            },

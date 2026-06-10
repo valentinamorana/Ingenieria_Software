@@ -307,6 +307,11 @@ namespace GUI
                     diag.DVVCalculado,
                     diag.FilasRotas.Count);
 
+                if (diag.TablasAdicionalesCorruptas.Count > 0)
+                    _lblDVVDetalle.Text += "   |   " + string.Format(
+                        T("diag.tablas.corruptas", "Tablas con DV inválido: {0}"),
+                        string.Join(", ", diag.TablasAdicionalesCorruptas));
+
                 _gridRotas.Rows.Clear();
                 string sinDVH      = T("diag.fila.sinDVH",     "Sin DVH");
                 string noCoincide  = T("diag.fila.nocoincide", "DVH no coincide");
@@ -320,9 +325,22 @@ namespace GUI
                         estadoFila);
                 }
 
-                // Si no hay filas con problemas, mostrar un aviso claro (en vez de una grilla vacía
-                // que parece un error o un informe que no cargó).
-                if (diag.FilasRotas.Count == 0)
+                // Tablas adicionales (Cliente / Empleado / Pedido) con DV inválido: se listan
+                // como filas informativas para que el problema sea visible y se sepa que hay que
+                // recalcular (antes una corrupción en Cliente no aparecía por ningún lado).
+                foreach (var tablaCorrupta in diag.TablasAdicionalesCorruptas)
+                {
+                    int tIdx = _gridRotas.Rows.Add("—",
+                        string.Format(T("diag.tabla.corrupta", "Tabla '{0}'"), tablaCorrupta),
+                        "—", "—",
+                        T("diag.tabla.dvinvalido", "DV inválido — usá «Recalcular Todo»"));
+                    _gridRotas.Rows[tIdx].DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(180, 50, 50);
+                    _gridRotas.Rows[tIdx].ReadOnly = true;
+                }
+
+                // Si no hay NINGÚN problema (ni en Usuario ni en las tablas adicionales),
+                // mostrar un aviso claro en vez de una grilla vacía.
+                if (diag.FilasRotas.Count == 0 && diag.TablasAdicionalesCorruptas.Count == 0)
                 {
                     int fIdx = _gridRotas.Rows.Add("", T("diag.sinfilas", "✓ Todo íntegro — no hay filas con problemas de integridad."), "", "", "");
                     _gridRotas.Rows[fIdx].DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(40, 140, 60);
@@ -330,6 +348,8 @@ namespace GUI
                 }
 
                 _btnReparar.Enabled        = diag.FilasRotas.Count > 0;
+                // Habilitar el recálculo total si CUALQUIER tabla protegida está comprometida
+                // (incluye Cliente/Empleado/Pedido, no solo Usuario).
                 _btnRecalcularTodo.Enabled = !diag.Integro;
             }
             catch (Exception ex)

@@ -56,6 +56,10 @@ namespace BLL
         public int?   DVVAlmacenado    { get; set; }
         public int    DVVCalculado     { get; set; }
         public List<BE.FilaUsuarioDV> FilasRotas { get; set; } = new List<BE.FilaUsuarioDV>();
+        // Tablas adicionales protegidas (Cliente, Empleado, Pedido) cuyo DV no coincide.
+        // Antes el diagnóstico solo miraba Usuario, así que una corrupción en Cliente
+        // nunca aparecía ni habilitaba "Recalcular Todo".
+        public List<string> TablasAdicionalesCorruptas { get; set; } = new List<string>();
     }
 
     /// <summary>
@@ -321,13 +325,62 @@ namespace BLL
             int  dvvCalculado  = svc.CalcularDVV(dvhsRecalc);
             int? dvvAlmacenado = dvDAL.ObtenerDVV("Usuario");
 
+            // También diagnosticar Cliente/Empleado/Pedido (solo lectura, sin efectos),
+            // para que una corrupción ahí marque el estado y habilite "Recalcular Todo".
+            var adicionales = DiagnosticarTablasAdicionales();
+
+            bool usuarioOk = rotas.Count == 0 && dvvAlmacenado != null && dvvAlmacenado == dvvCalculado;
             return new ResultadoDiagnostico
             {
-                Integro       = rotas.Count == 0 && dvvAlmacenado != null && dvvAlmacenado == dvvCalculado,
+                Integro       = usuarioOk && adicionales.Count == 0,
                 DVVAlmacenado = dvvAlmacenado,
                 DVVCalculado  = dvvCalculado,
-                FilasRotas    = rotas
+                FilasRotas    = rotas,
+                TablasAdicionalesCorruptas = adicionales
             };
+        }
+
+        // Verificación SOLO LECTURA (sin inicializar ni loguear) de las tablas adicionales
+        // protegidas con DV. Devuelve los nombres de las que tienen DVH/DVV inválido.
+        private static List<string> DiagnosticarTablasAdicionales()
+        {
+            var corruptas = new List<string>();
+            var dvDAL = new DAL.DigitoVerificador();
+            var svc   = Seguridad.CalculadorDV.Crear();
+            var pedidoDAL = new DAL.Pedido();
+
+            VerificarTablaSoloLectura(corruptas, dvDAL, svc, DAL.Cliente.DV_Tabla,
+                () => dvDAL.ObtenerFilas(DAL.Cliente.DV_Tabla, DAL.Cliente.DV_Pk, DAL.Cliente.DV_Columnas));
+            VerificarTablaSoloLectura(corruptas, dvDAL, svc, DAL.Empleado.DV_Tabla,
+                () => dvDAL.ObtenerFilas(DAL.Empleado.DV_Tabla, DAL.Empleado.DV_Pk, DAL.Empleado.DV_Columnas));
+            VerificarTablaSoloLectura(corruptas, dvDAL, svc, DAL.Pedido.DV_Tabla,
+                () => pedidoDAL.ObtenerFilasDV());
+
+            return corruptas;
+        }
+
+        private static void VerificarTablaSoloLectura(List<string> corruptas, DAL.DigitoVerificador dvDAL,
+            Seguridad.ICalculadorDV svc, string tabla, Func<List<BE.FilaDV>> obtenerFilas)
+        {
+            List<BE.FilaDV> filas;
+            try { filas = obtenerFilas(); } catch { return; }   // tabla sin migrar → no se evalúa
+            if (filas.Count == 0) return;
+
+            int? dvvAlm = dvDAL.ObtenerDVV(tabla);
+            // Primer arranque sin DV (todo en null/0) → no es corrupción.
+            bool todosNull = filas.TrueForAll(f => f.DVHAlmacenado == null || f.DVHAlmacenado == 0);
+            if (todosNull && (dvvAlm == null || dvvAlm == 0)) return;
+
+            var dvhs = new List<int>();
+            bool rota = false;
+            foreach (var f in filas)
+            {
+                int calc = svc.CalcularDVH(f.Campos);
+                dvhs.Add(calc);
+                if (f.DVHAlmacenado == null || f.DVHAlmacenado != calc) rota = true;
+            }
+            if (dvvAlm == null || dvvAlm != svc.CalcularDVV(dvhs)) rota = true;
+            if (rota) corruptas.Add(tabla);
         }
 
         public static void RepararFilas(IEnumerable<int> ids)
