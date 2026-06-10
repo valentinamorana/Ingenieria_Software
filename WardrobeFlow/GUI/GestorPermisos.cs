@@ -30,7 +30,8 @@ namespace GUI
 
         // ── Controles ──────────────────────────────────────────────────────────
         private Panel    _panelHeader, _panelFooter;
-        private Label    _lblTitulo, _lblSubtitulo, _lblMensaje, _lblEstructura, _lblDisponibles, _lblMiembros, _lblEfectivo;
+        private ToolTip  _tip;
+        private Label    _lblTitulo, _lblSubtitulo, _lblMensaje, _lblEstructura, _lblDisponibles, _lblMiembros, _lblEfectivo, _lblAyuda;
         private TreeView _tvEstructura, _tvEfectivo;
         private ListBox  _lstDisponibles, _lstMiembros;
         private Button   _btnAgregar, _btnQuitar, _btnNuevaPatente, _btnNuevaFamilia, _btnNuevoRol,
@@ -91,7 +92,34 @@ namespace GUI
             _btnActualizar.Text   = T("btn.permisos.actualizar", "↻ Actualizar");
             _btnExplorador.Text   = T("btn.explorador",          "🌳 Ver vista completa del sistema");
             _btnCerrar.Text       = T("btn.permisos.cerrar",     "Cerrar");
+
+            // Ayuda contextual (tooltips): general en "❔ Ayuda" y específica en cada botón ➕.
+            if (_lblAyuda != null) _lblAyuda.Text = T("lbl.permisos.ayuda", "❔ Ayuda");
+            if (_tip != null)
+            {
+                _tip.SetToolTip(_lblAyuda, T("help.permisos.general", AyudaPorDefecto()));
+                _tip.SetToolTip(_btnNuevaPatente, T("help.permisos.patente",
+                    "Patente = permiso atómico (una acción o pantalla concreta). Es una hoja: no contiene otros."));
+                _tip.SetToolTip(_btnNuevaFamilia, T("help.permisos.familia",
+                    "Familia = agrupa permisos para reutilizarlos en varios roles. No se asigna a usuarios."));
+                _tip.SetToolTip(_btnNuevoRol, T("help.permisos.rol",
+                    "Rol = perfil que se asigna a un usuario. Puede contener patentes, familias y otros roles (rol-en-rol)."));
+            }
+
             ActualizarLabelMiembros();
+        }
+
+        // Texto de ayuda por defecto (ES) — fallback si no hay traducción en BD.
+        private static string AyudaPorDefecto()
+        {
+            return "🔑 PATENTE — permiso atómico: una acción o pantalla concreta (ej. \"Ver Prendas\").\n" +
+                   "    Es una hoja: no contiene otros permisos.\n\n" +
+                   "📁 FAMILIA — agrupa permisos para reutilizarlos. Es un \"compuesto\".\n" +
+                   "    No se asigna a un usuario; sirve para organizar (ej. \"Inventario\").\n\n" +
+                   "👥 ROL — es una familia que SÍ se asigna a un usuario (su perfil).\n" +
+                   "    Puede contener patentes, familias y OTROS ROLES (rol-dentro-de-rol).\n\n" +
+                   "El usuario tiene un rol; el sistema recorre el árbol de forma recursiva\n" +
+                   "y junta todas las patentes que cuelgan de él = sus permisos efectivos.";
         }
 
         // ── Carga / refresco del árbol ─────────────────────────────────────────────
@@ -407,6 +435,19 @@ namespace GUI
                 ForeColor = Color.FromArgb(255, 224, 236), BackColor = Color.Transparent, AutoSize = true, Location = new Point(20, 34) };
             _panelHeader.Controls.Add(_lblTitulo);
             _panelHeader.Controls.Add(_lblSubtitulo);
+
+            // Tooltip de ayuda: explica patente/familia/rol. Pasá el mouse por "❔ Ayuda"
+            // (o por los botones ➕). Clic en "❔ Ayuda" abre la explicación completa.
+            _tip = new ToolTip { AutoPopDelay = 30000, InitialDelay = 250, ReshowDelay = 100, ShowAlways = true, IsBalloon = true };
+            _lblAyuda = new Label { Dock = DockStyle.Right, Width = 92, Text = "❔ Ayuda",
+                ForeColor = Color.White, BackColor = Color.Transparent, TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 9f, FontStyle.Bold), Cursor = Cursors.Help };
+            _lblAyuda.Click += (s, e) => MessageBox.Show(this,
+                T("help.permisos.general", AyudaPorDefecto()),
+                T("help.permisos.titulo", "¿Patente, Familia o Rol?"),
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _panelHeader.Controls.Add(_lblAyuda);
+            _lblAyuda.BringToFront();
 
             // ── Footer: mensaje (izq) + acciones (der) ───────────────────────────
             _panelFooter = new Panel { Dock = DockStyle.Bottom, Height = 52, BackColor = PanelClaro };
