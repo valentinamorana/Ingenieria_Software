@@ -530,29 +530,22 @@ namespace DAL
             return string.Join(",", ids);
         }
 
-        // Recalcula el DVH de cada Pedido (con sus líneas) y el DVV de la tabla.
-        // Se invoca tras cada operación que modifica un pedido. No propaga errores
-        // (la falla del DV no debe abortar la operación de negocio).
+        // Recalcula el DVH de cada Pedido y el DVV de la tabla.
+        // Propaga cualquier excepción: el caller decide si ignorarla (post-restauración)
+        // o dejarla subir (recálculo administrativo desde BLL.Configuracion).
         public void RecalcularDV()
         {
-            try
+            var svc   = Seguridad.CalculadorDV.Crear();
+            var dvDAL = new DigitoVerificador();
+            var dvhs  = new List<int>();
+            foreach (var f in ObtenerFilasDV())
             {
-                var svc   = Seguridad.CalculadorDV.Crear();
-                var dvDAL = new DigitoVerificador();
-                var dvhs  = new List<int>();
-                foreach (var f in ObtenerFilasDV())
-                {
-                    int dvh = svc.CalcularDVH(f.Campos);
-                    acceso.Escribir("UPDATE Pedido SET DVH=@dvh WHERE IdPedido=@id",
-                        new SqlParameter[] { new SqlParameter("@dvh", dvh), new SqlParameter("@id", f.Id) });
-                    dvhs.Add(dvh);
-                }
-                dvDAL.GuardarDVV(DV_Tabla, svc.CalcularDVV(dvhs));
+                int dvh = svc.CalcularDVH(f.Campos);
+                acceso.Escribir("UPDATE Pedido SET DVH=@dvh WHERE IdPedido=@id",
+                    new SqlParameter[] { new SqlParameter("@dvh", dvh), new SqlParameter("@id", f.Id) });
+                dvhs.Add(dvh);
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Trace.TraceError("[DAL.Pedido.RecalcularDV] " + ex.Message);
-            }
+            dvDAL.GuardarDVV(DV_Tabla, svc.CalcularDVV(dvhs));
         }
     }
 }

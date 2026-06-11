@@ -22,18 +22,9 @@ namespace BLL
         public List<BE.Pedido> ObtenerPendientes() => dalPedido.ObtenerPendientes();
         public BE.Pedido ObtenerPorId(int id) => dalPedido.ObtenerPorId(id);
 
-        // Lanza AppException si el usuario en sesión no posee el permiso indicado.
-        // El Administrador siempre pasa. Sin sesión activa deja pasar (modo interno).
-        private static void ValidarPermiso(string nombrePatente)
-        {
-            // Fail-closed: sin sesión NO se permite la operación (apunte T04).
-            if (!Seguridad.SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada",
-                    "La sesión expiró. Volvé a iniciar sesión.");
-            if (!Seguridad.SessionManager.GetInstance().TienePermiso(nombrePatente))
-                throw new BE.AppException("err.bll.sin_permiso",
-                    "No tiene permiso para ejecutar esta operación ('{0}').", nombrePatente);
-        }
+        // T04 — Delegado a BLLHelper para no duplicar la lógica en cada clase BLL.
+        private static void ValidarPermiso(string nombrePatente) =>
+            BLLHelper.ValidarPermiso(nombrePatente);
 
         // Crear Pedido
         // Crea un nuevo pedido para un cliente. Devuelve el ID generado.
@@ -439,7 +430,10 @@ namespace BLL
             // otro). El DV se recalcula después: es recomputable y no debe abortar el rollback.
             dalPedido.RestaurarOperacionAtomica(idPedido,
                 cambios.Select(c => (c.Campo, c.ValorAnterior)).ToList());
-            dalPedido.RecalcularDV();
+            // DV se recalcula fuera de la transacción: es recomputable y no debe
+            // abortar ni enmascarar una restauración que ya se confirmó correctamente.
+            try { dalPedido.RecalcularDV(); }
+            catch { /* ignorado intencionalmente — el operador puede recalcular desde Diagnóstico */ }
 
             RegistrarHistorial(idPedido, "RESTAURAR",
                 cambios.Select(c => (c.Campo, c.ValorNuevo, c.ValorAnterior)).ToList());

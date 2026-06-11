@@ -12,20 +12,9 @@ namespace BLL
         private readonly DAL.PlanSuscripcion dalPlan   = new DAL.PlanSuscripcion();
         private readonly DAL.Cliente         dalCliente = new DAL.Cliente();
 
-        // T04 — Validación de permisos en el BACKEND (no confiar solo en la UI).
-        // Aunque el menú "Planes" esté oculto, si la acción llega igual se rechaza
-        // cuando el usuario en sesión no posee la patente 'mnuPlanSuscripciones'.
-        // Mismo patrón que BLL.Cliente / BLL.Pedido / BLL.Prenda.
-        private static void ValidarPermiso(string nombrePatente)
-        {
-            // Fail-closed: sin sesión NO se permite la operación (apunte T04).
-            if (!Seguridad.SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada",
-                    "La sesión expiró. Volvé a iniciar sesión.");
-            if (!Seguridad.SessionManager.GetInstance().TienePermiso(nombrePatente))
-                throw new BE.AppException("err.bll.sin_permiso",
-                    "No tiene permiso para ejecutar esta operación ('{0}').", nombrePatente);
-        }
+        // T04 — Delegado a BLLHelper para no duplicar la lógica en cada clase BLL.
+        private static void ValidarPermiso(string nombrePatente) =>
+            BLLHelper.ValidarPermiso(nombrePatente);
 
         // Devuelve todos los planes activos (para combos/selección).
         public List<BE.PlanSuscripcion> ObtenerActivos()

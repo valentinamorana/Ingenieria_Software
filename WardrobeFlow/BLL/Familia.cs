@@ -321,7 +321,14 @@ namespace BLL
                     if (string.Equals(u.Perfil, rol, StringComparison.OrdinalIgnoreCase))
                         bllVer.GrabarVersion(u.Id, actor, detalle);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // El fallo de los snapshots no debe abortar el cambio de permisos,
+                // pero sí debe quedar registrado para diagnóstico posterior.
+                _bitacora.Registrar("Gestión de Perfiles",
+                    $"Error al grabar snapshots de usuarios con rol '{rol}': {ex.Message}",
+                    BE.Criticidad.Alta);
+            }
         }
 
         // ── Helpers privados de recorrido recursivo ─────────────────────────────

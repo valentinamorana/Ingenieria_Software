@@ -39,9 +39,11 @@ namespace DAL
         // La única forma de obtener una instancia es mediante GetInstance().
         private Acceso()
         {
-            _cadenaConexion = ConfigurationManager
-                .ConnectionStrings["WardrobeFlowDB"]
-                .ConnectionString;
+            var entry = ConfigurationManager.ConnectionStrings["WardrobeFlowDB"]
+                ?? throw new InvalidOperationException(
+                    "No se encontró 'WardrobeFlowDB' en App.config. " +
+                    "Verificá que la sección <connectionStrings> esté correctamente configurada.");
+            _cadenaConexion = entry.ConnectionString;
         }
 
         // Punto de acceso global al Singleton de Acceso.

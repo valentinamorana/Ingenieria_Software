@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
+using System.Linq;
 using System.Windows.Forms;
 using Servicios.Multiidioma;
 
@@ -279,7 +280,7 @@ namespace GUI
         /// </summary>
         public static void RefrescarSeguridadAbierta()
         {
-            foreach (Form f in Application.OpenForms)
+            foreach (Form f in Application.OpenForms.Cast<Form>().ToList())
             {
                 if (f is Menu m) { m.RefrescarSeguridad(); return; }
             }
@@ -361,21 +362,26 @@ namespace GUI
             CrearDashboardDelRol().Show();
         }
 
+        // Factory de dashboards — para agregar un rol nuevo insertá una entrada en el diccionario,
+        // sin tocar CrearDashboardDelRol() (Open/Closed Principle).
+        private static readonly Dictionary<string, Func<Form>> _dashboardFactory =
+            new Dictionary<string, Func<Form>>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "Vendedor",             () => new DashboardVendedor()     },
+                // OperadorDeInventario = mantenimiento de prendas/stock
+                { "OperadorDeInventario", () => new DashboardControlStock() },
+                // OperadorLogistico = pedidos/despacho
+                { "OperadorLogistico",    () => new DashboardOperador()     },
+            };
+
         private Form CrearDashboardDelRol()
         {
-            string perfil = _usuarioActivo?.Perfil ?? "";
-            Form dash;
-            switch (perfil)
-            {
-                case "Vendedor":             dash = new DashboardVendedor();     break;
-                // Inventario consolidado: OperadorDeInventario = mantenimiento de prendas/stock,
-                // OperadorLogistico = pedidos/despacho. Cada uno usa el dashboard acorde.
-                case "OperadorDeInventario": dash = new DashboardControlStock(); break;
-                case "OperadorLogistico":    dash = new DashboardOperador();     break;
-                // Gerentes / Auditor / Administrador → dashboard general (se adapta por permisos;
-                // la "Actividad reciente" solo aparece con permiso de auditoría).
-                default:                     dash = new DashboardForm(_usuarioActivo?.Permisos); break;
-            }
+            string perfil   = _usuarioActivo?.Perfil ?? "";
+            var    permisos = _usuarioActivo?.Permisos;
+            // Gerentes / Auditor / Administrador caen al DashboardForm genérico (se adapta por permisos).
+            Form dash = _dashboardFactory.TryGetValue(perfil, out Func<Form> factory)
+                ? factory()
+                : new DashboardForm(permisos);
             dash.MdiParent = this;
             return dash;
         }

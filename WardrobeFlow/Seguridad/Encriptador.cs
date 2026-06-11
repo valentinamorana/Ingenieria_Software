@@ -174,11 +174,14 @@ namespace Seguridad
         /// <summary>
         /// Intenta desencriptar. Si falla (dato en texto plano o formato invalido),
         /// devuelve el valor original sin modificar.
+        /// Solo captura excepciones criptográficas y de formato, no errores del sistema.
         /// </summary>
         public static string TryDesencriptar(string valor)
         {
-            try   { return Desencriptar(valor); }
-            catch { return valor; }
+            try { return Desencriptar(valor); }
+            catch (CryptographicException) { return valor; }
+            catch (FormatException)        { return valor; }
+            catch (ArgumentException)      { return valor; }
         }
 
         // Carga la clave AES desde key.dat, PROTEGIDA con DPAPI (ProtectedData, ámbito del
