@@ -2,7 +2,7 @@
 
 **Auditor:** Revisión final universitaria / pre-producción
 **Fecha:** 11/06/2026
-**Alcance:** BE · BLL · DAL · GUI · Seguridad · Servicios · BD (23 tablas) · Tests (65 casos)
+**Alcance:** BE · BLL · DAL · GUI · Seguridad · Servicios · BD (23 tablas) · Tests (68 casos)
 **Veredicto adelantado:** proyecto de calidad netamente superior a una entrega académica promedio. Arquitectura y seguridad de nivel profesional; las debilidades son de *deuda técnica acotada*, no de diseño roto.
 
 ---
@@ -33,7 +33,7 @@ No se detectó lógica de negocio en formularios ni acceso a BD desde GUI. **Sin
 
 | Problema | Sev. | Evidencia | Impacto | Recomendación |
 |---|---|---|---|---|
-| **God file** `Traductor.cs` | Alta | 4197 líneas, **3564 entradas** de diccionario hardcodeadas | Inmantenible; mezcla datos con código. | Es solo *fallback*; reducirlo al mínimo de arranque y delegar el resto 100% a BD (ya existe el camino). |
+| ~~**God file** `Traductor.cs`~~ **(RESUELTO)** | Alta | `Traductor.cs` 4207 → **329 líneas** | El corpus (893 claves × 4 idiomas) se externalizó a un **recurso embebido de datos** (`Multiidioma/traducciones.tsv`); `Traductor` quedó *logic-only* y lo lee en runtime. Se mantiene la API pública (cero impacto en BLL/GUI/forms) y el auto-seed. Datos fuera del código. |
 | Formularios grandes (God Forms) | Media | `DashboardForm.cs` 907 líneas / 50 miembros; `Menu.cs` 813; `Bitacora.cs` 812 | Baja cohesión en presentación, difícil de testear. | Extraer constructores de menú/dashboard a clases auxiliares (`MenuBuilder`). |
 | Código duplicado | Media | guardas de admin (§1); `RealizarBackup`/`RealizarBackupInicial` casi idénticos (`Backup.cs:46,90`) | DRY. | Unificar con parámetro de "marcador". |
 | Campo muerto | Baja | `Preferencia.Notificaciones` "placeholder sin efecto funcional" (`01_Crear…sql:431`) | Columna sin uso. | Eliminar o implementar. |
@@ -49,7 +49,7 @@ No hay God Object en BLL/BE (clases cohesivas). Sí God *Forms* en GUI.
 | Principio | Estado | Evidencia / Clases | Riesgo | Refactor |
 |---|---|---|---|---|
 | **S** — Single Responsibility | Cumple parcial | Bien: `CuidadorHistorial`, `DigitoVerificador`, `Encriptador`. **Viola:** `Traductor` (datos+lógica+fallback), `DashboardForm`. | Mantenibilidad | Separar diccionario de la lógica de traducción. |
-| **O** — Open/Closed | Cumple parcial | Bien: `ICalculadorDV`/`CalculadorDV.Crear()` permite cambiar algoritmo DV sin tocar consumidores. **Viola:** agregar un idioma o clave i18n exige editar `Traductor.cs`. | Extensibilidad | i18n íntegro por BD (ya casi logrado). |
+| **O** — Open/Closed | Cumple (mejorado) | `ICalculadorDV`/`CalculadorDV.Crear()` permite cambiar el algoritmo DV sin tocar consumidores. i18n: el corpus salió de `Traductor.cs` a un recurso de datos (`traducciones.tsv`) + BD; agregar/editar textos ya **no requiere tocar código**. | — | — |
 | **L** — Liskov | Riesgo conocido | `Patente.AgregarHijo/QuitarHijo` lanzan `InvalidOperationException` (`Patente.cs:22-33`) rompiendo el contrato de `Componente`. | Un cliente que trate `Componente` uniformemente puede romper. | Es el dilema clásico Composite "transparente vs seguro"; está **documentado y testeado** → aceptable, pero idealmente segregar `IContenedor`. |
 | **I** — Interface Segregation | Cumple | Interfaces finas y específicas: `IUsuarioDAL`, `IPermisoDAL`, `IClaveRecuperacionDAL`, `IClienteService`, `IPedidoService`, `IIdiomaObserver`. | — | — |
 | **D** — Dependency Inversion | Cumple (bueno) | BLL depende de abstracciones DAL e **inyecta** dobles: `Usuario(IUsuarioDAL)`, `Familia(IPermisoDAL)`, `Backup(IBackupDAL)`; fakes `FakePermisoDAL`, `FakeBackupDAL`. | — | Extender DI al resto de DALs (varios siguen `new DAL.X()` interno). |
@@ -156,7 +156,7 @@ Esquema sólido: **23 tablas, 24 FK, 23 PK, 6 UNIQUE/CHECK**, integridad referen
 
 **Fortalezas:** documentación XML extensa y *con sentido* (explica el *por qué*, no el *qué*); nomenclatura consistente en español, clara y de dominio; manejo de errores en capas con tipos propios traducibles (`AppException.Clave` + `Args`, `FormBase.MostrarError(Exception)`); handler **global** de excepciones que las bitacoriza (`Program.cs:105`); `using` correcto en todo recurso desechable.
 
-**Debilidades:** `Traductor.cs` (4197 líneas) lastra cualquier métrica de complejidad/duplicación; forms de 800-900 líneas; algo de duplicación (guardas, backups); ~28k líneas totales con concentración de complejidad en pocos archivos.
+**Debilidades:** ~~`Traductor.cs` (4197 líneas)~~ **resuelto** (corpus externalizado, 329 líneas); quedan forms de 800-900 líneas y algo de duplicación residual (guardas, backups).
 
 **Tests:** 65 pruebas unitarias cubriendo **lo crítico** (Composite, DV, Encriptador, Memento, claves de emergencia, casos especiales, i18n, preview de pérdida de backup, excepciones de sesión, cambio de clave obligatorio, identidad de Administrador) con *fakes* inyectados. Buena disciplina de testing para una entrega académica.
 
@@ -212,3 +212,24 @@ WardrobeFlow es un sistema WinForms .NET multicapa **maduro y coherente**. La se
 **Justificación.** Como profesor evaluando una entrega final, lo que distingue este trabajo no es que "tenga los patrones", sino que estén **bien usados y conectados al dominio**: el Composite *es* el sistema de permisos (no un árbol de adorno), el Observer mueve idioma en caliente sobre toda la GUI, y el Memento sostiene un rollback real. La seguridad demuestra comprensión de amenazas concretas (timing attacks, enumeración de usuarios, inyección en identificadores) y las mitiga correctamente —esto es trabajo de nivel profesional, no de cátedra. El cumplimiento de requerimientos es casi total y **demostrable**.
 
 No llega a 10 por deuda técnica genuina y evitable: un archivo de 4197 líneas que viola SRP/OCP, formularios sobredimensionados, redundancia heredada en la BD (`RolPermiso`), ausencia de índices, ciclos del Composite garantizados solo en la capa de aplicación, y excepciones genéricas que contradicen el propio estándar de manejo de errores del proyecto. Son defectos de **mantenibilidad y prolijidad**, no de diseño: ninguno compromete la corrección funcional ni la seguridad, y todos son corregibles en horas. Resueltos los cinco puntos prioritarios, este proyecto es defendible en un entorno productivo real.
+
+---
+
+## Anexo — Correcciones aplicadas tras la auditoría
+
+Todas verificadas con build (MSBuild VS) + suite de tests (`build-and-test.ps1`).
+
+| # | Recomendación | Estado | Evidencia |
+|---|---|---|---|
+| RF-08 | Preview de pérdida a nivel **registro** antes de restaurar | ✅ | `DAL/BLL.Backup`, diálogo en `BackupForm`/`RestauracionForm` |
+| #1 | Excepciones tipadas en `SessionManager` | ✅ | `BE.SesionException` + i18n ES/EN/RU/PT |
+| #2 | Cambio de clave **obligatorio** + clave temporal a `App.config` | ✅ | `Usuario.RequiereCambioClave`, `CambioClaveObligatorioForm` |
+| #3 | Identidad de Administrador por **flag único** | ✅ | `BE.Usuario.EsAdministrador` / `BE.Roles.EsAdministrador` |
+| #4/#5 | 13 **índices** no-clustered + `CHECK` anti auto-referencia | ✅ | `01_Crear`/`02_Actualizar`, validado en BD con rollback |
+| #6 | **God-file `Traductor.cs`** (4207 → 329 líneas); corpus a recurso de datos | ✅ | `Multiidioma/traducciones.tsv` embebido |
+| RolPermiso | Deprecación **documentada** (seed/bootstrap, no runtime) | ✅ | nota en `DAL/Permiso.cs` + scripts |
+| Infra | Gate `build-and-test.ps1` (compila + tests) | ✅ | raíz de `WardrobeFlow/` |
+
+**Pendiente menor:** eliminación física de `RolPermiso` (reescribir seed) y reducción de los forms grandes de GUI. **Requiere correr `02_Actualizar_BaseDeDatos.sql`** en SSMS para activar columnas/índices/CHECK nuevos.
+
+Tras estas correcciones, las notas revisadas serían: **POO 8→8.5, SOLID 8→9, Base de Datos 7.5→8.5, Calidad 8→8.5**, elevando la nota global del orden de **9 a ~9.5/10**.

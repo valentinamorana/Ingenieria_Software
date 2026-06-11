@@ -1,0 +1,3572 @@
+ES	btn.usr.recalculardv	Recalcular integridad (DV)
+ES	btn.usr.eliminar	🗑 Archivar usuario
+ES	btn.usr.verarchivados	Ver archivados
+ES	btn.usr.veractivos	Ver activos
+ES	btn.usr.purgar	Purgar (>1 año)
+ES	usr.archivado	Archivado
+ES	msg.usr.archivados	{0} usuario(s) archivado(s).
+ES	msg.usr.archivado	Usuario '{0}' archivado correctamente.
+ES	conf.usr.archivar.titulo	Confirmar Archivado
+ES	conf.usr.archivar.body	¿Archivar al usuario '{0}'?\n\nNo podrá iniciar sesión y saldrá de la lista, pero se conserva su historial.\nPodrá eliminarse definitivamente tras 1 año.
+ES	conf.usr.purgar.titulo	Confirmar Purga
+ES	conf.usr.purgar.body	Se eliminarán DEFINITIVAMENTE {0} usuario(s) archivado(s) hace más de 1 año.\nEsta acción no se puede deshacer.\n\n¿Continuar?
+ES	msg.usr.purga.ninguno	No hay usuarios archivados con más de 1 año para purgar.
+ES	msg.usr.purga.ok	{0} usuario(s) eliminado(s) definitivamente.
+ES	err.bll.usuario.autobaja	No podés archivar tu propio usuario mientras tenés la sesión abierta.
+ES	err.bll.usuario.ultimo_admin	No se puede archivar al último Administrador activo del sistema. Creá o activá otro Administrador antes de archivar este.
+ES	btn.usr.resetmasivo	Resetear todas las claves a temporal
+ES	mnu.integridad	Diagnóstico de Integridad
+ES	err.bll.sesion_expirada	La sesión expiró. Volvé a iniciar sesión.
+ES	err.seg.sesion_no_iniciada	La sesión no está iniciada. Iniciá sesión primero.
+ES	err.seg.sesion_ya_iniciada	Ya hay una sesión iniciada. Cerrá la sesión actual antes de iniciar otra.
+ES	err.bll.sin_permiso	No tiene permiso para ejecutar esta operación ('{0}').
+ES	err.bll.integridad	Operación cancelada: se detectó una posible manipulación de los datos de usuarios (dígito verificador inválido). Reiniciá el sistema para reparar la integridad antes de continuar.
+ES	err.bll.ciclo	Un componente no puede contenerse a sí mismo.
+ES	err.bll.nombre_vacio	El nombre no puede estar vacío.
+ES	err.bll.padre_invalido	El nodo padre no admite hijos (no es Familia ni Rol).
+ES	err.bll.rol_duplicado	Ya existe un rol llamado '{0}'.
+ES	err.bll.rol_en_uso	No se puede eliminar el rol '{0}': está asignado a {1} usuario(s) ({2}). Reasigná esos usuarios a otro rol antes de eliminarlo.
+ES	err.bll.rol_inexistente	El rol '{0}' no existe como nodo del árbol de permisos. Volvé a abrir la pantalla.
+ES	err.bll.snapshot_fallido	No se pudo guardar el estado previo del usuario (control de cambios); la operación se canceló para no perder el historial.
+ES	err.bll.backup.sin_permiso	Solo un Administrador puede realizar operaciones de backup y restauración.
+ES	err.bll.familia.sin_permiso	Solo un Administrador puede modificar permisos de roles.
+ES	err.bll.cliente.plan_insuficiente	No se puede asignar el plan '{0}': el cliente tiene {1} prenda(s) en uso y ese plan solo permite {2}. Registrá las devoluciones primero.
+ES	err.bll.idioma.campos	El código y el nombre del idioma son obligatorios.
+ES	err.bll.idioma.codigo_largo	El código de idioma no puede superar los 5 caracteres.
+ES	err.bll.idioma.duplicado	Ya existe un idioma con el código '{0}'.
+ES	err.bll.idioma.nombre	El nombre del idioma es obligatorio.
+ES	err.bll.pedido.devolucion_ya_hecha	El Pedido #{0} no tiene prendas en uso para devolver (es posible que la devolución ya se haya registrado).
+ES	err.bll.pedido.empleado_sin_vinculo	El usuario '{0}' no tiene un Empleado vinculado. Pedíle al Administrador que configure el vínculo.
+ES	err.bll.pedido.historial_vacio	No se encontraron cambios para la operación #{0} del Pedido #{1}.
+ES	err.bll.pedido.ya_despachado	El cliente tiene el pedido #{0} despachado pendiente de entrega. Confirmá la entrega antes de crear uno nuevo.
+ES	err.bll.plan.tiene_clientes	No se puede desactivar el plan: tiene {0} cliente(s) activo(s) asignado(s). Reasignalos a otro plan antes de desactivarlo.
+ES	err.bll.prenda.categoria_requerida	La categoría es obligatoria.
+ES	err.bll.prenda.nombre_requerido	El nombre de la prenda es obligatorio.
+ES	err.bll.prenda.talle_requerido	El talle es obligatorio.
+ES	err.bll.usuario.no_existe	El usuario de la versión ya no existe.
+ES	err.bll.usuario.perfil_requerido	El perfil/rol es obligatorio.
+ES	err.bll.usuario.sin_permiso	Solo un Administrador puede gestionar usuarios.
+ES	err.bll.usuario.username_corto	El nombre de usuario debe tener al menos 3 caracteres.
+ES	err.bll.usuario.username_requerido	El nombre de usuario es obligatorio.
+ES	err.bll.version.no_existe	La versión seleccionada no existe.
+ES	err.bll.prenda.transicion_baja	Una prenda dada de baja no puede cambiar de estado.
+ES	err.bll.prenda.transicion_enuso	No se puede cambiar manualmente el estado de una prenda en uso.\nEl estado se actualiza automáticamente al procesar pedidos.
+ES	err.bll.prenda.transicion_generica	La transición de '{0}' a '{1}' no está permitida.
+ES	lbl.permisos.familias	Lista de Familias (compuestos)
+ES	lbl.permisos.patentes	Lista de Patentes (simples)
+ES	lbl.permisos.composicion	Composición efectiva (recursiva)
+ES	chk.permisos.vertodos	Ver todos los roles
+ES	perm.todoslosroles	Todos los roles
+ES	lbl.permisos.embeber	Embeber rol:
+ES	lbl.permisos.anidar	Anidar en familia:
+ES	btn.permisos.anidar	Anidar selección ➜
+ES	perm.msg.selanidar	Seleccioná en una lista la familia o patente que querés anidar.
+ES	perm.msg.familiadest	Elegí la familia destino donde anidar.
+ES	perm.msg.mismocomp	Una familia no puede anidarse dentro de sí misma.
+ES	perm.ok.anidado	'{0}' anidado dentro de la familia '{1}'.
+ES	perm.err.anidar	No se pudo anidar: {0}
+ES	lbl.permisos.estructura	Estructura del sistema (roles, familias y patentes)
+ES	lbl.permisos.disponibles	Disponibles para agregar
+ES	lbl.permisos.efectivos	Permisos efectivos (recursivo)
+ES	lbl.permisos.miembros	Miembros de: {0}
+ES	lbl.permisos.miembros.vacio	Miembros (seleccioná una Familia o Rol)
+ES	btn.permisos.agregar	Agregar ↓
+ES	btn.permisos.quitar	Quitar ↑
+ES	perm.msg.selpadre	Seleccioná una Familia o Rol para agregarle hijos.
+ES	perm.ok.agregado	'{0}' agregado a '{1}'.
+ES	perm.ok.quitado	'{0}' quitado de '{1}'.
+ES	perm.tipo.rol	el rol
+ES	btn.permisos.crearpatente	➕ Patente
+ES	btn.permisos.crearfamilia	➕ Familia
+ES	btn.permisos.crearrol	➕ Rol
+ES	btn.permisos.actualizar	↻ Actualizar
+ES	lbl.permisos.ayuda	❔ Ayuda
+ES	help.permisos.titulo	¿Patente, Familia o Rol?
+ES	help.permisos.patente	Patente = permiso atómico (una acción o pantalla concreta). Es una hoja: no contiene otros.
+ES	help.permisos.familia	Familia = agrupa permisos para reutilizarlos en varios roles. No se asigna a usuarios.
+ES	help.permisos.rol	Rol = perfil que se asigna a un usuario. Puede contener patentes, familias y otros roles (rol-en-rol).
+ES	help.permisos.general	🔑 PATENTE — permiso atómico: una acción/pantalla concreta (ej. "Ver Prendas"). Es una hoja.\n📁 FAMILIA — agrupa permisos para reutilizar; no se asigna a usuarios.\n👥 ROL — familia que SÍ se asigna a un usuario (su perfil); puede contener patentes, familias y otros roles.\n\nEl usuario tiene un rol y el sistema junta recursivamente todas las patentes que cuelgan de él = sus permisos efectivos.
+ES	lbl.permisos.subtitulo	Gestión de roles, familias y patentes
+ES	btn.permisos.nuevorol	➕ Nuevo rol
+ES	btn.permisos.eliminarrol	🗑 Eliminar rol
+ES	btn.permisos.nuevafamilia	➕ Nueva familia
+ES	btn.permisos.nuevapatente	➕ Nueva patente
+ES	btn.permisos.embeber	Embeber ➜
+ES	btn.permisos.modificar	✏ Modificar selección
+ES	btn.permisos.eliminar	🗑 Eliminar selección
+ES	perm.dlg.rol.t	Nuevo rol
+ES	perm.dlg.rol.p	Nombre del nuevo rol:
+ES	perm.dlg.fam.t	Nueva familia
+ES	perm.dlg.fam.p	Nombre de la familia (permiso compuesto):
+ES	perm.dlg.pat.t	Nueva patente
+ES	perm.dlg.pat.p	Nombre de la patente (permiso simple):
+ES	perm.dlg.pat.menu	NombreMenu asociado (opcional, ej: mnuClientes):
+ES	perm.dlg.mod.t	Modificar componente
+ES	perm.dlg.mod.p	Nuevo nombre:
+ES	perm.dlg.mod.menu	NombreMenu asociado:
+ES	perm.conf.titulo	Confirmar
+ES	perm.conf.elirol	¿Eliminar el rol '{0}'?
+ES	perm.conf.elicomp	¿Eliminar {0} '{1}'? Se quitará de todos los roles.
+ES	perm.tipo.familia	la familia
+ES	perm.tipo.patente	la patente
+ES	perm.msg.selmod	Seleccioná una patente o familia para modificar.
+ES	perm.msg.seleli	Seleccioná una patente o familia para eliminar.
+ES	perm.msg.norol	No se pudo resolver el rol.
+ES	perm.ok.guardado	Cambios guardados para '{0}': {1} agregado(s), {2} quitado(s).
+ES	perm.ok.embebido	Rol '{0}' embebido dentro de '{1}'.
+ES	perm.ok.rolcreado	Rol '{0}' creado.
+ES	perm.ok.roleli	Rol '{0}' eliminado.
+ES	perm.ok.patcreada	Patente '{0}' creada.
+ES	perm.ok.famcreada	Familia '{0}' creada.
+ES	perm.ok.modificado	Componente actualizado a '{0}'.
+ES	perm.ok.eliminado	'{0}' eliminado.
+ES	perm.err.embeber	No se pudo embeber: {0}
+ES	btn.idiomas.nuevo	➕ Nuevo idioma
+ES	btn.idiomas.renombrar	✏ Renombrar
+ES	idiomas.dlg.nuevo.t	Nuevo idioma
+ES	idiomas.dlg.nuevo.codigo	Código (ej: FR, IT, PT) — máx. 5:
+ES	idiomas.dlg.nuevo.nombre	Nombre del idioma (ej: Français):
+ES	idiomas.dlg.renombrar.t	Renombrar idioma
+ES	idiomas.dlg.renombrar.p	Nuevo nombre:
+ES	idiomas.msg.selecc	Seleccioná un idioma de la grilla.
+ES	idiomas.ok.creado	Idioma '{0}' creado (inactivo — activalo cuando cargues sus traducciones).
+ES	idiomas.ok.renombrado	Idioma renombrado.
+ES	idiomas.conf.incompleto	Este idioma tiene {0} control(es) sin traducir.\nSi lo activás, esos textos se mostrarán en el idioma por defecto.\n\n¿Activar de todos modos?
+ES	idiomas.conf.incompleto.t	Traducciones incompletas
+ES	lbl.idiomas.controles	Controles traducibles
+ES	err.generico.cargar	Error al cargar: {0}
+ES	err.generico.guardar	Error al guardar: {0}
+ES	pedidos.hist.encontrados	{0} registro(s) encontrado(s).
+ES	frm.login	WardrobeFlow
+ES	lbl.usuario	Usuario
+ES	lbl.contrasena	Contraseña
+ES	btn.ingresar	INGRESAR
+ES	btn.salir	SALIR
+ES	lnk.olvide	Olvidé mi contraseña
+ES	lbl.iniciarsesion	Iniciar sesión
+ES	lbl.idioma	Idioma:
+ES	lbl.subtitulo	PORTAL DE EMPLEADOS
+ES	lbl.bienvenido	Bienvenido de nuevo
+ES	lbl.credenciales	Ingresá tus credenciales para continuar
+ES	lbl.divider	o
+ES	lbl.brand.desc	Acceso seguro y centralizado\na todos los módulos del sistema.
+ES	err.login.camposvacio	Usuario y contraseña son obligatorios.
+ES	err.login.credenciales	Usuario o contraseña incorrectos.
+ES	err.login.intentos	Usuario o contraseña incorrectos.\nIntentos restantes: {0}.
+ES	err.login.bloqueada	La cuenta está bloqueada.\nContactá al Administrador para reactivarla.
+ES	err.login.limitesesion	Demasiados intentos fallidos en esta sesión.
+ES	dlg.login.sesion.titulo	Sesión terminada
+ES	dlg.login.sesion.cierre	La aplicación se cerrará.
+ES	mnu.perfil	Perfil
+ES	mnu.inventario	Inventario
+ES	mnu.prendas	Prendas
+ES	mnu.ventas	Ventas
+ES	mnu.clientes	Clientes
+ES	mnu.planes	Planes de Suscripcion
+ES	mnu.pedidosventa	Pedidos de Venta
+ES	mnu.pedidosreal	Pedidos Realizados
+ES	mnu.administrar	Administrar
+ES	mnu.usuarios	Usuarios
+ES	mnu.perfiles	Perfiles y Permisos
+ES	mnu.bitacora	Bitácora
+ES	mnu.cerrarsesion	Cerrar Sesion
+ES	mnu.idiomas	Gestión de Idiomas
+ES	frm.clientes	Gestión de Clientes
+ES	lbl.buscar	Buscar:
+ES	btn.nuevocliente	+ Nuevo Cliente
+ES	btn.editar	✎ Editar
+ES	btn.darbaja	✕ Dar de Baja
+ES	frm.prendas	Catálogo de Prendas
+ES	lbl.estado	Estado:
+ES	btn.nuevaprenda	+ Nueva Prenda
+ES	btn.cambiarestado	⇄ Estado
+ES	lbl.clienteenuso	Cliente en uso:
+ES	frm.gestion	Gestión de Usuarios
+ES	lbl.nuevousuario	Nuevo Usuario
+ES	lbl.nombreusuario	Nombre de usuario:
+ES	lbl.perfilrol	Perfil (rol):
+ES	btn.agregar	Agregar Usuario
+ES	lbl.resettitulo	Resetear Contraseña
+ES	lbl.resetinfo	Seleccioná un usuario\nen la lista y presioná:
+ES	btn.resetclave	Resetear Contraseña
+ES	lbl.desbloqtitulo	Desbloquear Cuenta
+ES	lbl.desbloqinfo	Seleccioná un usuario\nbloqueado y presioná:
+ES	btn.desbloquear	Desbloquear Cuenta
+ES	lbl.listatitulo	Usuarios registrados en el sistema
+ES	frm.planes	Planes de Suscripción
+ES	lbl.nuevopla	Nuevo Plan
+ES	lbl.nombreplan	Nombre del plan *
+ES	lbl.limiteprendas	Límite de prendas *
+ES	lbl.preciomensual	Precio mensual ($) *
+ES	btn.guardarplan	Guardar Plan
+ES	btn.limpiar	Limpiar / Nuevo
+ES	lbl.acciones	Acciones sobre plan seleccionado
+ES	btn.desactivar	Desactivar Plan
+ES	btn.activar	Activar Plan
+ES	lbl.planesreg	Planes registrados
+ES	frm.bitacora	Auditoría — Bitácoras del Sistema
+ES	frm.bitacora.subtitulo	Registro de eventos del sistema y operaciones de negocio
+ES	tab.sistema	🔐  Bitácora del Sistema
+ES	tab.negocio	📦  Bitácora de Negocio
+ES	lbl.ultimos	Últimos
+ES	lbl.dias	días  (0 = todos)
+ES	btn.ver	Ver
+ES	lbl.usuarioid	Usuario ID:
+ES	lbl.actividad	Actividad:
+ES	lbl.criticidad	Criticidad:
+ES	btn.buscar	Buscar
+ES	btn.limpiarfiltro	Limpiar
+ES	btn.exportar	Exportar CSV
+ES	lbl.tipoevento	Tipo evento:
+ES	lbl.idpedido	ID Pedido:
+ES	lbl.idcliente	ID Cliente:
+ES	frm.pedidosventa	Pedidos de Venta
+ES	btn.nuevopedido	+ Nuevo Pedido
+ES	btn.cancelarpedido	✕ Cancelar
+ES	btn.descancelar	↩ Des-cancelar
+ES	lbl.prendaspedido	Prendas del pedido seleccionado
+ES	frm.pedidosreal2	Despacho de Pedidos
+ES	btn.despachar	📦 Despachar
+ES	btn.entregado	✓ Marcar Entregado
+ES	btn.vernotificacion	✉ Ver Notificación
+ES	btn.devolucion	↩ Registrar Devolución
+ES	lbl.detallepedido	Detalle del pedido seleccionado
+ES	col.ped.urgencia	Urgencia
+ES	col.ped.fecha	Fecha
+ES	col.ped.cliente	Cliente
+ES	col.ped.vendedor	Vendedor
+ES	col.ped.prendas	Prendas
+ES	col.ped.estado	Estado
+ES	col.ped.despacho	Despacho
+ES	col.ped.entrega	Entrega
+ES	urg.urgente	Urgente
+ES	urg.normal	Normal
+ES	urg.reciente	Reciente
+ES	est.pendiente	Pendiente
+ES	est.despachado	Despachado
+ES	est.entregado	Entregado
+ES	est.cancelado	Cancelado
+ES	col.bit.id	Id
+ES	col.bit.fecha	Fecha
+ES	col.bit.usuario	Usuario
+ES	col.bit.modulo	Módulo
+ES	col.bit.actividad	Actividad
+ES	col.bit.detalle	Detalle
+ES	col.bit.criticidad	Criticidad
+ES	col.bit.ip	IP
+ES	col.neg.idevento	Id Evento
+ES	col.neg.fecha	Fecha
+ES	col.neg.tipo	Tipo
+ES	col.neg.usuario	Usuario
+ES	col.neg.cliente	Cliente
+ES	col.neg.idpedido	Id Pedido
+ES	col.neg.idprenda	Id Prenda
+ES	col.neg.idcliente	Id Cliente
+ES	col.neg.desc	Descripción
+ES	stat.ninguno	Ninguno
+ES	stat.baja	Baja
+ES	stat.media	Media
+ES	stat.alta	Alta
+ES	stat.intlogin	Int.Login
+ES	stat.recupclave	Recup.Clave
+ES	stat.bloqueos	Bloqueos
+ES	stat.sindatos	Sin datos de criticidad
+ES	frm.historial	Historial de Cambios — Pedido
+ES	lbl.hist.pedido	Pedido #
+ES	lbl.hist.filtros	Filtros
+ES	combo.hist.todas	— Todas —
+ES	lbl.hist.desde	Desde:
+ES	lbl.hist.hasta	Hasta:
+ES	lbl.hist.accion	Acción:
+ES	btn.hist.buscar	🔍 Buscar
+ES	btn.hist.restaurar	⟲ Restaurar
+ES	btn.hist.cerrar	Cerrar
+ES	col.hist.op	Op.
+ES	col.hist.fecha	Fecha
+ES	col.hist.usuario	Usuario
+ES	col.hist.accion	Acción
+ES	col.hist.campo	Campo
+ES	col.hist.anterior	Valor Anterior
+ES	col.hist.nuevo	Valor Nuevo
+ES	dlg.cerrarsesion.titulo	Cerrar Sesión
+ES	dlg.cerrarsesion.msg	¿Está seguro que desea cerrar la sesión?
+ES	btn.si	Sí
+ES	btn.no	No
+ES	btn.refrescar	↻ Refrescar Lista
+ES	combo.prenda.todos	Todos
+ES	prenda.disponible	Disponible
+ES	prenda.enuso	En Uso
+ES	prenda.enlimpieza	En Limpieza
+ES	prenda.baja	Baja
+ES	col.prenda.nombre	Nombre
+ES	col.prenda.categoria	Categoría
+ES	col.prenda.talle	Talle
+ES	col.prenda.color	Color
+ES	col.prenda.estado	Estado
+ES	col.prenda.cliente	Cliente
+ES	col.prenda.alta	Alta
+ES	msg.prenda.conteo	Mostrando {0} de {1}
+ES	msg.prenda.cargadas	{0} prenda(s) en el catálogo.
+ES	col.plan.nombre	Nombre
+ES	col.plan.prendas	Prendas
+ES	col.plan.precio	Precio
+ES	col.plan.estado	Estado
+ES	plan.activo	Activo
+ES	plan.inactivo	Inactivo
+ES	msg.planes.cargados	{0} plan(es) cargado(s).
+ES	frm.nuevocliente	Nuevo Cliente
+ES	frm.editarcliente	Editar Cliente
+ES	lbl.cli.nombre	Nombre *
+ES	lbl.cli.apellido	Apellido *
+ES	lbl.cli.dni	DNI * (7-8 dígitos)
+ES	lbl.cli.email	Email
+ES	lbl.cli.metodopago	Método de Pago *
+ES	lbl.cli.plan	Plan de Suscripción
+ES	combo.cli.sinplan	— Sin plan —
+ES	btn.registrar.cliente	Registrar Cliente
+ES	btn.guardar.cambios	Guardar Cambios
+ES	btn.cancelar	Cancelar
+ES	col.cli.nombre	Nombre
+ES	col.cli.apellido	Apellido
+ES	col.cli.dni	DNI
+ES	col.cli.email	Email
+ES	col.cli.plan	Plan
+ES	col.cli.prendas	Prendas
+ES	col.cli.metodopago	Método de Pago
+ES	col.cli.alta	Alta
+ES	lbl.sinplan	Sin plan
+ES	msg.cli.conteo	Mostrando {0} de {1}
+ES	msg.cli.cargados	{0} cliente(s) registrado(s).
+ES	col.usr.username	Usuario
+ES	col.usr.perfil	Perfil
+ES	col.usr.estado	Estado
+ES	usr.activo	Activo
+ES	usr.bloqueada	Bloqueada
+ES	msg.usr.cargados	{0} usuario(s) registrado(s).
+ES	frm.olvidepass	Recuperar Contraseña
+ES	lbl.recup.titulo	Recuperar Contraseña
+ES	lbl.recup.desc	Ingresá tu nombre de usuario. Un administrador\npodrá resetear tu contraseña desde el sistema.
+ES	lbl.recup.usuario	Nombre de usuario:
+ES	btn.enviar.solicitud	Enviar solicitud
+ES	col.det.prenda	Prenda
+ES	frm.nuevaprenda	Nueva Prenda
+ES	frm.editarprenda	Editar Prenda
+ES	lbl.prenda.nombre	Nombre *
+ES	lbl.prenda.descrip	Descripción
+ES	lbl.prenda.talle	Talle *
+ES	lbl.prenda.color	Color
+ES	lbl.prenda.categoria	Categoría *
+ES	btn.agregar.prenda	Agregar Prenda
+ES	frm.nuevopedido	Nuevo Pedido de Venta
+ES	paso1.texto	Paso 1 de 2 — Seleccionar Cliente
+ES	paso2.texto	Paso 2 de 2 — Seleccionar Prendas
+ES	lbl.ped.selcliente	Seleccioná el cliente para este pedido:
+ES	combo.ped.placeholder	— Seleccioná un cliente —
+ES	lbl.ped.selprendas	Seleccioná las prendas para incluir en el pedido (checkbox):
+ES	btn.siguiente	Siguiente →
+ES	btn.volver	← Volver
+ES	btn.confirmar.pedido	✓ Confirmar Pedido
+ES	btn.procesando	Procesando...
+ES	accion.crear	Crear
+ES	accion.despachar	Despachar
+ES	accion.entregar	Entregar
+ES	accion.cancelar	Cancelar
+ES	accion.descancelar	Des-cancelar
+ES	accion.devolucion	Devolución
+ES	accion.restaurar	Restaurar
+ES	crit.todas	Todas
+ES	crit.ninguno	Ninguno (0)
+ES	crit.baja	Baja (1)
+ES	crit.media	Media (2)
+ES	crit.alta	Alta (3)
+ES	crit.intlogin	Intentos Login (4)
+ES	crit.recupclave	Recuperacion Clave (5)
+ES	crit.bloqueos	Bloqueos Cuenta (6)
+ES	btn.exportar.pdf	📄 Exportar PDF
+ES	msg.ped.conteo	{0} pedido(s)
+ES	msg.ped.cargados	{0} pedido(s) cargado(s).
+ES	msg.ped.creado	Pedido #{0} creado. Estado: Pendiente.
+ES	msg.ped.cancelado	Pedido #{0} cancelado. Prendas liberadas.
+ES	msg.ped.reactivado	Pedido #{0} reactivado — volvió a Pendiente.
+ES	msg.ped.ensistema	{0} pedido(s) en el sistema.
+ES	msg.ped.mostrando	Mostrando {0} de {1}
+ES	msg.ped.despachado	Pedido #{0} despachado correctamente.
+ES	msg.ped.entregado	Pedido #{0} marcado como Entregado.
+ES	msg.ped.devolucion	Devolución registrada — {0} prenda(s) pasan a EnLimpieza.
+ES	btn.historial	📋 Historial
+ES	btn.aceptar	Aceptar
+ES	dlg.cancelped.titulo	Motivo de Cancelación
+ES	msg.cancelped.req	La cancelación requiere un motivo.
+ES	col.ped.motivo	Motivo
+ES	lbl.ped.seleccionado	Pedido #{0} — {1} — {2}
+ES	lbl.motivo	Motivo:
+ES	conf.cancelped.titulo	Confirmar Cancelación
+ES	conf.cancelped.body	¿Cancelar el Pedido #{0} de {1}?\n\nMotivo: {2}\n\nLas prendas volverán a estado Disponible.
+ES	conf.descancelar.titulo	Confirmar Des-cancelación
+ES	conf.descancelar.body	¿Des-cancelar el Pedido #{0} de {1}?\n\nSe verificará que las prendas originales estén disponibles\ny el pedido volverá a estado Pendiente.
+ES	conf.despachar.titulo	Confirmar Despacho
+ES	conf.despachar.body	¿Despachar el Pedido #{0}?\n\nCliente: {1}\nPrendas: {2}\n\nEl pedido pasará a estado Despachado.
+ES	conf.entrega.titulo	Confirmar Entrega
+ES	conf.entrega.body	¿Confirmar entrega del Pedido #{0} a {1}?
+ES	conf.devolucion.titulo	Confirmar Devolución
+ES	conf.devolucion.body	¿Registrar devolución del Pedido #{0}?\n\nCliente: {1}\nPrendas: {2}\n\nLas prendas pasarán a estado EnLimpieza.
+ES	msg.prenda.agregada	Prenda '{0}' agregada al catálogo.
+ES	msg.prenda.actualizada	Prenda '{0}' actualizada.
+ES	msg.prenda.estadoact	Estado de '{0}' actualizado a {1}.
+ES	opt.enviarlimpieza	Enviar a Limpieza
+ES	opt.darbaja	Dar de Baja
+ES	opt.marcardisp	Marcar Disponible
+ES	err.prenda.enuso	No se puede cambiar el estado: la prenda está en uso por un cliente.
+ES	err.prenda.baja	La prenda está dada de baja y no puede ser reactivada.
+ES	lbl.cambioest.info	Prenda: {0}  —  Estado actual: {1}
+ES	msg.cambioest.selecciona	Seleccioná una opción.
+ES	msg.cambioest.bajairrev	La baja es irreversible. ¿Confirmar?
+ES	conf.baja.titulo	Dar de Baja
+ES	frm.resetclave	Resetear Contraseña
+ES	lbl.nueva.clave	Nueva contraseña (mín. 6 caracteres):
+ES	lbl.confirmar.clave	Confirmar contraseña:
+ES	btn.confirmar.reset	Confirmar Reset
+ES	err.clave.longitud	La contraseña debe tener al menos 6 caracteres.
+ES	err.clave.nomatch	Las contraseñas no coinciden.
+ES	notif.titulo	NOTIFICACIÓN DE PEDIDO
+ES	notif.numero	Pedido #:
+ES	notif.msgbox.titulo	Notificación — Pedido #{0}
+ES	frm.cambioestado	Cambiar Estado de Prenda
+ES	lbl.nuevoestado	Nuevo estado:
+ES	btn.confirmar.cambio	Confirmar Cambio
+ES	err.ped.sinprendas	Seleccioná al menos una prenda.
+ES	err.hist.restaurar	Seleccioná una fila del historial para restaurar.
+ES	err.usr.sinperfil	Seleccioná un perfil/rol.
+ES	err.usr.nombre.req	El nombre de usuario es obligatorio.
+ES	err.usr.nombre.longitud	El nombre de usuario debe tener al menos 3 caracteres.
+ES	err.cli.dni.numeros	✗ El DNI solo puede contener números.
+ES	lbl.ped.detalletitulo	Pedido #{0}  ·  {1}  ·  {2}  ·  {3} {4}
+ES	tevt.todos	Todos
+ES	tevt.venta	Venta
+ES	tevt.cancelacion	Cancelación
+ES	tevt.despacho	Despacho
+ES	tevt.entrega	Entrega
+ES	tevt.altaprenda	Alta Prenda
+ES	tevt.modprenda	Modificación Prenda
+ES	tevt.cambiostprenda	Cambio Estado Prenda
+ES	tevt.altacliente	Alta Cliente
+ES	tevt.modcliente	Modificación Cliente
+ES	tevt.bajacliente	Baja Cliente
+ES	lbl.editplan	Editar Plan
+ES	msg.bit.registros	  {0} registro(s)
+ES	msg.bit.ultimos	últimos {0} días
+ES	msg.bit.todos	todos los registros
+ES	notif.frm.titulo	Notificación — Pedido #{0}
+ES	notif.header.entregado	✓  Pedido #{0} — ENTREGADO
+ES	notif.header.despachado	📦  Pedido #{0} — DESPACHADO
+ES	btn.copiar.porta	Copiar al portapapeles
+ES	btn.copiado	✓ Copiado
+ES	notif.gen.saludo	Estimado/a {0},
+ES	notif.gen.entregado	Queremos confirmarle que su pedido fue entregado.\nGracias por elegir WardrobeFlow.
+ES	notif.gen.despachado	Le informamos que su pedido ha sido despachado y\nestará llegando a su domicilio en breve.
+ES	notif.gen.nropedido	Número de pedido
+ES	notif.gen.fechapedido	Fecha de pedido
+ES	notif.gen.fechadespacho	Fecha despacho
+ES	notif.gen.fechaentrega	Fecha entrega
+ES	notif.gen.estado	Estado
+ES	notif.gen.prendas	Prendas incluidas ({0}):
+ES	notif.gen.talle	Talle
+ES	notif.gen.color	Color
+ES	notif.gen.categoria	Categoría
+ES	notif.gen.footer	Ante cualquier consulta, comuníquese con nosotros.
+ES	notif.gen.slogan	WardrobeFlow — Tu guardarropa, sin límites.
+ES	frm.reparacion	Reparación Manual de Dígitos Verificadores
+ES	lbl.rep.seleccionar	Seleccione las filas a reparar
+ES	lbl.rep.resumen	{0} fila(s) con DVH inválido detectada(s).
+ES	btn.rep.selall	Seleccionar Todas
+ES	btn.rep.deselall	Deseleccionar Todas
+ES	btn.rep.reparar	Reparar Seleccionadas
+ES	col.rep.id	ID
+ES	col.rep.usuario	Usuario
+ES	col.rep.dvh	DVH Almacenado
+ES	col.rep.estado	Estado
+ES	rep.estado.sinDVH	Sin DVH almacenado
+ES	rep.estado.nocoincide	DVH no coincide con datos actuales
+ES	msg.rep.seleccionar	Seleccione al menos una fila para reparar.
+ES	msg.rep.sinseleccion.titulo	Sin selección
+ES	msg.rep.confirmar	¿Reparar los dígitos verificadores de {0} fila(s) seleccionada(s)?\n\nSe recalcularán los DVH individuales y el DVV de la tabla.
+ES	msg.rep.confirmar.titulo	Confirmar Reparación
+ES	msg.rep.exito	Se repararon {0} fila(s) con éxito.\nEl DVV de la tabla fue recalculado.
+ES	msg.rep.exito.titulo	Reparación Exitosa
+ES	perfil.administrador	Administrador
+ES	perfil.supervisor	Supervisor
+ES	perfil.vendedor	Vendedor
+ES	perfil.stock	Controlador de Stock
+ES	perfil.operador	Operador de Inventario
+ES	metodo.efectivo	Efectivo
+ES	metodo.debito	Débito
+ES	metodo.credito	Crédito
+ES	metodo.transferencia	Transferencia
+ES	msg.modulo.outfits	El módulo de Outfits aún no está disponible.
+ES	msg.modulo.categorias	El módulo de Categorías aún no está disponible.
+ES	lbl.proximamente	Próximamente
+ES	err.pdf.sinDatos	No hay datos para exportar.
+ES	lbl.exportarpdf	Exportar PDF
+ES	lbl.ped.infoplan	Cliente: {0}\nPlan: {1}\nPrendas en uso actualmente: {2}\nMétodo de pago: {3}\nAlta: {4}
+ES	err.ped.sinplan	⚠ {0} no tiene plan asignado.\nAsigná un plan en el módulo de Clientes antes de crear un pedido.
+ES	err.recup.nousername	Ingresá tu nombre de usuario.
+ES	err.recup.nousuario	No se encontró el usuario '{0}'.\nVerificá que escribiste tu nombre correctamente.
+ES	msg.recup.exito	Usuario '{0}' encontrado.\nContacta al administrador para que resetee\ntu contrasena desde Administrar -> Usuarios.
+ES	err.recup.verificar	Error al verificar el usuario: {0}
+ES	msg.usr.creado	Usuario '{0}' [{1}] creado correctamente.
+ES	msg.usr.creado.exportado	Usuario '{0}' [{1}] creado.\nCredenciales guardadas en:\n{2}
+ES	msg.usr.clave.exportada	Contraseña de '{0}' regenerada automáticamente.\nCredenciales guardadas en:\n{1}
+ES	err.usr.selecciona	Seleccioná un usuario de la lista.
+ES	dlg.resetclave.prompt	Nueva contraseña para '{0}' (mínimo 6 caracteres):
+ES	msg.usr.clave.reseteada	Contraseña de '{0}' reseteada correctamente.
+ES	err.usr.sel.bloqueado	Seleccioná un usuario bloqueado de la lista.
+ES	conf.desbloquear.body	¿Desbloquear la cuenta de '{0}'?
+ES	conf.desbloquear.titulo	Confirmar Desbloqueo
+ES	msg.usr.desbloqueada	Cuenta '{0}' desbloqueada correctamente.
+ES	conf.resetmasivo.titulo	Resetear todas las claves
+ES	conf.resetmasivo.body	Esto va a resetear la contraseña de TODOS los usuarios a:\n\n   {0}\n\nComunicate con cada empleado para que la cambien.\n\n¿Confirmar?
+ES	conf.resetmasivo.body.generico	Esto va a resetear la contraseña de TODOS los usuarios a una clave temporal.\n\nComunicate con cada empleado para que la cambien.\n\n¿Confirmar?
+ES	msg.usr.resetmasivo	Todas las claves fueron reseteadas a: {0}
+ES	frm.gestorpermisos	Gestor de Perfiles — Permisos
+ES	lbl.permisos.titulo	Perfiles y Permisos
+ES	lbl.permisos.rol	Rol:
+ES	btn.permisos.guardar	Guardar cambios
+ES	btn.permisos.cerrar	Cerrar
+ES	msg.permisos.mostrando	Mostrando permisos del rol '{0}'.
+ES	msg.permisos.guardados	Cambios guardados: {0} permiso(s) asignado(s), {1} quitado(s).
+ES	perm.rol.administrador	Administrador
+ES	perm.rol.vendedor	Vendedor
+ES	perm.rol.operadorlogistico	Operador Logístico
+ES	perm.rol.supervisor	Supervisor
+ES	perm.rol.controladordestock	Controlador de Stock
+ES	perm.rol.operadordeinventario	Operador de Inventario
+ES	perm.grp.inventario	Inventario
+ES	perm.grp.sistema	Sistema
+ES	perm.grp.ventas	Ventas
+ES	perm.pat.gestionarstock	Gestionar Stock
+ES	perm.pat.vercategorias	Ver Categorías
+ES	perm.pat.veroutfits	Ver Outfits
+ES	perm.pat.verprendas	Ver Prendas
+ES	perm.pat.gestionarusuarios	Gestionar Usuarios
+ES	perm.pat.verauditoria	Ver Auditoría
+ES	perm.pat.gestionarclientes	Gestionar Clientes
+ES	perm.pat.gestionarplansuscripciones	Gestionar Plan Suscripciones
+ES	perm.pat.realizarventas	Realizar Ventas
+ES	perm.pat.verpedidosrealizados	Ver Pedidos Realizados
+ES	btn.explorador	🌳 Ver vista completa del sistema
+ES	frm.explorador	Vista completa del sistema
+ES	lbl.explorador.titulo	Vista completa del sistema
+ES	lbl.explorador.descripcion	Estructura organizacional de WardrobeFlow — Solo lectura
+ES	lbl.explorador.leyenda	📁 Familia (nodo compuesto — Área o Rol)    🔑 Patente (hoja — permiso atómico)
+ES	btn.explorador.cerrar	Cerrar
+ES	btn.explorador.colapsar	⊟ Colapsar todo
+ES	btn.explorador.expandir	⊞ Expandir todo
+ES	err.explorador.cargar	Error al cargar árbol Composite:\n{0}
+ES	lbl.jerarquia.roles	Jerarquía de Roles
+ES	lbl.jerarquia.selecciona	Seleccioná un rol en el árbol izquierdo.
+ES	lbl.permiso.heredado	 (heredado)
+ES	perfil.auditor	Auditor
+ES	perfil.gerentecomercial	Gerente Comercial
+ES	perfil.gerenteinventario	Gerente de Inventario
+ES	perfil.encargadodestock	Encargado de Stock
+ES	perfil.operadorlogistico	Operador Logístico
+ES	perm.rol.auditor	Auditor
+ES	perm.rol.gerentecomercial	Gerente Comercial
+ES	perm.rol.gerenteinventario	Gerente de Inventario
+ES	perm.rol.encargadodestock	Encargado de Stock
+ES	frm.idiomas	Gestión de Idiomas
+ES	lbl.idiomas.titulo	Idiomas del sistema
+ES	lbl.idiomas.trad	Traducciones del idioma seleccionado
+ES	btn.idiomas.activar	✔ Activar
+ES	btn.idiomas.desactivar	✕ Desactivar
+ES	btn.idiomas.guardar	💾 Guardar cambios
+ES	frm.backup	Backup y Restauración
+ES	btn.backup.crear	Generar Copia de Seguridad (.bak)
+ES	btn.backup.restaurar	Restaurar Copia de Seguridad (.bak)
+ES	btn.backup.eliminar	Eliminar
+ES	btn.backup.inicial	Backup de instalación limpia
+ES	msg.backup.inicialexito	Backup de instalación limpia generado:\n{0}
+ES	msg.backup.alcance	\n\nEl backup es del {0} (hace {1} día(s)).\nSe PERDERÁN todos los cambios posteriores a esa fecha.
+ES	msg.backup.alcance.desconocido	\n\nNo se pudo determinar la fecha del backup. Se perderán todos los cambios posteriores a su creación.
+ES	err.bll.backup.integridad	No se puede generar el backup: la base tiene problemas de integridad.\nReparalos desde Administrar → Diagnóstico de Integridad antes de respaldar.
+ES	err.dal.backup_corrupto	El archivo de backup es inválido o está corrupto y no puede restaurarse.
+ES	emg.link	¿Cuenta bloqueada? Usar clave de emergencia
+ES	emg.titulo	Desbloqueo con clave de emergencia
+ES	emg.encabezado	Cuenta de Administrador bloqueada
+ES	emg.info	Ingresá tu usuario y una de tus claves de emergencia de un solo uso para desbloquear la cuenta.
+ES	emg.usuario	Usuario:
+ES	emg.clave	Clave de emergencia:
+ES	emg.btn.desbloquear	Desbloquear
+ES	emg.exito	Cuenta desbloqueada con éxito.\nYa podés iniciar sesión normalmente.
+ES	emg.exito.titulo	Cuenta desbloqueada
+ES	err.bll.emergencia.campos	Ingresá tu usuario y una clave de emergencia.
+ES	err.bll.emergencia.invalida	Usuario o clave de emergencia inválidos.
+ES	err.bll.emergencia.solo_admin	Las claves de emergencia solo desbloquean cuentas de Administrador.
+ES	err.bll.emergencia.no_bloqueada	La cuenta no está bloqueada: podés iniciar sesión normalmente.
+ES	err.bll.emergencia.sin_claves	No quedan claves de emergencia. Pedile a otro Administrador que genere un nuevo set.
+ES	perfil.menu	Mi Perfil
+ES	perfil.frm.titulo	Mi Perfil
+ES	perfil.usuario	Usuario:
+ES	perfil.perfil	Perfil / Rol:
+ES	perfil.idioma	Idioma preferido:
+ES	perfil.btn.guardar	Guardar preferencias
+ES	perfil.btn.default	Restaurar valores de fábrica
+ES	perfil.guardado	Preferencias guardadas.
+ES	perfil.seccion	Preferencias
+ES	perfil.fuente	Tipografía:
+ES	perfil.tamano	Tamaño de letra:
+ES	perfil.tema	Tema:
+ES	perfil.fecha	Formato de fecha:
+ES	perfil.notif	Recibir notificaciones
+ES	btn.backup.externo	Desde archivo...
+ES	col.backup.archivo	Archivo
+ES	col.backup.fecha	Fecha
+ES	col.backup.autor	Autor
+ES	col.backup.tamanio	Tamaño
+ES	lbl.backup.info	Nota: la restauración cierra las conexiones activas y reinicia la aplicación.
+ES	lbl.backup.ubicacion	Ubicación de copias:
+ES	msg.backup.tituloeliminar	Confirmar Eliminación
+ES	msg.backup.confirmeliminar	¿Eliminar la copia de seguridad?\n"{0}"\n\nEsta acción no se puede deshacer.
+ES	msg.backup.titulorestaura	Confirmar Restauración
+ES	msg.backup.confirmrestaura	¿Restaurar la base de datos desde:\n"{0}"?\n\nEsta operación sobrescribirá todos los datos actuales\ny reiniciará la aplicación.
+ES	mnu.backup	Backup y Restauración
+ES	msg.backup.creadoexito	Copia de seguridad generada con éxito:\n{0}
+ES	msg.backup.restauradaexito	Base de datos restaurada con éxito.\nLa aplicación se reiniciará.
+ES	msg.backup.restauradatitulo	Restauración Exitosa
+ES	lbl.backup.sincopias	Sin copias de seguridad generadas aún.
+ES	lbl.backup.conteo	{0} copia(s) disponible(s). La más reciente: {1}
+ES	frm.restauracion	Integridad del Sistema
+ES	lbl.rest.titulo	Integridad del Sistema Comprometida
+ES	lbl.rest.subtitulo	Se detectaron discrepancias en los dígitos verificadores. El acceso está bloqueado.
+ES	lbl.rest.detalle	Detalle del error:
+ES	btn.rest.recalcular	Recalcular Dígitos
+ES	btn.rest.backup	Restaurar desde Backup
+ES	btn.rest.salir	Salir
+ES	dv.alerta.titulo	ALERTA DE INTEGRIDAD — Tabla Usuario
+ES	dv.dvh.intro	Se detectaron {0} fila(s) con DVH inválido:
+ES	dv.dvv.intro	El DVV de la tabla no coincide con el valor almacenado.
+ES	dv.dvv.valores	  Almacenado: {0}  |  Calculado: {1}
+ES	dv.causas	Posibles causas: modificación directa en la base de datos,\nrestauración parcial de backup o error en la migración.
+ES	dv.pasos.titulo	Para restaurar la integridad, un Administrador debe:
+ES	dv.pasos.1	  1. Revisar los registros alterados en SQL Server.
+ES	dv.pasos.2	  2. Corregir los valores afectados manualmente.
+ES	dv.pasos.3	  3. Ejecutar el recálculo de DVH/DVV desde Administrar → Usuarios.
+ES	mnu.dashboard	Panel de Control
+ES	mnu.bitacora.sistema	Bitácora del Sistema
+ES	mnu.bitacora.negocio	Bitácora de Negocio
+ES	mnu.reportejornada	Reporte de Jornada
+ES	frm.dashboard	Panel de Control
+ES	dash.prendas	Prendas\ndisponibles
+ES	dash.clientes	Clientes\nregistrados
+ES	dash.pedidos	Pedidos\npendientes
+ES	dash.backup	días sin\nbackup
+ES	dash.ocupacion	ocupación\ndel stock
+ES	dash.ocupacion.detalle	{0} en uso · {1} libres
+ES	dash.btn.refrescar	↻ Actualizar
+ES	frm.reportejornada	Reporte de Jornada — WardrobeFlow
+ES	rpt.generar	Generar
+ES	rpt.comparar	Comparar jornadas
+ES	rpt.exportartxt	Exportar TXT
+ES	rpt.exportarpdf	Exportar PDF
+ES	rpt.fecha	Jornada:
+ES	rpt.fecha2	Comparar con:
+ES	rpt.kpi.prendas	Prendas disponibles
+ES	rpt.kpi.clientes	Clientes registrados
+ES	rpt.kpi.eventos	Eventos del día
+ES	rpt.kpi.backup	días sin backup
+ES	rpt.sinDatos	Sin eventos registrados para la jornada seleccionada.
+ES	rpt.limpiar	Limpiar
+ES	rpt.subtitulo	Eventos de negocio por jornada con exportación a TXT
+ES	rpt.txt.titulo	REPORTE DE JORNADA
+ES	rpt.txt.resumen	RESUMEN DEL SISTEMA
+ES	rpt.txt.prendas	Prendas disponibles
+ES	rpt.txt.clientes	Clientes registrados
+ES	rpt.txt.diassinbkp	Días sin backup
+ES	rpt.txt.sinbackups	Sin backups
+ES	rpt.txt.eventos	EVENTOS DE NEGOCIO DEL DÍA
+ES	rpt.txt.sinevt	(sin eventos registrados para esta jornada)
+ES	rpt.txt.usuario	Usuario
+ES	rpt.txt.cliente	Cliente
+ES	rpt.txt.totalevt	TOTAL EVENTOS
+ES	rpt.txt.generado	Generado
+ES	rpt.txt.comparacion	COMPARACIÓN DE JORNADAS
+ES	rpt.txt.jornada	JORNADA
+ES	rpt.txt.sinevtjorn	(sin eventos registrados en esta jornada)
+ES	rpt.txt.comparfinal	COMPARATIVO FINAL
+ES	rpt.txt.fecha	Fecha
+ES	rpt.txt.eventostot	Eventos totales
+ES	rpt.txt.masmasa	tuvo más actividad
+ES	rpt.txt.ninguna	Ninguna jornada tuvo eventos registrados.
+ES	rpt.txt.iguales	Ambas jornadas tuvieron la misma cantidad de eventos.
+ES	rpt.txt.rptoegenerado	Reporte generado
+ES	rpt.txt.compgenerada	Comparación generada
+ES	rpt.txt.impresionenv	Impresión enviada
+ES	bit.pdf.titulosistema	Bitácora del Sistema — WardrobeFlow
+ES	bit.pdf.titulonegocio	Bitácora de Negocio — WardrobeFlow
+ES	bit.pdf.pagina	WardrobeFlow — Página {0}
+ES	bit.pdf.vistaprevia	Vista Previa
+ES	dash.backup.hoy	Hoy
+ES	dash.sesion.iniciada	Sesión iniciada:
+ES	dash.tareas.titulo	Mis Tareas Pendientes ({0})
+ES	dash.tareas.sinpendientes	Sin tareas pendientes
+ES	dash.tarea.mantenimiento	Mantenimiento
+ES	dash.tarea.pedido	Pedido
+ES	dash.hoy	hoy
+ES	dash.hace_dias	hace {0}d
+ES	dash.tareas.col.tipo	Tipo
+ES	dash.tareas.col.desc	Descripción
+ES	dash.tareas.col.fecha	Desde
+ES	dash.actividad.titulo	Actividad reciente
+ES	dash.stats.titulo	Resumen de eventos
+ES	dash.col.fecha	Fecha
+ES	dash.col.evento	Evento
+ES	dash.col.usuario	Usuario
+ES	dash.aviso.sinbackup	⚠  Sin backups. Generá uno desde Administrar → Backup.
+ES	dash.aviso.vencido	⚠  Hace {0} día(s) sin backup — recordatorio cada {1} días.
+ES	dash.cfg.titulo	Recordatorio de Backup
+ES	dash.cfg.recada	Recordarme cada:
+ES	dash.cfg.dias	días
+ES	dash.cfg.guardar	Guardar
+ES	rpt.menu.guardartxt	Guardar como .TXT
+ES	rpt.menu.imprimir	Imprimir / Exportar PDF
+ES	rpt.menu.guardarcmp	Guardar comparación como .TXT
+ES	rpt.dlg.guardartxt	Guardar como TXT
+ES	rpt.dlg.exito.titulo	Éxito
+ES	rpt.dlg.exito.msg	Archivo guardado:\n{0}
+ES	frm.historialusr	Historial de Cambios de Usuarios
+ES	lbl.ver.usuario	Usuario:
+ES	btn.ver.cargar	Cargar
+ES	btn.ver.restaurar	Restaurar Versión Seleccionada
+ES	col.ver.id	ID
+ES	col.ver.fecha	Fecha
+ES	col.ver.actor	Modificado por
+ES	col.ver.detalle	Detalle
+ES	col.ver.estado	Estado
+ES	mnu.historialusr	Historial de Cambios
+ES	frm.confirmaradmin	Confirmar Administrador
+ES	lbl.confirmaradmin.subtitulo	Solo un Administrador puede continuar
+ES	lbl.confirmaradmin.usuario	Usuario
+ES	lbl.confirmaradmin.clave	Contraseña
+ES	btn.confirmaradmin.ok	Confirmar
+ES	btn.confirmaradmin.cancelar	Cancelar
+ES	msg.confirmar.vacio	Ingrese usuario y contraseña.
+ES	msg.confirmar.invalido	Credenciales inválidas o el usuario no es Administrador.
+ES	msg.historial.sinseleccion	Seleccioná una versión de la grilla.
+ES	msg.historial.atencion	Atención
+ES	msg.historial.confirmar	¿Restaurar al usuario '{0}' al estado del {1}?\n\nDetalle del snapshot: {2}\n\nEsta acción es reversible (se graba un nuevo snapshot antes de restaurar).
+ES	msg.historial.restaurado	Versión restaurada correctamente.
+ES	msg.cli.registrado	Cliente '{0}' registrado correctamente.
+ES	msg.cli.actualizado	Cliente '{0}' actualizado.
+ES	msg.cli.eliminado	Cliente '{0}' eliminado.
+ES	conf.baja.cli.msg	¿Dar de baja a {0} (DNI {1})?\n\nEsta acción no se puede deshacer.
+ES	conf.baja.cli.titulo	Confirmar Baja
+ES	err.cli.errorplanes	— Error al cargar planes —
+ES	msg.planes.creado	Plan '{0}' creado.
+ES	msg.planes.actualizado	Plan '{0}' actualizado.
+ES	msg.planes.desactivado	Plan '{0}' desactivado.
+ES	msg.planes.reactivado	Plan '{0}' reactivado.
+ES	conf.planes.desat.msg	¿Desactivar el plan '{0}'?\n\nLos clientes con este plan no serán afectados.
+ES	conf.planes.desat.tit	Confirmar Desactivación
+ES	conf.planes.act.msg	¿Reactivar el plan '{0}'?\n\nEl plan volverá a estar disponible para nuevas suscripciones.
+ES	conf.planes.act.tit	Confirmar Activación
+ES	msg.idiomas.activado	Idioma activado.
+ES	msg.idiomas.desactivado	Idioma desactivado.
+ES	conf.idiomas.desactivar	¿Desactivar este idioma? Los usuarios no podrán seleccionarlo.
+ES	conf.idiomas.titulo	Confirmar
+ES	msg.hist.restaurado	Pedido #{0} restaurado correctamente.
+ES	conf.hist.restaurar.msg	¿Restaurar el pedido #{0} al estado anterior a '{1}' (op. #{2})?\n\n⚠ Nota: esta operación modifica el estado del Pedido en la base de datos.\nEl estado de las Prendas asociadas NO se revierte automáticamente.\n\n¿Confirmar?
+ES	msg.usr.dvrecalculados	DVH y DVV recalculados correctamente para todos los usuarios.
+ES	msg.usr.errordv	Error al recalcular DV: {0}
+ES	msg.rest.dvexito	Dígitos verificadores recalculados con éxito.\nYa puede ingresar al sistema.
+ES	msg.rest.dvtitulo	Integridad restaurada
+ES	conf.rest.sobreescribir	¿Está seguro? Esta operación sobrescribirá todos los datos actuales y reiniciará la aplicación.
+ES	msg.rest.errorrecalcular	Error al recalcular: {0}
+ES	msg.rest.errorrestaurar	Error al restaurar: {0}
+ES	msg.backup.errorgenerar	Error al generar copia de seguridad:\n{0}
+ES	msg.backup.erroreliminar	Error al eliminar:\n{0}
+ES	msg.backup.errorrestaurar	Error al restaurar:\n{0}
+ES	msg.historial.errorcargar	Error al cargar historial:\n{0}
+ES	msg.historial.errorrestaur	Error al restaurar versión:\n{0}
+ES	msg.error.titulo	Error
+ES	lbl.cli.vencimiento	Fecha de Vencimiento
+ES	col.cli.vencimiento	Vencimiento
+ES	msg.cli.sinvenc	Sin vencimiento
+ES	msg.cli.vencido	Vencido
+ES	msg.cli.proxvencer	Vence pronto
+ES	msg.cli.vigente	Vigente
+ES	err.ped.suscvencida	⚠ La suscripción de {0} venció el {1}.\nRenovar en el módulo de Clientes.
+ES	lbl.ped.proxvencer	⏰ La suscripción vence en {0} día(s). Avisale al cliente para renovarla.
+ES	lbl.ped.res.linea1	Seleccionadas: {0}  |  Ya en uso: {1}  |  Total: {2}
+ES	lbl.ped.res.limite	✗ El plan '{0}' permite {1} prenda(s). Estás superando el límite por {2}.
+ES	lbl.ped.res.vacio	Podés agregar hasta {0} prenda(s) (plan {1}).
+ES	lbl.ped.res.parcial	ℹ El plan '{0}' permite {1}. Estás eligiendo {2} de {3} posibles — podés agregar más.
+ES	lbl.ped.res.lleno	✓ Alcanzás el máximo del plan '{0}' ({1} prendas).
+ES	conf.ped.titulo	Confirmar Pedido
+ES	conf.ped.msg	Confirmar pedido para {0}:\n\n  • {1}\n\nTotal: {2} prenda(s)\nMétodo de pago: {3}
+ES	frm.mantenimiento	Historial de Mantenimiento
+ES	btn.mantenimiento	🔧 Mantenimiento
+ES	btn.mant.cerrar	Cerrar
+ES	col.mant.entrada	Entrada
+ES	col.mant.salida	Salida
+ES	col.mant.duracion	Duración (días)
+ES	col.mant.actor	Responsable
+ES	col.mant.estado	Estado
+ES	mant.abierto	En limpieza
+ES	mant.cerrado	Finalizado
+ES	msg.mant.sinregistros	Esta prenda no tiene historial de mantenimiento.
+ES	err.bll.cliente.nombre_requerido	El nombre del cliente es obligatorio.
+ES	err.bll.cliente.apellido_requerido	El apellido del cliente es obligatorio.
+ES	err.bll.cliente.dni_requerido	El DNI del cliente es obligatorio.
+ES	err.bll.cliente.dni_formato	El DNI debe tener entre 7 y 8 dígitos.
+ES	err.bll.cliente.dni_numeros	El DNI solo puede contener números.
+ES	err.bll.cliente.dni_duplicado	Ya existe un cliente con DNI {0}.
+ES	err.bll.cliente.dni_duplicado_otro	El DNI {0} ya está registrado para otro cliente.
+ES	err.bll.cliente.baja_prendas	No se puede eliminar a {0}: tiene {1} prenda(s) en uso. Registrá la devolución primero.
+ES	err.bll.pedido.sin_prendas	Debe seleccionar al menos una prenda.
+ES	err.bll.pedido.cliente_inexistente	El cliente seleccionado no existe.
+ES	err.bll.pedido.sin_plan	El cliente {0} no tiene plan asignado. Asignale un plan antes de crear un pedido.
+ES	err.bll.pedido.suscripcion_vencida	La suscripción de {0} venció el {1}. Renovar en el módulo de Clientes.
+ES	err.bll.pedido.limite_plan	El plan '{0}' permite {1} prenda(s). El cliente ya tiene {2} en uso y agrega {3} más. Máximo posible: {4}.
+ES	err.bll.pedido.prenda_no_disponible	La prenda '{0}' ya no está disponible (estado: {1}). Actualizá la selección.
+ES	err.bll.pedido.despachar_estado	Solo se pueden despachar pedidos Pendientes. Este pedido está '{0}'.
+ES	err.bll.pedido.entregar_estado	Solo se pueden marcar como entregados los pedidos Despachados. Este pedido está '{0}'.
+ES	err.bll.pedido.devolucion_estado	Solo se puede registrar la devolución de pedidos ya Entregados. Este pedido está '{0}'.
+ES	err.bll.pedido.cancelar_estado	Solo se pueden cancelar pedidos en estado Pendiente. Este pedido está '{0}'.
+ES	err.bll.pedido.cancelar_sin_motivo	Es obligatorio ingresar un motivo de cancelación.
+ES	err.bll.pedido.descancelar_estado	Solo se pueden des-cancelar pedidos Cancelados. Este pedido está '{0}'.
+ES	err.bll.pedido.descancelar_prendas	No se puede des-cancelar el Pedido #{0}. Una o más prendas ya no están disponibles.
+ES	err.bll.plan.nombre_requerido	El nombre del plan es obligatorio.
+ES	err.bll.plan.limite_invalido	El límite de prendas debe ser mayor que cero.
+ES	err.bll.plan.precio_negativo	El precio no puede ser negativo.
+ES	err.plan.nombre_requerido	El nombre del plan es obligatorio.
+ES	err.plan.nombre_letras	El nombre solo puede contener letras.
+ES	err.plan.precio_cero	El precio debe ser mayor a cero.
+ES	diag.estado.integro	Estado: INTEGRO
+ES	diag.estado.comprometido	Estado: COMPROMETIDO
+ES	msg.idiomas.cargadas	{0} traducción(es) cargadas.
+ES	msg.idiomas.seleccionar	Seleccioná un idioma primero.
+ES	msg.idiomas.guardadas	{0} traducción(es) guardadas correctamente.
+ES	msg.idiomas.guardadas.error	Se guardaron {0} y fallaron {1}.
+ES	err.mant.cargar	Error al cargar historial: {0}
+ES	alerta.integridad.titulo	Alerta de Integridad
+ES	alerta.integridad.msg	ALERTA: Se detectaron problemas de integridad en la tabla Usuario.\n\nFilas con DVH inválido: {0}\nDVV almacenado: {1}  |  DVV calculado: {2}\n\nVaya a Administrar → Diagnóstico de Integridad para reparar.
+ES	diag.frm.titulo	Diagnóstico de Integridad
+ES	diag.tab.diagnostico	Diagnóstico
+ES	diag.tab.historial	Historial de Verificaciones
+ES	diag.lbl.filasrotas	Filas con DVH inválido:
+ES	diag.btn.recalcular	Recalcular Todo
+ES	diag.btn.reparar	Reparar Seleccionadas...
+ES	diag.btn.actualizar	Actualizar
+ES	diag.col.id	ID
+ES	diag.col.usuario	Usuario
+ES	diag.col.dvh.alm	DVH Almacenado
+ES	diag.col.dvh.calc	DVH Calculado
+ES	diag.col.estado	Estado
+ES	diag.col.fecha	Fecha
+ES	diag.col.tabla	Tabla
+ES	diag.col.dvv.alm	DVV Almacenado
+ES	diag.col.dvv.calc	DVV Calculado
+ES	diag.col.filas.corr	Filas Corruptas
+ES	diag.col.resultado	Resultado
+ES	diag.col.origen	Disparado por
+ES	diag.dvv.detalle	DVV almacenado: {0}   |   DVV calculado: {1}   |   Filas con DVH inválido: {2}
+ES	diag.msg.sinproblemas	No hay filas con DVH inválido.
+ES	diag.msg.sinprob.titulo	Sin problemas
+ES	diag.conf.recalcular	¿Recalcular todos los DVH y el DVV de la tabla Usuario?\n\nEsta operación sobreescribirá todos los dígitos verificadores almacenados.
+ES	diag.conf.recalcular.titulo	Confirmar Recálculo Total
+ES	diag.msg.recalc.exito	Dígitos verificadores recalculados con éxito.
+ES	diag.msg.exito.titulo	Éxito
+ES	diag.err.cargar	Error al cargar diagnóstico: {0}
+ES	diag.err.recalcular	Error al recalcular: {0}
+ES	diag.err.titulo	Error
+ES	diag.fila.sinDVH	Sin DVH
+ES	diag.fila.nocoincide	DVH no coincide
+ES	diag.hist.ok	OK
+ES	diag.hist.fallo	FALLO
+ES	diag.tip.fallo.titulo	Verificación FALLIDA — tabla {0}
+ES	diag.tip.dvv.mismatch	• El DVV no coincide: almacenado {0} ≠ calculado {1} (se insertaron, eliminaron o reordenaron filas).
+ES	diag.tip.filas.corruptas	• {0} fila(s) con DVH inválido: el contenido de esas filas fue modificado directamente en la base.
+ES	diag.tip.causa	Posible manipulación directa de la base de datos. Reparar desde la pestaña Diagnóstico o restaurar un backup.
+ES	diag.tip.ok	Verificación correcta: los dígitos verificadores coinciden con los datos.
+ES	diag.tabla.corrupta	Tabla '{0}'
+ES	diag.tabla.dvinvalido	DV inválido — usá «Recalcular Todo»
+ES	diag.tablas.corruptas	Tablas con DV inválido: {0}
+EN	btn.usr.recalculardv	Recalculate integrity (DV)
+EN	btn.usr.eliminar	🗑 Archive user
+EN	btn.usr.verarchivados	View archived
+EN	btn.usr.veractivos	View active
+EN	btn.usr.purgar	Purge (>1 yr)
+EN	usr.archivado	Archived
+EN	msg.usr.archivados	{0} archived user(s).
+EN	msg.usr.archivado	User '{0}' archived successfully.
+EN	conf.usr.archivar.titulo	Confirm Archive
+EN	conf.usr.archivar.body	Archive user '{0}'?\n\nThey won't be able to log in and will leave the list, but their history is preserved.\nThey can be permanently deleted after 1 year.
+EN	conf.usr.purgar.titulo	Confirm Purge
+EN	conf.usr.purgar.body	{0} user(s) archived more than 1 year ago will be PERMANENTLY deleted.\nThis action cannot be undone.\n\nContinue?
+EN	msg.usr.purga.ninguno	There are no users archived more than 1 year ago to purge.
+EN	msg.usr.purga.ok	{0} user(s) permanently deleted.
+EN	err.bll.usuario.autobaja	You can't archive your own user while your session is open.
+EN	err.bll.usuario.ultimo_admin	Cannot archive the last active Administrator. Create or activate another Administrator before archiving this one.
+EN	btn.usr.resetmasivo	Reset all passwords to temporary
+EN	mnu.integridad	Integrity Diagnostics
+EN	err.bll.sesion_expirada	Your session expired. Please log in again.
+EN	err.seg.sesion_no_iniciada	No session is active. Please log in first.
+EN	err.seg.sesion_ya_iniciada	A session is already active. Log out before starting a new one.
+EN	err.bll.sin_permiso	You do not have permission to perform this operation ('{0}').
+EN	err.bll.integridad	Operation cancelled: possible tampering with user data was detected (invalid check digit). Restart the system to repair integrity before continuing.
+EN	err.bll.ciclo	A component cannot contain itself.
+EN	err.bll.nombre_vacio	The name cannot be empty.
+EN	err.bll.padre_invalido	The parent node cannot have children (it is neither a Family nor a Role).
+EN	err.bll.rol_duplicado	A role named '{0}' already exists.
+EN	err.bll.rol_en_uso	Cannot delete role '{0}': it is assigned to {1} user(s) ({2}). Reassign those users to another role before deleting it.
+EN	err.bll.rol_inexistente	Role '{0}' does not exist as a node in the permissions tree. Reopen the screen.
+EN	err.bll.snapshot_fallido	The user's previous state could not be saved (change control); the operation was cancelled to avoid losing the history.
+EN	err.bll.backup.sin_permiso	Only an Administrator can perform backup and restore operations.
+EN	err.bll.familia.sin_permiso	Only an Administrator can modify role permissions.
+EN	err.bll.cliente.plan_insuficiente	Cannot assign plan '{0}': the customer has {1} garment(s) in use and that plan only allows {2}. Register the returns first.
+EN	err.bll.idioma.campos	The language code and name are required.
+EN	err.bll.idioma.codigo_largo	The language code cannot exceed 5 characters.
+EN	err.bll.idioma.duplicado	A language with code '{0}' already exists.
+EN	err.bll.idioma.nombre	The language name is required.
+EN	err.bll.pedido.devolucion_ya_hecha	Order #{0} has no garments in use to return (the return may have already been registered).
+EN	err.bll.pedido.empleado_sin_vinculo	User '{0}' has no linked Employee. Ask the Administrator to configure the link.
+EN	err.bll.pedido.historial_vacio	No changes found for operation #{0} of Order #{1}.
+EN	err.bll.pedido.ya_despachado	The customer has order #{0} dispatched and pending delivery. Confirm the delivery before creating a new one.
+EN	err.bll.plan.tiene_clientes	The plan cannot be deactivated: it has {0} active customer(s) assigned. Reassign them to another plan before deactivating it.
+EN	err.bll.prenda.categoria_requerida	The category is required.
+EN	err.bll.prenda.nombre_requerido	The garment name is required.
+EN	err.bll.prenda.talle_requerido	The size is required.
+EN	err.bll.usuario.no_existe	The user for this version no longer exists.
+EN	err.bll.usuario.perfil_requerido	The profile/role is required.
+EN	err.bll.usuario.sin_permiso	Only an Administrator can manage users.
+EN	err.bll.usuario.username_corto	The username must be at least 3 characters long.
+EN	err.bll.usuario.username_requerido	The username is required.
+EN	err.bll.version.no_existe	The selected version does not exist.
+EN	err.bll.prenda.transicion_baja	A garment that has been deactivated cannot change state.
+EN	err.bll.prenda.transicion_enuso	The state of a garment in use cannot be changed manually.\nThe state updates automatically when processing orders.
+EN	err.bll.prenda.transicion_generica	The transition from '{0}' to '{1}' is not allowed.
+EN	lbl.permisos.familias	Family List (composite)
+EN	lbl.permisos.patentes	Patent List (simple)
+EN	lbl.permisos.composicion	Effective composition (recursive)
+EN	chk.permisos.vertodos	View all roles
+EN	perm.todoslosroles	All roles
+EN	lbl.permisos.embeber	Embed role:
+EN	lbl.permisos.anidar	Nest into family:
+EN	btn.permisos.anidar	Nest selection ➜
+EN	perm.msg.selanidar	Select in a list the family or patent you want to nest.
+EN	perm.msg.familiadest	Choose the destination family to nest into.
+EN	perm.msg.mismocomp	A family cannot be nested inside itself.
+EN	perm.ok.anidado	'{0}' nested inside family '{1}'.
+EN	perm.err.anidar	Could not nest: {0}
+EN	lbl.permisos.estructura	System structure (roles, families and patents)
+EN	lbl.permisos.disponibles	Available to add
+EN	lbl.permisos.efectivos	Effective permissions (recursive)
+EN	lbl.permisos.miembros	Members of: {0}
+EN	lbl.permisos.miembros.vacio	Members (select a Family or Role)
+EN	btn.permisos.agregar	Add ↓
+EN	btn.permisos.quitar	Remove ↑
+EN	perm.msg.selpadre	Select a Family or Role to add children to.
+EN	perm.ok.agregado	'{0}' added to '{1}'.
+EN	perm.ok.quitado	'{0}' removed from '{1}'.
+EN	perm.tipo.rol	the role
+EN	btn.permisos.crearpatente	➕ Patent
+EN	btn.permisos.crearfamilia	➕ Family
+EN	btn.permisos.crearrol	➕ Role
+EN	btn.permisos.actualizar	↻ Refresh
+EN	lbl.permisos.ayuda	❔ Help
+EN	help.permisos.titulo	Patent, Family or Role?
+EN	help.permisos.patente	Patent = atomic permission (one concrete action or screen). It is a leaf: contains nothing.
+EN	help.permisos.familia	Family = groups permissions to reuse across roles. Not assigned to users.
+EN	help.permisos.rol	Role = profile assigned to a user. Can contain patents, families and other roles (role-in-role).
+EN	help.permisos.general	🔑 PATENT — atomic permission: a concrete action/screen (e.g. "View Garments"). A leaf.\n📁 FAMILY — groups permissions for reuse; not assigned to users.\n👥 ROLE — a family that IS assigned to a user (their profile); can contain patents, families and other roles.\n\nA user has a role and the system recursively collects all patents under it = their effective permissions.
+EN	lbl.permisos.subtitulo	Manage roles, families and patents
+EN	btn.permisos.nuevorol	➕ New role
+EN	btn.permisos.eliminarrol	🗑 Delete role
+EN	btn.permisos.nuevafamilia	➕ New family
+EN	btn.permisos.nuevapatente	➕ New patent
+EN	btn.permisos.embeber	Embed ➜
+EN	btn.permisos.modificar	✏ Edit selection
+EN	btn.permisos.eliminar	🗑 Delete selection
+EN	perm.dlg.rol.t	New role
+EN	perm.dlg.rol.p	Name of the new role:
+EN	perm.dlg.fam.t	New family
+EN	perm.dlg.fam.p	Name of the family (composite permission):
+EN	perm.dlg.pat.t	New patent
+EN	perm.dlg.pat.p	Name of the patent (simple permission):
+EN	perm.dlg.pat.menu	Associated MenuName (optional, e.g.: mnuClientes):
+EN	perm.dlg.mod.t	Edit component
+EN	perm.dlg.mod.p	New name:
+EN	perm.dlg.mod.menu	Associated MenuName:
+EN	perm.conf.titulo	Confirm
+EN	perm.conf.elirol	Delete role '{0}'?
+EN	perm.conf.elicomp	Delete {0} '{1}'? It will be removed from all roles.
+EN	perm.tipo.familia	family
+EN	perm.tipo.patente	patent
+EN	perm.msg.selmod	Select a patent or family to edit.
+EN	perm.msg.seleli	Select a patent or family to delete.
+EN	perm.msg.norol	Could not resolve the role.
+EN	perm.ok.guardado	Changes saved for '{0}': {1} added, {2} removed.
+EN	perm.ok.embebido	Role '{0}' embedded into '{1}'.
+EN	perm.ok.rolcreado	Role '{0}' created.
+EN	perm.ok.roleli	Role '{0}' deleted.
+EN	perm.ok.patcreada	Patent '{0}' created.
+EN	perm.ok.famcreada	Family '{0}' created.
+EN	perm.ok.modificado	Component updated to '{0}'.
+EN	perm.ok.eliminado	'{0}' deleted.
+EN	perm.err.embeber	Could not embed: {0}
+EN	btn.idiomas.nuevo	➕ New language
+EN	btn.idiomas.renombrar	✏ Rename
+EN	idiomas.dlg.nuevo.t	New language
+EN	idiomas.dlg.nuevo.codigo	Code (e.g.: FR, IT, PT) — max. 5:
+EN	idiomas.dlg.nuevo.nombre	Language name (e.g.: Français):
+EN	idiomas.dlg.renombrar.t	Rename language
+EN	idiomas.dlg.renombrar.p	New name:
+EN	idiomas.msg.selecc	Select a language from the grid.
+EN	idiomas.ok.creado	Language '{0}' created (inactive — activate it once you load its translations).
+EN	idiomas.ok.renombrado	Language renamed.
+EN	idiomas.conf.incompleto	This language has {0} untranslated control(s).\nIf you activate it, those texts will be shown in the default language.\n\nActivate anyway?
+EN	idiomas.conf.incompleto.t	Incomplete translations
+EN	lbl.idiomas.controles	Translatable controls
+EN	err.generico.cargar	Error loading: {0}
+EN	err.generico.guardar	Error saving: {0}
+EN	pedidos.hist.encontrados	{0} record(s) found.
+EN	frm.login	WardrobeFlow — Login
+EN	lbl.usuario	Username
+EN	lbl.contrasena	Password
+EN	btn.ingresar	Sign In
+EN	btn.salir	Exit
+EN	lnk.olvide	Forgot your password?
+EN	lbl.iniciarsesion	Sign In
+EN	lbl.idioma	Language:
+EN	lbl.subtitulo	EMPLOYEE PORTAL
+EN	lbl.bienvenido	Welcome back
+EN	lbl.credenciales	Enter your credentials to continue
+EN	lbl.divider	or
+EN	lbl.brand.desc	Secure and centralized access\nto all system modules.
+EN	err.login.camposvacio	Username and password are required.
+EN	err.login.credenciales	Incorrect username or password.
+EN	err.login.intentos	Incorrect username or password.\nAttempts remaining: {0}.
+EN	err.login.bloqueada	Your account is locked.\nContact the Administrator to reactivate it.
+EN	err.login.limitesesion	Too many failed attempts in this session.
+EN	dlg.login.sesion.titulo	Session ended
+EN	dlg.login.sesion.cierre	The application will close.
+EN	mnu.perfil	Profile
+EN	mnu.inventario	Inventory
+EN	mnu.prendas	Garments
+EN	mnu.ventas	Sales
+EN	mnu.clientes	Clients
+EN	mnu.planes	Subscription Plans
+EN	mnu.pedidosventa	Sales Orders
+EN	mnu.pedidosreal	Fulfilled Orders
+EN	mnu.administrar	Administration
+EN	mnu.usuarios	Users
+EN	mnu.perfiles	Profiles & Permissions
+EN	mnu.bitacora	Audit Log
+EN	mnu.cerrarsesion	Sign Out
+EN	mnu.idiomas	Language Management
+EN	frm.clientes	Client Management
+EN	lbl.buscar	Search:
+EN	btn.nuevocliente	+ New Client
+EN	btn.editar	✎ Edit
+EN	btn.darbaja	✕ Delete
+EN	frm.prendas	Garment Catalog
+EN	lbl.estado	Status:
+EN	btn.nuevaprenda	+ New Garment
+EN	btn.cambiarestado	⇄ Status
+EN	lbl.clienteenuso	Client in use:
+EN	frm.gestion	User Management
+EN	lbl.nuevousuario	New User
+EN	lbl.nombreusuario	Username:
+EN	lbl.perfilrol	Profile (role):
+EN	btn.agregar	Add User
+EN	lbl.resettitulo	Reset Password
+EN	lbl.resetinfo	Select a user\nfrom the list and press:
+EN	btn.resetclave	Reset Password
+EN	lbl.desbloqtitulo	Unlock Account
+EN	lbl.desbloqinfo	Select a locked\nuser and press:
+EN	btn.desbloquear	Unlock Account
+EN	lbl.listatitulo	Users registered in the system
+EN	frm.planes	Subscription Plans
+EN	lbl.nuevopla	New Plan
+EN	lbl.nombreplan	Plan name *
+EN	lbl.limiteprendas	Garment limit *
+EN	lbl.preciomensual	Monthly price ($) *
+EN	btn.guardarplan	Save Plan
+EN	btn.limpiar	Clear / New
+EN	lbl.acciones	Actions on selected plan
+EN	btn.desactivar	Deactivate Plan
+EN	btn.activar	Activate Plan
+EN	lbl.planesreg	Registered plans
+EN	frm.bitacora	Audit Log
+EN	frm.bitacora.subtitulo	Record of system events and business operations
+EN	tab.sistema	🔐  System Log
+EN	tab.negocio	📦  Business Log
+EN	lbl.ultimos	Last
+EN	lbl.dias	days  (0 = all)
+EN	btn.ver	View
+EN	lbl.usuarioid	User ID:
+EN	lbl.actividad	Activity:
+EN	lbl.criticidad	Severity:
+EN	btn.buscar	Search
+EN	btn.limpiarfiltro	Clear
+EN	btn.exportar	Export CSV
+EN	lbl.tipoevento	Event type:
+EN	lbl.idpedido	Order ID:
+EN	lbl.idcliente	Client ID:
+EN	frm.pedidosventa	Sales Orders
+EN	btn.nuevopedido	+ New Order
+EN	btn.cancelarpedido	✕ Cancel
+EN	btn.descancelar	↩ Restore
+EN	lbl.prendaspedido	Garments of the selected order
+EN	frm.pedidosreal2	Order Dispatch
+EN	btn.despachar	📦 Dispatch
+EN	btn.entregado	✓ Mark Delivered
+EN	btn.vernotificacion	✉ View Notification
+EN	btn.devolucion	↩ Register Return
+EN	lbl.detallepedido	Selected order detail
+EN	col.ped.urgencia	Urgency
+EN	col.ped.fecha	Date
+EN	col.ped.cliente	Client
+EN	col.ped.vendedor	Seller
+EN	col.ped.prendas	Garments
+EN	col.ped.estado	Status
+EN	col.ped.despacho	Dispatch
+EN	col.ped.entrega	Delivery
+EN	urg.urgente	Urgent
+EN	urg.normal	Normal
+EN	urg.reciente	Recent
+EN	est.pendiente	Pending
+EN	est.despachado	Dispatched
+EN	est.entregado	Delivered
+EN	est.cancelado	Cancelled
+EN	col.bit.id	Id
+EN	col.bit.fecha	Date
+EN	col.bit.usuario	User
+EN	col.bit.modulo	Module
+EN	col.bit.actividad	Activity
+EN	col.bit.detalle	Detail
+EN	col.bit.criticidad	Severity
+EN	col.bit.ip	IP
+EN	col.neg.idevento	Event Id
+EN	col.neg.fecha	Date
+EN	col.neg.tipo	Type
+EN	col.neg.usuario	User
+EN	col.neg.cliente	Client
+EN	col.neg.idpedido	Order Id
+EN	col.neg.idprenda	Garment Id
+EN	col.neg.idcliente	Client Id
+EN	col.neg.desc	Description
+EN	stat.ninguno	None
+EN	stat.baja	Low
+EN	stat.media	Medium
+EN	stat.alta	High
+EN	stat.intlogin	Login Att.
+EN	stat.recupclave	Pwd Reset
+EN	stat.bloqueos	Lockouts
+EN	stat.sindatos	No severity data
+EN	frm.historial	Order Change History
+EN	lbl.hist.pedido	Order #
+EN	lbl.hist.filtros	Filters
+EN	combo.hist.todas	— All —
+EN	lbl.hist.desde	From:
+EN	lbl.hist.hasta	To:
+EN	lbl.hist.accion	Action:
+EN	btn.hist.buscar	🔍 Search
+EN	btn.hist.restaurar	⟲ Restore
+EN	btn.hist.cerrar	Close
+EN	col.hist.op	Op.
+EN	col.hist.fecha	Date
+EN	col.hist.usuario	User
+EN	col.hist.accion	Action
+EN	col.hist.campo	Field
+EN	col.hist.anterior	Previous Value
+EN	col.hist.nuevo	New Value
+EN	dlg.cerrarsesion.titulo	Sign Out
+EN	dlg.cerrarsesion.msg	Are you sure you want to sign out?
+EN	btn.si	Yes
+EN	btn.no	No
+EN	btn.refrescar	↻ Refresh List
+EN	combo.prenda.todos	All
+EN	prenda.disponible	Available
+EN	prenda.enuso	In Use
+EN	prenda.enlimpieza	In Cleaning
+EN	prenda.baja	Retired
+EN	col.prenda.nombre	Name
+EN	col.prenda.categoria	Category
+EN	col.prenda.talle	Size
+EN	col.prenda.color	Color
+EN	col.prenda.estado	Status
+EN	col.prenda.cliente	Client
+EN	col.prenda.alta	Registered
+EN	msg.prenda.conteo	Showing {0} of {1}
+EN	msg.prenda.cargadas	{0} garment(s) in catalog.
+EN	col.plan.nombre	Name
+EN	col.plan.prendas	Garments
+EN	col.plan.precio	Price
+EN	col.plan.estado	Status
+EN	plan.activo	Active
+EN	plan.inactivo	Inactive
+EN	msg.planes.cargados	{0} plan(s) loaded.
+EN	frm.nuevocliente	New Client
+EN	frm.editarcliente	Edit Client
+EN	lbl.cli.nombre	First name *
+EN	lbl.cli.apellido	Last name *
+EN	lbl.cli.dni	DNI * (7-8 digits)
+EN	lbl.cli.email	Email
+EN	lbl.cli.metodopago	Payment method *
+EN	lbl.cli.plan	Subscription plan
+EN	combo.cli.sinplan	— No plan —
+EN	btn.registrar.cliente	Register Client
+EN	btn.guardar.cambios	Save Changes
+EN	btn.cancelar	Cancel
+EN	col.cli.nombre	First Name
+EN	col.cli.apellido	Last Name
+EN	col.cli.dni	DNI
+EN	col.cli.email	Email
+EN	col.cli.plan	Plan
+EN	col.cli.prendas	Garments
+EN	col.cli.metodopago	Payment Method
+EN	col.cli.alta	Registered
+EN	lbl.sinplan	No plan
+EN	msg.cli.conteo	Showing {0} of {1}
+EN	msg.cli.cargados	{0} client(s) registered.
+EN	col.usr.username	Username
+EN	col.usr.perfil	Role
+EN	col.usr.estado	Status
+EN	usr.activo	Active
+EN	usr.bloqueada	Locked
+EN	msg.usr.cargados	{0} user(s) registered.
+EN	frm.olvidepass	Password Recovery
+EN	lbl.recup.titulo	Password Recovery
+EN	lbl.recup.desc	Enter your username. An administrator\ncan reset your password from the system.
+EN	lbl.recup.usuario	Username:
+EN	btn.enviar.solicitud	Submit request
+EN	err.recup.nousername	Enter your username.
+EN	err.recup.nousuario	User '{0}' not found.\nCheck that you typed your username correctly.
+EN	msg.recup.exito	User '{0}' found.\nContact the administrator to reset\nyour password from Manage → Users.
+EN	err.recup.verificar	Error verifying user: {0}
+EN	col.det.prenda	Garment
+EN	frm.nuevaprenda	New Garment
+EN	frm.editarprenda	Edit Garment
+EN	lbl.prenda.nombre	Name *
+EN	lbl.prenda.descrip	Description
+EN	lbl.prenda.talle	Size *
+EN	lbl.prenda.color	Color
+EN	lbl.prenda.categoria	Category *
+EN	btn.agregar.prenda	Add Garment
+EN	frm.nuevopedido	New Sales Order
+EN	paso1.texto	Step 1 of 2 — Select Client
+EN	paso2.texto	Step 2 of 2 — Select Garments
+EN	lbl.ped.selcliente	Select the client for this order:
+EN	combo.ped.placeholder	— Select a client —
+EN	lbl.ped.selprendas	Select the garments to include in the order (checkbox):
+EN	btn.siguiente	Next →
+EN	btn.volver	← Back
+EN	btn.confirmar.pedido	✓ Confirm Order
+EN	btn.procesando	Processing...
+EN	accion.crear	Create
+EN	accion.despachar	Dispatch
+EN	accion.entregar	Deliver
+EN	accion.cancelar	Cancel
+EN	accion.descancelar	Un-cancel
+EN	accion.devolucion	Return
+EN	accion.restaurar	Restore
+EN	crit.todas	All
+EN	crit.ninguno	None (0)
+EN	crit.baja	Low (1)
+EN	crit.media	Medium (2)
+EN	crit.alta	High (3)
+EN	crit.intlogin	Login Attempts (4)
+EN	crit.recupclave	Password Recovery (5)
+EN	crit.bloqueos	Account Lockouts (6)
+EN	btn.exportar.pdf	📄 Export PDF
+EN	msg.ped.conteo	{0} order(s)
+EN	msg.ped.cargados	{0} order(s) loaded.
+EN	msg.ped.creado	Order #{0} created. Status: Pending.
+EN	msg.ped.cancelado	Order #{0} cancelled. Garments released.
+EN	msg.ped.reactivado	Order #{0} reactivated — back to Pending.
+EN	msg.ped.ensistema	{0} order(s) in the system.
+EN	msg.ped.mostrando	Showing {0} of {1}
+EN	msg.ped.despachado	Order #{0} dispatched successfully.
+EN	msg.ped.entregado	Order #{0} marked as Delivered.
+EN	msg.ped.devolucion	Return registered — {0} garment(s) sent to Cleaning.
+EN	btn.historial	📋 History
+EN	btn.aceptar	Accept
+EN	dlg.cancelped.titulo	Cancellation Reason
+EN	msg.cancelped.req	Cancellation requires a reason.
+EN	col.ped.motivo	Reason
+EN	lbl.ped.seleccionado	Order #{0} — {1} — {2}
+EN	lbl.motivo	Reason:
+EN	conf.cancelped.titulo	Confirm Cancellation
+EN	conf.cancelped.body	Cancel Order #{0} for {1}?\n\nReason: {2}\n\nGarments will return to Available status.
+EN	conf.descancelar.titulo	Confirm Restore
+EN	conf.descancelar.body	Restore Order #{0} for {1}?\n\nAvailability of original garments will be verified\nand the order will return to Pending.
+EN	conf.despachar.titulo	Confirm Dispatch
+EN	conf.despachar.body	Dispatch Order #{0}?\n\nClient: {1}\nGarments: {2}\n\nOrder will move to Dispatched status.
+EN	conf.entrega.titulo	Confirm Delivery
+EN	conf.entrega.body	Confirm delivery of Order #{0} to {1}?
+EN	conf.devolucion.titulo	Confirm Return
+EN	conf.devolucion.body	Register return of Order #{0}?\n\nClient: {1}\nGarments: {2}\n\nGarments will move to Cleaning status.
+EN	msg.prenda.agregada	Garment '{0}' added to catalog.
+EN	msg.prenda.actualizada	Garment '{0}' updated.
+EN	msg.prenda.estadoact	Status of '{0}' updated to {1}.
+EN	opt.enviarlimpieza	Send to Cleaning
+EN	opt.darbaja	Retire
+EN	opt.marcardisp	Mark Available
+EN	err.prenda.enuso	Cannot change status: garment is currently in use by a client.
+EN	err.prenda.baja	The garment is retired and cannot be reactivated.
+EN	lbl.cambioest.info	Garment: {0}  —  Current status: {1}
+EN	msg.cambioest.selecciona	Select an option.
+EN	msg.cambioest.bajairrev	Retirement is irreversible. Confirm?
+EN	conf.baja.titulo	Retire Garment
+EN	frm.resetclave	Reset Password
+EN	lbl.nueva.clave	New password (min. 6 chars):
+EN	lbl.confirmar.clave	Confirm password:
+EN	btn.confirmar.reset	Confirm Reset
+EN	err.clave.longitud	Password must be at least 6 characters.
+EN	err.clave.nomatch	Passwords do not match.
+EN	notif.titulo	ORDER NOTIFICATION
+EN	notif.numero	Order #:
+EN	notif.msgbox.titulo	Notification — Order #{0}
+EN	frm.cambioestado	Change Garment Status
+EN	lbl.nuevoestado	New status:
+EN	btn.confirmar.cambio	Confirm Change
+EN	err.ped.sinprendas	Select at least one garment.
+EN	err.hist.restaurar	Select a history row to restore.
+EN	err.usr.sinperfil	Select a profile/role.
+EN	err.usr.nombre.req	Username is required.
+EN	err.usr.nombre.longitud	Username must be at least 3 characters.
+EN	err.cli.dni.numeros	✗ DNI can only contain numbers.
+EN	lbl.ped.detalletitulo	Order #{0}  ·  {1}  ·  {2}  ·  {3} {4}
+EN	tevt.todos	All
+EN	tevt.venta	Sale
+EN	tevt.cancelacion	Cancellation
+EN	tevt.despacho	Dispatch
+EN	tevt.entrega	Delivery
+EN	tevt.altaprenda	New Garment
+EN	tevt.modprenda	Garment Edit
+EN	tevt.cambiostprenda	Garment Status Change
+EN	tevt.altacliente	New Client
+EN	tevt.modcliente	Client Edit
+EN	tevt.bajacliente	Client Removed
+EN	lbl.editplan	Edit Plan
+EN	msg.bit.registros	  {0} record(s)
+EN	msg.bit.ultimos	last {0} days
+EN	msg.bit.todos	all records
+EN	notif.frm.titulo	Notification — Order #{0}
+EN	notif.header.entregado	✓  Order #{0} — DELIVERED
+EN	notif.header.despachado	📦  Order #{0} — DISPATCHED
+EN	btn.copiar.porta	Copy to clipboard
+EN	btn.copiado	✓ Copied
+EN	notif.gen.saludo	Dear {0},
+EN	notif.gen.entregado	We'd like to confirm that your order has been delivered.\nThank you for choosing WardrobeFlow.
+EN	notif.gen.despachado	We'd like to inform you that your order has been dispatched\nand will arrive at your address shortly.
+EN	notif.gen.nropedido	Order number
+EN	notif.gen.fechapedido	Order date
+EN	notif.gen.fechadespacho	Dispatch date
+EN	notif.gen.fechaentrega	Delivery date
+EN	notif.gen.estado	Status
+EN	notif.gen.prendas	Included items ({0}):
+EN	notif.gen.talle	Size
+EN	notif.gen.color	Color
+EN	notif.gen.categoria	Category
+EN	notif.gen.footer	For any questions, please contact us.
+EN	notif.gen.slogan	WardrobeFlow — Your wardrobe, without limits.
+EN	frm.reparacion	Manual Check Digit Repair
+EN	lbl.rep.seleccionar	Select rows to repair
+EN	lbl.rep.resumen	{0} row(s) with invalid DVH detected.
+EN	btn.rep.selall	Select All
+EN	btn.rep.deselall	Deselect All
+EN	btn.rep.reparar	Repair Selected
+EN	col.rep.id	ID
+EN	col.rep.usuario	Username
+EN	col.rep.dvh	Stored DVH
+EN	col.rep.estado	Status
+EN	rep.estado.sinDVH	No DVH stored
+EN	rep.estado.nocoincide	DVH does not match current data
+EN	msg.rep.seleccionar	Select at least one row to repair.
+EN	msg.rep.sinseleccion.titulo	No selection
+EN	msg.rep.confirmar	Repair check digits for {0} selected row(s)?\n\nIndividual DVH and the table DVV will be recalculated.
+EN	msg.rep.confirmar.titulo	Confirm Repair
+EN	msg.rep.exito	{0} row(s) repaired successfully.\nThe table DVV was recalculated.
+EN	msg.rep.exito.titulo	Repair Successful
+EN	perfil.administrador	Administrator
+EN	perfil.supervisor	Supervisor
+EN	perfil.vendedor	Sales Rep
+EN	perfil.stock	Stock Controller
+EN	perfil.operador	Inventory Operator
+EN	metodo.efectivo	Cash
+EN	metodo.debito	Debit
+EN	metodo.credito	Credit
+EN	metodo.transferencia	Wire Transfer
+EN	msg.modulo.outfits	The Outfits module is not yet available.
+EN	msg.modulo.categorias	The Categories module is not yet available.
+EN	lbl.proximamente	Coming Soon
+EN	err.pdf.sinDatos	No data to export.
+EN	lbl.exportarpdf	Export PDF
+EN	lbl.ped.infoplan	Client: {0}\nPlan: {1}\nGarments currently in use: {2}\nPayment method: {3}\nSince: {4}
+EN	err.ped.sinplan	⚠ {0} has no plan assigned.\nAssign a plan in the Clients module before creating an order.
+EN	msg.usr.creado	User '{0}' [{1}] created successfully.
+EN	msg.usr.creado.exportado	User '{0}' [{1}] created.\nCredentials saved to:\n{2}
+EN	msg.usr.clave.exportada	Password for '{0}' auto-generated.\nCredentials saved to:\n{1}
+EN	err.usr.selecciona	Select a user from the list.
+EN	dlg.resetclave.prompt	New password for '{0}' (minimum 6 characters):
+EN	msg.usr.clave.reseteada	Password for '{0}' reset successfully.
+EN	err.usr.sel.bloqueado	Select a locked user from the list.
+EN	conf.desbloquear.body	Unlock the account of '{0}'?
+EN	conf.desbloquear.titulo	Confirm Unlock
+EN	msg.usr.desbloqueada	Account '{0}' unlocked successfully.
+EN	conf.resetmasivo.titulo	Reset all passwords
+EN	conf.resetmasivo.body	This will reset the password of ALL users to:\n\n   {0}\n\nNotify each employee to change it.\n\nConfirm?
+EN	conf.resetmasivo.body.generico	This will reset the password of ALL users to a temporary password.\n\nNotify each employee to change it.\n\nConfirm?
+EN	msg.usr.resetmasivo	All passwords have been reset to: {0}
+EN	frm.gestorpermisos	Profile and Permission Manager
+EN	lbl.permisos.titulo	Profiles and Permissions
+EN	lbl.permisos.rol	Role:
+EN	btn.permisos.guardar	Save changes
+EN	btn.permisos.cerrar	Close
+EN	msg.permisos.mostrando	Showing permissions for role '{0}'.
+EN	msg.permisos.guardados	Changes saved: {0} permission(s) assigned, {1} removed.
+EN	perm.rol.administrador	Administrator
+EN	perm.rol.vendedor	Salesperson
+EN	perm.rol.operadorlogistico	Logistics Operator
+EN	perm.rol.supervisor	Supervisor
+EN	perm.rol.controladordestock	Stock Controller
+EN	perm.rol.operadordeinventario	Inventory Operator
+EN	perm.grp.inventario	Inventory
+EN	perm.grp.sistema	System
+EN	perm.grp.ventas	Sales
+EN	perm.pat.gestionarstock	Manage Stock
+EN	perm.pat.vercategorias	View Categories
+EN	perm.pat.veroutfits	View Outfits
+EN	perm.pat.verprendas	View Garments
+EN	perm.pat.gestionarusuarios	Manage Users
+EN	perm.pat.verauditoria	View Audit Log
+EN	perm.pat.gestionarclientes	Manage Clients
+EN	perm.pat.gestionarplansuscripciones	Manage Subscription Plans
+EN	perm.pat.realizarventas	Process Sales
+EN	perm.pat.verpedidosrealizados	View Fulfilled Orders
+EN	btn.explorador	🌳 View full system map
+EN	frm.explorador	Full system view
+EN	lbl.explorador.titulo	Full system view
+EN	lbl.explorador.descripcion	WardrobeFlow organizational structure — Read only
+EN	lbl.explorador.leyenda	📁 Family (composite node — Area or Role)    🔑 Patent (leaf — atomic permission)
+EN	btn.explorador.cerrar	Close
+EN	btn.explorador.colapsar	⊟ Collapse all
+EN	btn.explorador.expandir	⊞ Expand all
+EN	err.explorador.cargar	Error loading Composite tree:\n{0}
+EN	lbl.jerarquia.roles	Role Hierarchy
+EN	lbl.jerarquia.selecciona	Select a role from the left tree.
+EN	lbl.permiso.heredado	 (inherited)
+EN	perfil.auditor	Auditor
+EN	perfil.gerentecomercial	Sales Manager
+EN	perfil.gerenteinventario	Inventory Manager
+EN	perfil.encargadodestock	Stock Clerk
+EN	perfil.operadorlogistico	Logistics Operator
+EN	perm.rol.auditor	Auditor
+EN	perm.rol.gerentecomercial	Sales Manager
+EN	perm.rol.gerenteinventario	Inventory Manager
+EN	perm.rol.encargadodestock	Stock Clerk
+EN	frm.idiomas	Language Management
+EN	lbl.idiomas.titulo	System Languages
+EN	lbl.idiomas.trad	Translations for the selected language
+EN	btn.idiomas.activar	✔ Activate
+EN	btn.idiomas.desactivar	✕ Deactivate
+EN	btn.idiomas.guardar	💾 Save changes
+EN	frm.backup	Backup & Restore
+EN	btn.backup.crear	Create Backup (.bak)
+EN	btn.backup.restaurar	Restore Backup (.bak)
+EN	btn.backup.eliminar	Delete
+EN	btn.backup.inicial	Clean install backup
+EN	msg.backup.inicialexito	Clean install backup generated:\n{0}
+EN	msg.backup.alcance	\n\nThe backup is from {0} ({1} day(s) ago).\nAll changes made after that date will be LOST.
+EN	msg.backup.alcance.desconocido	\n\nThe backup date could not be determined. All changes made after its creation will be lost.
+EN	err.bll.backup.integridad	Cannot generate the backup: the database has integrity problems.\nFix them from Manage → Integrity Diagnostics before backing up.
+EN	err.dal.backup_corrupto	The backup file is invalid or corrupt and cannot be restored.
+EN	emg.link	Account locked? Use an emergency key
+EN	emg.titulo	Unlock with emergency key
+EN	emg.encabezado	Administrator account locked
+EN	emg.info	Enter your username and one of your single-use emergency keys to unlock the account.
+EN	emg.usuario	Username:
+EN	emg.clave	Emergency key:
+EN	emg.btn.desbloquear	Unlock
+EN	emg.exito	Account unlocked successfully.\nYou can now sign in normally.
+EN	emg.exito.titulo	Account unlocked
+EN	err.bll.emergencia.campos	Enter your username and an emergency key.
+EN	err.bll.emergencia.invalida	Invalid username or emergency key.
+EN	err.bll.emergencia.solo_admin	Emergency keys only unlock Administrator accounts.
+EN	err.bll.emergencia.no_bloqueada	The account is not locked: you can sign in normally.
+EN	err.bll.emergencia.sin_claves	No emergency keys left. Ask another Administrator to generate a new set.
+EN	perfil.menu	My Profile
+EN	perfil.frm.titulo	My Profile
+EN	perfil.usuario	User:
+EN	perfil.perfil	Profile / Role:
+EN	perfil.idioma	Preferred language:
+EN	perfil.btn.guardar	Save preferences
+EN	perfil.btn.default	Restore factory defaults
+EN	perfil.guardado	Preferences saved.
+EN	perfil.seccion	Preferences
+EN	perfil.fuente	Font:
+EN	perfil.tamano	Text size:
+EN	perfil.tema	Theme:
+EN	perfil.fecha	Date format:
+EN	perfil.notif	Receive notifications
+EN	btn.backup.externo	From file...
+EN	col.backup.archivo	File
+EN	col.backup.fecha	Date
+EN	col.backup.autor	Author
+EN	col.backup.tamanio	Size
+EN	lbl.backup.info	Note: restore will close active connections and restart the application.
+EN	lbl.backup.ubicacion	Backup location:
+EN	msg.backup.tituloeliminar	Confirm Deletion
+EN	msg.backup.confirmeliminar	Delete the backup file?\n"{0}"\n\nThis action cannot be undone.
+EN	msg.backup.titulorestaura	Confirm Restore
+EN	msg.backup.confirmrestaura	Restore the database from:\n"{0}"?\n\nThis will overwrite all current data\nand restart the application.
+EN	mnu.backup	Backup & Restore
+EN	msg.backup.creadoexito	Backup created successfully:\n{0}
+EN	msg.backup.restauradaexito	Database restored successfully.\nThe application will restart.
+EN	msg.backup.restauradatitulo	Restore Successful
+EN	lbl.backup.sincopias	No backups created yet.
+EN	lbl.backup.conteo	{0} backup(s) available. Most recent: {1}
+EN	frm.restauracion	System Integrity
+EN	lbl.rest.titulo	System Integrity Compromised
+EN	lbl.rest.subtitulo	Discrepancies were found in the check digits. Access is blocked.
+EN	lbl.rest.detalle	Error detail:
+EN	btn.rest.recalcular	Recalculate Check Digits
+EN	btn.rest.backup	Restore from Backup
+EN	btn.rest.salir	Exit
+EN	dv.alerta.titulo	INTEGRITY ALERT — Usuario Table
+EN	dv.dvh.intro	{0} row(s) with invalid DVH detected:
+EN	dv.dvv.intro	The table DVV does not match the stored value.
+EN	dv.dvv.valores	  Stored: {0}  |  Calculated: {1}
+EN	dv.causas	Possible causes: direct database modification,\npartial backup restore, or migration error.
+EN	dv.pasos.titulo	To restore integrity, an Administrator must:
+EN	dv.pasos.1	  1. Review altered records in SQL Server.
+EN	dv.pasos.2	  2. Manually correct the affected values.
+EN	dv.pasos.3	  3. Run DVH/DVV recalculation from Manage → Users.
+EN	mnu.dashboard	Dashboard
+EN	mnu.bitacora.sistema	System Log
+EN	mnu.bitacora.negocio	Business Log
+EN	frm.dashboard	Control Panel
+EN	dash.prendas	Garments\navailable
+EN	dash.clientes	Clients\nregistered
+EN	dash.pedidos	Orders\npending
+EN	dash.backup	days without\nbackup
+EN	dash.ocupacion	stock\noccupancy
+EN	dash.ocupacion.detalle	{0} in use · {1} available
+EN	dash.btn.refrescar	↻ Refresh
+EN	mnu.reportejornada	Daily Report
+EN	frm.reportejornada	Daily Report — WardrobeFlow
+EN	rpt.generar	Generate
+EN	rpt.comparar	Compare shifts
+EN	rpt.exportartxt	Export TXT
+EN	rpt.exportarpdf	Export PDF
+EN	rpt.fecha	Shift:
+EN	rpt.fecha2	Compare with:
+EN	rpt.kpi.prendas	Available garments
+EN	rpt.kpi.clientes	Registered clients
+EN	rpt.kpi.eventos	Events today
+EN	rpt.kpi.backup	days since backup
+EN	rpt.sinDatos	No events recorded for the selected shift.
+EN	rpt.limpiar	Clear
+EN	rpt.subtitulo	Business events per day with TXT export
+EN	rpt.txt.titulo	DAILY REPORT
+EN	rpt.txt.resumen	SYSTEM SUMMARY
+EN	rpt.txt.prendas	Available garments
+EN	rpt.txt.clientes	Registered clients
+EN	rpt.txt.diassinbkp	Days without backup
+EN	rpt.txt.sinbackups	No backups
+EN	rpt.txt.eventos	BUSINESS EVENTS OF THE DAY
+EN	rpt.txt.sinevt	(no events recorded for this shift)
+EN	rpt.txt.usuario	User
+EN	rpt.txt.cliente	Client
+EN	rpt.txt.totalevt	TOTAL EVENTS
+EN	rpt.txt.generado	Generated
+EN	rpt.txt.comparacion	SHIFT COMPARISON
+EN	rpt.txt.jornada	SHIFT
+EN	rpt.txt.sinevtjorn	(no events recorded for this shift)
+EN	rpt.txt.comparfinal	FINAL SUMMARY
+EN	rpt.txt.fecha	Date
+EN	rpt.txt.eventostot	Total events
+EN	rpt.txt.masmasa	had more activity
+EN	rpt.txt.ninguna	Neither shift had any events recorded.
+EN	rpt.txt.iguales	Both shifts had the same number of events.
+EN	rpt.txt.rptoegenerado	Report generated
+EN	rpt.txt.compgenerada	Comparison generated
+EN	rpt.txt.impresionenv	Print sent
+EN	bit.pdf.titulosistema	System Log — WardrobeFlow
+EN	bit.pdf.titulonegocio	Business Log — WardrobeFlow
+EN	bit.pdf.pagina	WardrobeFlow — Page {0}
+EN	bit.pdf.vistaprevia	Print Preview
+EN	dash.backup.hoy	Today
+EN	dash.sesion.iniciada	Session started:
+EN	dash.tareas.titulo	My Pending Tasks ({0})
+EN	dash.tareas.sinpendientes	No pending tasks
+EN	dash.tarea.mantenimiento	Maintenance
+EN	dash.tarea.pedido	Order
+EN	dash.hoy	today
+EN	dash.hace_dias	{0}d ago
+EN	dash.tareas.col.tipo	Type
+EN	dash.tareas.col.desc	Description
+EN	dash.tareas.col.fecha	Since
+EN	dash.actividad.titulo	Recent activity
+EN	dash.stats.titulo	Event summary
+EN	dash.col.fecha	Date
+EN	dash.col.evento	Event
+EN	dash.col.usuario	User
+EN	dash.aviso.sinbackup	⚠  No backups. Generate one from Administration → Backup.
+EN	dash.aviso.vencido	⚠  {0} day(s) without backup — reminder every {1} days.
+EN	dash.cfg.titulo	Backup Reminder
+EN	dash.cfg.recada	Remind me every:
+EN	dash.cfg.dias	days
+EN	dash.cfg.guardar	Save
+EN	rpt.menu.guardartxt	Save as .TXT
+EN	rpt.menu.imprimir	Print / Export PDF
+EN	rpt.menu.guardarcmp	Save comparison as .TXT
+EN	rpt.dlg.guardartxt	Save as TXT
+EN	rpt.dlg.exito.titulo	Success
+EN	rpt.dlg.exito.msg	File saved:\n{0}
+EN	frm.historialusr	User Change History
+EN	lbl.ver.usuario	User:
+EN	btn.ver.cargar	Load
+EN	btn.ver.restaurar	Restore Selected Version
+EN	col.ver.id	ID
+EN	col.ver.fecha	Date
+EN	col.ver.actor	Modified by
+EN	col.ver.detalle	Detail
+EN	col.ver.estado	Status
+EN	mnu.historialusr	Change History
+EN	frm.confirmaradmin	Confirm Administrator
+EN	lbl.confirmaradmin.subtitulo	Only an Administrator can continue
+EN	lbl.confirmaradmin.usuario	Username
+EN	lbl.confirmaradmin.clave	Password
+EN	btn.confirmaradmin.ok	Confirm
+EN	btn.confirmaradmin.cancelar	Cancel
+EN	msg.confirmar.vacio	Enter username and password.
+EN	msg.confirmar.invalido	Invalid credentials or the user is not an Administrator.
+EN	msg.historial.sinseleccion	Select a version from the grid.
+EN	msg.historial.atencion	Attention
+EN	msg.historial.confirmar	Restore user '{0}' to the state from {1}?\n\nSnapshot detail: {2}\n\nThis action is reversible (a new snapshot is saved before restoring).
+EN	msg.historial.restaurado	Version restored successfully.
+EN	msg.cli.registrado	Client '{0}' registered successfully.
+EN	msg.cli.actualizado	Client '{0}' updated.
+EN	msg.cli.eliminado	Client '{0}' deleted.
+EN	conf.baja.cli.msg	Deactivate {0} (DNI {1})?\n\nThis action cannot be undone.
+EN	conf.baja.cli.titulo	Confirm Deletion
+EN	err.cli.errorplanes	— Error loading plans —
+EN	msg.planes.creado	Plan '{0}' created.
+EN	msg.planes.actualizado	Plan '{0}' updated.
+EN	msg.planes.desactivado	Plan '{0}' deactivated.
+EN	msg.planes.reactivado	Plan '{0}' reactivated.
+EN	conf.planes.desat.msg	Deactivate plan '{0}'?\n\nExisting clients with this plan will not be affected.
+EN	conf.planes.desat.tit	Confirm Deactivation
+EN	conf.planes.act.msg	Reactivate plan '{0}'?\n\nThe plan will be available for new subscriptions again.
+EN	conf.planes.act.tit	Confirm Activation
+EN	msg.idiomas.activado	Language activated.
+EN	msg.idiomas.desactivado	Language deactivated.
+EN	conf.idiomas.desactivar	Deactivate this language? Users will no longer be able to select it.
+EN	conf.idiomas.titulo	Confirm
+EN	msg.hist.restaurado	Order #{0} successfully restored.
+EN	conf.hist.restaurar.msg	Restore order #{0} to the state before '{1}' (op. #{2})?\n\n⚠ Note: this operation modifies the Order status in the database.\nThe status of associated Garments is NOT automatically reverted.\n\nConfirm?
+EN	msg.usr.dvrecalculados	DVH and DVV successfully recalculated for all users.
+EN	msg.usr.errordv	Error recalculating DV: {0}
+EN	msg.rest.dvexito	Check digits successfully recalculated.\nYou can now log in to the system.
+EN	msg.rest.dvtitulo	Integrity Restored
+EN	conf.rest.sobreescribir	Are you sure? This operation will overwrite all current data and restart the application.
+EN	msg.rest.errorrecalcular	Error recalculating: {0}
+EN	msg.rest.errorrestaurar	Error restoring: {0}
+EN	msg.backup.errorgenerar	Error creating backup:\n{0}
+EN	msg.backup.erroreliminar	Error deleting:\n{0}
+EN	msg.backup.errorrestaurar	Error restoring:\n{0}
+EN	msg.historial.errorcargar	Error loading history:\n{0}
+EN	msg.historial.errorrestaur	Error restoring version:\n{0}
+EN	msg.error.titulo	Error
+EN	lbl.cli.vencimiento	Expiry Date
+EN	col.cli.vencimiento	Expiry
+EN	msg.cli.sinvenc	No expiry
+EN	msg.cli.vencido	Expired
+EN	msg.cli.proxvencer	Expiring soon
+EN	msg.cli.vigente	Active
+EN	err.ped.suscvencida	⚠ {0}'s subscription expired on {1}.\nUpdate in the Clients module.
+EN	lbl.ped.proxvencer	⏰ Subscription expires in {0} day(s). Remind the client to renew.
+EN	lbl.ped.res.linea1	Selected: {0}  |  Already in use: {1}  |  Total: {2}
+EN	lbl.ped.res.limite	✗ Plan '{0}' allows {1} garment(s). You are exceeding the limit by {2}.
+EN	lbl.ped.res.vacio	You can add up to {0} garment(s) (plan {1}).
+EN	lbl.ped.res.parcial	ℹ Plan '{0}' allows {1}. You are choosing {2} of {3} available — you can add more.
+EN	lbl.ped.res.lleno	✓ You reached the plan maximum '{0}' ({1} garments).
+EN	conf.ped.titulo	Confirm Order
+EN	conf.ped.msg	Confirm order for {0}:\n\n  • {1}\n\nTotal: {2} garment(s)\nPayment method: {3}
+EN	frm.mantenimiento	Maintenance History
+EN	btn.mantenimiento	🔧 Maintenance
+EN	btn.mant.cerrar	Close
+EN	col.mant.entrada	Check-in
+EN	col.mant.salida	Check-out
+EN	col.mant.duracion	Duration (days)
+EN	col.mant.actor	Handler
+EN	col.mant.estado	Status
+EN	mant.abierto	In Cleaning
+EN	mant.cerrado	Completed
+EN	msg.mant.sinregistros	This garment has no maintenance history.
+EN	err.bll.cliente.nombre_requerido	Customer first name is required.
+EN	err.bll.cliente.apellido_requerido	Customer last name is required.
+EN	err.bll.cliente.dni_requerido	Customer ID number is required.
+EN	err.bll.cliente.dni_formato	ID number must be 7 or 8 digits.
+EN	err.bll.cliente.dni_numeros	ID number can only contain digits.
+EN	err.bll.cliente.dni_duplicado	A customer with ID {0} already exists.
+EN	err.bll.cliente.dni_duplicado_otro	ID {0} is already registered to another customer.
+EN	err.bll.cliente.baja_prendas	Cannot delete {0}: they have {1} garment(s) in use. Register the return first.
+EN	err.bll.pedido.sin_prendas	You must select at least one garment.
+EN	err.bll.pedido.cliente_inexistente	The selected customer does not exist.
+EN	err.bll.pedido.sin_plan	Customer {0} has no plan assigned. Assign a plan before creating an order.
+EN	err.bll.pedido.suscripcion_vencida	Subscription for {0} expired on {1}. Renew in the Customers module.
+EN	err.bll.pedido.limite_plan	Plan '{0}' allows {1} garment(s). Customer already has {2} in use and is adding {3} more. Maximum allowed: {4}.
+EN	err.bll.pedido.prenda_no_disponible	Garment '{0}' is no longer available (status: {1}). Update your selection.
+EN	err.bll.pedido.despachar_estado	Only Pending orders can be dispatched. This order is '{0}'.
+EN	err.bll.pedido.entregar_estado	Only Dispatched orders can be marked as Delivered. This order is '{0}'.
+EN	err.bll.pedido.devolucion_estado	Returns can only be registered for Delivered orders. This order is '{0}'.
+EN	err.bll.pedido.cancelar_estado	Only Pending orders can be cancelled. This order is '{0}'.
+EN	err.bll.pedido.cancelar_sin_motivo	A cancellation reason is required.
+EN	err.bll.pedido.descancelar_estado	Only Cancelled orders can be un-cancelled. This order is '{0}'.
+EN	err.bll.pedido.descancelar_prendas	Cannot un-cancel Order #{0}. One or more garments are no longer available.
+EN	err.bll.plan.nombre_requerido	Plan name is required.
+EN	err.bll.plan.limite_invalido	Garment limit must be greater than zero.
+EN	err.bll.plan.precio_negativo	Price cannot be negative.
+EN	err.plan.nombre_requerido	Plan name is required.
+EN	err.plan.nombre_letras	The name can only contain letters.
+EN	err.plan.precio_cero	Price must be greater than zero.
+EN	diag.estado.integro	Status: INTACT
+EN	diag.estado.comprometido	Status: COMPROMISED
+EN	msg.idiomas.cargadas	{0} translation(s) loaded.
+EN	msg.idiomas.seleccionar	Select a language first.
+EN	msg.idiomas.guardadas	{0} translation(s) saved successfully.
+EN	msg.idiomas.guardadas.error	{0} saved and {1} failed.
+EN	err.mant.cargar	Error loading history: {0}
+EN	alerta.integridad.titulo	Integrity Alert
+EN	alerta.integridad.msg	ALERT: Integrity issues detected in the Usuario table.\n\nRows with invalid DVH: {0}\nStored DVV: {1}  |  Calculated DVV: {2}\n\nGo to Administration → Integrity Diagnostics to repair.
+EN	diag.frm.titulo	Integrity Diagnostics
+EN	diag.tab.diagnostico	Diagnostics
+EN	diag.tab.historial	Verification History
+EN	diag.lbl.filasrotas	Rows with invalid DVH:
+EN	diag.btn.recalcular	Recalculate All
+EN	diag.btn.reparar	Repair Selected...
+EN	diag.btn.actualizar	Refresh
+EN	diag.col.id	ID
+EN	diag.col.usuario	Username
+EN	diag.col.dvh.alm	Stored DVH
+EN	diag.col.dvh.calc	Calculated DVH
+EN	diag.col.estado	Status
+EN	diag.col.fecha	Date
+EN	diag.col.tabla	Table
+EN	diag.col.dvv.alm	Stored DVV
+EN	diag.col.dvv.calc	Calculated DVV
+EN	diag.col.filas.corr	Corrupt Rows
+EN	diag.col.resultado	Result
+EN	diag.col.origen	Triggered by
+EN	diag.dvv.detalle	Stored DVV: {0}   |   Calculated DVV: {1}   |   Rows with invalid DVH: {2}
+EN	diag.msg.sinproblemas	No rows with invalid DVH.
+EN	diag.msg.sinprob.titulo	No issues
+EN	diag.conf.recalcular	Recalculate all DVH and DVV for the Usuario table?\n\nThis will overwrite all stored check digits.
+EN	diag.conf.recalcular.titulo	Confirm Full Recalculation
+EN	diag.msg.recalc.exito	Check digits recalculated successfully.
+EN	diag.msg.exito.titulo	Success
+EN	diag.err.cargar	Error loading diagnostics: {0}
+EN	diag.err.recalcular	Error recalculating: {0}
+EN	diag.err.titulo	Error
+EN	diag.fila.sinDVH	No DVH
+EN	diag.fila.nocoincide	DVH mismatch
+EN	diag.hist.ok	OK
+EN	diag.hist.fallo	FAIL
+EN	diag.tip.fallo.titulo	Verification FAILED — table {0}
+EN	diag.tip.dvv.mismatch	• DVV mismatch: stored {0} ≠ computed {1} (rows were inserted, deleted or reordered).
+EN	diag.tip.filas.corruptas	• {0} row(s) with invalid DVH: the content of those rows was modified directly in the database.
+EN	diag.tip.causa	Possible direct manipulation of the database. Repair from the Diagnostics tab or restore a backup.
+EN	diag.tip.ok	Verification OK: the check digits match the data.
+EN	diag.tabla.corrupta	Table '{0}'
+EN	diag.tabla.dvinvalido	Invalid CD — use “Recompute All”
+EN	diag.tablas.corruptas	Tables with invalid CD: {0}
+RU	btn.usr.recalculardv	Пересчитать целостность (DV)
+RU	btn.usr.eliminar	🗑 Архивировать
+RU	btn.usr.verarchivados	Архив
+RU	btn.usr.veractivos	Активные
+RU	btn.usr.purgar	Очистить (>1 г.)
+RU	usr.archivado	В архиве
+RU	msg.usr.archivados	Пользователей в архиве: {0}.
+RU	msg.usr.archivado	Пользователь '{0}' архивирован.
+RU	conf.usr.archivar.titulo	Подтвердите архивирование
+RU	conf.usr.archivar.body	Архивировать пользователя '{0}'?\n\nОн не сможет войти и исчезнет из списка, но история сохранится.\nОкончательно удалить можно через 1 год.
+RU	conf.usr.purgar.titulo	Подтвердите очистку
+RU	conf.usr.purgar.body	Будет ОКОНЧАТЕЛЬНО удалено пользователей (в архиве более 1 года): {0}.\nЭто действие необратимо.\n\nПродолжить?
+RU	msg.usr.purga.ninguno	Нет пользователей в архиве более 1 года для очистки.
+RU	msg.usr.purga.ok	Окончательно удалено пользователей: {0}.
+RU	err.bll.usuario.autobaja	Нельзя архивировать собственную учётную запись при открытой сессии.
+RU	err.bll.usuario.ultimo_admin	Нельзя архивировать последнего активного Администратора. Сначала создайте или активируйте другого Администратора.
+RU	btn.usr.resetmasivo	Сбросить все пароли на временный
+RU	mnu.integridad	Диагностика целостности
+RU	err.bll.sesion_expirada	Сессия истекла. Войдите снова.
+RU	err.seg.sesion_no_iniciada	Сессия не активна. Сначала войдите в систему.
+RU	err.seg.sesion_ya_iniciada	Сессия уже активна. Выйдите перед началом новой.
+RU	err.bll.sin_permiso	У вас нет разрешения на выполнение этой операции («{0}»).
+RU	err.bll.integridad	Операция отменена: обнаружено возможное изменение данных пользователей (неверный контрольный разряд). Перезапустите систему для восстановления целостности перед продолжением.
+RU	err.bll.ciclo	Компонент не может содержать сам себя.
+RU	err.bll.nombre_vacio	Имя не может быть пустым.
+RU	err.bll.padre_invalido	Родительский узел не может иметь дочерних элементов (это не Семья и не Роль).
+RU	err.bll.rol_duplicado	Роль с именем «{0}» уже существует.
+RU	err.bll.rol_en_uso	Невозможно удалить роль «{0}»: она назначена {1} пользователю(ям) ({2}). Переназначьте этих пользователей на другую роль перед удалением.
+RU	err.bll.rol_inexistente	Роль «{0}» не существует как узел дерева разрешений. Откройте экран заново.
+RU	err.bll.snapshot_fallido	Не удалось сохранить предыдущее состояние пользователя (контроль изменений); операция отменена, чтобы не потерять историю.
+RU	err.bll.backup.sin_permiso	Только администратор может выполнять операции резервного копирования и восстановления.
+RU	err.bll.familia.sin_permiso	Только администратор может изменять разрешения ролей.
+RU	err.bll.cliente.plan_insuficiente	Невозможно назначить план «{0}»: у клиента {1} вещь(ей) в использовании, а этот план допускает только {2}. Сначала оформите возвраты.
+RU	err.bll.idioma.campos	Код и название языка обязательны.
+RU	err.bll.idioma.codigo_largo	Код языка не может превышать 5 символов.
+RU	err.bll.idioma.duplicado	Язык с кодом «{0}» уже существует.
+RU	err.bll.idioma.nombre	Название языка обязательно.
+RU	err.bll.pedido.devolucion_ya_hecha	В заказе №{0} нет вещей в использовании для возврата (возможно, возврат уже оформлен).
+RU	err.bll.pedido.empleado_sin_vinculo	У пользователя «{0}» нет связанного сотрудника. Попросите администратора настроить связь.
+RU	err.bll.pedido.historial_vacio	Не найдены изменения для операции №{0} заказа №{1}.
+RU	err.bll.pedido.ya_despachado	У клиента есть отправленный заказ №{0}, ожидающий доставки. Подтвердите доставку перед созданием нового.
+RU	err.bll.plan.tiene_clientes	Невозможно деактивировать план: к нему привязано {0} активный(ых) клиент(ов). Переназначьте их на другой план перед деактивацией.
+RU	err.bll.prenda.categoria_requerida	Категория обязательна.
+RU	err.bll.prenda.nombre_requerido	Название вещи обязательно.
+RU	err.bll.prenda.talle_requerido	Размер обязателен.
+RU	err.bll.usuario.no_existe	Пользователь этой версии больше не существует.
+RU	err.bll.usuario.perfil_requerido	Профиль/роль обязательны.
+RU	err.bll.usuario.sin_permiso	Только администратор может управлять пользователями.
+RU	err.bll.usuario.username_corto	Имя пользователя должно содержать не менее 3 символов.
+RU	err.bll.usuario.username_requerido	Имя пользователя обязательно.
+RU	err.bll.version.no_existe	Выбранная версия не существует.
+RU	err.bll.prenda.transicion_baja	Списанная вещь не может менять состояние.
+RU	err.bll.prenda.transicion_enuso	Нельзя вручную изменить состояние вещи, находящейся в использовании.\nСостояние обновляется автоматически при обработке заказов.
+RU	err.bll.prenda.transicion_generica	Переход из «{0}» в «{1}» не разрешён.
+RU	lbl.permisos.familias	Список семейств (составные)
+RU	lbl.permisos.patentes	Список патентов (простые)
+RU	lbl.permisos.composicion	Действующий состав (рекурсивно)
+RU	chk.permisos.vertodos	Показать все роли
+RU	perm.todoslosroles	Все роли
+RU	lbl.permisos.embeber	Вложить роль:
+RU	lbl.permisos.anidar	Вложить в семейство:
+RU	btn.permisos.anidar	Вложить выбранное ➜
+RU	perm.msg.selanidar	Выберите в списке семейство или право, которое нужно вложить.
+RU	perm.msg.familiadest	Выберите семейство назначения для вложения.
+RU	perm.msg.mismocomp	Семейство нельзя вложить в самого себя.
+RU	perm.ok.anidado	«{0}» вложено в семейство «{1}».
+RU	perm.err.anidar	Не удалось вложить: {0}
+RU	lbl.permisos.estructura	Структура системы (роли, семейства и права)
+RU	lbl.permisos.disponibles	Доступные для добавления
+RU	lbl.permisos.efectivos	Действующие права (рекурсивно)
+RU	lbl.permisos.miembros	Состав: {0}
+RU	lbl.permisos.miembros.vacio	Состав (выберите семейство или роль)
+RU	btn.permisos.agregar	Добавить ↓
+RU	btn.permisos.quitar	Убрать ↑
+RU	perm.msg.selpadre	Выберите семейство или роль, чтобы добавить потомков.
+RU	perm.ok.agregado	«{0}» добавлено в «{1}».
+RU	perm.ok.quitado	«{0}» убрано из «{1}».
+RU	perm.tipo.rol	роль
+RU	btn.permisos.crearpatente	➕ Право
+RU	btn.permisos.crearfamilia	➕ Семейство
+RU	btn.permisos.crearrol	➕ Роль
+RU	btn.permisos.actualizar	↻ Обновить
+RU	lbl.permisos.ayuda	❔ Справка
+RU	help.permisos.titulo	Право, Семейство или Роль?
+RU	help.permisos.patente	Право — атомарное разрешение (одно конкретное действие/экран). Это лист: ничего не содержит.
+RU	help.permisos.familia	Семейство — группирует права для повторного использования в ролях. Пользователю не назначается.
+RU	help.permisos.rol	Роль — профиль, назначаемый пользователю. Может содержать права, семейства и другие роли (роль в роли).
+RU	help.permisos.general	🔑 ПРАВО — атомарное разрешение: конкретное действие/экран (напр. «Просмотр одежды»). Лист.\n📁 СЕМЕЙСТВО — группирует права для повторного использования; не назначается пользователям.\n👥 РОЛЬ — семейство, которое назначается пользователю (его профиль); может содержать права, семейства и другие роли.\n\nУ пользователя есть роль, и система рекурсивно собирает все права под ней = его действующие разрешения.
+RU	lbl.permisos.subtitulo	Управление ролями, семействами и правами
+RU	btn.permisos.nuevorol	➕ Новая роль
+RU	btn.permisos.eliminarrol	🗑 Удалить роль
+RU	btn.permisos.nuevafamilia	➕ Новое семейство
+RU	btn.permisos.nuevapatente	➕ Новый патент
+RU	btn.permisos.embeber	Вложить ➜
+RU	btn.permisos.modificar	✏ Изменить выбор
+RU	btn.permisos.eliminar	🗑 Удалить выбор
+RU	perm.dlg.rol.t	Новая роль
+RU	perm.dlg.rol.p	Название новой роли:
+RU	perm.dlg.fam.t	Новое семейство
+RU	perm.dlg.fam.p	Название семейства (составное разрешение):
+RU	perm.dlg.pat.t	Новый патент
+RU	perm.dlg.pat.p	Название патента (простое разрешение):
+RU	perm.dlg.pat.menu	Связанное имя меню (необязательно, напр.: mnuClientes):
+RU	perm.dlg.mod.t	Изменить компонент
+RU	perm.dlg.mod.p	Новое название:
+RU	perm.dlg.mod.menu	Связанное имя меню:
+RU	perm.conf.titulo	Подтверждение
+RU	perm.conf.elirol	Удалить роль «{0}»?
+RU	perm.conf.elicomp	Удалить {0} «{1}»? Он будет удалён из всех ролей.
+RU	perm.tipo.familia	семейство
+RU	perm.tipo.patente	патент
+RU	perm.msg.selmod	Выберите патент или семейство для изменения.
+RU	perm.msg.seleli	Выберите патент или семейство для удаления.
+RU	perm.msg.norol	Не удалось определить роль.
+RU	perm.ok.guardado	Изменения сохранены для «{0}»: добавлено {1}, удалено {2}.
+RU	perm.ok.embebido	Роль «{0}» вложена в «{1}».
+RU	perm.ok.rolcreado	Роль «{0}» создана.
+RU	perm.ok.roleli	Роль «{0}» удалена.
+RU	perm.ok.patcreada	Патент «{0}» создан.
+RU	perm.ok.famcreada	Семейство «{0}» создано.
+RU	perm.ok.modificado	Компонент изменён на «{0}».
+RU	perm.ok.eliminado	«{0}» удалён.
+RU	perm.err.embeber	Не удалось вложить: {0}
+RU	btn.idiomas.nuevo	➕ Новый язык
+RU	btn.idiomas.renombrar	✏ Переименовать
+RU	idiomas.dlg.nuevo.t	Новый язык
+RU	idiomas.dlg.nuevo.codigo	Код (напр.: FR, IT, PT) — макс. 5:
+RU	idiomas.dlg.nuevo.nombre	Название языка (напр.: Français):
+RU	idiomas.dlg.renombrar.t	Переименовать язык
+RU	idiomas.dlg.renombrar.p	Новое название:
+RU	idiomas.msg.selecc	Выберите язык из таблицы.
+RU	idiomas.ok.creado	Язык «{0}» создан (неактивен — активируйте его после загрузки переводов).
+RU	idiomas.ok.renombrado	Язык переименован.
+RU	idiomas.conf.incompleto	В этом языке {0} непереведённых элемент(ов).\nЕсли вы активируете его, эти тексты будут показаны на языке по умолчанию.\n\nВсё равно активировать?
+RU	idiomas.conf.incompleto.t	Неполные переводы
+RU	lbl.idiomas.controles	Переводимые элементы
+RU	err.generico.cargar	Ошибка загрузки: {0}
+RU	err.generico.guardar	Ошибка сохранения: {0}
+RU	pedidos.hist.encontrados	Найдено записей: {0}.
+RU	frm.login	WardrobeFlow — Вход
+RU	lbl.usuario	Пользователь
+RU	lbl.contrasena	Пароль
+RU	btn.ingresar	Войти
+RU	btn.salir	Выйти
+RU	lnk.olvide	Забыли пароль?
+RU	lbl.iniciarsesion	Войти в систему
+RU	lbl.idioma	Язык:
+RU	lbl.subtitulo	ПОРТАЛ СОТРУДНИКОВ
+RU	lbl.bienvenido	Добро пожаловать
+RU	lbl.credenciales	Введите данные для входа
+RU	lbl.divider	или
+RU	lbl.brand.desc	Безопасный доступ\nко всем модулям системы.
+RU	err.login.camposvacio	Имя пользователя и пароль обязательны.
+RU	err.login.credenciales	Неверное имя пользователя или пароль.
+RU	err.login.intentos	Неверное имя пользователя или пароль.\nОсталось попыток: {0}.
+RU	err.login.bloqueada	Аккаунт заблокирован.\nОбратитесь к Администратору для разблокировки.
+RU	err.login.limitesesion	Слишком много неудачных попыток в этом сеансе.
+RU	dlg.login.sesion.titulo	Сеанс завершён
+RU	dlg.login.sesion.cierre	Приложение будет закрыто.
+RU	mnu.perfil	Профиль
+RU	mnu.inventario	Склад
+RU	mnu.prendas	Одежда
+RU	mnu.ventas	Продажи
+RU	mnu.clientes	Клиенты
+RU	mnu.planes	Тарифные планы
+RU	mnu.pedidosventa	Заказы на продажу
+RU	mnu.pedidosreal	Выполненные заказы
+RU	mnu.administrar	Администрирование
+RU	mnu.usuarios	Пользователи
+RU	mnu.perfiles	Профили и права
+RU	mnu.bitacora	Журнал аудита
+RU	mnu.cerrarsesion	Выйти из системы
+RU	mnu.idiomas	Управление языками
+RU	frm.clientes	Управление клиентами
+RU	lbl.buscar	Поиск:
+RU	btn.nuevocliente	+ Новый клиент
+RU	btn.editar	✎ Изменить
+RU	btn.darbaja	✕ Удалить
+RU	frm.prendas	Каталог одежды
+RU	lbl.estado	Состояние:
+RU	btn.nuevaprenda	+ Новая одежда
+RU	btn.cambiarestado	⇄ Состояние
+RU	lbl.clienteenuso	Клиент (в использовании):
+RU	frm.gestion	Управление пользователями
+RU	lbl.nuevousuario	Новый пользователь
+RU	lbl.nombreusuario	Имя пользователя:
+RU	lbl.perfilrol	Профиль (роль):
+RU	btn.agregar	Добавить пользователя
+RU	lbl.resettitulo	Сброс пароля
+RU	lbl.resetinfo	Выберите пользователя\nиз списка и нажмите:
+RU	btn.resetclave	Сбросить пароль
+RU	lbl.desbloqtitulo	Разблокировать аккаунт
+RU	lbl.desbloqinfo	Выберите заблокированного\nпользователя и нажмите:
+RU	btn.desbloquear	Разблокировать аккаунт
+RU	lbl.listatitulo	Зарегистрированные пользователи
+RU	frm.planes	Тарифные планы
+RU	lbl.nuevopla	Новый план
+RU	lbl.nombreplan	Название плана *
+RU	lbl.limiteprendas	Лимит одежды *
+RU	lbl.preciomensual	Цена в месяц ($) *
+RU	btn.guardarplan	Сохранить план
+RU	btn.limpiar	Очистить / Новый
+RU	lbl.acciones	Действия над выбранным планом
+RU	btn.desactivar	Деактивировать план
+RU	btn.activar	Активировать план
+RU	lbl.planesreg	Зарегистрированные планы
+RU	frm.bitacora	Аудит — Журналы системы
+RU	frm.bitacora.subtitulo	Журнал системных событий и бизнес-операций
+RU	tab.sistema	🔐  Системный журнал
+RU	tab.negocio	📦  Бизнес-журнал
+RU	lbl.ultimos	Последние
+RU	lbl.dias	дней  (0 = все)
+RU	btn.ver	Просмотр
+RU	lbl.usuarioid	ID пользователя:
+RU	lbl.actividad	Активность:
+RU	lbl.criticidad	Критичность:
+RU	btn.buscar	Поиск
+RU	btn.limpiarfiltro	Очистить
+RU	btn.exportar	Экспорт CSV
+RU	lbl.tipoevento	Тип события:
+RU	lbl.idpedido	ID заказа:
+RU	lbl.idcliente	ID клиента:
+RU	frm.pedidosventa	Заказы на продажу
+RU	btn.nuevopedido	+ Новый заказ
+RU	btn.cancelarpedido	✕ Отменить
+RU	btn.descancelar	↩ Восстановить
+RU	lbl.prendaspedido	Одежда выбранного заказа
+RU	frm.pedidosreal2	Выдача заказов
+RU	btn.despachar	📦 Отправить
+RU	btn.entregado	✓ Отметить доставленным
+RU	btn.vernotificacion	✉ Посмотреть уведомление
+RU	btn.devolucion	↩ Зарегистрировать возврат
+RU	lbl.detallepedido	Детали выбранного заказа
+RU	col.ped.urgencia	Срочность
+RU	col.ped.fecha	Дата
+RU	col.ped.cliente	Клиент
+RU	col.ped.vendedor	Продавец
+RU	col.ped.prendas	Одежда
+RU	col.ped.estado	Статус
+RU	col.ped.despacho	Отправка
+RU	col.ped.entrega	Доставка
+RU	col.ped.motivo	Причина
+RU	lbl.ped.seleccionado	Заказ #{0} — {1} — {2}
+RU	urg.urgente	Срочно
+RU	urg.normal	Норма
+RU	urg.reciente	Недавно
+RU	est.pendiente	Ожидание
+RU	est.despachado	Отправлен
+RU	est.entregado	Доставлен
+RU	est.cancelado	Отменён
+RU	col.bit.id	Id
+RU	col.bit.fecha	Дата
+RU	col.bit.usuario	Пользователь
+RU	col.bit.modulo	Модуль
+RU	col.bit.actividad	Активность
+RU	col.bit.detalle	Детали
+RU	col.bit.criticidad	Критичность
+RU	col.bit.ip	IP
+RU	col.neg.idevento	Id события
+RU	col.neg.fecha	Дата
+RU	col.neg.tipo	Тип
+RU	col.neg.usuario	Пользователь
+RU	col.neg.cliente	Клиент
+RU	col.neg.idpedido	Id заказа
+RU	col.neg.idprenda	Id одежды
+RU	col.neg.idcliente	Id клиента
+RU	col.neg.desc	Описание
+RU	stat.ninguno	Нет
+RU	stat.baja	Низкая
+RU	stat.media	Средняя
+RU	stat.alta	Высокая
+RU	stat.intlogin	Попытки входа
+RU	stat.recupclave	Сброс пароля
+RU	stat.bloqueos	Блокировки
+RU	stat.sindatos	Нет данных критичности
+RU	frm.historial	История изменений заказа
+RU	lbl.hist.pedido	Заказ #
+RU	lbl.hist.filtros	Фильтры
+RU	combo.hist.todas	— Все —
+RU	lbl.hist.desde	С:
+RU	lbl.hist.hasta	По:
+RU	lbl.hist.accion	Действие:
+RU	btn.hist.buscar	🔍 Поиск
+RU	btn.hist.restaurar	⟲ Восстановить
+RU	btn.hist.cerrar	Закрыть
+RU	col.hist.op	Op.
+RU	col.hist.fecha	Дата
+RU	col.hist.usuario	Пользователь
+RU	col.hist.accion	Действие
+RU	col.hist.campo	Поле
+RU	col.hist.anterior	Было
+RU	col.hist.nuevo	Стало
+RU	dlg.cerrarsesion.titulo	Выход из системы
+RU	dlg.cerrarsesion.msg	Вы уверены, что хотите выйти?
+RU	btn.si	Да
+RU	btn.no	Нет
+RU	btn.refrescar	↻ Обновить список
+RU	combo.prenda.todos	Все
+RU	prenda.disponible	Доступна
+RU	prenda.enuso	В использовании
+RU	prenda.enlimpieza	На чистке
+RU	prenda.baja	Выбыла
+RU	col.prenda.nombre	Название
+RU	col.prenda.categoria	Категория
+RU	col.prenda.talle	Размер
+RU	col.prenda.color	Цвет
+RU	col.prenda.estado	Статус
+RU	col.prenda.cliente	Клиент
+RU	col.prenda.alta	Добавлено
+RU	msg.prenda.conteo	Показано {0} из {1}
+RU	msg.prenda.cargadas	{0} вещей в каталоге.
+RU	col.plan.nombre	Название
+RU	col.plan.prendas	Одежда
+RU	col.plan.precio	Цена
+RU	col.plan.estado	Статус
+RU	plan.activo	Активен
+RU	plan.inactivo	Неактивен
+RU	msg.planes.cargados	{0} план(ов) загружено.
+RU	frm.nuevocliente	Новый клиент
+RU	frm.editarcliente	Редактировать клиента
+RU	lbl.cli.nombre	Имя *
+RU	lbl.cli.apellido	Фамилия *
+RU	lbl.cli.dni	ИНН * (7-8 цифр)
+RU	lbl.cli.email	Email
+RU	lbl.cli.metodopago	Способ оплаты *
+RU	lbl.cli.plan	Тарифный план
+RU	combo.cli.sinplan	— Без плана —
+RU	btn.registrar.cliente	Зарегистрировать
+RU	btn.guardar.cambios	Сохранить изменения
+RU	btn.cancelar	Отмена
+RU	col.cli.nombre	Имя
+RU	col.cli.apellido	Фамилия
+RU	col.cli.dni	ИНН
+RU	col.cli.email	Email
+RU	col.cli.plan	План
+RU	col.cli.prendas	Одежда
+RU	col.cli.metodopago	Способ оплаты
+RU	col.cli.alta	Добавлен
+RU	lbl.sinplan	Без плана
+RU	msg.cli.conteo	Показано {0} из {1}
+RU	msg.cli.cargados	{0} клиент(ов) зарегистрировано.
+RU	col.usr.username	Пользователь
+RU	col.usr.perfil	Роль
+RU	col.usr.estado	Статус
+RU	usr.activo	Активен
+RU	usr.bloqueada	Заблокирован
+RU	msg.usr.cargados	{0} пользователей зарегистрировано.
+RU	frm.olvidepass	Восстановление пароля
+RU	lbl.recup.titulo	Восстановление пароля
+RU	lbl.recup.desc	Введите имя пользователя. Администратор\nсможет сбросить ваш пароль через систему.
+RU	lbl.recup.usuario	Имя пользователя:
+RU	btn.enviar.solicitud	Отправить запрос
+RU	err.recup.nousername	Введите имя пользователя.
+RU	err.recup.nousuario	Пользователь '{0}' не найден.\nПроверьте правильность написания имени.
+RU	msg.recup.exito	Пользователь '{0}' найден.\nОбратитесь к администратору для сброса\nпароля через Управление → Пользователи.
+RU	err.recup.verificar	Ошибка при проверке пользователя: {0}
+RU	col.det.prenda	Одежда
+RU	frm.nuevaprenda	Новая одежда
+RU	frm.editarprenda	Редактировать одежду
+RU	lbl.prenda.nombre	Название *
+RU	lbl.prenda.descrip	Описание
+RU	lbl.prenda.talle	Размер *
+RU	lbl.prenda.color	Цвет
+RU	lbl.prenda.categoria	Категория *
+RU	btn.agregar.prenda	Добавить одежду
+RU	frm.nuevopedido	Новый заказ на продажу
+RU	paso1.texto	Шаг 1 из 2 — Выбрать клиента
+RU	paso2.texto	Шаг 2 из 2 — Выбрать одежду
+RU	lbl.ped.selcliente	Выберите клиента для этого заказа:
+RU	combo.ped.placeholder	— Выберите клиента —
+RU	lbl.ped.selprendas	Выберите одежду для включения в заказ (флажок):
+RU	btn.siguiente	Далее →
+RU	btn.volver	← Назад
+RU	btn.confirmar.pedido	✓ Подтвердить заказ
+RU	btn.procesando	Обработка...
+RU	accion.crear	Создать
+RU	accion.despachar	Отправить
+RU	accion.entregar	Доставить
+RU	accion.cancelar	Отменить
+RU	accion.descancelar	Снять отмену
+RU	accion.devolucion	Возврат
+RU	accion.restaurar	Восстановить
+RU	crit.todas	Все
+RU	crit.ninguno	Нет (0)
+RU	crit.baja	Низкая (1)
+RU	crit.media	Средняя (2)
+RU	crit.alta	Высокая (3)
+RU	crit.intlogin	Попытки входа (4)
+RU	crit.recupclave	Сброс пароля (5)
+RU	crit.bloqueos	Блокировки аккаунта (6)
+RU	btn.exportar.pdf	📄 Экспорт PDF
+RU	msg.ped.conteo	{0} заказ(ов)
+RU	msg.ped.cargados	{0} заказ(ов) загружено.
+RU	msg.ped.creado	Заказ #{0} создан. Статус: Ожидание.
+RU	msg.ped.cancelado	Заказ #{0} отменён. Вещи освобождены.
+RU	msg.ped.reactivado	Заказ #{0} реактивирован — статус: Ожидание.
+RU	msg.ped.ensistema	{0} заказ(ов) в системе.
+RU	msg.ped.mostrando	Показано {0} из {1}
+RU	msg.ped.despachado	Заказ #{0} успешно отправлен.
+RU	msg.ped.entregado	Заказ #{0} отмечен как доставленный.
+RU	msg.ped.devolucion	Возврат зарегистрирован — {0} вещей отправлено на чистку.
+RU	btn.historial	📋 История
+RU	btn.aceptar	Принять
+RU	dlg.cancelped.titulo	Причина отмены
+RU	msg.cancelped.req	Для отмены требуется причина.
+RU	lbl.motivo	Причина:
+RU	conf.cancelped.titulo	Подтвердить отмену
+RU	conf.cancelped.body	Отменить заказ #{0} для {1}?\n\nПричина: {2}\n\nВещи вернутся в статус Доступна.
+RU	conf.descancelar.titulo	Подтвердить восстановление
+RU	conf.descancelar.body	Восстановить заказ #{0} для {1}?\n\nДоступность оригинальных вещей будет проверена\nи заказ вернётся в статус Ожидание.
+RU	conf.despachar.titulo	Подтвердить отправку
+RU	conf.despachar.body	Отправить заказ #{0}?\n\nКлиент: {1}\nВещей: {2}\n\nЗаказ перейдёт в статус Отправлен.
+RU	conf.entrega.titulo	Подтвердить доставку
+RU	conf.entrega.body	Подтвердить доставку заказа #{0} клиенту {1}?
+RU	conf.devolucion.titulo	Подтвердить возврат
+RU	conf.devolucion.body	Зарегистрировать возврат заказа #{0}?\n\nКлиент: {1}\nВещей: {2}\n\nВещи перейдут в статус На чистке.
+RU	msg.prenda.agregada	Вещь '{0}' добавлена в каталог.
+RU	msg.prenda.actualizada	Вещь '{0}' обновлена.
+RU	msg.prenda.estadoact	Статус '{0}' обновлён на {1}.
+RU	opt.enviarlimpieza	Отправить на чистку
+RU	opt.darbaja	Списать
+RU	opt.marcardisp	Пометить доступной
+RU	err.prenda.enuso	Нельзя изменить статус: вещь используется клиентом.
+RU	err.prenda.baja	Вещь списана и не может быть реактивирована.
+RU	lbl.cambioest.info	Вещь: {0}  —  Текущий статус: {1}
+RU	msg.cambioest.selecciona	Выберите вариант.
+RU	msg.cambioest.bajairrev	Списание необратимо. Подтвердить?
+RU	conf.baja.titulo	Списать
+RU	frm.resetclave	Сброс пароля
+RU	lbl.nueva.clave	Новый пароль (мин. 6 символов):
+RU	lbl.confirmar.clave	Подтвердить пароль:
+RU	btn.confirmar.reset	Подтвердить сброс
+RU	err.clave.longitud	Пароль должен содержать не менее 6 символов.
+RU	err.clave.nomatch	Пароли не совпадают.
+RU	notif.titulo	УВЕДОМЛЕНИЕ О ЗАКАЗЕ
+RU	notif.numero	Заказ #:
+RU	notif.msgbox.titulo	Уведомление — Заказ #{0}
+RU	frm.cambioestado	Изменить статус вещи
+RU	lbl.nuevoestado	Новый статус:
+RU	btn.confirmar.cambio	Подтвердить изменение
+RU	err.ped.sinprendas	Выберите хотя бы одну вещь.
+RU	err.hist.restaurar	Выберите строку истории для восстановления.
+RU	err.usr.sinperfil	Выберите профиль/роль.
+RU	err.usr.nombre.req	Имя пользователя обязательно.
+RU	err.usr.nombre.longitud	Имя пользователя должно содержать минимум 3 символа.
+RU	err.cli.dni.numeros	✗ DNI может содержать только цифры.
+RU	lbl.ped.detalletitulo	Заказ #{0}  ·  {1}  ·  {2}  ·  {3} {4}
+RU	tevt.todos	Все
+RU	tevt.venta	Продажа
+RU	tevt.cancelacion	Отмена
+RU	tevt.despacho	Отправка
+RU	tevt.entrega	Доставка
+RU	tevt.altaprenda	Новая вещь
+RU	tevt.modprenda	Изменение вещи
+RU	tevt.cambiostprenda	Изменение статуса вещи
+RU	tevt.altacliente	Новый клиент
+RU	tevt.modcliente	Изменение клиента
+RU	tevt.bajacliente	Удаление клиента
+RU	lbl.editplan	Редактировать план
+RU	msg.bit.registros	  {0} запись(ей)
+RU	msg.bit.ultimos	последние {0} дней
+RU	msg.bit.todos	все записи
+RU	notif.frm.titulo	Уведомление — Заказ #{0}
+RU	notif.header.entregado	✓  Заказ #{0} — ДОСТАВЛЕН
+RU	notif.header.despachado	📦  Заказ #{0} — ОТПРАВЛЕН
+RU	btn.copiar.porta	Копировать в буфер обмена
+RU	btn.copiado	✓ Скопировано
+RU	notif.gen.saludo	Уважаемый/ая {0},
+RU	notif.gen.entregado	Рады подтвердить, что ваш заказ был доставлен.\nСпасибо, что выбрали WardrobeFlow.
+RU	notif.gen.despachado	Сообщаем, что ваш заказ был отправлен\nи прибудет к вам в ближайшее время.
+RU	notif.gen.nropedido	Номер заказа
+RU	notif.gen.fechapedido	Дата заказа
+RU	notif.gen.fechadespacho	Дата отправки
+RU	notif.gen.fechaentrega	Дата доставки
+RU	notif.gen.estado	Статус
+RU	notif.gen.prendas	Вещи в заказе ({0}):
+RU	notif.gen.talle	Размер
+RU	notif.gen.color	Цвет
+RU	notif.gen.categoria	Категория
+RU	notif.gen.footer	По любым вопросам обращайтесь к нам.
+RU	notif.gen.slogan	WardrobeFlow — Ваш гардероб без ограничений.
+RU	frm.reparacion	Ручное исправление контрольных цифр
+RU	lbl.rep.seleccionar	Выберите строки для исправления
+RU	lbl.rep.resumen	Обнаружено {0} строк(а/и) с недействительным DVH.
+RU	btn.rep.selall	Выбрать все
+RU	btn.rep.deselall	Снять выбор
+RU	btn.rep.reparar	Исправить выбранные
+RU	col.rep.id	ID
+RU	col.rep.usuario	Пользователь
+RU	col.rep.dvh	Сохранённый DVH
+RU	col.rep.estado	Статус
+RU	rep.estado.sinDVH	DVH не сохранён
+RU	rep.estado.nocoincide	DVH не совпадает с текущими данными
+RU	msg.rep.seleccionar	Выберите хотя бы одну строку для исправления.
+RU	msg.rep.sinseleccion.titulo	Нет выбора
+RU	msg.rep.confirmar	Исправить контрольные цифры {0} строк(а/и)?\n\nИндивидуальные DVH и DVV таблицы будут пересчитаны.
+RU	msg.rep.confirmar.titulo	Подтвердить исправление
+RU	msg.rep.exito	{0} строк(а/и) успешно исправлено.\nDVV таблицы был пересчитан.
+RU	msg.rep.exito.titulo	Исправление выполнено
+RU	perfil.administrador	Администратор
+RU	perfil.supervisor	Supervisor
+RU	perfil.vendedor	Продавец
+RU	perfil.stock	Контролёр склада
+RU	perfil.operador	Оператор инвентаря
+RU	metodo.efectivo	Наличные
+RU	metodo.debito	Дебетовая карта
+RU	metodo.credito	Кредитная карта
+RU	metodo.transferencia	Банковский перевод
+RU	msg.modulo.outfits	Модуль Наряды ещё недоступен.
+RU	msg.modulo.categorias	Модуль Категории ещё недоступен.
+RU	lbl.proximamente	Скоро
+RU	err.pdf.sinDatos	Нет данных для экспорта.
+RU	lbl.exportarpdf	Экспорт PDF
+RU	lbl.ped.infoplan	Клиент: {0}\nПлан: {1}\nВещей в использовании: {2}\nМетод оплаты: {3}\nС: {4}
+RU	err.ped.sinplan	⚠ У {0} не назначен план.\nНазначьте план в модуле Клиентов перед созданием заказа.
+RU	msg.usr.creado	Пользователь '{0}' [{1}] успешно создан.
+RU	msg.usr.creado.exportado	Пользователь '{0}' [{1}] создан.\nУчётные данные сохранены в:\n{2}
+RU	msg.usr.clave.exportada	Пароль '{0}' сгенерирован автоматически.\nУчётные данные сохранены в:\n{1}
+RU	err.usr.selecciona	Выберите пользователя из списка.
+RU	dlg.resetclave.prompt	Новый пароль для '{0}' (минимум 6 символов):
+RU	msg.usr.clave.reseteada	Пароль для '{0}' успешно сброшен.
+RU	err.usr.sel.bloqueado	Выберите заблокированного пользователя из списка.
+RU	conf.desbloquear.body	Разблокировать аккаунт '{0}'?
+RU	conf.desbloquear.titulo	Подтвердить разблокировку
+RU	msg.usr.desbloqueada	Аккаунт '{0}' разблокирован.
+RU	conf.resetmasivo.titulo	Сбросить все пароли
+RU	conf.resetmasivo.body	Все пароли будут сброшены к:\n\n   {0}\n\nСообщите каждому сотруднику о необходимости их изменить.\n\nПодтвердить?
+RU	conf.resetmasivo.body.generico	Все пароли будут сброшены до временного пароля.\n\nСообщите каждому сотруднику о необходимости изменить его.\n\nПодтвердить?
+RU	msg.usr.resetmasivo	Все пароли сброшены к: {0}
+RU	frm.gestorpermisos	Менеджер профилей — права
+RU	lbl.permisos.titulo	Профили и права
+RU	lbl.permisos.rol	Роль:
+RU	btn.permisos.guardar	Сохранить
+RU	btn.permisos.cerrar	Закрыть
+RU	msg.permisos.mostrando	Показ прав роли '{0}'.
+RU	msg.permisos.guardados	Изменения сохранены: назначено {0}, убрано {1}.
+RU	perm.rol.administrador	Администратор
+RU	perm.rol.vendedor	Продавец
+RU	perm.rol.operadorlogistico	Логист
+RU	perm.rol.supervisor	Супервайзер
+RU	perm.rol.controladordestock	Контролёр склада
+RU	perm.rol.operadordeinventario	Оператор склада
+RU	perm.grp.inventario	Склад
+RU	perm.grp.sistema	Система
+RU	perm.grp.ventas	Продажи
+RU	perm.pat.gestionarstock	Управление запасами
+RU	perm.pat.vercategorias	Просмотр категорий
+RU	perm.pat.veroutfits	Просмотр нарядов
+RU	perm.pat.verprendas	Просмотр одежды
+RU	perm.pat.gestionarusuarios	Управление пользователями
+RU	perm.pat.verauditoria	Просмотр журнала аудита
+RU	perm.pat.gestionarclientes	Управление клиентами
+RU	perm.pat.gestionarplansuscripciones	Управление тарифными планами
+RU	perm.pat.realizarventas	Оформление продаж
+RU	perm.pat.verpedidosrealizados	Просмотр выполненных заказов
+RU	btn.explorador	🌳 Полная схема системы
+RU	frm.explorador	Полная схема системы
+RU	lbl.explorador.titulo	Полная схема системы
+RU	lbl.explorador.descripcion	Организационная структура WardrobeFlow — Только чтение
+RU	lbl.explorador.leyenda	📁 Семья (составной узел — Область или Роль)    🔑 Патент (лист — атомарное разрешение)
+RU	btn.explorador.cerrar	Закрыть
+RU	btn.explorador.colapsar	⊟ Свернуть всё
+RU	btn.explorador.expandir	⊞ Развернуть всё
+RU	err.explorador.cargar	Ошибка загрузки дерева Composite:\n{0}
+RU	lbl.jerarquia.roles	Иерархия ролей
+RU	lbl.jerarquia.selecciona	Выберите роль в левом дереве.
+RU	lbl.permiso.heredado	 (унаследовано)
+RU	perfil.auditor	Аудитор
+RU	perfil.gerentecomercial	Коммерческий менеджер
+RU	perfil.gerenteinventario	Менеджер склада
+RU	perfil.encargadodestock	Кладовщик
+RU	perfil.operadorlogistico	Логист
+RU	perm.rol.auditor	Аудитор
+RU	perm.rol.gerentecomercial	Коммерческий менеджер
+RU	perm.rol.gerenteinventario	Менеджер склада
+RU	perm.rol.encargadodestock	Кладовщик
+RU	frm.idiomas	Управление языками
+RU	lbl.idiomas.titulo	Языки системы
+RU	lbl.idiomas.trad	Переводы для выбранного языка
+RU	btn.idiomas.activar	✔ Включить
+RU	btn.idiomas.desactivar	✕ Отключить
+RU	btn.idiomas.guardar	💾 Сохранить
+RU	frm.backup	Резервное копирование
+RU	btn.backup.crear	Создать резервную копию (.bak)
+RU	btn.backup.restaurar	Восстановить из копии (.bak)
+RU	btn.backup.eliminar	Удалить
+RU	btn.backup.inicial	Бэкап чистой установки
+RU	msg.backup.inicialexito	Создан бэкап чистой установки:\n{0}
+RU	msg.backup.alcance	\n\nБэкап от {0} ({1} дн. назад).\nВсе изменения после этой даты будут ПОТЕРЯНЫ.
+RU	msg.backup.alcance.desconocido	\n\nНе удалось определить дату бэкапа. Все изменения после его создания будут потеряны.
+RU	err.bll.backup.integridad	Невозможно создать бэкап: нарушена целостность базы.\nИсправьте её в Управление → Диагностика целостности перед резервным копированием.
+RU	err.dal.backup_corrupto	Файл бэкапа недействителен или повреждён и не может быть восстановлен.
+RU	emg.link	Аккаунт заблокирован? Использовать аварийный ключ
+RU	emg.titulo	Разблокировка аварийным ключом
+RU	emg.encabezado	Учётная запись Администратора заблокирована
+RU	emg.info	Введите имя пользователя и один из одноразовых аварийных ключей, чтобы разблокировать учётную запись.
+RU	emg.usuario	Пользователь:
+RU	emg.clave	Аварийный ключ:
+RU	emg.btn.desbloquear	Разблокировать
+RU	emg.exito	Учётная запись разблокирована.\nТеперь вы можете войти как обычно.
+RU	emg.exito.titulo	Учётная запись разблокирована
+RU	err.bll.emergencia.campos	Введите имя пользователя и аварийный ключ.
+RU	err.bll.emergencia.invalida	Неверное имя пользователя или аварийный ключ.
+RU	err.bll.emergencia.solo_admin	Аварийные ключи разблокируют только учётные записи Администратора.
+RU	err.bll.emergencia.no_bloqueada	Учётная запись не заблокирована: вы можете войти как обычно.
+RU	err.bll.emergencia.sin_claves	Аварийные ключи закончились. Попросите другого Администратора создать новый набор.
+RU	perfil.menu	Мой профиль
+RU	perfil.frm.titulo	Мой профиль
+RU	perfil.usuario	Пользователь:
+RU	perfil.perfil	Профиль / Роль:
+RU	perfil.idioma	Предпочитаемый язык:
+RU	perfil.btn.guardar	Сохранить настройки
+RU	perfil.btn.default	Сбросить к заводским настройкам
+RU	perfil.guardado	Настройки сохранены.
+RU	perfil.seccion	Настройки
+RU	perfil.fuente	Шрифт:
+RU	perfil.tamano	Размер текста:
+RU	perfil.tema	Тема:
+RU	perfil.fecha	Формат даты:
+RU	perfil.notif	Получать уведомления
+RU	btn.backup.externo	Из файла...
+RU	col.backup.archivo	Файл
+RU	col.backup.fecha	Дата
+RU	col.backup.autor	Автор
+RU	col.backup.tamanio	Размер
+RU	lbl.backup.info	Примечание: восстановление закроет активные соединения и перезапустит приложение.
+RU	lbl.backup.ubicacion	Расположение копий:
+RU	msg.backup.tituloeliminar	Подтверждение удаления
+RU	msg.backup.confirmeliminar	Удалить резервную копию?\n"{0}"\n\nЭто действие нельзя отменить.
+RU	msg.backup.titulorestaura	Подтверждение восстановления
+RU	msg.backup.confirmrestaura	Восстановить базу данных из:\n"{0}"?\n\nЭто перезапишет все текущие данные\nи перезапустит приложение.
+RU	mnu.backup	Резервная копия
+RU	msg.backup.creadoexito	Резервная копия создана успешно:\n{0}
+RU	msg.backup.restauradaexito	База данных успешно восстановлена.\nПриложение перезапустится.
+RU	msg.backup.restauradatitulo	Восстановление выполнено
+RU	lbl.backup.sincopias	Резервных копий нет.
+RU	lbl.backup.conteo	{0} резервная(ых) копия(й). Последняя: {1}
+RU	frm.restauracion	Целостность системы
+RU	lbl.rest.titulo	Целостность системы нарушена
+RU	lbl.rest.subtitulo	Обнаружены расхождения в контрольных цифрах. Доступ заблокирован.
+RU	lbl.rest.detalle	Детали ошибки:
+RU	btn.rest.recalcular	Пересчитать контрольные цифры
+RU	btn.rest.backup	Восстановить из резервной копии
+RU	btn.rest.salir	Выйти
+RU	dv.alerta.titulo	ПРЕДУПРЕЖДЕНИЕ О ЦЕЛОСТНОСТИ — Таблица Usuario
+RU	dv.dvh.intro	Обнаружено {0} строк(а/и) с недействительным DVH:
+RU	dv.dvv.intro	DVV таблицы не совпадает с сохранённым значением.
+RU	dv.dvv.valores	  Сохранено: {0}  |  Вычислено: {1}
+RU	dv.causas	Возможные причины: прямое изменение базы данных,\nчастичное восстановление резервной копии или ошибка миграции.
+RU	dv.pasos.titulo	Для восстановления целостности Администратор должен:
+RU	dv.pasos.1	  1. Проверить изменённые записи в SQL Server.
+RU	dv.pasos.2	  2. Вручную исправить затронутые значения.
+RU	dv.pasos.3	  3. Запустить пересчёт DVH/DVV из Управление → Пользователи.
+RU	mnu.dashboard	Панель управления
+RU	mnu.bitacora.sistema	Системный журнал
+RU	mnu.bitacora.negocio	Бизнес-журнал
+RU	frm.dashboard	Панель управления
+RU	dash.prendas	Товаров\nдоступно
+RU	dash.clientes	Клиентов\nзарегистрировано
+RU	dash.pedidos	Заказов\nв ожидании
+RU	dash.backup	дней без\nрезервной копии
+RU	dash.ocupacion	загрузка\nсклада
+RU	dash.ocupacion.detalle	{0} исп. · {1} свободно
+RU	dash.btn.refrescar	↻ Обновить
+RU	mnu.reportejornada	Отчёт за день
+RU	frm.reportejornada	Отчёт за день — WardrobeFlow
+RU	rpt.generar	Создать
+RU	rpt.comparar	Сравнить дни
+RU	rpt.exportartxt	Экспорт TXT
+RU	rpt.exportarpdf	Экспорт PDF
+RU	rpt.fecha	День:
+RU	rpt.fecha2	Сравнить с:
+RU	rpt.kpi.prendas	Доступная одежда
+RU	rpt.kpi.clientes	Клиентов
+RU	rpt.kpi.eventos	Событий за день
+RU	rpt.kpi.backup	дней без резервной копии
+RU	rpt.sinDatos	Нет событий за выбранный день.
+RU	rpt.limpiar	Очистить
+RU	rpt.subtitulo	Бизнес-события за день с экспортом в TXT
+RU	rpt.txt.titulo	ОТЧЁТ ЗА ДЕНЬ
+RU	rpt.txt.resumen	СВОДКА СИСТЕМЫ
+RU	rpt.txt.prendas	Доступная одежда
+RU	rpt.txt.clientes	Клиентов
+RU	rpt.txt.diassinbkp	Дней без резервной копии
+RU	rpt.txt.sinbackups	Нет резервных копий
+RU	rpt.txt.eventos	БИЗНЕС-СОБЫТИЯ ЗА ДЕНЬ
+RU	rpt.txt.sinevt	(нет событий за эту смену)
+RU	rpt.txt.usuario	Пользователь
+RU	rpt.txt.cliente	Клиент
+RU	rpt.txt.totalevt	ВСЕГО СОБЫТИЙ
+RU	rpt.txt.generado	Создан
+RU	rpt.txt.comparacion	СРАВНЕНИЕ СМЕН
+RU	rpt.txt.jornada	СМЕНА
+RU	rpt.txt.sinevtjorn	(нет событий за эту смену)
+RU	rpt.txt.comparfinal	ИТОГОВАЯ СВОДКА
+RU	rpt.txt.fecha	Дата
+RU	rpt.txt.eventostot	Всего событий
+RU	rpt.txt.masmasa	имела больше активности
+RU	rpt.txt.ninguna	Ни в одной смене событий не зарегистрировано.
+RU	rpt.txt.iguales	Обе смены имели одинаковое количество событий.
+RU	rpt.txt.rptoegenerado	Отчёт создан
+RU	rpt.txt.compgenerada	Сравнение создано
+RU	rpt.txt.impresionenv	Печать отправлена
+RU	bit.pdf.titulosistema	Системный журнал — WardrobeFlow
+RU	bit.pdf.titulonegocio	Бизнес-журнал — WardrobeFlow
+RU	bit.pdf.pagina	WardrobeFlow — Страница {0}
+RU	bit.pdf.vistaprevia	Предварительный просмотр
+RU	dash.backup.hoy	Сегодня
+RU	dash.sesion.iniciada	Сеанс начат:
+RU	dash.tareas.titulo	Мои незавершённые задачи ({0})
+RU	dash.tareas.sinpendientes	Нет незавершённых задач
+RU	dash.tarea.mantenimiento	Обслуживание
+RU	dash.tarea.pedido	Заказ
+RU	dash.hoy	сегодня
+RU	dash.hace_dias	{0}д назад
+RU	dash.tareas.col.tipo	Тип
+RU	dash.tareas.col.desc	Описание
+RU	dash.tareas.col.fecha	С
+RU	dash.actividad.titulo	Последние события
+RU	dash.stats.titulo	Сводка событий
+RU	dash.col.fecha	Дата
+RU	dash.col.evento	Событие
+RU	dash.col.usuario	Пользователь
+RU	dash.aviso.sinbackup	⚠  Резервных копий нет. Создайте через Администрирование → Резервная копия.
+RU	dash.aviso.vencido	⚠  {0} дней без резервной копии — напоминание каждые {1} дней.
+RU	dash.cfg.titulo	Напоминание о резервной копии
+RU	dash.cfg.recada	Напоминать каждые:
+RU	dash.cfg.dias	дней
+RU	dash.cfg.guardar	Сохранить
+RU	rpt.menu.guardartxt	Сохранить как .TXT
+RU	rpt.menu.imprimir	Печать / Экспорт PDF
+RU	rpt.menu.guardarcmp	Сохранить сравнение как .TXT
+RU	rpt.dlg.guardartxt	Сохранить как TXT
+RU	rpt.dlg.exito.titulo	Успех
+RU	rpt.dlg.exito.msg	Файл сохранён:\n{0}
+RU	frm.historialusr	История изменений пользователей
+RU	lbl.ver.usuario	Пользователь:
+RU	btn.ver.cargar	Загрузить
+RU	btn.ver.restaurar	Восстановить выбранную версию
+RU	col.ver.id	ID
+RU	col.ver.fecha	Дата
+RU	col.ver.actor	Изменено кем
+RU	col.ver.detalle	Детали
+RU	col.ver.estado	Состояние
+RU	mnu.historialusr	История изменений
+RU	frm.confirmaradmin	Подтверждение Администратора
+RU	lbl.confirmaradmin.subtitulo	Только Администратор может продолжить
+RU	lbl.confirmaradmin.usuario	Пользователь
+RU	lbl.confirmaradmin.clave	Пароль
+RU	btn.confirmaradmin.ok	Подтвердить
+RU	btn.confirmaradmin.cancelar	Отмена
+RU	msg.confirmar.vacio	Введите имя пользователя и пароль.
+RU	msg.confirmar.invalido	Неверные учётные данные или пользователь не является Администратором.
+RU	msg.historial.sinseleccion	Выберите версию из таблицы.
+RU	msg.historial.atencion	Внимание
+RU	msg.historial.confirmar	Восстановить пользователя '{0}' к состоянию от {1}?\n\nДетали снимка: {2}\n\nЭто действие обратимо (новый снимок сохраняется перед восстановлением).
+RU	msg.historial.restaurado	Версия успешно восстановлена.
+RU	msg.cli.registrado	Клиент '{0}' успешно зарегистрирован.
+RU	msg.cli.actualizado	Клиент '{0}' обновлён.
+RU	msg.cli.eliminado	Клиент '{0}' удалён.
+RU	conf.baja.cli.msg	Удалить клиента {0} (ИНН {1})?\n\nЭто действие нельзя отменить.
+RU	conf.baja.cli.titulo	Подтверждение удаления
+RU	err.cli.errorplanes	— Ошибка загрузки планов —
+RU	msg.planes.creado	План '{0}' создан.
+RU	msg.planes.actualizado	План '{0}' обновлён.
+RU	msg.planes.desactivado	План '{0}' деактивирован.
+RU	msg.planes.reactivado	План '{0}' реактивирован.
+RU	conf.planes.desat.msg	Деактивировать план '{0}'?\n\nКлиенты с этим планом не пострадают.
+RU	conf.planes.desat.tit	Подтверждение деактивации
+RU	conf.planes.act.msg	Реактивировать план '{0}'?\n\nПлан снова станет доступен для новых подписок.
+RU	conf.planes.act.tit	Подтверждение активации
+RU	msg.idiomas.activado	Язык активирован.
+RU	msg.idiomas.desactivado	Язык деактивирован.
+RU	conf.idiomas.desactivar	Деактивировать этот язык? Пользователи не смогут его выбрать.
+RU	conf.idiomas.titulo	Подтверждение
+RU	msg.hist.restaurado	Заказ #{0} успешно восстановлен.
+RU	conf.hist.restaurar.msg	Восстановить заказ #{0} к состоянию до '{1}' (оп. #{2})?\n\n⚠ Примечание: эта операция изменяет статус Заказа в базе данных.\nСтатус связанных Предметов одежды НЕ откатывается автоматически.\n\nПодтвердить?
+RU	msg.usr.dvrecalculados	DVH и DVV успешно пересчитаны для всех пользователей.
+RU	msg.usr.errordv	Ошибка при пересчёте ЦК: {0}
+RU	msg.rest.dvexito	Контрольные цифры успешно пересчитаны.\nТеперь вы можете войти в систему.
+RU	msg.rest.dvtitulo	Целостность восстановлена
+RU	conf.rest.sobreescribir	Вы уверены? Эта операция перезапишет все текущие данные и перезапустит приложение.
+RU	msg.rest.errorrecalcular	Ошибка при пересчёте: {0}
+RU	msg.rest.errorrestaurar	Ошибка при восстановлении: {0}
+RU	msg.backup.errorgenerar	Ошибка при создании резервной копии:\n{0}
+RU	msg.backup.erroreliminar	Ошибка при удалении:\n{0}
+RU	msg.backup.errorrestaurar	Ошибка при восстановлении:\n{0}
+RU	msg.historial.errorcargar	Ошибка загрузки истории:\n{0}
+RU	msg.historial.errorrestaur	Ошибка восстановления версии:\n{0}
+RU	msg.error.titulo	Ошибка
+RU	lbl.cli.vencimiento	Дата истечения
+RU	col.cli.vencimiento	Истекает
+RU	msg.cli.sinvenc	Без ограничений
+RU	msg.cli.vencido	Истекло
+RU	msg.cli.proxvencer	Истекает скоро
+RU	msg.cli.vigente	Активно
+RU	err.ped.suscvencida	⚠ Подписка {0} истекла {1}.\nОбновите в модуле Клиентов.
+RU	lbl.ped.proxvencer	⏰ Подписка истекает через {0} дн. Напомните клиенту продлить её.
+RU	lbl.ped.res.linea1	Выбрано: {0}  |  Уже в использовании: {1}  |  Всего: {2}
+RU	lbl.ped.res.limite	✗ План '{0}' допускает {1} ед. Вы превышаете лимит на {2}.
+RU	lbl.ped.res.vacio	Вы можете добавить до {0} ед. (план {1}).
+RU	lbl.ped.res.parcial	ℹ План '{0}' допускает {1}. Вы выбираете {2} из {3} — можно добавить ещё.
+RU	lbl.ped.res.lleno	✓ Вы достигли максимума плана '{0}' ({1} ед.).
+RU	conf.ped.titulo	Подтвердить заказ
+RU	conf.ped.msg	Подтвердить заказ для {0}:\n\n  • {1}\n\nВсего: {2} ед.\nМетод оплаты: {3}
+RU	frm.mantenimiento	История обслуживания
+RU	btn.mantenimiento	🔧 Обслуживание
+RU	btn.mant.cerrar	Закрыть
+RU	col.mant.entrada	Поступление
+RU	col.mant.salida	Выдача
+RU	col.mant.duracion	Длительность (дн.)
+RU	col.mant.actor	Ответственный
+RU	col.mant.estado	Статус
+RU	mant.abierto	На чистке
+RU	mant.cerrado	Завершено
+RU	msg.mant.sinregistros	У этой вещи нет истории обслуживания.
+RU	err.bll.cliente.nombre_requerido	Имя клиента обязательно.
+RU	err.bll.cliente.apellido_requerido	Фамилия клиента обязательна.
+RU	err.bll.cliente.dni_requerido	Номер удостоверения личности клиента обязателен.
+RU	err.bll.cliente.dni_formato	Номер удостоверения должен содержать от 7 до 8 цифр.
+RU	err.bll.cliente.dni_numeros	Номер удостоверения может содержать только цифры.
+RU	err.bll.cliente.dni_duplicado	Клиент с удостоверением {0} уже существует.
+RU	err.bll.cliente.dni_duplicado_otro	Удостоверение {0} уже зарегистрировано для другого клиента.
+RU	err.bll.cliente.baja_prendas	Невозможно удалить {0}: у них {1} вещь(ей) в использовании. Сначала зарегистрируйте возврат.
+RU	err.bll.pedido.sin_prendas	Необходимо выбрать хотя бы одну вещь.
+RU	err.bll.pedido.cliente_inexistente	Выбранный клиент не существует.
+RU	err.bll.pedido.sin_plan	У клиента {0} нет назначенного плана. Назначьте план перед созданием заказа.
+RU	err.bll.pedido.suscripcion_vencida	Подписка {0} истекла {1}. Обновите в модуле Клиентов.
+RU	err.bll.pedido.limite_plan	План '{0}' разрешает {1} вещь(ей). У клиента уже {2} в использовании, добавляется ещё {3}. Максимум: {4}.
+RU	err.bll.pedido.prenda_no_disponible	Вещь '{0}' недоступна (статус: {1}). Обновите выбор.
+RU	err.bll.pedido.despachar_estado	Отправить можно только заказы в статусе Ожидания. Этот заказ: '{0}'.
+RU	err.bll.pedido.entregar_estado	Отметить доставленным можно только Отправленные заказы. Этот заказ: '{0}'.
+RU	err.bll.pedido.devolucion_estado	Возврат можно зарегистрировать только для Доставленных заказов. Этот заказ: '{0}'.
+RU	err.bll.pedido.cancelar_estado	Отменить можно только заказы в статусе Ожидания. Этот заказ: '{0}'.
+RU	err.bll.pedido.cancelar_sin_motivo	Необходимо указать причину отмены.
+RU	err.bll.pedido.descancelar_estado	Восстановить можно только Отменённые заказы. Этот заказ: '{0}'.
+RU	err.bll.pedido.descancelar_prendas	Невозможно восстановить Заказ #{0}. Одна или несколько вещей больше недоступны.
+RU	err.bll.plan.nombre_requerido	Название плана обязательно.
+RU	err.bll.plan.limite_invalido	Лимит вещей должен быть больше нуля.
+RU	err.bll.plan.precio_negativo	Цена не может быть отрицательной.
+RU	err.plan.nombre_requerido	Название плана обязательно.
+RU	err.plan.nombre_letras	Название может содержать только буквы.
+RU	err.plan.precio_cero	Цена должна быть больше нуля.
+RU	diag.estado.integro	Статус: ЦЕЛО
+RU	diag.estado.comprometido	Статус: НАРУШЕНО
+RU	msg.idiomas.cargadas	{0} перевод(ов) загружено.
+RU	msg.idiomas.seleccionar	Сначала выберите язык.
+RU	msg.idiomas.guardadas	{0} перевод(ов) успешно сохранено.
+RU	msg.idiomas.guardadas.error	{0} сохранено, {1} не удалось.
+RU	err.mant.cargar	Ошибка загрузки истории: {0}
+RU	alerta.integridad.titulo	Предупреждение целостности
+RU	alerta.integridad.msg	ВНИМАНИЕ: Обнаружены проблемы целостности в таблице Usuario.\n\nСтрок с недопустимым DVH: {0}\nСохранённый DVV: {1}  |  Вычисленный DVV: {2}\n\nПерейдите в Администрирование → Диагностика целостности для исправления.
+RU	diag.frm.titulo	Диагностика целостности
+RU	diag.tab.diagnostico	Диагностика
+RU	diag.tab.historial	История проверок
+RU	diag.lbl.filasrotas	Строки с недопустимым DVH:
+RU	diag.btn.recalcular	Пересчитать всё
+RU	diag.btn.reparar	Восстановить выбранные...
+RU	diag.btn.actualizar	Обновить
+RU	diag.col.id	ID
+RU	diag.col.usuario	Пользователь
+RU	diag.col.dvh.alm	DVH сохранённый
+RU	diag.col.dvh.calc	DVH вычисленный
+RU	diag.col.estado	Статус
+RU	diag.col.fecha	Дата
+RU	diag.col.tabla	Таблица
+RU	diag.col.dvv.alm	DVV сохранённый
+RU	diag.col.dvv.calc	DVV вычисленный
+RU	diag.col.filas.corr	Повреждённых строк
+RU	diag.col.resultado	Результат
+RU	diag.col.origen	Инициатор
+RU	diag.dvv.detalle	DVV сохранённый: {0}   |   DVV вычисленный: {1}   |   Строк с DVH: {2}
+RU	diag.msg.sinproblemas	Строк с недопустимым DVH не обнаружено.
+RU	diag.msg.sinprob.titulo	Проблем нет
+RU	diag.conf.recalcular	Пересчитать все DVH и DVV таблицы Usuario?\n\nЭта операция перезапишет все сохранённые дигиты.
+RU	diag.conf.recalcular.titulo	Подтвердить пересчёт
+RU	diag.msg.recalc.exito	Проверочные цифры успешно пересчитаны.
+RU	diag.msg.exito.titulo	Успешно
+RU	diag.err.cargar	Ошибка загрузки диагностики: {0}
+RU	diag.err.recalcular	Ошибка пересчёта: {0}
+RU	diag.err.titulo	Ошибка
+RU	diag.fila.sinDVH	Без DVH
+RU	diag.fila.nocoincide	DVH не совпадает
+RU	diag.hist.ok	OK
+RU	diag.hist.fallo	ОШИБКА
+RU	diag.tip.fallo.titulo	Проверка НЕ ПРОЙДЕНА — таблица {0}
+RU	diag.tip.dvv.mismatch	• DVV не совпадает: сохранён {0} ≠ вычислен {1} (строки были добавлены, удалены или переставлены).
+RU	diag.tip.filas.corruptas	• {0} строк(и) с неверным DVH: содержимое этих строк было изменено напрямую в базе данных.
+RU	diag.tip.causa	Возможна прямая подмена данных. Исправьте на вкладке «Диагностика» или восстановите из резервной копии.
+RU	diag.tip.ok	Проверка пройдена: контрольные цифры совпадают с данными.
+RU	diag.tabla.corrupta	Таблица «{0}»
+RU	diag.tabla.dvinvalido	Неверный КЦ — нажмите «Пересчитать всё»
+RU	diag.tablas.corruptas	Таблицы с неверным КЦ: {0}
+PT	btn.usr.recalculardv	Recalcular integridade (DV)
+PT	btn.usr.eliminar	🗑 Arquivar usuário
+PT	btn.usr.verarchivados	Ver arquivados
+PT	btn.usr.veractivos	Ver ativos
+PT	btn.usr.purgar	Purgar (>1 ano)
+PT	usr.archivado	Arquivado
+PT	msg.usr.archivados	{0} usuário(s) arquivado(s).
+PT	msg.usr.archivado	Usuário '{0}' arquivado com sucesso.
+PT	conf.usr.archivar.titulo	Confirmar Arquivamento
+PT	conf.usr.archivar.body	Arquivar o usuário '{0}'?\n\nNão poderá fazer login e sairá da lista, mas seu histórico é preservado.\nPoderá ser excluído definitivamente após 1 ano.
+PT	conf.usr.purgar.titulo	Confirmar Purga
+PT	conf.usr.purgar.body	Serão excluídos DEFINITIVAMENTE {0} usuário(s) arquivado(s) há mais de 1 ano.\nEsta ação não pode ser desfeita.\n\nContinuar?
+PT	msg.usr.purga.ninguno	Não há usuários arquivados há mais de 1 ano para purgar.
+PT	msg.usr.purga.ok	{0} usuário(s) excluído(s) definitivamente.
+PT	err.bll.usuario.autobaja	Você não pode arquivar seu próprio usuário enquanto a sessão está aberta.
+PT	err.bll.usuario.ultimo_admin	Não é possível arquivar o último Administrador ativo. Crie ou ative outro Administrador antes de arquivar este.
+PT	btn.usr.resetmasivo	Redefinir todas as senhas para temporária
+PT	mnu.integridad	Diagnóstico de Integridade
+PT	err.bll.sesion_expirada	A sessão expirou. Faça login novamente.
+PT	err.seg.sesion_no_iniciada	A sessão não está iniciada. Faça login primeiro.
+PT	err.seg.sesion_ya_iniciada	Já existe uma sessão ativa. Encerre a sessão atual antes de iniciar outra.
+PT	err.bll.sin_permiso	Você não tem permissão para executar esta operação ('{0}').
+PT	err.bll.integridad	Operação cancelada: foi detectada uma possível manipulação dos dados de usuários (dígito verificador inválido). Reinicie o sistema para reparar a integridade antes de continuar.
+PT	err.bll.ciclo	Um componente não pode conter a si mesmo.
+PT	err.bll.nombre_vacio	O nome não pode estar vazio.
+PT	err.bll.padre_invalido	O nó pai não admite filhos (não é Família nem Função).
+PT	err.bll.rol_duplicado	Já existe uma função chamada '{0}'.
+PT	err.bll.rol_en_uso	Não é possível excluir a função '{0}': está atribuída a {1} usuário(s) ({2}). Reatribua esses usuários a outra função antes de excluí-la.
+PT	err.bll.rol_inexistente	A função '{0}' não existe como nó da árvore de permissões. Reabra a tela.
+PT	err.bll.snapshot_fallido	Não foi possível salvar o estado anterior do usuário (controle de alterações); a operação foi cancelada para não perder o histórico.
+PT	err.bll.backup.sin_permiso	Apenas um Administrador pode realizar operações de backup e restauração.
+PT	err.bll.familia.sin_permiso	Apenas um Administrador pode modificar permissões de funções.
+PT	err.bll.cliente.plan_insuficiente	Não é possível atribuir o plano '{0}': o cliente tem {1} peça(s) em uso e esse plano permite apenas {2}. Registre as devoluções primeiro.
+PT	err.bll.idioma.campos	O código e o nome do idioma são obrigatórios.
+PT	err.bll.idioma.codigo_largo	O código do idioma não pode exceder 5 caracteres.
+PT	err.bll.idioma.duplicado	Já existe um idioma com o código '{0}'.
+PT	err.bll.idioma.nombre	O nome do idioma é obrigatório.
+PT	err.bll.pedido.devolucion_ya_hecha	O Pedido #{0} não tem peças em uso para devolver (é possível que a devolução já tenha sido registrada).
+PT	err.bll.pedido.empleado_sin_vinculo	O usuário '{0}' não tem um Funcionário vinculado. Peça ao Administrador para configurar o vínculo.
+PT	err.bll.pedido.historial_vacio	Não foram encontradas alterações para a operação #{0} do Pedido #{1}.
+PT	err.bll.pedido.ya_despachado	O cliente tem o pedido #{0} despachado e pendente de entrega. Confirme a entrega antes de criar um novo.
+PT	err.bll.plan.tiene_clientes	Não é possível desativar o plano: tem {0} cliente(s) ativo(s) atribuído(s). Reatribua-os a outro plano antes de desativá-lo.
+PT	err.bll.prenda.categoria_requerida	A categoria é obrigatória.
+PT	err.bll.prenda.nombre_requerido	O nome da peça é obrigatório.
+PT	err.bll.prenda.talle_requerido	O tamanho é obrigatório.
+PT	err.bll.usuario.no_existe	O usuário desta versão não existe mais.
+PT	err.bll.usuario.perfil_requerido	O perfil/função é obrigatório.
+PT	err.bll.usuario.sin_permiso	Apenas um Administrador pode gerenciar usuários.
+PT	err.bll.usuario.username_corto	O nome de usuário deve ter pelo menos 3 caracteres.
+PT	err.bll.usuario.username_requerido	O nome de usuário é obrigatório.
+PT	err.bll.version.no_existe	A versão selecionada não existe.
+PT	err.bll.prenda.transicion_baja	Uma peça baixada não pode mudar de estado.
+PT	err.bll.prenda.transicion_enuso	Não é possível alterar manualmente o estado de uma peça em uso.\nO estado é atualizado automaticamente ao processar pedidos.
+PT	err.bll.prenda.transicion_generica	A transição de '{0}' para '{1}' não é permitida.
+PT	lbl.permisos.familias	Lista de Famílias (compostos)
+PT	lbl.permisos.patentes	Lista de Patentes (simples)
+PT	lbl.permisos.composicion	Composição efetiva (recursiva)
+PT	chk.permisos.vertodos	Ver todos os papéis
+PT	perm.todoslosroles	Todos os papéis
+PT	lbl.permisos.embeber	Incorporar papel:
+PT	lbl.permisos.anidar	Aninhar na família:
+PT	btn.permisos.anidar	Aninhar seleção ➜
+PT	perm.msg.selanidar	Selecione numa lista a família ou patente que quer aninhar.
+PT	perm.msg.familiadest	Escolha a família de destino onde aninhar.
+PT	perm.msg.mismocomp	Uma família não pode ser aninhada dentro de si mesma.
+PT	perm.ok.anidado	'{0}' aninhado dentro da família '{1}'.
+PT	perm.err.anidar	Não foi possível aninhar: {0}
+PT	lbl.permisos.estructura	Estrutura do sistema (papéis, famílias e patentes)
+PT	lbl.permisos.disponibles	Disponíveis para adicionar
+PT	lbl.permisos.efectivos	Permissões efetivas (recursivo)
+PT	lbl.permisos.miembros	Membros de: {0}
+PT	lbl.permisos.miembros.vacio	Membros (selecione uma Família ou Papel)
+PT	btn.permisos.agregar	Adicionar ↓
+PT	btn.permisos.quitar	Remover ↑
+PT	perm.msg.selpadre	Selecione uma Família ou Papel para adicionar filhos.
+PT	perm.ok.agregado	'{0}' adicionado a '{1}'.
+PT	perm.ok.quitado	'{0}' removido de '{1}'.
+PT	perm.tipo.rol	o papel
+PT	btn.permisos.crearpatente	➕ Patente
+PT	btn.permisos.crearfamilia	➕ Família
+PT	btn.permisos.crearrol	➕ Papel
+PT	btn.permisos.actualizar	↻ Atualizar
+PT	lbl.permisos.ayuda	❔ Ajuda
+PT	help.permisos.titulo	Patente, Família ou Papel?
+PT	help.permisos.patente	Patente = permissão atômica (uma ação ou tela concreta). É uma folha: não contém outras.
+PT	help.permisos.familia	Família = agrupa permissões para reutilizar em vários papéis. Não é atribuída a usuários.
+PT	help.permisos.rol	Papel = perfil atribuído a um usuário. Pode conter patentes, famílias e outros papéis (papel-em-papel).
+PT	help.permisos.general	🔑 PATENTE — permissão atômica: uma ação/tela concreta (ex. "Ver Roupas"). Uma folha.\n📁 FAMÍLIA — agrupa permissões para reutilizar; não é atribuída a usuários.\n👥 PAPEL — família que É atribuída a um usuário (seu perfil); pode conter patentes, famílias e outros papéis.\n\nO usuário tem um papel e o sistema reúne recursivamente todas as patentes sob ele = suas permissões efetivas.
+PT	lbl.permisos.subtitulo	Gestão de papéis, famílias e patentes
+PT	btn.permisos.nuevorol	➕ Novo papel
+PT	btn.permisos.eliminarrol	🗑 Excluir papel
+PT	btn.permisos.nuevafamilia	➕ Nova família
+PT	btn.permisos.nuevapatente	➕ Nova patente
+PT	btn.permisos.embeber	Incorporar ➜
+PT	btn.permisos.modificar	✏ Modificar seleção
+PT	btn.permisos.eliminar	🗑 Excluir seleção
+PT	perm.dlg.rol.t	Novo papel
+PT	perm.dlg.rol.p	Nome do novo papel:
+PT	perm.dlg.fam.t	Nova família
+PT	perm.dlg.fam.p	Nome da família (permissão composta):
+PT	perm.dlg.pat.t	Nova patente
+PT	perm.dlg.pat.p	Nome da patente (permissão simples):
+PT	perm.dlg.pat.menu	NomeMenu associado (opcional, ex.: mnuClientes):
+PT	perm.dlg.mod.t	Modificar componente
+PT	perm.dlg.mod.p	Novo nome:
+PT	perm.dlg.mod.menu	NomeMenu associado:
+PT	perm.conf.titulo	Confirmar
+PT	perm.conf.elirol	Excluir o papel '{0}'?
+PT	perm.conf.elicomp	Excluir {0} '{1}'? Será removido de todos os papéis.
+PT	perm.tipo.familia	a família
+PT	perm.tipo.patente	a patente
+PT	perm.msg.selmod	Selecione uma patente ou família para modificar.
+PT	perm.msg.seleli	Selecione uma patente ou família para excluir.
+PT	perm.msg.norol	Não foi possível resolver o papel.
+PT	perm.ok.guardado	Alterações salvas para '{0}': {1} adicionado(s), {2} removido(s).
+PT	perm.ok.embebido	Papel '{0}' incorporado em '{1}'.
+PT	perm.ok.rolcreado	Papel '{0}' criado.
+PT	perm.ok.roleli	Papel '{0}' excluído.
+PT	perm.ok.patcreada	Patente '{0}' criada.
+PT	perm.ok.famcreada	Família '{0}' criada.
+PT	perm.ok.modificado	Componente atualizado para '{0}'.
+PT	perm.ok.eliminado	'{0}' excluído.
+PT	perm.err.embeber	Não foi possível incorporar: {0}
+PT	btn.idiomas.nuevo	➕ Novo idioma
+PT	btn.idiomas.renombrar	✏ Renomear
+PT	idiomas.dlg.nuevo.t	Novo idioma
+PT	idiomas.dlg.nuevo.codigo	Código (ex.: FR, IT, PT) — máx. 5:
+PT	idiomas.dlg.nuevo.nombre	Nome do idioma (ex.: Français):
+PT	idiomas.dlg.renombrar.t	Renomear idioma
+PT	idiomas.dlg.renombrar.p	Novo nome:
+PT	idiomas.msg.selecc	Selecione um idioma da grade.
+PT	idiomas.ok.creado	Idioma '{0}' criado (inativo — ative-o quando carregar suas traduções).
+PT	idiomas.ok.renombrado	Idioma renomeado.
+PT	idiomas.conf.incompleto	Este idioma tem {0} controle(s) sem tradução.\nSe você ativá-lo, esses textos serão exibidos no idioma padrão.\n\nAtivar mesmo assim?
+PT	idiomas.conf.incompleto.t	Traduções incompletas
+PT	lbl.idiomas.controles	Controles traduzíveis
+PT	err.generico.cargar	Erro ao carregar: {0}
+PT	err.generico.guardar	Erro ao salvar: {0}
+PT	pedidos.hist.encontrados	{0} registro(s) encontrado(s).
+PT	diag.frm.titulo	Diagnóstico de Integridade
+PT	diag.tab.diagnostico	Diagnóstico
+PT	diag.tab.historial	Histórico de Verificações
+PT	diag.lbl.filasrotas	Linhas com DVH inválido:
+PT	diag.btn.recalcular	Recalcular Tudo
+PT	diag.btn.reparar	Reparar Selecionadas...
+PT	diag.btn.actualizar	Atualizar
+PT	diag.col.id	ID
+PT	diag.col.usuario	Usuário
+PT	diag.col.dvh.alm	DVH Armazenado
+PT	diag.col.dvh.calc	DVH Calculado
+PT	diag.col.estado	Estado
+PT	diag.col.fecha	Data
+PT	diag.col.tabla	Tabela
+PT	diag.col.dvv.alm	DVV Armazenado
+PT	diag.col.dvv.calc	DVV Calculado
+PT	diag.col.filas.corr	Linhas Corrompidas
+PT	diag.col.resultado	Resultado
+PT	diag.col.origen	Disparado por
+PT	diag.dvv.detalle	DVV armazenado: {0}   |   DVV calculado: {1}   |   Linhas com DVH inválido: {2}
+PT	diag.msg.sinproblemas	Não há linhas com DVH inválido.
+PT	diag.msg.sinprob.titulo	Sem problemas
+PT	diag.conf.recalcular	Recalcular todos os DVH e o DVV da tabela Usuário?\n\nEsta operação substituirá todos os dígitos verificadores armazenados.
+PT	diag.conf.recalcular.titulo	Confirmar Recálculo Total
+PT	diag.msg.recalc.exito	Dígitos verificadores recalculados com sucesso.
+PT	diag.msg.exito.titulo	Sucesso
+PT	diag.err.cargar	Erro ao carregar diagnóstico: {0}
+PT	diag.err.recalcular	Erro ao recalcular: {0}
+PT	diag.err.titulo	Erro
+PT	diag.fila.sinDVH	Sem DVH
+PT	diag.fila.nocoincide	DVH não coincide
+PT	diag.hist.ok	OK
+PT	diag.hist.fallo	FALHA
+PT	diag.tip.fallo.titulo	Verificação FALHOU — tabela {0}
+PT	diag.tip.dvv.mismatch	• O DVV não coincide: armazenado {0} ≠ calculado {1} (linhas foram inseridas, excluídas ou reordenadas).
+PT	diag.tip.filas.corruptas	• {0} linha(s) com DVH inválido: o conteúdo dessas linhas foi modificado diretamente na base.
+PT	diag.tip.causa	Possível manipulação direta da base de dados. Repare na aba Diagnóstico ou restaure um backup.
+PT	diag.tip.ok	Verificação correta: os dígitos verificadores coincidem com os dados.
+PT	diag.tabla.corrupta	Tabela '{0}'
+PT	diag.tabla.dvinvalido	DV inválido — use «Recalcular Tudo»
+PT	diag.tablas.corruptas	Tabelas com DV inválido: {0}
+PT	frm.login	WardrobeFlow — Login
+PT	lbl.usuario	Usuário
+PT	lbl.contrasena	Senha
+PT	btn.ingresar	Entrar
+PT	btn.salir	Sair
+PT	lnk.olvide	Esqueceu sua senha?
+PT	lbl.iniciarsesion	Entrar no sistema
+PT	lbl.idioma	Idioma:
+PT	lbl.subtitulo	PORTAL DE FUNCIONÁRIOS
+PT	lbl.bienvenido	Bem-vindo de volta
+PT	lbl.credenciales	Insira suas credenciais para continuar
+PT	lbl.divider	ou
+PT	lbl.brand.desc	Acesso seguro e centralizado\na todos os módulos do sistema.
+PT	err.login.camposvacio	Usuário e senha são obrigatórios.
+PT	err.login.credenciales	Usuário ou senha incorretos.
+PT	err.login.intentos	Usuário ou senha incorretos.\nTentativas restantes: {0}.
+PT	err.login.bloqueada	A conta está bloqueada.\nContate o Administrador para reativá-la.
+PT	err.login.limitesesion	Muitas tentativas falhas nesta sessão.
+PT	dlg.login.sesion.titulo	Sessão encerrada
+PT	dlg.login.sesion.cierre	O aplicativo será fechado.
+PT	mnu.perfil	Perfil
+PT	mnu.inventario	Estoque
+PT	mnu.prendas	Roupas
+PT	mnu.ventas	Vendas
+PT	mnu.clientes	Clientes
+PT	mnu.planes	Planos de Assinatura
+PT	mnu.pedidosventa	Pedidos de Venda
+PT	mnu.pedidosreal	Pedidos Realizados
+PT	mnu.administrar	Administrar
+PT	mnu.usuarios	Usuários
+PT	mnu.perfiles	Perfis e Permissões
+PT	mnu.bitacora	Registro de Auditoria
+PT	mnu.cerrarsesion	Sair do sistema
+PT	mnu.idiomas	Gerenciamento de Idiomas
+PT	mnu.dashboard	Painel de Controle
+PT	mnu.bitacora.sistema	Registro do Sistema
+PT	mnu.bitacora.negocio	Registro de Negócio
+PT	mnu.reportejornada	Relatório de Jornada
+PT	mnu.backup	Backup e Restauração
+PT	mnu.historialusr	Histórico de Alterações
+PT	frm.clientes	Gerenciamento de Clientes
+PT	lbl.buscar	Buscar:
+PT	btn.nuevocliente	+ Novo Cliente
+PT	btn.editar	✎ Editar
+PT	btn.darbaja	✕ Excluir
+PT	frm.prendas	Catálogo de Roupas
+PT	lbl.estado	Estado:
+PT	btn.nuevaprenda	+ Nova Roupa
+PT	btn.cambiarestado	⇄ Estado
+PT	lbl.clienteenuso	Cliente em uso:
+PT	frm.gestion	Gerenciamento de Usuários
+PT	lbl.nuevousuario	Novo Usuário
+PT	lbl.nombreusuario	Nome de usuário:
+PT	lbl.perfilrol	Perfil (função):
+PT	btn.agregar	Adicionar Usuário
+PT	lbl.resettitulo	Redefinir Senha
+PT	lbl.resetinfo	Selecione um usuário\nna lista e pressione:
+PT	btn.resetclave	Redefinir Senha
+PT	lbl.desbloqtitulo	Desbloquear Conta
+PT	lbl.desbloqinfo	Selecione um usuário\nbloqueado e pressione:
+PT	btn.desbloquear	Desbloquear Conta
+PT	lbl.listatitulo	Usuários registrados no sistema
+PT	frm.planes	Planos de Assinatura
+PT	lbl.nuevopla	Novo Plano
+PT	lbl.nombreplan	Nome do plano *
+PT	lbl.limiteprendas	Limite de roupas *
+PT	lbl.preciomensual	Preço mensal (R$) *
+PT	btn.guardarplan	Salvar Plano
+PT	btn.limpiar	Limpar / Novo
+PT	lbl.acciones	Ações sobre o plano selecionado
+PT	btn.desactivar	Desativar Plano
+PT	btn.activar	Ativar Plano
+PT	lbl.planesreg	Planos cadastrados
+PT	frm.bitacora	Auditoria — Registros do Sistema
+PT	frm.bitacora.subtitulo	Registro de eventos do sistema e operações de negócio
+PT	tab.sistema	🔐  Registro do Sistema
+PT	tab.negocio	📦  Registro de Negócio
+PT	lbl.ultimos	Últimos
+PT	lbl.dias	dias  (0 = todos)
+PT	btn.ver	Ver
+PT	lbl.usuarioid	ID Usuário:
+PT	lbl.actividad	Atividade:
+PT	lbl.criticidad	Criticidade:
+PT	btn.buscar	Buscar
+PT	btn.limpiarfiltro	Limpar
+PT	btn.exportar	Exportar CSV
+PT	lbl.tipoevento	Tipo de evento:
+PT	lbl.idpedido	ID Pedido:
+PT	lbl.idcliente	ID Cliente:
+PT	frm.pedidosventa	Pedidos de Venda
+PT	btn.nuevopedido	+ Novo Pedido
+PT	btn.cancelarpedido	✕ Cancelar
+PT	btn.descancelar	↩ Reativar
+PT	lbl.prendaspedido	Roupas do pedido selecionado
+PT	frm.pedidosreal2	Despacho de Pedidos
+PT	btn.despachar	📦 Despachar
+PT	btn.entregado	✓ Marcar Entregue
+PT	btn.vernotificacion	✉ Ver Notificação
+PT	btn.devolucion	↩ Registrar Devolução
+PT	lbl.detallepedido	Detalhe do pedido selecionado
+PT	col.ped.urgencia	Urgência
+PT	col.ped.fecha	Data
+PT	col.ped.cliente	Cliente
+PT	col.ped.vendedor	Vendedor
+PT	col.ped.prendas	Roupas
+PT	col.ped.estado	Estado
+PT	col.ped.despacho	Despacho
+PT	col.ped.entrega	Entrega
+PT	urg.urgente	Urgente
+PT	urg.normal	Normal
+PT	urg.reciente	Recente
+PT	est.pendiente	Pendente
+PT	est.despachado	Despachado
+PT	est.entregado	Entregue
+PT	est.cancelado	Cancelado
+PT	col.bit.id	Id
+PT	col.bit.fecha	Data
+PT	col.bit.usuario	Usuário
+PT	col.bit.modulo	Módulo
+PT	col.bit.actividad	Atividade
+PT	col.bit.detalle	Detalhe
+PT	col.bit.criticidad	Criticidade
+PT	col.bit.ip	IP
+PT	col.neg.idevento	Id Evento
+PT	col.neg.fecha	Data
+PT	col.neg.tipo	Tipo
+PT	col.neg.usuario	Usuário
+PT	col.neg.cliente	Cliente
+PT	col.neg.idpedido	Id Pedido
+PT	col.neg.idprenda	Id Roupa
+PT	col.neg.idcliente	Id Cliente
+PT	col.neg.desc	Descrição
+PT	stat.ninguno	Nenhum
+PT	stat.baja	Baixo
+PT	stat.media	Médio
+PT	stat.alta	Alto
+PT	stat.intlogin	Tent.Login
+PT	stat.recupclave	Rec.Senha
+PT	stat.bloqueos	Bloqueios
+PT	stat.sindatos	Sem dados de criticidade
+PT	frm.historial	Histórico de Pedido
+PT	lbl.hist.pedido	Pedido #
+PT	lbl.hist.filtros	Filtros
+PT	combo.hist.todas	— Todas —
+PT	lbl.hist.desde	De:
+PT	lbl.hist.hasta	Até:
+PT	lbl.hist.accion	Ação:
+PT	btn.hist.buscar	🔍 Buscar
+PT	btn.hist.restaurar	⟲ Restaurar
+PT	btn.hist.cerrar	Fechar
+PT	col.hist.op	Op.
+PT	col.hist.fecha	Data
+PT	col.hist.usuario	Usuário
+PT	col.hist.accion	Ação
+PT	col.hist.campo	Campo
+PT	col.hist.anterior	Valor Anterior
+PT	col.hist.nuevo	Novo Valor
+PT	dlg.cerrarsesion.titulo	Sair do sistema
+PT	dlg.cerrarsesion.msg	Tem certeza que deseja sair?
+PT	btn.si	Sim
+PT	btn.no	Não
+PT	btn.refrescar	↻ Atualizar Lista
+PT	combo.prenda.todos	Todos
+PT	prenda.disponible	Disponível
+PT	prenda.enuso	Em Uso
+PT	prenda.enlimpieza	Em Limpeza
+PT	prenda.baja	Baixa
+PT	col.prenda.nombre	Nome
+PT	col.prenda.categoria	Categoria
+PT	col.prenda.talle	Tamanho
+PT	col.prenda.color	Cor
+PT	col.prenda.estado	Estado
+PT	col.prenda.cliente	Cliente
+PT	col.prenda.alta	Cadastro
+PT	msg.prenda.conteo	Mostrando {0} de {1}
+PT	msg.prenda.cargadas	{0} roupa(s) no catálogo.
+PT	col.plan.nombre	Nome
+PT	col.plan.prendas	Roupas
+PT	col.plan.precio	Preço
+PT	col.plan.estado	Estado
+PT	plan.activo	Ativo
+PT	plan.inactivo	Inativo
+PT	msg.planes.cargados	{0} plano(s) carregado(s).
+PT	frm.nuevocliente	Novo Cliente
+PT	frm.editarcliente	Editar Cliente
+PT	lbl.cli.nombre	Nome *
+PT	lbl.cli.apellido	Sobrenome *
+PT	lbl.cli.dni	CPF * (7-8 dígitos)
+PT	lbl.cli.email	E-mail
+PT	lbl.cli.metodopago	Forma de pagamento *
+PT	lbl.cli.plan	Plano de assinatura
+PT	combo.cli.sinplan	— Sem plano —
+PT	btn.registrar.cliente	Cadastrar Cliente
+PT	btn.guardar.cambios	Salvar Alterações
+PT	btn.cancelar	Cancelar
+PT	col.cli.nombre	Nome
+PT	col.cli.apellido	Sobrenome
+PT	col.cli.dni	CPF
+PT	col.cli.email	E-mail
+PT	col.cli.plan	Plano
+PT	col.cli.prendas	Roupas
+PT	col.cli.metodopago	Forma de Pagamento
+PT	col.cli.alta	Cadastro
+PT	lbl.sinplan	Sem plano
+PT	msg.cli.conteo	Mostrando {0} de {1}
+PT	msg.cli.cargados	{0} cliente(s) cadastrado(s).
+PT	col.usr.username	Usuário
+PT	col.usr.perfil	Perfil
+PT	col.usr.estado	Estado
+PT	usr.activo	Ativo
+PT	usr.bloqueada	Bloqueado
+PT	msg.usr.cargados	{0} usuário(s) cadastrado(s).
+PT	frm.olvidepass	Recuperar Senha
+PT	lbl.recup.titulo	Recuperar Senha
+PT	lbl.recup.desc	Informe seu nome de usuário. Um administrador\npoderá redefinir sua senha pelo sistema.
+PT	lbl.recup.usuario	Nome de usuário:
+PT	btn.enviar.solicitud	Enviar solicitação
+PT	err.recup.nousername	Informe seu nome de usuário.
+PT	err.recup.nousuario	Usuário '{0}' não encontrado.\nVerifique se digitou corretamente.
+PT	msg.recup.exito	Usuário '{0}' encontrado.\nContate o administrador para redefinir\nsua senha em Administrar → Usuários.
+PT	err.recup.verificar	Erro ao verificar usuário: {0}
+PT	col.det.prenda	Roupa
+PT	frm.nuevaprenda	Nova Roupa
+PT	frm.editarprenda	Editar Roupa
+PT	lbl.prenda.nombre	Nome *
+PT	lbl.prenda.descrip	Descrição
+PT	lbl.prenda.talle	Tamanho *
+PT	lbl.prenda.color	Cor
+PT	lbl.prenda.categoria	Categoria *
+PT	btn.agregar.prenda	Adicionar Roupa
+PT	frm.nuevopedido	Novo Pedido de Venda
+PT	paso1.texto	Passo 1 de 2 — Selecionar Cliente
+PT	paso2.texto	Passo 2 de 2 — Selecionar Roupas
+PT	lbl.ped.selcliente	Selecione o cliente para este pedido:
+PT	combo.ped.placeholder	— Selecione um cliente —
+PT	lbl.ped.selprendas	Selecione as roupas para incluir no pedido (checkbox):
+PT	btn.siguiente	Próximo →
+PT	btn.volver	← Voltar
+PT	btn.confirmar.pedido	✓ Confirmar Pedido
+PT	btn.procesando	Processando...
+PT	accion.crear	Criar
+PT	accion.despachar	Despachar
+PT	accion.entregar	Entregar
+PT	accion.cancelar	Cancelar
+PT	accion.descancelar	Reativar
+PT	accion.devolucion	Devolução
+PT	accion.restaurar	Restaurar
+PT	crit.todas	Todas
+PT	crit.ninguno	Nenhuma (0)
+PT	crit.baja	Baixa (1)
+PT	crit.media	Média (2)
+PT	crit.alta	Alta (3)
+PT	crit.intlogin	Tent. Login (4)
+PT	crit.recupclave	Rec. Senha (5)
+PT	crit.bloqueos	Bloqueio Conta (6)
+PT	btn.exportar.pdf	📄 Exportar PDF
+PT	msg.ped.conteo	{0} pedido(s)
+PT	msg.ped.cargados	{0} pedido(s) carregado(s).
+PT	msg.ped.creado	Pedido #{0} criado. Estado: Pendente.
+PT	msg.ped.cancelado	Pedido #{0} cancelado. Roupas liberadas.
+PT	msg.ped.reactivado	Pedido #{0} reativado — voltou a Pendente.
+PT	msg.ped.ensistema	{0} pedido(s) no sistema.
+PT	msg.ped.mostrando	Mostrando {0} de {1}
+PT	msg.ped.despachado	Pedido #{0} despachado corretamente.
+PT	msg.ped.entregado	Pedido #{0} marcado como Entregue.
+PT	msg.ped.devolucion	Devolução registrada — {0} roupa(s) vão para Limpeza.
+PT	btn.historial	📋 Histórico
+PT	btn.aceptar	Aceitar
+PT	dlg.cancelped.titulo	Motivo do Cancelamento
+PT	msg.cancelped.req	O cancelamento requer um motivo.
+PT	col.ped.motivo	Motivo
+PT	lbl.ped.seleccionado	Pedido #{0} — {1} — {2}
+PT	lbl.motivo	Motivo:
+PT	conf.cancelped.titulo	Confirmar Cancelamento
+PT	conf.cancelped.body	Cancelar Pedido #{0} de {1}?\n\nMotivo: {2}\n\nAs roupas voltarão ao estado Disponível.
+PT	conf.descancelar.titulo	Confirmar Reativação
+PT	conf.descancelar.body	Reativar Pedido #{0} de {1}?\n\nSerá verificada a disponibilidade das roupas\ne o pedido voltará a Pendente.
+PT	conf.despachar.titulo	Confirmar Despacho
+PT	conf.despachar.body	Despachar Pedido #{0}?\n\nCliente: {1}\nRoupas: {2}\n\nO pedido passará a Despachado.
+PT	conf.entrega.titulo	Confirmar Entrega
+PT	conf.entrega.body	Confirmar entrega do Pedido #{0} a {1}?
+PT	conf.devolucion.titulo	Confirmar Devolução
+PT	conf.devolucion.body	Registrar devolução do Pedido #{0}?\n\nCliente: {1}\nRoupas: {2}\n\nAs roupas passarão a Em Limpeza.
+PT	msg.prenda.agregada	Roupa '{0}' adicionada ao catálogo.
+PT	msg.prenda.actualizada	Roupa '{0}' atualizada.
+PT	msg.prenda.estadoact	Estado de '{0}' atualizado para {1}.
+PT	opt.enviarlimpieza	Enviar para Limpeza
+PT	opt.darbaja	Dar Baixa
+PT	opt.marcardisp	Marcar Disponível
+PT	err.prenda.enuso	Não é possível alterar: a roupa está em uso por um cliente.
+PT	err.prenda.baja	A roupa está com baixa e não pode ser reativada.
+PT	lbl.cambioest.info	Roupa: {0}  —  Estado atual: {1}
+PT	msg.cambioest.selecciona	Selecione uma opção.
+PT	msg.cambioest.bajairrev	A baixa é irreversível. Confirmar?
+PT	conf.baja.titulo	Dar Baixa
+PT	frm.resetclave	Redefinir Senha
+PT	lbl.nueva.clave	Nova senha (mín. 6 caracteres):
+PT	lbl.confirmar.clave	Confirmar senha:
+PT	btn.confirmar.reset	Confirmar Redefinição
+PT	err.clave.longitud	A senha deve ter pelo menos 6 caracteres.
+PT	err.clave.nomatch	As senhas não coincidem.
+PT	notif.titulo	NOTIFICAÇÃO DE PEDIDO
+PT	notif.numero	Pedido #:
+PT	notif.msgbox.titulo	Notificação — Pedido #{0}
+PT	frm.cambioestado	Alterar Estado da Roupa
+PT	lbl.nuevoestado	Novo estado:
+PT	btn.confirmar.cambio	Confirmar Alteração
+PT	err.ped.sinprendas	Selecione pelo menos uma roupa.
+PT	err.hist.restaurar	Selecione uma linha do histórico para restaurar.
+PT	err.usr.sinperfil	Selecione um perfil/função.
+PT	err.usr.nombre.req	O nome de usuário é obrigatório.
+PT	err.usr.nombre.longitud	O nome de usuário deve ter pelo menos 3 caracteres.
+PT	err.cli.dni.numeros	✗ O CPF só pode conter números.
+PT	lbl.ped.detalletitulo	Pedido #{0}  ·  {1}  ·  {2}  ·  {3} {4}
+PT	tevt.todos	Todos
+PT	tevt.venta	Venda
+PT	tevt.cancelacion	Cancelamento
+PT	tevt.despacho	Despacho
+PT	tevt.entrega	Entrega
+PT	tevt.altaprenda	Nova Roupa
+PT	tevt.modprenda	Edição Roupa
+PT	tevt.cambiostprenda	Alteração Estado Roupa
+PT	tevt.altacliente	Novo Cliente
+PT	tevt.modcliente	Edição Cliente
+PT	tevt.bajacliente	Exclusão Cliente
+PT	lbl.editplan	Editar Plano
+PT	msg.bit.registros	  {0} registro(s)
+PT	msg.bit.ultimos	últimos {0} dias
+PT	msg.bit.todos	todos os registros
+PT	notif.frm.titulo	Notificação — Pedido #{0}
+PT	notif.header.entregado	✓  Pedido #{0} — ENTREGUE
+PT	notif.header.despachado	📦  Pedido #{0} — DESPACHADO
+PT	btn.copiar.porta	Copiar para área de transferência
+PT	btn.copiado	✓ Copiado
+PT	notif.gen.saludo	Prezado(a) {0},
+PT	notif.gen.entregado	Confirmamos que seu pedido foi entregue.\nObrigado por escolher WardrobeFlow.
+PT	notif.gen.despachado	Informamos que seu pedido foi despachado e\nestará chegando em breve.
+PT	notif.gen.nropedido	Número do pedido
+PT	notif.gen.fechapedido	Data do pedido
+PT	notif.gen.fechadespacho	Data de despacho
+PT	notif.gen.fechaentrega	Data de entrega
+PT	notif.gen.estado	Estado
+PT	notif.gen.prendas	Roupas incluídas ({0}):
+PT	notif.gen.talle	Tamanho
+PT	notif.gen.color	Cor
+PT	notif.gen.categoria	Categoria
+PT	notif.gen.footer	Em caso de dúvidas, entre em contato conosco.
+PT	notif.gen.slogan	WardrobeFlow — Seu guarda-roupa, sem limites.
+PT	frm.reparacion	Reparo Manual de Dígitos Verificadores
+PT	lbl.rep.seleccionar	Selecione as linhas a reparar
+PT	lbl.rep.resumen	{0} linha(s) com DVH inválido detectada(s).
+PT	btn.rep.selall	Selecionar Todas
+PT	btn.rep.deselall	Desmarcar Todas
+PT	btn.rep.reparar	Reparar Selecionadas
+PT	col.rep.id	ID
+PT	col.rep.usuario	Usuário
+PT	col.rep.dvh	DVH Armazenado
+PT	col.rep.estado	Estado
+PT	rep.estado.sinDVH	Sem DVH armazenado
+PT	rep.estado.nocoincide	DVH não coincide com os dados atuais
+PT	msg.rep.seleccionar	Selecione pelo menos uma linha para reparar.
+PT	msg.rep.sinseleccion.titulo	Sem seleção
+PT	msg.rep.confirmar	Reparar dígitos verificadores de {0} linha(s) selecionada(s)?\n\nOs DVH individuais e o DVV da tabela serão recalculados.
+PT	msg.rep.confirmar.titulo	Confirmar Reparo
+PT	msg.rep.exito	{0} linha(s) reparada(s) com sucesso.\nO DVV da tabela foi recalculado.
+PT	msg.rep.exito.titulo	Reparo Bem-sucedido
+PT	perfil.administrador	Administrador
+PT	perfil.supervisor	Supervisor
+PT	perfil.vendedor	Vendedor
+PT	perfil.stock	Controlador de Estoque
+PT	perfil.operador	Operador de Estoque
+PT	metodo.efectivo	Dinheiro
+PT	metodo.debito	Débito
+PT	metodo.credito	Crédito
+PT	metodo.transferencia	Transferência
+PT	msg.modulo.outfits	O módulo Outfits ainda não está disponível.
+PT	msg.modulo.categorias	O módulo Categorias ainda não está disponível.
+PT	lbl.proximamente	Em breve
+PT	err.pdf.sinDatos	Sem dados para exportar.
+PT	lbl.exportarpdf	Exportar PDF
+PT	lbl.ped.infoplan	Cliente: {0}\nPlano: {1}\nRoupas em uso: {2}\nForma de pagamento: {3}\nCadastro: {4}
+PT	err.ped.sinplan	⚠ {0} não tem plano atribuído.\nAtribua um plano no módulo de Clientes antes de criar um pedido.
+PT	msg.usr.creado	Usuário '{0}' [{1}] criado com sucesso.
+PT	msg.usr.creado.exportado	Usuário '{0}' [{1}] criado.\nCredenciais salvas em:\n{2}
+PT	msg.usr.clave.exportada	Senha de '{0}' regenerada automaticamente.\nCredenciais salvas em:\n{1}
+PT	err.usr.selecciona	Selecione um usuário da lista.
+PT	dlg.resetclave.prompt	Nova senha para '{0}' (mínimo 6 caracteres):
+PT	msg.usr.clave.reseteada	Senha de '{0}' redefinida com sucesso.
+PT	err.usr.sel.bloqueado	Selecione um usuário bloqueado da lista.
+PT	conf.desbloquear.body	Desbloquear a conta de '{0}'?
+PT	conf.desbloquear.titulo	Confirmar Desbloqueio
+PT	msg.usr.desbloqueada	Conta '{0}' desbloqueada com sucesso.
+PT	conf.resetmasivo.titulo	Redefinir todas as senhas
+PT	conf.resetmasivo.body	Isso irá redefinir a senha de TODOS os usuários para:\n\n   {0}\n\nComunique cada funcionário para alterá-la.\n\nConfirmar?
+PT	conf.resetmasivo.body.generico	Isso irá redefinir a senha de TODOS os usuários para uma senha temporária.\n\nComunique cada funcionário para alterá-la.\n\nConfirmar?
+PT	msg.usr.resetmasivo	Todas as senhas foram redefinidas para: {0}
+PT	frm.gestorpermisos	Gerenciador de Perfis — Permissões
+PT	lbl.permisos.titulo	Perfis e Permissões
+PT	lbl.permisos.rol	Função:
+PT	btn.permisos.guardar	Salvar alterações
+PT	btn.permisos.cerrar	Fechar
+PT	msg.permisos.mostrando	Mostrando permissões da função '{0}'.
+PT	msg.permisos.guardados	Alterações salvas: {0} permissão(ões) atribuída(s), {1} removida(s).
+PT	perm.rol.administrador	Administrador
+PT	perm.rol.vendedor	Vendedor
+PT	perm.rol.operadorlogistico	Operador Logístico
+PT	perm.rol.supervisor	Supervisor
+PT	perm.rol.controladordestock	Controlador de Estoque
+PT	perm.rol.operadordeinventario	Operador de Estoque
+PT	perm.grp.inventario	Estoque
+PT	perm.grp.sistema	Sistema
+PT	perm.grp.ventas	Vendas
+PT	perm.pat.gestionarstock	Gerenciar Estoque
+PT	perm.pat.vercategorias	Ver Categorias
+PT	perm.pat.veroutfits	Ver Outfits
+PT	perm.pat.verprendas	Ver Roupas
+PT	perm.pat.gestionarusuarios	Gerenciar Usuários
+PT	perm.pat.verauditoria	Ver Auditoria
+PT	perm.pat.gestionarclientes	Gerenciar Clientes
+PT	perm.pat.gestionarplansuscripciones	Gerenciar Planos de Assinatura
+PT	perm.pat.realizarventas	Realizar Vendas
+PT	perm.pat.verpedidosrealizados	Ver Pedidos Realizados
+PT	btn.explorador	🌳 Ver visão completa do sistema
+PT	frm.explorador	Visão completa do sistema
+PT	lbl.explorador.titulo	Visão completa do sistema
+PT	lbl.explorador.descripcion	Estrutura organizacional do WardrobeFlow — Somente leitura
+PT	lbl.explorador.leyenda	📁 Família (nó composto — Área ou Papel)    🔑 Patente (folha — permissão atômica)
+PT	btn.explorador.cerrar	Fechar
+PT	btn.explorador.colapsar	⊟ Recolher tudo
+PT	btn.explorador.expandir	⊞ Expandir tudo
+PT	err.explorador.cargar	Erro ao carregar árvore Composite:\n{0}
+PT	lbl.jerarquia.roles	Hierarquia de Papéis
+PT	lbl.jerarquia.selecciona	Selecione um papel na árvore esquerda.
+PT	lbl.permiso.heredado	 (herdado)
+PT	perfil.auditor	Auditor
+PT	perfil.gerentecomercial	Gerente Comercial
+PT	perfil.gerenteinventario	Gerente de Estoque
+PT	perfil.encargadodestock	Responsável de Estoque
+PT	perfil.operadorlogistico	Operador Logístico
+PT	perm.rol.auditor	Auditor
+PT	perm.rol.gerentecomercial	Gerente Comercial
+PT	perm.rol.gerenteinventario	Gerente de Estoque
+PT	perm.rol.encargadodestock	Responsável de Estoque
+PT	frm.idiomas	Gerenciamento de Idiomas
+PT	lbl.idiomas.titulo	Idiomas do sistema
+PT	lbl.idiomas.trad	Traduções do idioma selecionado
+PT	btn.idiomas.activar	✔ Ativar
+PT	btn.idiomas.desactivar	✕ Desativar
+PT	btn.idiomas.guardar	💾 Salvar alterações
+PT	frm.backup	Backup e Restauração
+PT	btn.backup.crear	Gerar Cópia de Segurança (.bak)
+PT	btn.backup.restaurar	Restaurar Cópia de Segurança (.bak)
+PT	btn.backup.eliminar	Excluir
+PT	btn.backup.inicial	Backup de instalação limpa
+PT	msg.backup.inicialexito	Backup de instalação limpa gerado:\n{0}
+PT	msg.backup.alcance	\n\nO backup é de {0} (há {1} dia(s)).\nTodas as alterações posteriores a essa data serão PERDIDAS.
+PT	msg.backup.alcance.desconocido	\n\nNão foi possível determinar a data do backup. Todas as alterações posteriores à sua criação serão perdidas.
+PT	err.bll.backup.integridad	Não é possível gerar o backup: o banco tem problemas de integridade.\nCorrija-os em Administrar → Diagnóstico de Integridade antes de fazer o backup.
+PT	err.dal.backup_corrupto	O arquivo de backup é inválido ou está corrompido e não pode ser restaurado.
+PT	emg.link	Conta bloqueada? Usar chave de emergência
+PT	emg.titulo	Desbloqueio com chave de emergência
+PT	emg.encabezado	Conta de Administrador bloqueada
+PT	emg.info	Digite seu usuário e uma das suas chaves de emergência de uso único para desbloquear a conta.
+PT	emg.usuario	Usuário:
+PT	emg.clave	Chave de emergência:
+PT	emg.btn.desbloquear	Desbloquear
+PT	emg.exito	Conta desbloqueada com sucesso.\nVocê já pode entrar normalmente.
+PT	emg.exito.titulo	Conta desbloqueada
+PT	err.bll.emergencia.campos	Digite seu usuário e uma chave de emergência.
+PT	err.bll.emergencia.invalida	Usuário ou chave de emergência inválidos.
+PT	err.bll.emergencia.solo_admin	As chaves de emergência só desbloqueiam contas de Administrador.
+PT	err.bll.emergencia.no_bloqueada	A conta não está bloqueada: você pode entrar normalmente.
+PT	err.bll.emergencia.sin_claves	Não há mais chaves de emergência. Peça a outro Administrador para gerar um novo conjunto.
+PT	perfil.menu	Meu Perfil
+PT	perfil.frm.titulo	Meu Perfil
+PT	perfil.usuario	Usuário:
+PT	perfil.perfil	Perfil / Função:
+PT	perfil.idioma	Idioma preferido:
+PT	perfil.btn.guardar	Salvar preferências
+PT	perfil.btn.default	Restaurar padrões de fábrica
+PT	perfil.guardado	Preferências salvas.
+PT	perfil.seccion	Preferências
+PT	perfil.fuente	Fonte:
+PT	perfil.tamano	Tamanho da letra:
+PT	perfil.tema	Tema:
+PT	perfil.fecha	Formato de data:
+PT	perfil.notif	Receber notificações
+PT	btn.backup.externo	De arquivo...
+PT	col.backup.archivo	Arquivo
+PT	col.backup.fecha	Data
+PT	col.backup.autor	Autor
+PT	col.backup.tamanio	Tamanho
+PT	lbl.backup.info	Nota: a restauração encerra conexões ativas e reinicia o aplicativo.
+PT	lbl.backup.ubicacion	Local dos backups:
+PT	msg.backup.tituloeliminar	Confirmar Exclusão
+PT	msg.backup.confirmeliminar	Excluir o backup?\n"{0}"\n\nEsta ação não pode ser desfeita.
+PT	msg.backup.titulorestaura	Confirmar Restauração
+PT	msg.backup.confirmrestaura	Restaurar o banco de dados de:\n"{0}"?\n\nEsta operação sobrescreverá todos os dados atuais\ne reiniciará o aplicativo.
+PT	msg.backup.creadoexito	Backup gerado com sucesso:\n{0}
+PT	msg.backup.restauradaexito	Banco de dados restaurado com sucesso.\nO aplicativo será reiniciado.
+PT	msg.backup.restauradatitulo	Restauração Bem-sucedida
+PT	lbl.backup.sincopias	Nenhum backup gerado ainda.
+PT	lbl.backup.conteo	{0} backup(s) disponível(eis). Mais recente: {1}
+PT	frm.restauracion	Integridade do Sistema
+PT	lbl.rest.titulo	Integridade do Sistema Comprometida
+PT	lbl.rest.subtitulo	Foram detectadas discrepâncias nos dígitos verificadores. O acesso está bloqueado.
+PT	lbl.rest.detalle	Detalhe do erro:
+PT	btn.rest.recalcular	Recalcular Dígitos
+PT	btn.rest.backup	Restaurar a partir de Backup
+PT	btn.rest.salir	Sair
+PT	dv.alerta.titulo	ALERTA DE INTEGRIDADE — Tabela Usuario
+PT	dv.dvh.intro	{0} linha(s) com DVH inválido detectada(s):
+PT	dv.dvv.intro	O DVV da tabela não coincide com o valor armazenado.
+PT	dv.dvv.valores	  Armazenado: {0}  |  Calculado: {1}
+PT	dv.causas	Possíveis causas: modificação direta no banco de dados,\nrestauração parcial de backup ou erro na migração.
+PT	dv.pasos.titulo	Para restaurar a integridade, um Administrador deve:
+PT	dv.pasos.1	  1. Revisar os registros alterados no SQL Server.
+PT	dv.pasos.2	  2. Corrigir manualmente os valores afetados.
+PT	dv.pasos.3	  3. Executar o recálculo de DVH/DVV em Administrar → Usuários.
+PT	frm.dashboard	Painel de Controle
+PT	dash.prendas	Roupas\ndisponíveis
+PT	dash.clientes	Clientes\ncadastrados
+PT	dash.pedidos	Pedidos\npendentes
+PT	dash.backup	dias sem\nbackup
+PT	dash.ocupacion	ocupação\ndo estoque
+PT	dash.ocupacion.detalle	{0} em uso · {1} disponíveis
+PT	dash.btn.refrescar	↻ Atualizar
+PT	frm.reportejornada	Relatório de Jornada — WardrobeFlow
+PT	rpt.generar	Gerar
+PT	rpt.comparar	Comparar jornadas
+PT	rpt.exportartxt	Exportar TXT
+PT	rpt.exportarpdf	Exportar PDF
+PT	rpt.fecha	Jornada:
+PT	rpt.fecha2	Comparar com:
+PT	rpt.kpi.prendas	Roupas disponíveis
+PT	rpt.kpi.clientes	Clientes cadastrados
+PT	rpt.kpi.eventos	Eventos do dia
+PT	rpt.kpi.backup	dias sem backup
+PT	rpt.sinDatos	Sem eventos registrados para a jornada selecionada.
+PT	rpt.limpiar	Limpar
+PT	rpt.subtitulo	Eventos de negócio por jornada com exportação TXT
+PT	rpt.txt.titulo	RELATÓRIO DE JORNADA
+PT	rpt.txt.resumen	RESUMO DO SISTEMA
+PT	rpt.txt.prendas	Roupas disponíveis
+PT	rpt.txt.clientes	Clientes cadastrados
+PT	rpt.txt.diassinbkp	Dias sem backup
+PT	rpt.txt.sinbackups	Sem backups
+PT	rpt.txt.eventos	EVENTOS DE NEGÓCIO DO DIA
+PT	rpt.txt.sinevt	(sem eventos registrados nesta jornada)
+PT	rpt.txt.usuario	Usuário
+PT	rpt.txt.cliente	Cliente
+PT	rpt.txt.totalevt	TOTAL DE EVENTOS
+PT	rpt.txt.generado	Gerado
+PT	rpt.txt.comparacion	COMPARAÇÃO DE JORNADAS
+PT	rpt.txt.jornada	JORNADA
+PT	rpt.txt.sinevtjorn	(sem eventos registrados nesta jornada)
+PT	rpt.txt.comparfinal	COMPARATIVO FINAL
+PT	rpt.txt.fecha	Data
+PT	rpt.txt.eventostot	Total de eventos
+PT	rpt.txt.masmasa	teve mais atividade
+PT	rpt.txt.ninguna	Nenhuma jornada teve eventos registrados.
+PT	rpt.txt.iguales	Ambas as jornadas tiveram a mesma quantidade de eventos.
+PT	rpt.txt.rptoegenerado	Relatório gerado
+PT	rpt.txt.compgenerada	Comparação gerada
+PT	rpt.txt.impresionenv	Impressão enviada
+PT	bit.pdf.titulosistema	Registro do Sistema — WardrobeFlow
+PT	bit.pdf.titulonegocio	Registro de Negócio — WardrobeFlow
+PT	bit.pdf.pagina	WardrobeFlow — Página {0}
+PT	bit.pdf.vistaprevia	Pré-visualização
+PT	dash.backup.hoy	Hoje
+PT	dash.sesion.iniciada	Sessão iniciada:
+PT	dash.tareas.titulo	Minhas Tarefas Pendentes ({0})
+PT	dash.tareas.sinpendientes	Sem tarefas pendentes
+PT	dash.tarea.mantenimiento	Manutenção
+PT	dash.tarea.pedido	Pedido
+PT	dash.hoy	hoje
+PT	dash.hace_dias	há {0}d
+PT	dash.tareas.col.tipo	Tipo
+PT	dash.tareas.col.desc	Descrição
+PT	dash.tareas.col.fecha	Desde
+PT	dash.actividad.titulo	Atividade recente
+PT	dash.stats.titulo	Resumo de eventos
+PT	dash.col.fecha	Data
+PT	dash.col.evento	Evento
+PT	dash.col.usuario	Usuário
+PT	dash.aviso.sinbackup	⚠  Sem backups. Gere um em Administrar → Backup.
+PT	dash.aviso.vencido	⚠  Há {0} dia(s) sem backup — lembrete a cada {1} dias.
+PT	dash.cfg.titulo	Lembrete de Backup
+PT	dash.cfg.recada	Lembrar-me a cada:
+PT	dash.cfg.dias	dias
+PT	dash.cfg.guardar	Salvar
+PT	rpt.menu.guardartxt	Salvar como .TXT
+PT	rpt.menu.imprimir	Imprimir / Exportar PDF
+PT	rpt.menu.guardarcmp	Salvar comparação como .TXT
+PT	rpt.dlg.guardartxt	Salvar como TXT
+PT	rpt.dlg.exito.titulo	Sucesso
+PT	rpt.dlg.exito.msg	Arquivo salvo:\n{0}
+PT	frm.historialusr	Histórico de Alterações de Usuários
+PT	lbl.ver.usuario	Usuário:
+PT	btn.ver.cargar	Carregar
+PT	btn.ver.restaurar	Restaurar Versão Selecionada
+PT	col.ver.id	ID
+PT	col.ver.fecha	Data
+PT	col.ver.actor	Modificado por
+PT	col.ver.detalle	Detalhe
+PT	col.ver.estado	Estado
+PT	frm.confirmaradmin	Confirmar Administrador
+PT	lbl.confirmaradmin.subtitulo	Somente um Administrador pode continuar
+PT	lbl.confirmaradmin.usuario	Usuário
+PT	lbl.confirmaradmin.clave	Senha
+PT	btn.confirmaradmin.ok	Confirmar
+PT	btn.confirmaradmin.cancelar	Cancelar
+PT	msg.confirmar.vacio	Informe usuário e senha.
+PT	msg.confirmar.invalido	Credenciais inválidas ou o usuário não é Administrador.
+PT	msg.historial.sinseleccion	Selecione uma versão da grade.
+PT	msg.historial.atencion	Atenção
+PT	msg.historial.confirmar	Restaurar o usuário '{0}' ao estado de {1}?\n\nDetalhe do snapshot: {2}\n\nEsta ação é reversível (um novo snapshot é salvo antes de restaurar).
+PT	msg.historial.restaurado	Versão restaurada com sucesso.
+PT	msg.cli.registrado	Cliente '{0}' cadastrado com sucesso.
+PT	msg.cli.actualizado	Cliente '{0}' atualizado.
+PT	msg.cli.eliminado	Cliente '{0}' excluído.
+PT	conf.baja.cli.msg	Excluir {0} (CPF {1})?\n\nEsta ação não pode ser desfeita.
+PT	conf.baja.cli.titulo	Confirmar Exclusão
+PT	err.cli.errorplanes	— Erro ao carregar planos —
+PT	msg.planes.creado	Plano '{0}' criado.
+PT	msg.planes.actualizado	Plano '{0}' atualizado.
+PT	msg.planes.desactivado	Plano '{0}' desativado.
+PT	msg.planes.reactivado	Plano '{0}' reativado.
+PT	conf.planes.desat.msg	Desativar o plano '{0}'?\n\nOs clientes com este plano não serão afetados.
+PT	conf.planes.desat.tit	Confirmar Desativação
+PT	conf.planes.act.msg	Reativar o plano '{0}'?\n\nO plano voltará a estar disponível para novas assinaturas.
+PT	conf.planes.act.tit	Confirmar Ativação
+PT	msg.idiomas.activado	Idioma ativado.
+PT	msg.idiomas.desactivado	Idioma desativado.
+PT	conf.idiomas.desactivar	Desativar este idioma? Os usuários não poderão selecioná-lo.
+PT	conf.idiomas.titulo	Confirmar
+PT	msg.hist.restaurado	Pedido #{0} restaurado com sucesso.
+PT	conf.hist.restaurar.msg	Restaurar o pedido #{0} ao estado anterior a '{1}' (op. #{2})?\n\n⚠ Nota: esta operação modifica o estado do Pedido no banco de dados.\nO estado das Roupas associadas NÃO é revertido automaticamente.\n\nConfirmar?
+PT	msg.usr.dvrecalculados	DVH e DVV recalculados com sucesso para todos os usuários.
+PT	msg.usr.errordv	Erro ao recalcular DV: {0}
+PT	msg.rest.dvexito	Dígitos verificadores recalculados com sucesso.\nVocê já pode acessar o sistema.
+PT	msg.rest.dvtitulo	Integridade Restaurada
+PT	conf.rest.sobreescribir	Tem certeza? Esta operação sobrescreverá todos os dados atuais e reiniciará o aplicativo.
+PT	msg.rest.errorrecalcular	Erro ao recalcular: {0}
+PT	msg.rest.errorrestaurar	Erro ao restaurar: {0}
+PT	msg.backup.errorgenerar	Erro ao gerar backup:\n{0}
+PT	msg.backup.erroreliminar	Erro ao excluir:\n{0}
+PT	msg.backup.errorrestaurar	Erro ao restaurar:\n{0}
+PT	msg.historial.errorcargar	Erro ao carregar histórico:\n{0}
+PT	msg.historial.errorrestaur	Erro ao restaurar versão:\n{0}
+PT	msg.error.titulo	Erro
+PT	lbl.cli.vencimiento	Data de Vencimento
+PT	col.cli.vencimiento	Vencimento
+PT	msg.cli.sinvenc	Sem vencimento
+PT	msg.cli.vencido	Vencido
+PT	msg.cli.proxvencer	Vence em breve
+PT	msg.cli.vigente	Vigente
+PT	err.ped.suscvencida	⚠ A assinatura de {0} venceu em {1}.\nRenovar no módulo de Clientes.
+PT	lbl.ped.proxvencer	⏰ A assinatura vence em {0} dia(s). Avise o cliente para renová-la.
+PT	lbl.ped.res.linea1	Selecionadas: {0}  |  Em uso: {1}  |  Total: {2}
+PT	lbl.ped.res.limite	✗ O plano '{0}' permite {1} roupa(s). Você está excedendo o limite em {2}.
+PT	lbl.ped.res.vacio	Você pode adicionar até {0} roupa(s) (plano {1}).
+PT	lbl.ped.res.parcial	ℹ O plano '{0}' permite {1}. Você está escolhendo {2} de {3} possíveis — pode adicionar mais.
+PT	lbl.ped.res.lleno	✓ Você atingiu o máximo do plano '{0}' ({1} roupas).
+PT	conf.ped.titulo	Confirmar Pedido
+PT	conf.ped.msg	Confirmar pedido para {0}:\n\n  • {1}\n\nTotal: {2} roupa(s)\nForma de pagamento: {3}
+PT	frm.mantenimiento	Histórico de Manutenção
+PT	btn.mantenimiento	🔧 Manutenção
+PT	btn.mant.cerrar	Fechar
+PT	col.mant.entrada	Entrada
+PT	col.mant.salida	Saída
+PT	col.mant.duracion	Duração (dias)
+PT	col.mant.actor	Responsável
+PT	col.mant.estado	Estado
+PT	mant.abierto	Em limpeza
+PT	mant.cerrado	Finalizado
+PT	msg.mant.sinregistros	Esta roupa não tem histórico de manutenção.
+PT	err.bll.cliente.nombre_requerido	O nome do cliente é obrigatório.
+PT	err.bll.cliente.apellido_requerido	O sobrenome do cliente é obrigatório.
+PT	err.bll.cliente.dni_requerido	O CPF do cliente é obrigatório.
+PT	err.bll.cliente.dni_formato	O CPF deve ter entre 7 e 8 dígitos.
+PT	err.bll.cliente.dni_numeros	O CPF só pode conter números.
+PT	err.bll.cliente.dni_duplicado	Já existe um cliente com CPF {0}.
+PT	err.bll.cliente.dni_duplicado_otro	O CPF {0} já está cadastrado para outro cliente.
+PT	err.bll.cliente.baja_prendas	Não é possível excluir {0}: possui {1} roupa(s) em uso. Registre a devolução primeiro.
+PT	err.bll.pedido.sin_prendas	Selecione pelo menos uma roupa.
+PT	err.bll.pedido.cliente_inexistente	O cliente selecionado não existe.
+PT	err.bll.pedido.sin_plan	O cliente {0} não tem plano atribuído. Atribua um plano antes de criar um pedido.
+PT	err.bll.pedido.suscripcion_vencida	A assinatura de {0} venceu em {1}. Renovar no módulo de Clientes.
+PT	err.bll.pedido.limite_plan	O plano '{0}' permite {1} roupa(s). O cliente já tem {2} em uso e adiciona {3} mais. Máximo permitido: {4}.
+PT	err.bll.pedido.prenda_no_disponible	A roupa '{0}' não está disponível (estado: {1}). Atualize a seleção.
+PT	err.bll.pedido.despachar_estado	Só é possível despachar pedidos Pendentes. Este pedido está '{0}'.
+PT	err.bll.pedido.entregar_estado	Só é possível marcar como entregues pedidos Despachados. Este pedido está '{0}'.
+PT	err.bll.pedido.devolucion_estado	Só é possível registrar devolução de pedidos Entregues. Este pedido está '{0}'.
+PT	err.bll.pedido.cancelar_estado	Só é possível cancelar pedidos Pendentes. Este pedido está '{0}'.
+PT	err.bll.pedido.cancelar_sin_motivo	É obrigatório informar um motivo de cancelamento.
+PT	err.bll.pedido.descancelar_estado	Só é possível reativar pedidos Cancelados. Este pedido está '{0}'.
+PT	err.bll.pedido.descancelar_prendas	Não é possível reativar o Pedido #{0}. Uma ou mais roupas não estão mais disponíveis.
+PT	err.bll.plan.nombre_requerido	O nome do plano é obrigatório.
+PT	err.bll.plan.limite_invalido	O limite de roupas deve ser maior que zero.
+PT	err.bll.plan.precio_negativo	O preço não pode ser negativo.
+PT	err.plan.nombre_requerido	O nome do plano é obrigatório.
+PT	err.plan.nombre_letras	O nome só pode conter letras.
+PT	err.plan.precio_cero	O preço deve ser maior que zero.
+PT	diag.estado.integro	Estado: ÍNTEGRO
+PT	diag.estado.comprometido	Estado: COMPROMETIDO
+PT	msg.idiomas.cargadas	{0} tradução(ões) carregada(s).
+PT	msg.idiomas.seleccionar	Selecione um idioma primeiro.
+PT	msg.idiomas.guardadas	{0} tradução(ões) salva(s) com sucesso.
+PT	msg.idiomas.guardadas.error	{0} salva(s) e {1} com erro.
+PT	err.mant.cargar	Erro ao carregar histórico: {0}
+PT	alerta.integridad.titulo	Alerta de Integridade
+PT	alerta.integridad.msg	ALERTA: Problemas de integridade detectados na tabela Usuario.\n\nLinhas com DVH inválido: {0}\nDVV armazenado: {1}  |  DVV calculado: {2}\n\nVá a Administrar → Diagnóstico de Integridade para reparar.

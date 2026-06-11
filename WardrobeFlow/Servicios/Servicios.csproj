@@ -54,6 +54,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Corpus de traducciones (datos, no código). Embebido en Servicios.dll y leído por Traductor. -->
+    <EmbeddedResource Include="Multiidioma\traducciones.tsv" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\BE\BE.csproj">
       <Project>{5487ef5a-f8f3-46e2-b31d-19a5d0a8c050}</Project>
       <Name>BE</Name>
