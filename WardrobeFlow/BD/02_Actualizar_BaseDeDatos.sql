@@ -1037,6 +1037,60 @@ ELSE
     PRINT 'Demo: pedidos ya existen o faltan datos base — sin cambios.';
 GO
 
+-- ============================================================
+-- ÍNDICES NO-CLUSTERED Y RESTRICCIONES DE INTEGRIDAD
+-- Idempotente: solo crea lo que falta. Mejoran los joins por FK y los filtros por fecha,
+-- y el CHECK respalda en el motor la prohibición de auto-referencia del árbol Composite.
+-- ============================================================
+
+-- Índices sobre columnas FK que NO son la columna LÍDER de su PK (la PK ya indexa su primera
+-- columna) y sobre columnas usadas para filtrar/ordenar (fechas).
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Bitacora_fecha' AND object_id = OBJECT_ID('Bitacora'))
+    CREATE NONCLUSTERED INDEX IX_Bitacora_fecha ON Bitacora(fecha);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Bitacora_usuario' AND object_id = OBJECT_ID('Bitacora'))
+    CREATE NONCLUSTERED INDEX IX_Bitacora_usuario ON Bitacora(usuario);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_BitacoraNegocio_Fecha' AND object_id = OBJECT_ID('BitacoraNegocio'))
+    CREATE NONCLUSTERED INDEX IX_BitacoraNegocio_Fecha ON BitacoraNegocio(Fecha);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_PermisoRelacion_IdHijo' AND object_id = OBJECT_ID('PermisoRelacion'))
+    CREATE NONCLUSTERED INDEX IX_PermisoRelacion_IdHijo ON PermisoRelacion(IdHijo);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_RolPermiso_IdPermiso' AND object_id = OBJECT_ID('RolPermiso'))
+    CREATE NONCLUSTERED INDEX IX_RolPermiso_IdPermiso ON RolPermiso(IdPermiso);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Traduccion_IdIdioma' AND object_id = OBJECT_ID('Traduccion'))
+    CREATE NONCLUSTERED INDEX IX_Traduccion_IdIdioma ON Traduccion(IdIdioma);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Pedido_IdCliente' AND object_id = OBJECT_ID('Pedido'))
+    CREATE NONCLUSTERED INDEX IX_Pedido_IdCliente ON Pedido(IdCliente);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Pedido_IdEmpleado' AND object_id = OBJECT_ID('Pedido'))
+    CREATE NONCLUSTERED INDEX IX_Pedido_IdEmpleado ON Pedido(IdEmpleado);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Pedido_FechaPedido' AND object_id = OBJECT_ID('Pedido'))
+    CREATE NONCLUSTERED INDEX IX_Pedido_FechaPedido ON Pedido(FechaPedido);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_PedidoPrenda_IdPrenda' AND object_id = OBJECT_ID('PedidoPrenda'))
+    CREATE NONCLUSTERED INDEX IX_PedidoPrenda_IdPrenda ON PedidoPrenda(IdPrenda);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_PedidoHistorial_IdPedido' AND object_id = OBJECT_ID('PedidoHistorial'))
+    CREATE NONCLUSTERED INDEX IX_PedidoHistorial_IdPedido ON PedidoHistorial(IdPedido);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Prenda_IdClienteActual' AND object_id = OBJECT_ID('Prenda'))
+    CREATE NONCLUSTERED INDEX IX_Prenda_IdClienteActual ON Prenda(IdClienteActual);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_HistorialUsuario_IdUsuario' AND object_id = OBJECT_ID('HistorialUsuario'))
+    CREATE NONCLUSTERED INDEX IX_HistorialUsuario_IdUsuario ON HistorialUsuario(IdUsuario);
+PRINT 'Índices no-clustered verificados/creados.';
+GO
+
+-- CHECK anti auto-referencia del árbol Composite: un permiso no puede ser su propio hijo.
+-- (La validación de ciclos completa vive en BE.Familia; esto la respalda en el motor por si
+-- alguien escribe por SQL directo.) Se limpian filas inválidas preexistentes para que no falle.
+IF EXISTS (SELECT 1 FROM PermisoRelacion WHERE IdPadre = IdHijo)
+BEGIN
+    DELETE FROM PermisoRelacion WHERE IdPadre = IdHijo;
+    PRINT 'PermisoRelacion: filas auto-referenciadas (IdPadre = IdHijo) eliminadas.';
+END
+IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = 'CK_PermisoRelacion_NoAutoref')
+BEGIN
+    ALTER TABLE PermisoRelacion ADD CONSTRAINT CK_PermisoRelacion_NoAutoref CHECK (IdPadre <> IdHijo);
+    PRINT 'CHECK CK_PermisoRelacion_NoAutoref agregado (IdPadre <> IdHijo).';
+END
+ELSE
+    PRINT 'CHECK CK_PermisoRelacion_NoAutoref ya existe — sin cambios.';
+GO
+
 PRINT '';
 PRINT '=== WardrobeFlowDB deploy completo. ===';
 PRINT 'IMPORTANTE: Ejecutar recálculo de DVH/DVV desde la aplicación';

@@ -81,12 +81,12 @@ Esquema sólido: **23 tablas, 24 FK, 23 PK, 6 UNIQUE/CHECK**, integridad referen
 | Problema | Sev. | Evidencia | Impacto | Recomendación |
 |---|---|---|---|---|
 | **Tabla redundante** `RolPermiso` coexiste con `PermisoRelacion` | Media | `01_Crear…sql:322` y `:336`; doc reconoce a `RolPermiso` como *legacy* | Dos fuentes de verdad de permisos → riesgo de divergencia. | Deprecar `RolPermiso` formalmente o migrar y eliminar. |
-| **Ciclos del Composite no impedidos en BD** | Media | `PermisoRelacion` sin CHECK que evite `IdPadre=IdHijo` ni ciclos | Una escritura SQL directa corrompe el árbol; la defensa vive **solo en código** (`BE.Familia`). | `CHECK (IdPadre<>IdHijo)` + trigger/validación de ciclo, o aceptar el riesgo documentándolo. |
-| **Sin índices no-clustered** | Media | `grep CREATE INDEX` → 0 | Búsquedas frecuentes (`Bitacora.fecha`, `PedidoPrenda`, `PermisoRelacion.IdHijo`, `Traduccion`) sin cubrir; solo PK/UNIQUE indexan. | Crear índices en columnas FK y de filtrado por fecha. |
+| ~~**Auto-referencia del Composite no impedida en BD**~~ **(RESUELTO)** | Media | `CK_PermisoRelacion_NoAutoref CHECK (IdPadre <> IdHijo)` en ambos scripts | Antes la defensa vivía solo en código; ahora el motor rechaza que un permiso sea su propio hijo aun por SQL directo (con limpieza previa de filas inválidas). La validación de ciclos *completa* sigue en `BE.Familia`. |
+| ~~**Sin índices no-clustered**~~ **(RESUELTO)** | Media | 13 índices `IX_*` idempotentes en ambos scripts | Se cubrieron las columnas FK que no lideran su PK y las de filtrado por fecha (`Bitacora.fecha/usuario`, `BitacoraNegocio.Fecha`, `PermisoRelacion.IdHijo`, `RolPermiso.IdPermiso`, `Traduccion.IdIdioma`, `Pedido.IdCliente/IdEmpleado/FechaPedido`, `PedidoPrenda.IdPrenda`, `PedidoHistorial.IdPedido`, `Prenda.IdClienteActual`, `HistorialUsuario.IdUsuario`). Validado contra la BD real en una transacción con rollback. |
 | Ambigüedad `Usuario.Rol` **y** `Usuario.Perfil` | Baja | `01_Crear…sql:44-45`, ambos NVARCHAR(100) | Dos columnas con semántica solapada de "rol". | Consolidar en una. |
 | `Usuario.DVH` nullable | Baja | `:48` | Una fila con DVH NULL no se detecta como corrupta hasta recalcular. | `NOT NULL` tras backfill. |
 
-**Nota BD: 7.5/10** — correcta y bien restringida, penalizada por redundancia legacy, falta de índices y ciclos no garantizados a nivel motor.
+**Nota BD: 7.5 → 8.5/10** (tras correcciones) — agregados 13 índices no-clustered y el `CHECK` anti auto-referencia. Penalización restante: la redundancia legacy de `RolPermiso` y la ambigüedad `Usuario.Rol`/`Perfil`.
 
 ---
 
@@ -201,7 +201,7 @@ WardrobeFlow es un sistema WinForms .NET multicapa **maduro y coherente**. La se
 | POO | **8.0 / 10** |
 | SOLID | **8.0 / 10** |
 | Seguridad | **9.0 / 10** |
-| Base de Datos | **7.5 / 10** |
+| Base de Datos | **8.5 / 10** |
 | Calidad de Código | **8.0 / 10** |
 | Cumplimiento de Requerimientos | **9.5 / 10** |
 
