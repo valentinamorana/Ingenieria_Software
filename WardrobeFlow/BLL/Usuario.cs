@@ -69,13 +69,9 @@ namespace BLL
         // SessionManager.TienePermiso (que también identifica al admin por su Perfil).
         private static void ValidarEsAdministrador()
         {
-            // Fail-closed: sin sesión NO se permite la operación.
-            if (!SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada",
-                    "La sesión expiró. Volvé a iniciar sesión.");
-            if (!SessionManager.GetInstance().Usuario.EsAdministrador)
-                throw new BE.AppException("err.bll.usuario.sin_permiso",
-                    "Solo un Administrador puede gestionar usuarios.");
+            // Guard centralizado (DRY): sesión activa + rol Administrador.
+            BLLHelper.ExigirAdministrador("err.bll.usuario.sin_permiso",
+                "Solo un Administrador puede gestionar usuarios.");
         }
 
         /// <summary>Autentica al usuario y establece la sesión. Bloquea la cuenta tras 3 intentos fallidos.</summary>

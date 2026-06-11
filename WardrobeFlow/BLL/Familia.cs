@@ -43,16 +43,8 @@ namespace BLL
         // (el Administrador sigue con acceso total por bypass).
         private static void VerificarPuedeGestionar()
         {
-            // Fail-closed: sin sesión NO se permite la operación.
-            if (!Seguridad.SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada",
-                    "La sesión expiró. Volvé a iniciar sesión.");
-            if (EsAdminEnSesion()) return;
-            var u = Seguridad.SessionManager.GetInstance().Usuario;
-            bool tieneGestion = u.Permisos != null && u.Permisos.Exists(p => p.NombreMenu == MenuGestion);
-            if (!tieneGestion)
-                throw new BE.AppException("err.bll.familia.sin_permiso",
-                    "No tenés permiso para gestionar usuarios y permisos.");
+            // Guard centralizado (DRY): Administrador (bypass) o rol con la patente mnuUsuarios.
+            BLLHelper.ExigirGestionUsuarios();
         }
 
         // Anti-autobloqueo: simula los permisos efectivos que daría un conjunto de ids (resolviendo

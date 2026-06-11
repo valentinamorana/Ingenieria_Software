@@ -29,12 +29,8 @@ namespace BLL
 
         private static void ValidarAdministrador()
         {
-            if (!Seguridad.SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada",
-                    "La sesión expiró. Volvé a iniciar sesión.");
-            if (!Seguridad.SessionManager.GetInstance().Usuario.EsAdministrador)
-                throw new BE.AppException("err.bll.backup.sin_permiso",
-                    "Solo un Administrador puede realizar operaciones de backup y restauración.");
+            BLLHelper.ExigirAdministrador("err.bll.backup.sin_permiso",
+                "Solo un Administrador puede realizar operaciones de backup y restauración.");
         }
 
         // RF-04 — Antes de generar un backup se verifica la integridad (DVH/DVV) de la

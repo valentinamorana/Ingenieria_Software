@@ -137,12 +137,8 @@ namespace BLL
         // Fail-closed: solo un Administrador con sesión puede gestionar las claves.
         private static void ValidarEsAdministrador()
         {
-            if (!SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada",
-                    "La sesión expiró. Volvé a iniciar sesión.");
-            if (!SessionManager.GetInstance().Usuario.EsAdministrador)
-                throw new BE.AppException("err.bll.usuario.sin_permiso",
-                    "Solo un Administrador puede gestionar las claves de emergencia.");
+            BLLHelper.ExigirAdministrador("err.bll.usuario.sin_permiso",
+                "Solo un Administrador puede gestionar las claves de emergencia.");
         }
     }
 }
