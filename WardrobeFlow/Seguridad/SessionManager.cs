@@ -15,11 +15,12 @@ namespace Seguridad
         // Marca de tiempo del momento en que se inició la sesión.
         public DateTime FechaInicio { get; set; }
 
-        // Retorna la sesión activa. Lanza excepción si no hay sesión iniciada.
+        // Retorna la sesión activa. Lanza SesionException (traducible) si no hay sesión iniciada.
         public static SessionManager GetInstance()
         {
             if (_session == null)
-                throw new InvalidOperationException("Sesión no iniciada. Debe hacer Login primero.");
+                throw new BE.SesionException("err.seg.sesion_no_iniciada",
+                    "La sesión no está iniciada. Iniciá sesión primero.");
 
             return _session;
         }
@@ -54,7 +55,8 @@ namespace Seguridad
                 }
                 else
                 {
-                    throw new InvalidOperationException("Sesión ya iniciada.");
+                    throw new BE.SesionException("err.seg.sesion_ya_iniciada",
+                        "Ya hay una sesión iniciada. Cerrá la sesión actual antes de iniciar otra.");
                 }
             }
         }

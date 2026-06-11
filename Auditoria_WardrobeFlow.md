@@ -2,7 +2,7 @@
 
 **Auditor:** Revisión final universitaria / pre-producción
 **Fecha:** 11/06/2026
-**Alcance:** BE · BLL · DAL · GUI · Seguridad · Servicios · BD (23 tablas) · Tests (53 casos)
+**Alcance:** BE · BLL · DAL · GUI · Seguridad · Servicios · BD (23 tablas) · Tests (56 casos)
 **Veredicto adelantado:** proyecto de calidad netamente superior a una entrega académica promedio. Arquitectura y seguridad de nivel profesional; las debilidades son de *deuda técnica acotada*, no de diseño roto.
 
 ---
@@ -109,7 +109,7 @@ Esquema sólido: **23 tablas, 24 FK, 23 PK, 6 UNIQUE/CHECK**, integridad referen
 | **RF-11** Roles jerárquicos vía Composite | ✅ | §4. Rol-dentro-de-rol soportado. |
 | **RF-12** Prevención dependencias circulares | ✅ | `Familia.cs:27 ContieneDescendiente`; `BLL/Familia.cs:337 ValidarSinCiclo`. |
 | **RF-13** Prevención recursividad infinita | ✅ | `HashSet visitados` + tope `depth>50` / `nivel>50`. |
-| **RNF-03/04** Robustez / excepciones | ⚠️ Parcial | `AppException`/`LoginException` tipadas y traducibles **muy bien**; pero `SessionManager` lanza `Exception` base genérica (`SessionManager.cs:22,55,71`). |
+| **RNF-03/04** Robustez / excepciones | ✅ | `AppException`/`LoginException` tipadas y traducibles; `SessionManager` ahora lanza `BE.SesionException` (subtipo de `AppException`, traducible y capturable), no `Exception` genérica. Claves i18n `err.seg.sesion_no_iniciada`/`err.seg.sesion_ya_iniciada` en los 4 idiomas; `Logout` idempotente. |
 | **RF-14..18** Historial / versiones / rollback / auditoría / trazabilidad | ✅ | Memento + `HistorialUsuario`; snapshots antes de cada cambio (`Usuario.cs:225,253,285`). |
 | **RF-19..24 / RNF-05** Multidioma | ✅ | Observer (RF-20), cambio dinámico en uso (RF-19), claves de traducción (RF-21), idioma por usuario `Usuario.IdIdioma` (RF-22/23), idioma en Login (RF-24), sesión estática por proceso → independencia entre instancias (RNF-05). |
 
@@ -158,7 +158,7 @@ Esquema sólido: **23 tablas, 24 FK, 23 PK, 6 UNIQUE/CHECK**, integridad referen
 
 **Debilidades:** `Traductor.cs` (4197 líneas) lastra cualquier métrica de complejidad/duplicación; forms de 800-900 líneas; algo de duplicación (guardas, backups); ~28k líneas totales con concentración de complejidad en pocos archivos.
 
-**Tests:** 53 pruebas unitarias cubriendo **lo crítico** (Composite, DV, Encriptador, Memento, claves de emergencia, casos especiales, i18n, preview de pérdida de backup) con *fakes* inyectados. Buena disciplina de testing para una entrega académica.
+**Tests:** 56 pruebas unitarias cubriendo **lo crítico** (Composite, DV, Encriptador, Memento, claves de emergencia, casos especiales, i18n, preview de pérdida de backup, excepciones de sesión) con *fakes* inyectados. Buena disciplina de testing para una entrega académica.
 
 **Nota Calidad: 8/10**
 
