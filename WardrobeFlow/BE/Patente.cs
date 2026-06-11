@@ -33,5 +33,19 @@ namespace BE
         }
 
         public override void VaciarHijos() { }
+
+        // Caso BASE de la recursión: una hoja se aporta a sí misma (sin duplicar).
+        // Equivalente a CalcularPrecioBase() de ArticuloSimple, que devuelve su valor propio.
+        internal override void RecolectarPatentes(IDictionary<int, Patente> acumulador, HashSet<int> visitados)
+        {
+            if (!acumulador.ContainsKey(Id)) acumulador[Id] = this;
+        }
+
+        public override string ObtenerDescripcion(int nivel = 0)
+        {
+            string sangria = new string(' ', nivel * 2);
+            string menu    = string.IsNullOrEmpty(NombreMenu) ? string.Empty : $" ({NombreMenu})";
+            return $"{sangria}- [Patente] {Nombre}{menu}";
+        }
     }
 }

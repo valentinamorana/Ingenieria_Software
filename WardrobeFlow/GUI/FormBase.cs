@@ -43,6 +43,19 @@ namespace GUI
                     this.Icon = new Icon(ico);
             }
             catch { }
+
+            // Aplica las preferencias de UI del usuario (fuente/tamaño/tema) a este formulario.
+            try { PreferenciasUI.Aplicar(this); } catch { }
+
+            // Etapa 4 — Registrar los controles de este form (C1) y aplicar la seguridad a nivel de
+            // control: muestra/oculta los mapeados a patentes que el usuario no tiene. Sin mapeos, no hace nada.
+            try
+            {
+                RegistroControles.Registrar(this);
+                if (Seguridad.SessionManager.IsLoggedIn)
+                    ManejadorSeguridad.AplicarSeguridad(this, Seguridad.SessionManager.GetInstance().Usuario);
+            }
+            catch { }
         }
 
         /// <summary>
@@ -95,6 +108,8 @@ namespace GUI
         {
             if (ex is BE.AppException appEx)
             {
+                // AppException = error de negocio esperado (validación, permiso…): se
+                // muestra traducido y NO se registra en bitácora para no generar ruido.
                 var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
                 if (t.ContainsKey(appEx.Clave))
                 {
@@ -105,8 +120,36 @@ namespace GUI
                     MostrarError(msg);
                     return;
                 }
+                MostrarError(ex.Message);
+                return;
             }
+
+            // Excepción INESPERADA: se registra en la bitácora (criterio: excepciones
+            // registradas) antes de mostrarla al usuario.
+            RegistrarExcepcion(ex);
             MostrarError(ex.Message);
+        }
+
+        // Registra una excepción inesperada en la bitácora con criticidad Alta.
+        // Nunca propaga: si el logueo falla, no debe tapar el error original.
+        private void RegistrarExcepcion(Exception ex)
+        {
+            try
+            {
+                var bitacora = new Servicios.Bitacora();
+                string modulo = this.GetType().Name;
+                int?   idUsuario = Seguridad.SessionManager.IsLoggedIn
+                                   ? (int?)Seguridad.SessionManager.GetInstance().Usuario.Id : null;
+                string usuario = Seguridad.SessionManager.IsLoggedIn
+                                   ? Seguridad.SessionManager.GetInstance().Usuario.Username : "(sin sesión)";
+                bitacora.RegistrarSinSesion(
+                    modulo,
+                    "Excepción: " + ex.GetType().Name,
+                    BE.Criticidad.Alta,
+                    idUsuario,
+                    $"Usuario '{usuario}' — {modulo}: {ex.Message}");
+            }
+            catch { /* el fallo al registrar no debe romper el manejo del error */ }
         }
     }
 }

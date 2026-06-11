@@ -63,6 +63,29 @@ namespace DAL
             return Convert.ToInt32(dtNew.Rows[0]["IdIdioma"]);
         }
 
+        public bool ExisteCodigo(string codigo)
+        {
+            DataTable dt = acceso.Leer("SELECT 1 FROM Idioma WHERE Codigo = @c",
+                new SqlParameter[] { new SqlParameter("@c", codigo) });
+            return dt != null && dt.Rows.Count > 0;
+        }
+
+        // Alta de un idioma nuevo (inactivo por defecto hasta que el admin lo active).
+        public void Crear(string codigo, string nombre)
+        {
+            acceso.Escribir(
+                "INSERT INTO Idioma (Codigo, Nombre, Activo, EsDefault) VALUES (@c, @n, 0, 0)",
+                new SqlParameter[] { new SqlParameter("@c", codigo), new SqlParameter("@n", nombre) });
+        }
+
+        // Renombra un idioma existente.
+        public void Modificar(int idIdioma, string nombre)
+        {
+            acceso.Escribir(
+                "UPDATE Idioma SET Nombre = @n WHERE IdIdioma = @id",
+                new SqlParameter[] { new SqlParameter("@n", nombre), new SqlParameter("@id", idIdioma) });
+        }
+
         public void Activar(int idIdioma)
         {
             acceso.Escribir("UPDATE Idioma SET Activo = 1 WHERE IdIdioma = @id",

@@ -161,11 +161,11 @@ namespace GUI
             this.txtContraseña.TabIndex    = 3;
 
             // ── lnkOlvidaste — link alineado a la derecha bajo contraseña ─
-            this.lnkOlvidaste.ActiveLinkColor = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.lnkOlvidaste.ActiveLinkColor = System.Drawing.Color.FromArgb(176, 62, 96);
             this.lnkOlvidaste.AutoSize        = false;
             this.lnkOlvidaste.BackColor       = System.Drawing.Color.Transparent;
             this.lnkOlvidaste.Font            = new System.Drawing.Font("Segoe UI", 8.5F);
-            this.lnkOlvidaste.LinkColor       = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.lnkOlvidaste.LinkColor       = System.Drawing.Color.FromArgb(176, 62, 96);
             this.lnkOlvidaste.Location        = new System.Drawing.Point(32, 271);
             this.lnkOlvidaste.Name            = "lnkOlvidaste";
             this.lnkOlvidaste.Size            = new System.Drawing.Size(376, 16);
@@ -181,14 +181,14 @@ namespace GUI
             this.lblError.BackColor   = System.Drawing.Color.FromArgb(251, 240, 246);
             this.lblError.Font        = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblError.ForeColor   = System.Drawing.Color.FromArgb(180, 50, 50);
-            this.lblError.Location    = new System.Drawing.Point(32, 291);
+            this.lblError.Location    = new System.Drawing.Point(32, 311);
             this.lblError.Name        = "lblError";
-            this.lblError.Size        = new System.Drawing.Size(376, 40);
+            this.lblError.Size        = new System.Drawing.Size(376, 34);
             this.lblError.TabIndex    = 4;
             this.lblError.TextAlign   = System.Drawing.ContentAlignment.MiddleCenter;
 
             // ── btnIngresar — botón primario ancho completo (vino) ─────────
-            this.btnIngresar.BackColor                         = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.btnIngresar.BackColor                         = System.Drawing.Color.FromArgb(176, 62, 96);
             this.btnIngresar.Cursor                            = System.Windows.Forms.Cursors.Hand;
             this.btnIngresar.FlatAppearance.BorderSize         = 0;
             this.btnIngresar.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(118, 48, 76);
@@ -196,7 +196,7 @@ namespace GUI
             this.btnIngresar.FlatStyle                         = System.Windows.Forms.FlatStyle.Flat;
             this.btnIngresar.Font                              = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnIngresar.ForeColor                         = System.Drawing.Color.White;
-            this.btnIngresar.Location                          = new System.Drawing.Point(32, 340);
+            this.btnIngresar.Location                          = new System.Drawing.Point(32, 352);
             this.btnIngresar.Name                              = "btnIngresar";
             this.btnIngresar.Size                              = new System.Drawing.Size(376, 44);
             this.btnIngresar.TabIndex                          = 5;
@@ -211,7 +211,7 @@ namespace GUI
             this.lblDivider.BackColor = System.Drawing.Color.Transparent;
             this.lblDivider.Font      = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblDivider.ForeColor = System.Drawing.Color.FromArgb(192, 168, 180);
-            this.lblDivider.Location  = new System.Drawing.Point(32, 394);
+            this.lblDivider.Location  = new System.Drawing.Point(32, 406);
             this.lblDivider.Name      = "lblDivider";
             this.lblDivider.Size      = new System.Drawing.Size(376, 22);
             this.lblDivider.TabIndex  = 16;
@@ -227,7 +227,7 @@ namespace GUI
             this.btnSalir.FlatStyle                         = System.Windows.Forms.FlatStyle.Flat;
             this.btnSalir.Font                              = new System.Drawing.Font("Segoe UI", 9.5F);
             this.btnSalir.ForeColor                         = System.Drawing.Color.FromArgb(160, 136, 152);
-            this.btnSalir.Location                          = new System.Drawing.Point(32, 422);
+            this.btnSalir.Location                          = new System.Drawing.Point(32, 434);
             this.btnSalir.Name                              = "btnSalir";
             this.btnSalir.Size                              = new System.Drawing.Size(376, 40);
             this.btnSalir.TabIndex                          = 7;

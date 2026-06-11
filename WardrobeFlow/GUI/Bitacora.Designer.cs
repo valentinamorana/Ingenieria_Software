@@ -71,7 +71,7 @@ namespace GUI
             //
             // panelTop
             //
-            this.panelTop.BackColor = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.panelTop.BackColor = System.Drawing.Color.FromArgb(176, 62, 96);
             this.panelTop.Controls.Add(this.lblBitTitulo);
             this.panelTop.Controls.Add(this.lblBitSubtitulo);
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;

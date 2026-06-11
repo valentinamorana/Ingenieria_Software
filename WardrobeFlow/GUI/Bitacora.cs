@@ -147,12 +147,12 @@ namespace GUI
             {
                 Dock      = DockStyle.Bottom,
                 Height    = 26,
-                BackColor = Color.FromArgb(64, 0, 64)
+                BackColor = Color.FromArgb(176, 62, 96)
             };
             var lblSb = new Label
             {
                 Dock      = DockStyle.Fill,
-                ForeColor = Color.FromArgb(200, 180, 210),
+                ForeColor = Color.FromArgb(244, 212, 226),
                 Font      = new Font("Segoe UI", 8f),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding   = new Padding(10, 0, 0, 0)
@@ -544,7 +544,7 @@ namespace GUI
             float xIzq       = margen.Left;
             float anchoTotal = margen.Width;
 
-            var vinoOscuro = Color.FromArgb(146, 62, 96);
+            var vinoOscuro = Color.FromArgb(176, 62, 96);
             var vinoClaro  = Color.FromArgb(252, 228, 235);
             var vinoMedio  = Color.FromArgb(110, 40, 70);
 
@@ -557,8 +557,8 @@ namespace GUI
 
                 using (var brSub = new SolidBrush(vinoMedio))
                     g.DrawString(
-                        $"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}   |   " +
-                        $"{_tablaImpresion.Rows.Count} registro(s)",
+                        $"{T("rpt.txt.generado", "Generado")}: {DateTime.Now:dd/MM/yyyy HH:mm}   |   " +
+                        string.Format(T("msg.bit.registros", "{0} registro(s)"), _tablaImpresion.Rows.Count),
                         _fuenteCelda, brSub, xIzq, y);
                 y += _fuenteCelda.GetHeight(g) + 6;
 

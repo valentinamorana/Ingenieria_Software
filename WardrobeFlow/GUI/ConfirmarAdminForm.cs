@@ -8,6 +8,7 @@ namespace GUI
     public partial class ConfirmarAdminForm : Form
     {
         private readonly Usuario _usuarioBLL = new Usuario();
+        private readonly RecuperacionAdmin _recuperacionBLL = new RecuperacionAdmin();
 
         public bool Autorizado { get; private set; }
 
@@ -46,7 +47,7 @@ namespace GUI
             var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
             string T(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
 
-            if (string.IsNullOrWhiteSpace(txtUsuario.Text) || string.IsNullOrWhiteSpace(txtClave.Text))
+            if (string.IsNullOrWhiteSpace(txtClave.Text))
             {
                 lblError.Text = T("msg.confirmar.vacio", "Ingrese usuario y contraseña.");
                 return;
@@ -54,6 +55,23 @@ namespace GUI
 
             try
             {
+                // Vía 1 — Clave Maestra de Recuperación. Permite autorizar SIN usuario, para
+                // cuando ningún admin puede ingresar. La validación (lectura de config + cripto)
+                // la resuelve la BLL; la GUI solo reacciona al booleano. (Patrón de Stach.)
+                if (_recuperacionBLL.ValidarClaveMaestra(txtClave.Text))
+                {
+                    Autorizado = true;
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                    return;
+                }
+
+                // Vía 2 — Credenciales de un Administrador.
+                if (string.IsNullOrWhiteSpace(txtUsuario.Text))
+                {
+                    lblError.Text = T("msg.confirmar.vacio", "Ingrese usuario y contraseña.");
+                    return;
+                }
                 if (!_usuarioBLL.ValidarCredencialesAdmin(txtUsuario.Text.Trim(), txtClave.Text))
                 {
                     lblError.Text = T("msg.confirmar.invalido", "Credenciales inválidas o el usuario no es Administrador.");

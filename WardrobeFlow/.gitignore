@@ -12,5 +12,14 @@ packages/
 # AES encryption key — regenerate per environment, never commit
 key.dat
 
+# Backups de base de datos — nunca versionar (contienen hashes, DNI cifrados, datos de clientes)
+*.bak
+
+# Credenciales generadas en texto plano — nunca versionar
+CredencialesGeneradas/
+
+# Resultados de tests
+TestResults/
+
 # Local settings
 *.local

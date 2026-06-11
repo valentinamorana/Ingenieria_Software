@@ -22,24 +22,15 @@ namespace BLL
         public List<BE.Pedido> ObtenerPendientes() => dalPedido.ObtenerPendientes();
         public BE.Pedido ObtenerPorId(int id) => dalPedido.ObtenerPorId(id);
 
-        // Lanza AppException si el usuario en sesión no posee el permiso indicado.
-        // El Administrador siempre pasa. Sin sesión activa deja pasar (modo interno).
-        private static void ValidarPermiso(string nombrePatente)
-        {
-            if (!Seguridad.SessionManager.IsLoggedIn) return;
-            var usuario = Seguridad.SessionManager.GetInstance().Usuario;
-            if (usuario.Perfil == "Administrador") return;
-            bool tiene = usuario.Permisos?.Exists(p => p.NombreMenu == nombrePatente) == true;
-            if (!tiene)
-                throw new BE.AppException("err.bll.sin_permiso",
-                    "No tiene permiso para ejecutar esta operación ('{0}').", nombrePatente);
-        }
+        // T04 — Delegado a BLLHelper para no duplicar la lógica en cada clase BLL.
+        private static void ValidarPermiso(string nombrePatente) =>
+            BLLHelper.ValidarPermiso(nombrePatente);
 
         // Crear Pedido
         // Crea un nuevo pedido para un cliente. Devuelve el ID generado.
         public int CrearPedido(string modulo, int idCliente, List<BE.Prenda> prendas)
         {
-            ValidarPermiso("mnuPedidosVenta");
+            ValidarPermiso(BE.Patentes.PedidosVenta);
             ValidarParametrosEntrada(prendas);
 
             var cliente = ObtenerClienteValidado(idCliente);
@@ -74,7 +65,7 @@ namespace BLL
         // Marca el pedido como Despachado.
         public void Despachar(string modulo, BE.Pedido pedido)
         {
-            ValidarPermiso("mnuPedidosVenta");
+            ValidarPermiso(BE.Patentes.PedidosVenta);
             if (!pedido.PuedeDespachar())
                 throw new BE.AppException("err.bll.pedido.despachar_estado",
                     "Solo se pueden despachar pedidos Pendientes. Este pedido está '{0}'.",
@@ -105,7 +96,7 @@ namespace BLL
         // Marca el pedido como Entregado.
         public void MarcarEntregado(string modulo, BE.Pedido pedido)
         {
-            ValidarPermiso("mnuPedidosVenta");
+            ValidarPermiso(BE.Patentes.PedidosVenta);
             if (!pedido.PuedeEntregarse())
                 throw new BE.AppException("err.bll.pedido.entregar_estado",
                     "Solo se pueden marcar como entregados los pedidos Despachados. Este pedido está '{0}'.",
@@ -134,28 +125,33 @@ namespace BLL
         // Registra la devolución de prendas de un pedido Entregado.
         public void RegistrarDevolucion(string modulo, BE.Pedido pedido)
         {
-            ValidarPermiso("mnuPedidosRealizados");
+            ValidarPermiso(BE.Patentes.PedidosRealizados);
             if (pedido.Estado != BE.EstadoPedido.Entregado)
                 throw new BE.AppException("err.bll.pedido.devolucion_estado",
                     "Solo se puede registrar la devolución de pedidos ya Entregados. Este pedido está '{0}'.",
                     pedido.Estado);
 
-            dalPedido.RegistrarDevolucion(pedido.IdPedido);
+            int devueltas = dalPedido.RegistrarDevolucion(pedido.IdPedido, pedido.IdCliente);
+            if (devueltas == 0)
+                throw new BE.AppException("err.bll.pedido.devolucion_ya_hecha",
+                    "El Pedido #{0} no tiene prendas en uso para devolver " +
+                    "(es posible que la devolución ya se haya registrado).",
+                    pedido.IdPedido);
 
             RegistrarHistorial(pedido.IdPedido, "DEVOLUCION", new List<(string, string, string)>
             {
-                ("Prendas", "EnUso", $"EnLimpieza ({pedido.CantidadPrendas} prenda(s))")
+                ("Prendas", "EnUso", $"EnLimpieza ({devueltas} prenda(s))")
             });
 
             bitacora.Registrar(modulo,
                 $"Devolución Pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente} — " +
-                $"{pedido.CantidadPrendas} prenda(s) devuelta(s)",
+                $"{devueltas} prenda(s) devuelta(s)",
                 BE.Criticidad.Baja);
 
             bitacoraNeg.Registrar(
                 BE.TipoEventoNegocio.Devolucion,
                 $"Devolución pedido #{pedido.IdPedido} — Cliente: {pedido.NombreCliente} — " +
-                $"{pedido.CantidadPrendas} prenda(s) pasan a EnLimpieza",
+                $"{devueltas} prenda(s) pasan a EnLimpieza",
                 idPedido:  pedido.IdPedido,
                 idCliente: pedido.IdCliente);
         }
@@ -164,7 +160,7 @@ namespace BLL
         // Cancela un pedido Pendiente. Requiere motivo.
         public void Cancelar(string modulo, BE.Pedido pedido, string motivo)
         {
-            ValidarPermiso("mnuPedidosVenta");
+            ValidarPermiso(BE.Patentes.PedidosVenta);
             if (!pedido.PuedeCancelarse())
                 throw new BE.AppException("err.bll.pedido.cancelar_estado",
                     "Solo se pueden cancelar pedidos en estado Pendiente. Este pedido está '{0}'.",
@@ -197,7 +193,7 @@ namespace BLL
         // Revierte la cancelación si todas las prendas siguen Disponibles.
         public void DesCancelar(string modulo, BE.Pedido pedido)
         {
-            ValidarPermiso("mnuPedidosVenta");
+            ValidarPermiso(BE.Patentes.PedidosVenta);
             if (!pedido.PuedeDesCancelarse())
                 throw new BE.AppException("err.bll.pedido.descancelar_estado",
                     "Solo se pueden des-cancelar pedidos Cancelados. Este pedido está '{0}'.",
@@ -429,8 +425,15 @@ namespace BLL
 
             string accionOriginal = cambios[0].Accion;
 
-            foreach (var c in cambios)
-                dalHistorial.RestaurarCampo(idPedido, c.Campo, c.ValorAnterior);
+            // Restauración ATÓMICA: revertir todos los campos y reconciliar las prendas en UNA
+            // sola transacción (si algo falla, no queda el pedido con un estado y las prendas con
+            // otro). El DV se recalcula después: es recomputable y no debe abortar el rollback.
+            dalPedido.RestaurarOperacionAtomica(idPedido,
+                cambios.Select(c => (c.Campo, c.ValorAnterior)).ToList());
+            // DV se recalcula fuera de la transacción: es recomputable y no debe
+            // abortar ni enmascarar una restauración que ya se confirmó correctamente.
+            try { dalPedido.RecalcularDV(); }
+            catch { /* ignorado intencionalmente — el operador puede recalcular desde Diagnóstico */ }
 
             RegistrarHistorial(idPedido, "RESTAURAR",
                 cambios.Select(c => (c.Campo, c.ValorNuevo, c.ValorAnterior)).ToList());

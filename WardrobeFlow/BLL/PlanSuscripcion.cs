@@ -12,6 +12,10 @@ namespace BLL
         private readonly DAL.PlanSuscripcion dalPlan   = new DAL.PlanSuscripcion();
         private readonly DAL.Cliente         dalCliente = new DAL.Cliente();
 
+        // T04 — Delegado a BLLHelper para no duplicar la lógica en cada clase BLL.
+        private static void ValidarPermiso(string nombrePatente) =>
+            BLLHelper.ValidarPermiso(nombrePatente);
+
         // Devuelve todos los planes activos (para combos/selección).
         public List<BE.PlanSuscripcion> ObtenerActivos()
         {
@@ -34,6 +38,7 @@ namespace BLL
         // Valida que nombre no esté vacío, límite > 0 y precio >= 0.
         public void Alta(BE.PlanSuscripcion plan)
         {
+            ValidarPermiso(BE.Patentes.PlanSuscripciones);
             Validar(plan);
             plan.Estado = true;
             dalPlan.Alta(plan);
@@ -42,6 +47,7 @@ namespace BLL
         // Modifica un plan existente.
         public void Modificar(BE.PlanSuscripcion plan)
         {
+            ValidarPermiso(BE.Patentes.PlanSuscripciones);
             Validar(plan);
             dalPlan.Modificar(plan);
         }
@@ -50,6 +56,7 @@ namespace BLL
         // Falla si hay clientes activos asignados a ese plan.
         public void Desactivar(int idPlan)
         {
+            ValidarPermiso(BE.Patentes.PlanSuscripciones);
             int clientesActivos = dalCliente.ContarClientesActivosPorPlan(idPlan);
             if (clientesActivos > 0)
                 throw new BE.AppException("err.bll.plan.tiene_clientes",
@@ -63,6 +70,7 @@ namespace BLL
         // Reactiva un plan previamente desactivado.
         public void Activar(int idPlan)
         {
+            ValidarPermiso(BE.Patentes.PlanSuscripciones);
             dalPlan.Activar(idPlan);
         }
 

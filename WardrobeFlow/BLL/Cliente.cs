@@ -10,22 +10,21 @@ namespace BLL
     /// </summary>
     public class Cliente : Interfaces.IClienteService
     {
-        private readonly DAL.Cliente               dalCliente  = new DAL.Cliente();
+        private readonly DAL.Interfaces.IClienteDAL dalCliente;
         private readonly DAL.PlanSuscripcion       dalPlan     = new DAL.PlanSuscripcion();
         private readonly Servicios.Bitacora        bitacora    = new Servicios.Bitacora();
         private readonly Servicios.BitacoraNegocio bitacoraNeg = new Servicios.BitacoraNegocio();
 
-        // Lanza AppException si el usuario en sesión no posee el permiso indicado.
-        private static void ValidarPermiso(string nombrePatente)
+        // DI: el constructor por defecto usa el DAL real; el otro permite inyectar un doble.
+        public Cliente() : this(new DAL.Cliente()) { }
+        public Cliente(DAL.Interfaces.IClienteDAL dalCliente)
         {
-            if (!Seguridad.SessionManager.IsLoggedIn) return;
-            var usuario = Seguridad.SessionManager.GetInstance().Usuario;
-            if (usuario.Perfil == "Administrador") return;
-            bool tiene = usuario.Permisos?.Exists(p => p.NombreMenu == nombrePatente) == true;
-            if (!tiene)
-                throw new BE.AppException("err.bll.sin_permiso",
-                    "No tiene permiso para ejecutar esta operación ('{0}').", nombrePatente);
+            this.dalCliente = dalCliente;
         }
+
+        // T04 — Delegado a BLLHelper para no duplicar la lógica en cada clase BLL.
+        private static void ValidarPermiso(string nombrePatente) =>
+            BLLHelper.ValidarPermiso(nombrePatente);
 
         // Devuelve todos los clientes con plan y stock utilizado.
         public List<BE.Cliente> ObtenerTodos()
@@ -43,7 +42,7 @@ namespace BLL
         // Valida campos obligatorios y unicidad de DNI.
         public void Alta(string modulo, BE.Cliente cliente)
         {
-            ValidarPermiso("mnuClientes");
+            ValidarPermiso(BE.Patentes.Clientes);
             Validar(cliente);
 
             if (dalCliente.ExisteDNI(cliente.DNI))
@@ -65,7 +64,7 @@ namespace BLL
         // Bloquea si el nuevo plan tiene menos capacidad que las prendas actualmente en uso.
         public void Modificar(string modulo, BE.Cliente cliente)
         {
-            ValidarPermiso("mnuClientes");
+            ValidarPermiso(BE.Patentes.Clientes);
             Validar(cliente);
 
             if (dalCliente.ExisteDNIParaOtro(cliente.DNI, cliente.IdCliente))
@@ -75,7 +74,7 @@ namespace BLL
             var actual = dalCliente.ObtenerPorId(cliente.IdCliente);
 
             // Bloquear si el nuevo plan tiene menos capacidad que prendas en uso
-            if (cliente.IdPlan.HasValue && cliente.IdPlan != actual?.IdPlan)
+            if (actual != null && cliente.IdPlan.HasValue && cliente.IdPlan != actual.IdPlan)
             {
                 var nuevoPlan = dalPlan.ObtenerPorId(cliente.IdPlan.Value);
                 if (nuevoPlan != null && actual.StockUtilizado > nuevoPlan.LimitePrendas)
@@ -103,7 +102,7 @@ namespace BLL
         // No se puede eliminar si tiene prendas actualmente en uso.
         public void Baja(string modulo, BE.Cliente cliente)
         {
-            ValidarPermiso("mnuClientes");
+            ValidarPermiso(BE.Patentes.Clientes);
             // Bloquear baja si el cliente tiene prendas en uso actualmente
             if (cliente.StockUtilizado > 0)
                 throw new BE.AppException("err.bll.cliente.baja_prendas",
@@ -192,6 +191,14 @@ namespace BLL
                 if (!char.IsDigit(c))
                     throw new BE.AppException("err.bll.cliente.dni_numeros",
                         "El DNI solo puede contener números.");
+
+            if (!cliente.FechaNacimiento.HasValue)
+                throw new BE.AppException("err.bll.cliente.fechanac_requerida",
+                    "La fecha de nacimiento es obligatoria.");
+
+            if (cliente.FechaNacimiento.Value.Date > DateTime.Today.AddYears(-18))
+                throw new BE.AppException("err.bll.cliente.menor_edad",
+                    "El cliente debe ser mayor de 18 años.");
         }
     }
 }

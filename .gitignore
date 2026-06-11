@@ -1,0 +1,21 @@
+# Build output
+bin/
+obj/
+.vs/
+*.user
+*.suo
+
+# Backups de base de datos — nunca versionar (contienen hashes, DNI cifrados, datos de clientes)
+*.bak
+
+# Credenciales generadas en texto plano — nunca versionar
+CredencialesGeneradas/
+
+# Clave de cifrado AES — se regenera por entorno, nunca versionar
+key.dat
+
+# Resultados de tests
+TestResults/
+
+# Local settings
+*.local

@@ -8,13 +8,62 @@ namespace BLL
     /// <summary>Lógica de negocio para autenticación y gestión de usuarios.</summary>
     public class Usuario
     {
-        private readonly DAL.Usuario        usuarioDAL = new DAL.Usuario();
-        private readonly DAL.Permiso        permisoDAL = new DAL.Permiso();
+        private readonly DAL.Interfaces.IUsuarioDAL usuarioDAL;
+        private readonly BLL.Familia        perfilesBLL = new BLL.Familia();
         private readonly Servicios.Bitacora bitacora   = new Servicios.Bitacora();
 
+        // DI: el constructor por defecto usa el DAL real; el otro permite inyectar un doble.
+        public Usuario() : this(new DAL.Usuario()) { }
+        public Usuario(DAL.Interfaces.IUsuarioDAL usuarioDAL)
+        {
+            this.usuarioDAL = usuarioDAL;
+        }
+
         private const int    MaxIntentosFallidos  = 3;
-        private const string RolAdministrador    = "Administrador";
+        private const string RolAdministrador    = BE.Roles.Administrador;
         private const string ClaveTemporalDefault = "Wardrobe1!";
+
+        // Bloqueo PROGRESIVO: duración (en minutos) según cuántas veces ya se bloqueó la cuenta.
+        // 1er bloqueo → 1 min, 2do → 5, 3ro → 15, 4to → 60; superada la escala, queda permanente.
+        private static readonly int[] _minutosBloqueo = { 1, 5, 15, 60 };
+
+        // Evalúa una cuenta bloqueada. Devuelve:
+        //   expirado    = el bloqueo TEMPORAL ya venció → se puede reactivar y continuar.
+        //   permanente  = no auto-expira (bloqueo manual del admin, sin fecha, o escala agotada).
+        //   minutosRest = minutos que faltan si todavía no expiró.
+        private static (bool expirado, bool permanente, int minutosRestantes) EvaluarBloqueo(BE.Usuario u)
+        {
+            // Sin fecha de bloqueo (bloqueo manual del admin o BD sin migrar) → no auto-expira.
+            if (!u.FechaBloqueo.HasValue) return (false, true, 0);
+            // Escala agotada → bloqueo permanente.
+            if (u.CantidadBloqueos <= 0 || u.CantidadBloqueos > _minutosBloqueo.Length)
+                return (false, true, 0);
+
+            int minutos = _minutosBloqueo[u.CantidadBloqueos - 1];
+            double transcurridos = (DateTime.Now - u.FechaBloqueo.Value).TotalMinutes;
+            if (transcurridos >= minutos) return (true, false, 0);
+            return (false, false, (int)Math.Ceiling(minutos - transcurridos));
+        }
+
+        // RF-10 — Días de retención antes de habilitar la purga física de un usuario archivado.
+        // Como en una empresa real: el ex-empleado queda "archivado" 1 año (no contamina la
+        // operación ni las métricas) y recién después puede eliminarse definitivamente.
+        public const int DiasRetencionPurga = 365;
+
+        // Re-validación en el BACKEND: la gestión de usuarios es una operación EXCLUSIVA del
+        // Administrador. Se verifica el rol en sesión por Perfil, de forma consistente con
+        // SessionManager.TienePermiso (que también identifica al admin por su Perfil).
+        private static void ValidarEsAdministrador()
+        {
+            // Fail-closed: sin sesión NO se permite la operación.
+            if (!SessionManager.IsLoggedIn)
+                throw new BE.AppException("err.bll.sesion_expirada",
+                    "La sesión expiró. Volvé a iniciar sesión.");
+            string perfil = SessionManager.GetInstance().Usuario.Perfil ?? "";
+            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
+                throw new BE.AppException("err.bll.usuario.sin_permiso",
+                    "Solo un Administrador puede gestionar usuarios.");
+        }
 
         /// <summary>Autentica al usuario y establece la sesión. Bloquea la cuenta tras 3 intentos fallidos.</summary>
         public bool Login(string modulo, string username, string contraseña)
@@ -29,12 +78,42 @@ namespace BLL
                     "Reiniciá la aplicación para volver a intentarlo.");
 
             BE.Usuario usuario = usuarioDAL.ObtenerPorUsername(username);
-            if (usuario == null) return false;
+            if (usuario == null)
+            {
+                // Anti-enumeración: igualar el costo temporal de un usuario real (corre PBKDF2
+                // contra un hash señuelo), contar el intento en la sesión y registrarlo. Se
+                // lanza EXACTAMENTE la misma excepción, mensaje y contador (de sesión) que para
+                // una contraseña incorrecta, de modo que el atacante no pueda distinguir si el
+                // usuario existe — ni por el texto, ni por la presencia del contador, ni por el tiempo.
+                Encriptador.VerificacionSenuelo(contraseña);
+                ContadorSesion.GetInstance().RegistrarIntento();
+                bitacora.RegistrarSinSesion(
+                    modulo:     modulo ?? "Login",
+                    actividad:  "Intento Fallido Login",
+                    criticidad: BE.Criticidad.IntentosLogin,
+                    detalle:    $"Intento de login para usuario inexistente '{username}' a las {DateTime.Now:HH:mm:ss}.");
+                throw new BE.LoginException(BE.LoginException.TipoError.CredencialesInvalidas,
+                    "Usuario o contraseña incorrectos.",
+                    intentosRestantes: ContadorSesion.GetInstance().IntentosRestantes);
+            }
 
             if (usuario.Bloqueado)
-                throw new BE.LoginException(BE.LoginException.TipoError.CuentaBloqueada,
-                    $"La cuenta '{username}' está bloqueada.\n" +
-                    "Contactá al Administrador para que la reactive desde Administrar → Usuarios.");
+            {
+                var (expirado, permanente, minutos) = EvaluarBloqueo(usuario);
+                if (permanente)
+                    throw new BE.LoginException(BE.LoginException.TipoError.CuentaBloqueada,
+                        $"La cuenta '{username}' está bloqueada.\n" +
+                        "Contactá al Administrador (o usá una clave de emergencia) para reactivarla.");
+                if (!expirado)
+                    throw new BE.LoginException(BE.LoginException.TipoError.CuentaBloqueada,
+                        $"La cuenta '{username}' está bloqueada temporalmente.\n" +
+                        $"Reintentá en {minutos} minuto(s) o usá una clave de emergencia.");
+
+                // El bloqueo temporal EXPIRÓ → se reactiva sola y el login continúa normalmente.
+                usuarioDAL.AutoDesbloquear(usuario.Id);
+                usuario.Bloqueado        = false;
+                usuario.IntentosFallidos = 0;
+            }
 
             bool esValido = Encriptador.VerificarContrasena(contraseña, usuario.Contraseña);
 
@@ -42,7 +121,9 @@ namespace BLL
             {
                 ContadorSesion.GetInstance().Resetear();
                 usuarioDAL.ResetearIntentosFallidos(username);
-                usuario.Permisos = permisoDAL.ObtenerPorRol(usuario.Rol ?? usuario.Perfil);
+                // T04 — Permisos EFECTIVOS resueltos recursivamente sobre el árbol Composite
+                // (rol → roles/familias → patentes), con deduplicación de permisos repetidos.
+                usuario.Permisos = perfilesBLL.ObtenerPermisosEfectivos(usuario.Rol ?? usuario.Perfil);
                 SessionManager.Login(usuario);
                 bitacora.Registrar(modulo, "Inicio Sesion", BE.Criticidad.None);
             }
@@ -56,20 +137,28 @@ namespace BLL
 
                 if (intentos >= MaxIntentosFallidos)
                 {
-                    usuarioDAL.Bloquear(usuario.Id);
+                    // Bloqueo PROGRESIVO: cada bloqueo dura más (1/5/15/60 min) y tras agotar la
+                    // escala queda permanente (requiere admin / clave de emergencia).
+                    usuarioDAL.BloquearConTiempo(usuario.Id);
                     RegistrarBloqueo(modulo, username, usuario.Id);
 
-                    throw new BE.LoginException(BE.LoginException.TipoError.CuentaBloqueada,
-                        $"La cuenta '{username}' ha sido bloqueada tras {MaxIntentosFallidos} " +
-                        "intentos fallidos consecutivos.\n" +
-                        "Contactá al Administrador para reactivarla.");
+                    int nuevaCantidad = usuario.CantidadBloqueos + 1;
+                    string msgBloqueo = nuevaCantidad > _minutosBloqueo.Length
+                        ? $"La cuenta '{username}' fue bloqueada permanentemente tras varios bloqueos.\n" +
+                          "Contactá al Administrador (o usá una clave de emergencia) para reactivarla."
+                        : $"La cuenta '{username}' fue bloqueada por {_minutosBloqueo[nuevaCantidad - 1]} " +
+                          $"minuto(s) tras {MaxIntentosFallidos} intentos fallidos.\n" +
+                          "Reintentá más tarde o usá una clave de emergencia.";
+
+                    throw new BE.LoginException(BE.LoginException.TipoError.CuentaBloqueada, msgBloqueo);
                 }
 
-                int restantes = MaxIntentosFallidos - intentos;
+                // Mismo mensaje y mismo contador (de sesión) que el caso "usuario inexistente":
+                // indistinguibles entre sí (anti-enumeración). El bloqueo de la CUENTA ya se
+                // resolvió arriba; acá solo se informa el intento fallido genérico.
                 throw new BE.LoginException(BE.LoginException.TipoError.CredencialesInvalidas,
-                    $"Usuario o contraseña incorrectos.\n" +
-                    $"Intentos restantes antes del bloqueo: {restantes}.",
-                    intentosRestantes: restantes);
+                    "Usuario o contraseña incorrectos.",
+                    intentosRestantes: ContadorSesion.GetInstance().IntentosRestantes);
             }
 
             return esValido;
@@ -88,14 +177,10 @@ namespace BLL
         // Devuelve la ruta del archivo de credenciales generado.
         public string Alta(string modulo, string username, string perfil)
         {
-            if (!SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada",
-                    "La sesión expiró. Volvé a iniciar sesión.");
+            ValidarEsAdministrador();
 
-            string perfilActual = SessionManager.GetInstance().Usuario.Perfil ?? "";
-            if (!perfilActual.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
-                throw new BE.AppException("err.bll.usuario.alta_sin_permiso",
-                    "Solo un Administrador puede crear nuevos usuarios.");
+            // T07 — Verificar integridad de la base ANTES de modificar usuarios.
+            Configuracion.AsegurarIntegridadUsuarios();
 
             if (string.IsNullOrWhiteSpace(username))
                 throw new BE.AppException("err.bll.usuario.username_requerido",
@@ -130,13 +215,10 @@ namespace BLL
         // Devuelve la ruta del archivo de credenciales generado.
         public string ResetearClave(string modulo, int idUsuario, string usernameObjetivo)
         {
-            if (!SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada", "La sesión expiró. Volvé a iniciar sesión.");
+            ValidarEsAdministrador();
 
-            string perfil = SessionManager.GetInstance().Usuario.Perfil ?? "";
-            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
-                throw new BE.AppException("err.bll.usuario.reset_sin_permiso",
-                    "Solo un Administrador puede resetear contraseñas.");
+            // T07 — Verificar integridad de la base ANTES de modificar usuarios.
+            Configuracion.AsegurarIntegridadUsuarios();
 
             var admin = SessionManager.GetInstance().Usuario;
 
@@ -163,13 +245,10 @@ namespace BLL
         // Desbloquea la cuenta de un usuario y resetea el contador de intentos. Solo Administrador.
         public void Desbloquear(string modulo, int idUsuario, string usernameObjetivo)
         {
-            if (!SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada", "La sesión expiró. Volvé a iniciar sesión.");
+            ValidarEsAdministrador();
 
-            string perfil = SessionManager.GetInstance().Usuario.Perfil ?? "";
-            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
-                throw new BE.AppException("err.bll.usuario.desbloquear_sin_permiso",
-                    "Solo un Administrador puede desbloquear cuentas.");
+            // T07 — Verificar integridad de la base ANTES de modificar usuarios.
+            Configuracion.AsegurarIntegridadUsuarios();
 
             new VersionUsuario().GrabarVersion(idUsuario,
                 SessionManager.GetInstance().Usuario.Username,
@@ -180,6 +259,98 @@ namespace BLL
             bitacora.Registrar(modulo,
                 $"Desbloqueo de Cuenta: '{usernameObjetivo}'",
                 BE.Criticidad.Alta);
+        }
+
+        // RF-10 — Baja LÓGICA (archivar) de un usuario. Solo Administrador.
+        // Reglas de protección:
+        //   • No se puede archivar al propio usuario en sesión.
+        //   • No se puede archivar al ÚLTIMO Administrador activo del sistema.
+        // Se graba un snapshot (Memento) antes para preservar trazabilidad (RF-14/18).
+        public void Eliminar(string modulo, int idUsuario, string usernameObjetivo)
+        {
+            ValidarEsAdministrador();
+
+            // T07 — Verificar integridad de la base ANTES de modificar usuarios.
+            Configuracion.AsegurarIntegridadUsuarios();
+
+            var admin = SessionManager.GetInstance().Usuario;
+
+            // Determinar el perfil del usuario objetivo para la protección del último admin.
+            var objetivo = usuarioDAL.ObtenerPorUsername(usernameObjetivo);
+            string perfilObjetivo = objetivo?.Perfil ?? "";
+            ValidarPuedeArchivar(perfilObjetivo, idUsuario, admin.Id,
+                                 usuarioDAL.ContarAdministradoresActivos());
+
+            // Snapshot del estado actual antes de archivar (control de cambios).
+            new VersionUsuario().GrabarVersion(idUsuario, admin.Username,
+                $"Snapshot antes de archivar (baja lógica) por '{admin.Username}'.");
+
+            usuarioDAL.BajaLogica(idUsuario);
+
+            bitacora.RegistrarSinSesion(
+                modulo:     modulo,
+                actividad:  "Baja Logica Usuario",
+                criticidad: BE.Criticidad.Alta,
+                idUsuario:  admin.Id,
+                detalle:    $"Admin '{admin.Username}' archivó al usuario '{usernameObjetivo}' (ID {idUsuario}) a las {DateTime.Now:HH:mm:ss}.");
+        }
+
+        // RF-10 — Reglas PURAS de protección para archivar un usuario. Se extraen acá para poder
+        // testearlas sin sesión ni base de datos (caso de prueba "eliminar el último admin"):
+        //   • No se puede archivar al usuario que tiene la sesión abierta.
+        //   • No se puede archivar al último Administrador activo del sistema.
+        public static void ValidarPuedeArchivar(string perfilObjetivo, int idObjetivo,
+                                                 int idEnSesion, int adminsActivos)
+        {
+            if (idEnSesion == idObjetivo)
+                throw new BE.AppException("err.bll.usuario.autobaja",
+                    "No podés archivar tu propio usuario mientras tenés la sesión abierta.");
+
+            if ((perfilObjetivo ?? "").Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase)
+                && adminsActivos <= 1)
+                throw new BE.AppException("err.bll.usuario.ultimo_admin",
+                    "No se puede archivar al último Administrador activo del sistema. " +
+                    "Creá o activá otro Administrador antes de archivar este.");
+        }
+
+        // RF-10 — Lista de usuarios archivados (Activo=0) para la vista de gestión.
+        public List<BE.Usuario> ObtenerArchivados()
+        {
+            return usuarioDAL.ObtenerArchivados();
+        }
+
+        // RF-10 — Usuarios archivados elegibles para purga física (archivados hace más de 1 año).
+        public List<BE.Usuario> ObtenerArchivadosParaPurga()
+        {
+            return usuarioDAL.ObtenerArchivadosParaPurga(DiasRetencionPurga);
+        }
+
+        // RF-10 — Purga FÍSICA de todos los usuarios archivados con más de DiasRetencionPurga
+        // días de antigüedad. Solo Administrador. Devuelve cuántos se eliminaron definitivamente.
+        public int PurgarArchivados(string modulo)
+        {
+            ValidarEsAdministrador();
+            Configuracion.AsegurarIntegridadUsuarios();
+
+            var purgables = usuarioDAL.ObtenerArchivadosParaPurga(DiasRetencionPurga);
+            if (purgables.Count == 0) return 0;
+
+            var admin = SessionManager.GetInstance().Usuario;
+            int eliminados = 0;
+            foreach (var u in purgables)
+            {
+                usuarioDAL.EliminarFisico(u.Id);
+                eliminados++;
+            }
+
+            bitacora.RegistrarSinSesion(
+                modulo:     modulo,
+                actividad:  "Purga Usuarios Archivados",
+                criticidad: BE.Criticidad.Alta,
+                idUsuario:  admin.Id,
+                detalle:    $"Admin '{admin.Username}' purgó definitivamente {eliminados} usuario(s) archivado(s) con más de {DiasRetencionPurga} días a las {DateTime.Now:HH:mm:ss}.");
+
+            return eliminados;
         }
 
         // Resetea la contraseña de TODOS los usuarios a la clave temporal por defecto. Solo Administrador.
@@ -193,13 +364,7 @@ namespace BLL
         // Resetea la contraseña de TODOS los usuarios a una clave temporal. Solo Administrador.
         public void ResetearTodasLasClaves(string modulo, string claveTemporal)
         {
-            if (!SessionManager.IsLoggedIn)
-                throw new BE.AppException("err.bll.sesion_expirada", "La sesión expiró. Volvé a iniciar sesión.");
-
-            string perfil = SessionManager.GetInstance().Usuario.Perfil ?? "";
-            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
-                throw new BE.AppException("err.bll.usuario.resetmasivo_sin_permiso",
-                    "Solo un Administrador puede realizar esta operación.");
+            ValidarEsAdministrador();
 
             var (valida, mensaje) = Encriptador.ValidarContrasena(claveTemporal);
             if (!valida)
@@ -217,6 +382,8 @@ namespace BLL
                 detalle:    $"Admin '{admin.Username}' (ID: {admin.Id}) reseteo todas las contrasenas a clave temporal a las {DateTime.Now:HH:mm:ss}."
             );
         }
+
+        // Las claves de emergencia (autodesbloqueo de Admin) viven en BLL.RecuperacionAdmin (SRP).
 
         // Retorna el usuario en sesión (con sus permisos) desde el SessionManager.
         public BE.Usuario ObtenerUsuarioActivo()
@@ -303,15 +470,16 @@ namespace BLL
         {
             switch (perfil.Trim())
             {
-                // Roles legacy
-                case "Controlador de Stock":    return "ControladorDeStock";
-                case "Operador de Inventario":  return "OperadorDeInventario";
-                case "Operador Logístico":      return "OperadorLogistico";
-                // Nuevos roles (T04 jerarquía)
+                // Jerarquía consolidada (2da entrega)
+                case "Operador de Inventario":  return "OperadorDeInventario"; // mantenimiento de prendas
+                case "Operador Logístico":      return "OperadorLogistico";    // pedidos / despacho
                 case "Gerente Comercial":       return "GerenteComercial";
                 case "Gerente de Inventario":   return "GerenteInventario";
-                case "Encargado de Stock":      return "EncargadoDeStock";
                 case "Auditor":                 return "Auditor";
+                // Roles retirados → se mapean a su reemplazo (por si llega una etiqueta vieja)
+                case "Controlador de Stock":    return "OperadorDeInventario";
+                case "Encargado de Stock":      return "OperadorDeInventario";
+                case "Supervisor":              return "GerenteComercial";
                 default:                        return perfil.Trim();
             }
         }

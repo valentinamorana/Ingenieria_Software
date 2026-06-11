@@ -30,7 +30,7 @@ namespace GUI
             this.SuspendLayout();
 
             // pnlHeader
-            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(176, 62, 96);
             this.pnlHeader.Controls.Add(this.lblSubtitulo);
             this.pnlHeader.Controls.Add(this.lblTitulo);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
@@ -111,7 +111,7 @@ namespace GUI
             this.pnlBotones.Controls.Add(this.btnConfirmar);
 
             // btnConfirmar
-            this.btnConfirmar.BackColor = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.btnConfirmar.BackColor = System.Drawing.Color.FromArgb(176, 62, 96);
             this.btnConfirmar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnConfirmar.FlatAppearance.BorderSize = 0;
             this.btnConfirmar.Font = new System.Drawing.Font("Segoe UI", 9f, System.Drawing.FontStyle.Bold);
@@ -123,9 +123,9 @@ namespace GUI
             this.btnConfirmar.Click += new System.EventHandler(this.btnConfirmar_Click);
 
             // btnCancelar
-            this.btnCancelar.BackColor = System.Drawing.Color.FromArgb(238, 228, 248);
+            this.btnCancelar.BackColor = System.Drawing.Color.FromArgb(252, 228, 235);
             this.btnCancelar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCancelar.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(180, 140, 180);
+            this.btnCancelar.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(210, 100, 135);
             this.btnCancelar.FlatAppearance.BorderSize = 1;
             this.btnCancelar.Font = new System.Drawing.Font("Segoe UI", 9f);
             this.btnCancelar.ForeColor = System.Drawing.Color.FromArgb(100, 40, 80);

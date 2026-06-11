@@ -122,7 +122,7 @@ namespace GUI
 
             banner.Paint += (s, pe) =>
             {
-                using (var br = new SolidBrush(Color.FromArgb(146, 62, 96)))
+                using (var br = new SolidBrush(Color.FromArgb(176, 62, 96)))
                     pe.Graphics.FillRectangle(br, 0, panelH - 3, banner.Width, 3);
                 using (var pen = new Pen(Color.FromArgb(220, 180, 200), 1))
                     for (int i = 1; i < n; i++)
@@ -152,7 +152,7 @@ namespace GUI
                     Location  = new Point(x, 39),
                     Size      = new Size(cellW, 20),
                     Font      = new Font("Segoe UI", 7.5F, FontStyle.Regular),
-                    ForeColor = Color.FromArgb(146, 62, 96),
+                    ForeColor = Color.FromArgb(176, 62, 96),
                     TextAlign = ContentAlignment.MiddleCenter,
                     BackColor = Color.Transparent
                 };
@@ -258,13 +258,15 @@ namespace GUI
                 int      lineIndex = 0;
                 int      pageNum   = 0;
 
-                var vinoOscuro = Color.FromArgb(146, 62, 96);
+                var vinoOscuro = Color.FromArgb(176, 62, 96);
                 var vinoMedio  = Color.FromArgb(110, 40, 70);
 
                 using (var pd = new PrintDocument())
                 {
                     pd.DocumentName = $"ReporteJornada_{dtpJornada.Value:yyyyMMdd}";
                     pd.DefaultPageSettings.Margins = new System.Drawing.Printing.Margins(40, 40, 40, 40);
+
+                    pd.BeginPrint += (s2, e2) => { lineIndex = 0; pageNum = 0; };
 
                     pd.PrintPage += (s, e) =>
                     {
@@ -273,10 +275,12 @@ namespace GUI
                         var margen = e.MarginBounds;
                         float y    = margen.Top;
 
+                        var tt = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                        string Tv2(string k, string fb) => tt.ContainsKey(k) ? tt[k].Texto : fb;
+
                         using (var fuenteTitulo  = new Font("Segoe UI", 13f, FontStyle.Bold))
                         using (var fuenteSub     = new Font("Segoe UI", 8f, FontStyle.Regular))
                         using (var fuenteCuerpo  = new Font("Consolas", 8.5f))
-                        using (var brVino        = new SolidBrush(vinoOscuro))
                         using (var brMedio       = new SolidBrush(vinoMedio))
                         using (var brTexto       = new SolidBrush(Color.FromArgb(40, 15, 28)))
                         using (var penLinea      = new Pen(vinoOscuro, 1.5f))
@@ -284,18 +288,17 @@ namespace GUI
                         {
                             if (pageNum == 1)
                             {
-                                // Barra de título vino
                                 float headerH = fuenteTitulo.GetHeight(g) + 14;
                                 using (var brHeaderBg = new SolidBrush(vinoOscuro))
                                     g.FillRectangle(brHeaderBg, margen.Left, y, margen.Width, headerH);
                                 g.DrawString(
-                                    $"Reporte de Jornada — {dtpJornada.Value:dd/MM/yyyy}",
+                                    $"{Tv2("frm.reportejornada", "Reporte de Jornada")} — {dtpJornada.Value:dd/MM/yyyy}",
                                     fuenteTitulo, Brushes.White,
                                     margen.Left + 6, y + 5);
                                 y += headerH + 4;
 
                                 g.DrawString(
-                                    $"Generado: {DateTime.Now:dd/MM/yyyy HH:mm}",
+                                    $"{Tv2("rpt.txt.generado", "Generado")}: {DateTime.Now:dd/MM/yyyy HH:mm}",
                                     fuenteSub, brMedio, margen.Left, y);
                                 y += fuenteSub.GetHeight(g) + 4;
                                 g.DrawLine(penLinea, margen.Left, y, margen.Right, y);
@@ -311,25 +314,25 @@ namespace GUI
                                 y += lineH;
                             }
 
-                            // Pie de página
                             g.DrawLine(penPie, margen.Left, margen.Bottom - 16, margen.Right, margen.Bottom - 16);
                             g.DrawString(
-                                $"WardrobeFlow — Página {pageNum}",
+                                string.Format(Tv2("bit.pdf.pagina", "WardrobeFlow — Página {0}"), pageNum),
                                 fuenteSub, brMedio, margen.Left, margen.Bottom - 14);
                         }
 
                         e.HasMorePages = lineIndex < lines.Length;
                     };
 
-                    using (var dlg = new PrintDialog { Document = pd, AllowSomePages = false })
+                    var tPrev = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                    string Tv3(string k, string fb) => tPrev.ContainsKey(k) ? tPrev[k].Texto : fb;
+
+                    using (var preview = new PrintPreviewDialog())
                     {
-                        if (dlg.ShowDialog(this) == DialogResult.OK)
-                        {
-                            lineIndex = 0;
-                            pageNum   = 0;
-                            pd.Print();
-                            lblStatus.Text = ConstruirLblReporte()["impresionenv"];
-                        }
+                        preview.Document = pd;
+                        preview.Width    = 1050;
+                        preview.Height   = 780;
+                        preview.Text     = $"{Tv3("bit.pdf.vistaprevia", "Vista Previa")} — {Tv3("frm.reportejornada", "Reporte de Jornada")}";
+                        preview.ShowDialog(this);
                     }
                 }
             }

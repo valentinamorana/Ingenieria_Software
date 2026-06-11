@@ -87,7 +87,7 @@ namespace GUI
             // 
             this.txtNombre.Location = new System.Drawing.Point(14, 65);
             this.txtNombre.Name = "txtNombre";
-            this.txtNombre.MaxLength = 50;
+            this.txtNombre.MaxLength = 20;
             this.txtNombre.Size = new System.Drawing.Size(286, 20);
             this.txtNombre.TabIndex = 2;
             // 

@@ -32,7 +32,7 @@ namespace GUI
             this.pnlHeader.Controls.Add(this.lblSubtitulo);
             this.pnlHeader.Controls.Add(this.lblTitulo);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlHeader.Height = 80;
+            this.pnlHeader.Height = 104;
             this.pnlHeader.Padding = new System.Windows.Forms.Padding(20, 12, 20, 10);
 
             // lblTitulo
@@ -42,11 +42,12 @@ namespace GUI
             this.lblTitulo.Location = new System.Drawing.Point(20, 12);
             this.lblTitulo.Text = "Integridad del Sistema Comprometida";
 
-            // lblSubtitulo
-            this.lblSubtitulo.AutoSize = true;
+            // lblSubtitulo — tamaño fijo (multilínea) para que NO se corte; va debajo del combo.
+            this.lblSubtitulo.AutoSize = false;
             this.lblSubtitulo.Font = new System.Drawing.Font("Segoe UI", 9f);
             this.lblSubtitulo.ForeColor = System.Drawing.Color.FromArgb(220, 190, 205);
-            this.lblSubtitulo.Location = new System.Drawing.Point(21, 44);
+            this.lblSubtitulo.Location = new System.Drawing.Point(21, 42);
+            this.lblSubtitulo.Size = new System.Drawing.Size(478, 52);
             this.lblSubtitulo.Text = "Se detectaron discrepancias en los dígitos verificadores. El acceso está bloqueado.";
 
             // pnlBody
@@ -85,25 +86,27 @@ namespace GUI
             this.pnlBotones.Controls.Add(this.btnRecalcular);
 
             // btnRecalcular
-            this.btnRecalcular.BackColor = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.btnRecalcular.BackColor = System.Drawing.Color.FromArgb(176, 62, 96);
             this.btnRecalcular.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRecalcular.FlatAppearance.BorderSize = 0;
             this.btnRecalcular.Font = new System.Drawing.Font("Segoe UI", 8.5f, System.Drawing.FontStyle.Bold);
             this.btnRecalcular.ForeColor = System.Drawing.Color.White;
             this.btnRecalcular.Location = new System.Drawing.Point(16, 12);
-            this.btnRecalcular.Size = new System.Drawing.Size(168, 36);
-            this.btnRecalcular.Text = "Recalcular Dígitos Verificadores";
+            this.btnRecalcular.Size = new System.Drawing.Size(196, 36);
+            this.btnRecalcular.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.btnRecalcular.Text = "Recalcular Dígitos";
             this.btnRecalcular.Click += new System.EventHandler(this.btnRecalcular_Click);
 
             // btnRestaurarBackup
-            this.btnRestaurarBackup.BackColor = System.Drawing.Color.FromArgb(238, 228, 248);
+            this.btnRestaurarBackup.BackColor = System.Drawing.Color.FromArgb(252, 228, 235);
             this.btnRestaurarBackup.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRestaurarBackup.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(180, 140, 180);
+            this.btnRestaurarBackup.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(210, 100, 135);
             this.btnRestaurarBackup.FlatAppearance.BorderSize = 1;
             this.btnRestaurarBackup.Font = new System.Drawing.Font("Segoe UI", 8.5f);
             this.btnRestaurarBackup.ForeColor = System.Drawing.Color.FromArgb(100, 40, 80);
-            this.btnRestaurarBackup.Location = new System.Drawing.Point(196, 12);
-            this.btnRestaurarBackup.Size = new System.Drawing.Size(168, 36);
+            this.btnRestaurarBackup.Location = new System.Drawing.Point(224, 12);
+            this.btnRestaurarBackup.Size = new System.Drawing.Size(176, 36);
+            this.btnRestaurarBackup.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.btnRestaurarBackup.Text = "Restaurar desde Backup";
             this.btnRestaurarBackup.Click += new System.EventHandler(this.btnRestaurarBackup_Click);
 
@@ -113,14 +116,15 @@ namespace GUI
             this.btnSalir.FlatAppearance.BorderSize = 0;
             this.btnSalir.Font = new System.Drawing.Font("Segoe UI", 8.5f);
             this.btnSalir.ForeColor = System.Drawing.Color.FromArgb(80, 70, 80);
-            this.btnSalir.Location = new System.Drawing.Point(376, 12);
-            this.btnSalir.Size = new System.Drawing.Size(120, 36);
+            this.btnSalir.Location = new System.Drawing.Point(412, 12);
+            this.btnSalir.Size = new System.Drawing.Size(92, 36);
+            this.btnSalir.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.btnSalir.Text = "Salir";
             this.btnSalir.Click += new System.EventHandler(this.btnSalir_Click);
 
             // RestauracionForm
             this.BackColor = System.Drawing.Color.FromArgb(252, 250, 252);
-            this.ClientSize = new System.Drawing.Size(520, 374);
+            this.ClientSize = new System.Drawing.Size(520, 398);
             this.Controls.Add(this.pnlBody);
             this.Controls.Add(this.pnlBotones);
             this.Controls.Add(this.pnlHeader);

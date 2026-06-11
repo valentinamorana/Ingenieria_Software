@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -46,6 +47,7 @@
     <Compile Include="Cliente.cs" />
     <Compile Include="Idioma.cs" />
     <Compile Include="Configuracion.cs" />
+    <Compile Include="CuidadorHistorial.cs" />
     <Compile Include="Familia.cs" />
     <Compile Include="Interfaces\IClienteService.cs" />
     <Compile Include="Interfaces\IPedidoService.cs" />
@@ -53,8 +55,11 @@
     <Compile Include="Interfaces\IPrendaService.cs" />
     <Compile Include="Pedido.cs" />
     <Compile Include="PlanSuscripcion.cs" />
+    <Compile Include="Preferencia.cs" />
+    <Compile Include="RecuperacionAdmin.cs" />
     <Compile Include="Prenda.cs" />
     <Compile Include="Backup.cs" />
+    <Compile Include="ControlMapeado.cs" />
     <Compile Include="Usuario.cs" />
     <Compile Include="VersionUsuario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

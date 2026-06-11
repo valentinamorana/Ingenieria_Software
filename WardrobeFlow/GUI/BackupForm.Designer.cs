@@ -49,7 +49,7 @@ namespace GUI
 
             // ── lblTitulo ────────────────────────────────────────────────────
             this.lblTitulo.Font      = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
-            this.lblTitulo.ForeColor = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.lblTitulo.ForeColor = System.Drawing.Color.FromArgb(176, 62, 96);
             this.lblTitulo.Location  = new System.Drawing.Point(20, 16);
             this.lblTitulo.Name      = "lblTitulo";
             this.lblTitulo.Size      = new System.Drawing.Size(460, 28);
@@ -117,7 +117,7 @@ namespace GUI
             this.lblConteo.Text      = "";
 
             // ── btnCrear ─────────────────────────────────────────────────────
-            this.btnCrear.BackColor                         = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.btnCrear.BackColor                         = System.Drawing.Color.FromArgb(176, 62, 96);
             this.btnCrear.FlatStyle                         = System.Windows.Forms.FlatStyle.Flat;
             this.btnCrear.FlatAppearance.BorderSize         = 0;
             this.btnCrear.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(120, 50, 78);
@@ -132,12 +132,12 @@ namespace GUI
             this.btnCrear.Click    += new System.EventHandler(this.btnCrear_Click);
 
             // ── btnRestaurar ─────────────────────────────────────────────────
-            this.btnRestaurar.BackColor                         = System.Drawing.Color.FromArgb(238, 228, 248);
+            this.btnRestaurar.BackColor                         = System.Drawing.Color.FromArgb(252, 228, 235);
             this.btnRestaurar.Enabled                           = false;
             this.btnRestaurar.FlatStyle                         = System.Windows.Forms.FlatStyle.Flat;
             this.btnRestaurar.FlatAppearance.BorderSize         = 1;
-            this.btnRestaurar.FlatAppearance.BorderColor        = System.Drawing.Color.FromArgb(180, 140, 180);
-            this.btnRestaurar.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(220, 208, 235);
+            this.btnRestaurar.FlatAppearance.BorderColor        = System.Drawing.Color.FromArgb(210, 100, 135);
+            this.btnRestaurar.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(244, 212, 226);
             this.btnRestaurar.Font      = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnRestaurar.ForeColor = System.Drawing.Color.FromArgb(100, 40, 80);
             this.btnRestaurar.Location  = new System.Drawing.Point(20, 370);

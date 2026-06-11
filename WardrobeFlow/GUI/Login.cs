@@ -24,10 +24,13 @@ namespace GUI
     {
         private readonly Usuario usuarioBLL = new Usuario();
 
-        // Botones-pastilla de idioma — índice por código para soporte dinámico
-        private readonly Dictionary<string, Button> _loginBtnsIdioma = new Dictionary<string, Button>();
+        // Selector de idioma (dropdown) — reemplaza las pastillas. Soporta idiomas dinámicos de BD.
+        private ComboBox _cmbIdiomaLogin;
+        private bool _suprimirIdiomaChange = false;
         // Etiqueta de descripción de marca (creada en código para ser traducible)
         private Label _lblBrandDesc;
+        // RF-10 — link a autodesbloqueo con clave de emergencia (admin bloqueado)
+        private LinkLabel _lnkEmergencia;
 
         public Login()
         {
@@ -78,8 +81,28 @@ namespace GUI
             // ── Líneas del separador "o" dibujadas vía Paint ──────────────────────
             lblDivider.Paint += LblDivider_Paint;
 
-            // ── Pastillas de idioma en el panel izquierdo ─────────────────────────
-            AgregarBotonesIdioma();
+            // ── Selector de idioma (dropdown) en el panel izquierdo ───────────────
+            AgregarComboIdioma();
+
+            // ── Link de autodesbloqueo con clave de emergencia (RF-10) ────────────
+            // Fila propia entre "¿Olvidaste tu contraseña?" (y=271) y el cartel de error
+            // (y=311), para que el link NO se superponga con el mensaje "cuenta bloqueada".
+            _lnkEmergencia = new LinkLabel
+            {
+                Text         = "¿Cuenta bloqueada? Usar clave de emergencia",
+                AutoSize     = false,
+                TextAlign    = ContentAlignment.MiddleLeft,
+                Location     = new Point(lnkOlvidaste.Left, lnkOlvidaste.Bottom + 4),
+                Size         = new Size(lnkOlvidaste.Width, 18),
+                BackColor    = Color.Transparent,
+                Font         = new Font("Segoe UI", 8.25f),
+                LinkColor    = Color.FromArgb(176, 62, 96),
+                ActiveLinkColor = Color.FromArgb(176, 62, 96),
+                Tag          = "emg.link"
+            };
+            _lnkEmergencia.LinkClicked += LnkEmergencia_LinkClicked;
+            (lnkOlvidaste.Parent ?? (Control)this).Controls.Add(_lnkEmergencia);
+            _lnkEmergencia.BringToFront();
 
             this.AcceptButton = btnIngresar;
         }
@@ -122,15 +145,15 @@ namespace GUI
             int w = pnlCard.Width, h = pnlCard.Height;
 
             // Círculo superior-derecho
-            using (var b = new SolidBrush(Color.FromArgb(14, 146, 62, 96)))
+            using (var b = new SolidBrush(Color.FromArgb(14, 176, 62, 96)))
                 g.FillEllipse(b, w - 170, -90, 180, 180);
 
             // Círculo inferior-izquierdo
-            using (var b = new SolidBrush(Color.FromArgb(11, 146, 62, 96)))
+            using (var b = new SolidBrush(Color.FromArgb(11, 176, 62, 96)))
                 g.FillEllipse(b, -80, h - 150, 200, 200);
 
             // Círculo de contorno
-            using (var pen = new Pen(Color.FromArgb(25, 146, 62, 96), 0.8f))
+            using (var pen = new Pen(Color.FromArgb(25, 176, 62, 96), 0.8f))
                 g.DrawEllipse(pen, w - 100, 220, 80, 80);
         }
 
@@ -163,7 +186,7 @@ namespace GUI
 
                 // Fondo vino redondeado
                 using (var path = BuildRoundedRect(new Rectangle(0, 0, 35, 35), 8))
-                using (var br   = new SolidBrush(Color.FromArgb(146, 62, 96)))
+                using (var br   = new SolidBrush(Color.FromArgb(176, 62, 96)))
                     g.FillPath(br, path);
 
                 // Ícono de percha blanca (equivalente a ti-hanger de Tabler Icons)
@@ -200,7 +223,7 @@ namespace GUI
                         e.Graphics.DrawString("Wardrobe", fnt, bDark, 0, 0);
                     // Posicionar "Flow" inmediatamente después de "Wardrobe"
                     var sz = e.Graphics.MeasureString("Wardrobe", fnt);
-                    using (var bVino = new SolidBrush(Color.FromArgb(146, 62, 96)))
+                    using (var bVino = new SolidBrush(Color.FromArgb(176, 62, 96)))
                         e.Graphics.DrawString("Flow", fnt, bVino, sz.Width - 4f, 0);
                 }
             };
@@ -235,83 +258,57 @@ namespace GUI
             return path;
         }
 
-        // ── Pastillas de idioma en pnlLeft ────────────────────────────────────────
+        // ── Selector de idioma (dropdown) en pnlLeft ──────────────────────────────
 
-        private void AgregarBotonesIdioma()
+        private void AgregarComboIdioma()
         {
-            ConstruirBotonesIdioma(Traductor.ObtenerIdiomas());
-            MarcarIdiomaActivoLogin(GestorIdioma.IdiomaActual?.Id ?? "ES");
+            _cmbIdiomaLogin = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Size          = new Size(150, 24),
+                Location      = new Point(22, pnlLeft.Height - 56),
+                FlatStyle     = FlatStyle.Flat,
+                Font          = new Font("Segoe UI", 8.5f),
+                ForeColor     = Color.FromArgb(176, 62, 96),
+                BackColor     = Color.White,
+                TabStop       = false
+            };
+            _cmbIdiomaLogin.SelectedIndexChanged += CmbIdiomaLogin_Changed;
+            pnlLeft.Controls.Add(_cmbIdiomaLogin);
+            _cmbIdiomaLogin.BringToFront();
+            ConstruirComboIdioma(Traductor.ObtenerIdiomas());
         }
 
-        private void ConstruirBotonesIdioma(IList<Idioma> idiomas)
+        // Llena el combo con los idiomas (de BD o fallback). Un idioma nuevo aparece solo.
+        private void ConstruirComboIdioma(IList<Idioma> idiomas)
         {
-            foreach (var btn in _loginBtnsIdioma.Values)
-                pnlLeft.Controls.Remove(btn);
-            _loginBtnsIdioma.Clear();
+            _suprimirIdiomaChange = true;
+            _cmbIdiomaLogin.DataSource    = null;
+            _cmbIdiomaLogin.DisplayMember = "Nombre";
+            _cmbIdiomaLogin.ValueMember   = "Id";
+            _cmbIdiomaLogin.DataSource    = new List<Idioma>(idiomas);
 
-            int y = pnlLeft.Height - 54;
-            int x = 22;
-
-            foreach (var idioma in idiomas)
-            {
-                var btn = new Button
+            string cod = GestorIdioma.IdiomaActual?.Id ?? "ES";
+            for (int i = 0; i < idiomas.Count; i++)
+                if (string.Equals(idiomas[i].Id, cod, StringComparison.OrdinalIgnoreCase))
                 {
-                    Text      = idioma.Id,
-                    Size      = new Size(40, 22),
-                    Location  = new Point(x, y),
-                    FlatStyle = FlatStyle.Flat,
-                    BackColor = Color.White,
-                    ForeColor = Color.FromArgb(176, 136, 152),
-                    Font      = new Font("Segoe UI", 8f),
-                    Cursor    = Cursors.Hand,
-                    TabStop   = false
-                };
-                btn.FlatAppearance.BorderSize  = 1;
-                btn.FlatAppearance.BorderColor = Color.FromArgb(224, 200, 216);
-                x += 46;
-
-                string cod = idioma.Id;
-                btn.Click += (s, e) =>
-                {
-                    foreach (var idm in Traductor.ObtenerIdiomas())
-                    {
-                        if (idm.Id == cod)
-                        {
-                            try
-                            {
-                                var dict = new BLL.IdiomaService().CargarTraducciones(cod);
-                                GestorIdioma.CambiarIdioma(idm, dict);
-                            }
-                            catch
-                            {
-                                GestorIdioma.CambiarIdioma(idm);
-                            }
-                            break;
-                        }
-                    }
-                    MarcarIdiomaActivoLogin(cod);
-                };
-
-                pnlLeft.Controls.Add(btn);
-                btn.BringToFront();
-                _loginBtnsIdioma[idioma.Id] = btn;
-            }
+                    _cmbIdiomaLogin.SelectedIndex = i;
+                    break;
+                }
+            _suprimirIdiomaChange = false;
         }
 
-        private void MarcarIdiomaActivoLogin(string codigo)
+        private void CmbIdiomaLogin_Changed(object sender, EventArgs e)
         {
-            void Marcar(Button b, bool activo)
+            if (_suprimirIdiomaChange) return;
+            var idioma = _cmbIdiomaLogin.SelectedItem as Idioma;
+            if (idioma == null) return;
+            try
             {
-                if (b == null) return;
-                b.Font      = new Font("Segoe UI", 8f, activo ? FontStyle.Bold : FontStyle.Regular);
-                b.ForeColor = activo ? Color.FromArgb(146, 62, 96) : Color.FromArgb(176, 136, 152);
-                b.BackColor = activo ? Color.FromArgb(243, 234, 240) : Color.White;
-                b.FlatAppearance.BorderColor = activo
-                    ? Color.FromArgb(201, 160, 186)
-                    : Color.FromArgb(224, 200, 216);
+                var dict = new BLL.IdiomaService().CargarTraducciones(idioma.Id);
+                GestorIdioma.CambiarIdioma(idioma, dict);
             }
-            foreach (var kv in _loginBtnsIdioma)
-                Marcar(kv.Value, kv.Key == codigo);
+            catch { GestorIdioma.CambiarIdioma(idioma); }
         }
 
         // ── Ciclo de vida ─────────────────────────────────────────────────────────
@@ -327,11 +324,10 @@ namespace GUI
                 if (idiomas.Count > 0)
                 {
                     GestorIdioma.SetIdiomasDisponibles(idiomas);
-                    ConstruirBotonesIdioma(idiomas);
-                    MarcarIdiomaActivoLogin(GestorIdioma.IdiomaActual.Id);
+                    ConstruirComboIdioma(idiomas);
                 }
             }
-            catch { /* sin conexión: usa botones hardcodeados del constructor */ }
+            catch { /* sin conexión: usa el combo con los idiomas del constructor */ }
 
             Traducir(GestorIdioma.IdiomaActual);
         }
@@ -399,6 +395,9 @@ namespace GUI
             var olvide = Tx(lnkOlvidaste.Tag?.ToString());
             if (olvide != null) lnkOlvidaste.Text = olvide;
 
+            var emg = Tx(_lnkEmergencia?.Tag?.ToString());
+            if (emg != null && _lnkEmergencia != null) _lnkEmergencia.Text = emg;
+
             // Separador
             var divider = Tx(lblDivider.Tag?.ToString());
             if (divider != null) lblDivider.Text = divider;
@@ -414,16 +413,12 @@ namespace GUI
 
             try
             {
-                bool esValido = usuarioBLL.Login(this.Text, txtUsuario.Text, txtContraseña.Text);
-                if (esValido)
+                // La BLL decide TODO: si las credenciales no son válidas lanza LoginException
+                // (mismo mensaje exista o no el usuario). Acá solo reaccionamos al resultado.
+                if (usuarioBLL.Login(this.Text, txtUsuario.Text, txtContraseña.Text))
                 {
                     this.DialogResult = DialogResult.OK;
                     this.Close();
-                }
-                else
-                {
-                    // Usuario no encontrado — mismo mensaje que credenciales inválidas (evita enumeración)
-                    MostrarErrorLogin(Tx("err.login.credenciales", "Usuario o contraseña incorrectos."), false);
                 }
             }
             catch (BE.LoginException ex) when (ex.Tipo == BE.LoginException.TipoError.LimiteAlcanzado)
@@ -486,6 +481,24 @@ namespace GUI
         {
             using (var form = new OlvideContrasenaForm())
                 form.ShowDialog(this);
+        }
+
+        // RF-10 — Abre el diálogo de autodesbloqueo con clave de emergencia. Si la cuenta queda
+        // desbloqueada, se reactivan los campos del login para que el admin ingrese normalmente.
+        private void LnkEmergencia_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            using (var form = new DesbloqueoEmergenciaForm(txtUsuario.Text))
+            {
+                if (form.ShowDialog(this) == DialogResult.OK)
+                {
+                    txtUsuario.Enabled    = true;
+                    txtContraseña.Enabled = true;
+                    btnIngresar.Enabled   = true;
+                    this.AcceptButton     = btnIngresar;
+                    lblError.Text         = string.Empty;
+                    txtContraseña.Focus();
+                }
+            }
         }
     }
 }

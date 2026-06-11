@@ -19,6 +19,9 @@ namespace Servicios.Multiidioma
     public static class GestorIdioma
     {
         private static readonly IList<IIdiomaObserver> _observers = new List<IIdiomaObserver>();
+        // Protege la lista de observadores: suscribir/desuscribir y la copia previa a notificar
+        // ocurren bajo lock, para que un alta/baja concurrente no corrompa la lista.
+        private static readonly object _lockObs = new object();
         private static Idioma _idiomaActual = Traductor.ObtenerIdiomaDefault();
         private static Dictionary<string, string> _tradActuales = null;
         private static IList<Idioma> _idiomasDisponibles = null;
@@ -39,13 +42,17 @@ namespace Servicios.Multiidioma
 
         public static void SuscribirObservador(IIdiomaObserver observer)
         {
-            if (!_observers.Contains(observer))
-                _observers.Add(observer);
+            lock (_lockObs)
+            {
+                if (!_observers.Contains(observer))
+                    _observers.Add(observer);
+            }
         }
 
         public static void DesuscribirObservador(IIdiomaObserver observer)
         {
-            _observers.Remove(observer);
+            lock (_lockObs)
+                _observers.Remove(observer);
         }
 
         // Sobrecarga con traducciones desde BD (flujo normal en producción).
@@ -65,7 +72,12 @@ namespace Servicios.Multiidioma
 
         private static void Notificar(Idioma idioma)
         {
-            var copia = new List<IIdiomaObserver>(_observers);
+            // Copia defensiva bajo lock: se notifica FUERA del lock para no bloquear si un
+            // observer tarda o se desuscribe a sí mismo durante UpdateLanguage.
+            List<IIdiomaObserver> copia;
+            lock (_lockObs)
+                copia = new List<IIdiomaObserver>(_observers);
+
             foreach (var observer in copia)
             {
                 try { observer.UpdateLanguage(idioma); }

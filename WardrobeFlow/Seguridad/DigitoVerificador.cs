@@ -23,7 +23,7 @@ namespace Seguridad
     /// discrepancia al arrancar y bloqueará el login hasta que un Administrador
     /// ejecute "Recalcular Todo" desde Administrar → Diagnóstico de Integridad.
     /// </summary>
-    public class DigitoVerificador
+    public class DigitoVerificador : ICalculadorDV
     {
         // Primo grande que permite ~100.000x más valores distintos que el mod 10 anterior.
         // Cabe en INT de SQL Server (max 2.147.483.647).

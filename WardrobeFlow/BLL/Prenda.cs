@@ -19,7 +19,7 @@ namespace BLL
         // Da de alta una nueva prenda. Estado inicial siempre Disponible.
         public void Alta(string modulo, BE.Prenda prenda)
         {
-            ValidarPermiso("mnuStock");
+            ValidarPermiso(BE.Patentes.Stock);
             Validar(prenda);
             prenda.Estado    = BE.EstadoPrenda.Disponible;
             prenda.FechaAlta = DateTime.Now;
@@ -41,7 +41,7 @@ namespace BLL
         // No afecta estado ni cliente asignado.
         public void Modificar(string modulo, BE.Prenda prenda)
         {
-            ValidarPermiso("mnuStock");
+            ValidarPermiso(BE.Patentes.Stock);
             Validar(prenda);
             dalPrenda.Modificar(prenda);
 
@@ -59,12 +59,21 @@ namespace BLL
         // al volver a Disponible desde EnLimpieza lo cierra.
         public void CambiarEstado(string modulo, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado)
         {
-            ValidarPermiso("mnuStock");
+            ValidarPermiso(BE.Patentes.Stock);
             if (!prenda.TransicionPermitida(nuevoEstado))
             {
-                string motivo = prenda.MotivoTransicionNoPermitida(nuevoEstado)
-                                ?? $"Transición no permitida: {prenda.Estado} → {nuevoEstado}.";
-                throw new BE.AppException("err.bll.prenda.transicion_invalida", motivo);
+                // Se lanza una clave traducible por caso (antes el motivo era texto fijo en
+                // español que el traductor no podía localizar).
+                if (prenda.Estado == BE.EstadoPrenda.Baja)
+                    throw new BE.AppException("err.bll.prenda.transicion_baja",
+                        "Una prenda dada de baja no puede cambiar de estado.");
+                if (prenda.Estado == BE.EstadoPrenda.EnUso)
+                    throw new BE.AppException("err.bll.prenda.transicion_enuso",
+                        "No se puede cambiar manualmente el estado de una prenda en uso.\n" +
+                        "El estado se actualiza automáticamente al procesar pedidos.");
+                throw new BE.AppException("err.bll.prenda.transicion_generica",
+                    "La transición de '{0}' a '{1}' no está permitida.",
+                    prenda.Estado.ToString(), nuevoEstado.ToString());
             }
 
             int? idCliente = nuevoEstado == BE.EstadoPrenda.EnUso
@@ -99,6 +108,15 @@ namespace BLL
         public List<BE.MantenimientoPrenda> ObtenerHistorialMantenimiento(int idPrenda)
             => dalMantenimiento.ObtenerPorPrenda(idPrenda);
 
+        public List<BE.MantenimientoPrenda> ObtenerEnMantenimiento()
+        {
+            var todos    = dalMantenimiento.ObtenerTodos();
+            var abiertos = new List<BE.MantenimientoPrenda>();
+            foreach (var m in todos)
+                if (m.EstaAbierto) abiertos.Add(m);
+            return abiertos;
+        }
+
         // Devuelve el resumen de ocupación del stock para el Dashboard.
         public BE.OcupacionStock ObtenerOcupacion()
         {
@@ -119,18 +137,9 @@ namespace BLL
             };
         }
 
-        // Lanza AppException si el usuario en sesión no tiene el permiso indicado.
-        // Administrador siempre pasa. Si no hay sesión activa, deja pasar (modo interno/test).
-        private static void ValidarPermiso(string nombrePatente)
-        {
-            if (!Seguridad.SessionManager.IsLoggedIn) return;
-            var usuario = Seguridad.SessionManager.GetInstance().Usuario;
-            if (usuario.Perfil == "Administrador") return;
-            bool tiene = usuario.Permisos?.Exists(p => p.NombreMenu == nombrePatente) == true;
-            if (!tiene)
-                throw new BE.AppException("err.bll.sin_permiso",
-                    "No tiene permiso para ejecutar esta operación ('{0}').", nombrePatente);
-        }
+        // T04 — Delegado a BLLHelper para no duplicar la lógica en cada clase BLL.
+        private static void ValidarPermiso(string nombrePatente) =>
+            BLLHelper.ValidarPermiso(nombrePatente);
 
         private void Validar(BE.Prenda prenda)
         {

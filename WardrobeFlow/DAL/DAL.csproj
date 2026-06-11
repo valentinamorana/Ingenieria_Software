@@ -44,8 +44,16 @@
   <ItemGroup>
     <Compile Include="Acceso.cs" />
     <Compile Include="BaseDAL.cs" />
+    <Compile Include="Interfaces\IPermisoDAL.cs" />
+    <Compile Include="Interfaces\IControlMapeadoDAL.cs" />
+    <Compile Include="ControlMapeado.cs" />
+    <Compile Include="Interfaces\IClienteDAL.cs" />
+    <Compile Include="Interfaces\IUsuarioDAL.cs" />
+    <Compile Include="Interfaces\IPreferenciaDAL.cs" />
+    <Compile Include="Interfaces\IClaveRecuperacionDAL.cs" />
     <Compile Include="Idioma.cs" />
     <Compile Include="Traduccion.cs" />
+    <Compile Include="Control.cs" />
     <Compile Include="Bitacora.cs" />
     <Compile Include="DigitoVerificador.cs" />
     <Compile Include="BitacoraNegocio.cs" />
@@ -59,6 +67,8 @@
     <Compile Include="Prenda.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Backup.cs" />
+    <Compile Include="ClaveRecuperacion.cs" />
+    <Compile Include="Preferencia.cs" />
     <Compile Include="HistorialIntegridad.cs" />
     <Compile Include="Usuario.cs" />
     <Compile Include="VersionUsuario.cs" />

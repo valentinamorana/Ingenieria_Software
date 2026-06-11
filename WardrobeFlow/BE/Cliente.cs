@@ -40,6 +40,9 @@ namespace BE
         public int PrendasDisponiblesEnPlan()
             => TienePlan() ? Math.Max(0, LimitePrendas - StockUtilizado) : 0;
 
+        // Fecha de nacimiento del cliente (para validar mayoría de edad).
+        public DateTime? FechaNacimiento { get; set; }
+
         // Fecha opcional de vencimiento de la suscripción (null = sin límite).
         public DateTime? FechaVencimiento { get; set; }
 

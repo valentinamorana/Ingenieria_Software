@@ -1,6 +1,7 @@
 using Servicios.Multiidioma;
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace GUI
@@ -8,6 +9,9 @@ namespace GUI
     public partial class BackupForm : Form, IIdiomaObserver
     {
         private readonly BLL.Backup _bll = new BLL.Backup();
+
+        // RF-06 — botón de backup de instalación limpia (creado dinámicamente)
+        private Button _btnInicial;
 
         private static readonly string DirBackups =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups");
@@ -22,6 +26,28 @@ namespace GUI
             base.OnLoad(e);
             try { string ico = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (System.IO.File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
             GestorIdioma.SuscribirObservador(this);
+
+            // RF-06 — Botón "Backup de instalación limpia". Se ubica debajo de la fila de
+            // restauración y se agranda el formulario para no solapar la nota informativa.
+            this.ClientSize = new System.Drawing.Size(this.ClientSize.Width, this.ClientSize.Height + 44);
+            lblInfo.Top += 44;
+            _btnInicial = new Button
+            {
+                Tag       = "btn.backup.inicial",
+                Text      = "Backup de instalación limpia",
+                Size      = new System.Drawing.Size(btnCrear.Width, 32),
+                Location  = new System.Drawing.Point(btnCrear.Left, btnExterno.Bottom + 8),
+                FlatStyle = btnCrear.FlatStyle,
+                BackColor = System.Drawing.Color.FromArgb(70, 110, 90),
+                ForeColor = System.Drawing.Color.White,
+                Font      = btnCrear.Font,
+                Cursor    = Cursors.Hand
+            };
+            _btnInicial.FlatAppearance.BorderSize = 0;
+            _btnInicial.Click += btnInicial_Click;
+            (btnCrear.Parent ?? this).Controls.Add(_btnInicial);
+            _btnInicial.BringToFront();
+
             Traducir(GestorIdioma.IdiomaActual);
             lblRuta.Text = DirBackups;
             CargarLista();
@@ -59,6 +85,8 @@ namespace GUI
             colFecha.Text     = T("col.backup.fecha",     "Fecha");
             colAutor.Text     = T("col.backup.autor",     "Autor");
             colTamanio.Text   = T("col.backup.tamanio",   "Tamaño");
+            if (_btnInicial != null)
+                _btnInicial.Text = T("btn.backup.inicial", "Backup de instalación limpia");
         }
 
         // Carga los .bak de la carpeta Backups/ ordenados por fecha descendente (más reciente primero).
@@ -74,7 +102,10 @@ namespace GUI
                 return;
             }
 
-            var archivos = new DirectoryInfo(DirBackups).GetFiles("*.bak");
+            // Incluye los backups cifrados (.wfbak) y los .bak planos legacy.
+            var archivos = new DirectoryInfo(DirBackups).GetFiles("*.bak")
+                .Concat(new DirectoryInfo(DirBackups).GetFiles("*" + BLL.Backup.ExtensionCifrada))
+                .ToArray();
             Array.Sort(archivos, (a, b) => b.LastWriteTime.CompareTo(a.LastWriteTime));
 
             foreach (var fi in archivos)
@@ -110,9 +141,36 @@ namespace GUI
                 if (!Directory.Exists(DirBackups))
                     Directory.CreateDirectory(DirBackups);
 
-                string filename = _bll.RealizarBackup(this.Text, DirBackups);
+                string clave = PedirClaveNueva();
+                if (clave == null) return;   // cancelado o inválido
+
+                string filename = _bll.RealizarBackup(this.Text, DirBackups, clave);
                 MessageBox.Show(
                     string.Format(T("msg.backup.creadoexito", "Copia de seguridad generada con éxito:\n{0}"), filename),
+                    T("rpt.dlg.exito.titulo", "Éxito"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CargarLista();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    string.Format(T("msg.backup.errorgenerar", "Error al generar copia de seguridad:\n{0}"), ex.Message),
+                    T("msg.error.titulo", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnInicial_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!Directory.Exists(DirBackups))
+                    Directory.CreateDirectory(DirBackups);
+
+                string clave = PedirClaveNueva();
+                if (clave == null) return;
+
+                string filename = _bll.RealizarBackupInicial(this.Text, DirBackups, clave);
+                MessageBox.Show(
+                    string.Format(T("msg.backup.inicialexito", "Backup de instalación limpia generado:\n{0}"), filename),
                     T("rpt.dlg.exito.titulo", "Éxito"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 CargarLista();
             }
@@ -162,7 +220,7 @@ namespace GUI
         {
             using (var ofd = new OpenFileDialog())
             {
-                ofd.Filter = "Copia de Seguridad SQL (*.bak)|*.bak";
+                ofd.Filter = "Copias de Seguridad (*.wfbak;*.bak)|*.wfbak;*.bak";
                 ofd.Title  = "Seleccionar Copia de Seguridad para Restaurar";
                 if (Directory.Exists(DirBackups))
                     ofd.InitialDirectory = DirBackups;
@@ -176,18 +234,46 @@ namespace GUI
         {
             if (string.IsNullOrEmpty(ruta)) return;
 
+            // RF-08 — Informar el ALCANCE de la pérdida: todo lo creado/modificado después de la
+            // fecha del backup se perderá. Se lee la fecha real del header del .bak.
+            string alcance;
+            DateTime? fechaBackup = null;
+            try { fechaBackup = _bll.ObtenerFechaBackup(ruta); } catch { /* header ilegible */ }
+            if (fechaBackup.HasValue)
+            {
+                var antiguedad = DateTime.Now - fechaBackup.Value;
+                alcance = string.Format(
+                    T("msg.backup.alcance",
+                      "\n\nEl backup es del {0} (hace {1} día(s)).\nSe PERDERÁN todos los cambios posteriores a esa fecha."),
+                    fechaBackup.Value.ToString("dd/MM/yyyy HH:mm"),
+                    Math.Max(0, (int)antiguedad.TotalDays));
+            }
+            else
+            {
+                alcance = T("msg.backup.alcance.desconocido",
+                    "\n\nNo se pudo determinar la fecha del backup. Se perderán todos los cambios posteriores a su creación.");
+            }
+
             string msg = string.Format(
                 T("msg.backup.confirmrestaura",
                     "¿Restaurar la base de datos desde:\n\"{0}\"?\n\nEsta operación sobrescribirá todos los datos actuales\ny reiniciará la aplicación."),
-                Path.GetFileName(ruta));
+                Path.GetFileName(ruta)) + alcance;
 
             if (MessageBox.Show(msg, T("msg.backup.titulorestaura", "Confirmar Restauración"),
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 return;
 
+            // Si el backup está cifrado (.wfbak), pedir la contraseña para descifrarlo.
+            string clave = null;
+            if (BLL.Backup.EsCifrado(ruta))
+            {
+                clave = PedirClaveExistente();
+                if (clave == null) return;   // cancelado
+            }
+
             try
             {
-                _bll.RestaurarBackup(this.Text, ruta);
+                _bll.RestaurarBackup(this.Text, ruta, clave);
                 MessageBox.Show(
                     T("msg.backup.restauradaexito", "Base de datos restaurada con éxito.\nLa aplicación se reiniciará."),
                     T("msg.backup.restauradatitulo", "Restauración Exitosa"), MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -198,6 +284,51 @@ namespace GUI
                 MessageBox.Show(
                     string.Format(T("msg.backup.errorrestaurar", "Error al restaurar:\n{0}"), ex.Message),
                     T("msg.error.titulo", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Pide una contraseña NUEVA (con confirmación) para cifrar un backup. null = cancelar/invalida.
+        private string PedirClaveNueva()
+        {
+            using (var d1 = new InputDialog(
+                T("dlg.backup.clave.titulo", "Contraseña del backup"),
+                T("dlg.backup.clave.nueva", "Ingresá una contraseña para CIFRAR el backup.\nLa vas a necesitar para restaurarlo (no se puede recuperar)."),
+                esPassword: true))
+            {
+                if (d1.ShowDialog(this) != DialogResult.OK) return null;
+                string p1 = d1.InputText;
+                if (string.IsNullOrEmpty(p1))
+                {
+                    MessageBox.Show(T("dlg.backup.clave.vacia", "La contraseña no puede estar vacía."),
+                        T("msg.error.titulo", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return null;
+                }
+                using (var d2 = new InputDialog(
+                    T("dlg.backup.clave.titulo", "Contraseña del backup"),
+                    T("dlg.backup.clave.repetir", "Repetí la contraseña para confirmar:"),
+                    esPassword: true))
+                {
+                    if (d2.ShowDialog(this) != DialogResult.OK) return null;
+                    if (d2.InputText != p1)
+                    {
+                        MessageBox.Show(T("dlg.backup.clave.nocoincide", "Las contraseñas no coinciden."),
+                            T("msg.error.titulo", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return null;
+                    }
+                }
+                return p1;
+            }
+        }
+
+        // Pide la contraseña de un backup EXISTENTE para descifrarlo. null = cancelar.
+        private string PedirClaveExistente()
+        {
+            using (var d = new InputDialog(
+                T("dlg.backup.clave.titulo", "Contraseña del backup"),
+                T("dlg.backup.clave.ingresar", "Ingresá la contraseña con la que se cifró este backup:"),
+                esPassword: true))
+            {
+                return d.ShowDialog(this) == DialogResult.OK ? d.InputText : null;
             }
         }
     }

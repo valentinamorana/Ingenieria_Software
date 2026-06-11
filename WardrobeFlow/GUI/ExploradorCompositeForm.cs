@@ -23,8 +23,8 @@ namespace GUI
     ///     📁 Inventario y Logística
     ///       📁 ...
     ///
-    /// El árbol se construye en BLL.Familia.ConstruirArbolOrganizacional()
-    /// usando BE.Familia (nodo compuesto) y BE.Patente (hoja) — exactamente como Stach.
+    /// El árbol se obtiene de BLL.Familia.ObtenerArbol() (árbol real desde BD vía
+    /// PermisoRelacion) usando BE.Rol/BE.Familia (nodos compuestos) y BE.Patente (hojas).
     ///
     /// Implementa IIdiomaObserver: todos los controles se traducen al cambiar de idioma.
     /// NO modifica permisos ni afecta la autorización.
@@ -40,6 +40,7 @@ namespace GUI
         private Button   _btnCerrar;
         private Button   _btnExpandir;
         private Button   _btnColapsar;
+        private Button   _btnActualizar;
         private Panel    _panelHeader;
         private Panel    _panelLeyenda;
         private Panel    _panelBotones;
@@ -89,13 +90,14 @@ namespace GUI
         // Actualiza TODOS los controles de texto del formulario con las traducciones activas.
         private void AplicarIdioma()
         {
-            this.Text               = T("frm.explorador",             "Explorador del Patrón Composite — T04");
-            _lblTitulo.Text         = T("lbl.explorador.titulo",      "Explorador del Patrón Composite");
+            this.Text               = T("frm.explorador",             "Vista completa del sistema");
+            _lblTitulo.Text         = T("lbl.explorador.titulo",      "Vista completa del sistema");
             _lblDescripcion.Text    = T("lbl.explorador.descripcion", "Estructura organizacional de WardrobeFlow — Solo lectura");
             _lblLeyenda.Text        = T("lbl.explorador.leyenda",     "📁 Familia (nodo compuesto — Área o Rol)    🔑 Patente (hoja — permiso atómico)");
             _btnCerrar.Text         = T("btn.explorador.cerrar",      "Cerrar");
             _btnColapsar.Text       = T("btn.explorador.colapsar",    "⊟ Colapsar todo");
             _btnExpandir.Text       = T("btn.explorador.expandir",    "⊞ Expandir todo");
+            _btnActualizar.Text     = T("btn.permisos.actualizar",    "↻ Actualizar");
         }
 
         // ── Construcción del árbol ────────────────────────────────────────────
@@ -110,11 +112,17 @@ namespace GUI
 
             try
             {
-                BE.Familia empresa = _familiaBLL.ConstruirArbolOrganizacional();
-
-                // Construir TreeView recursivamente — idéntico al patrón de Stach
-                foreach (BE.Componente hijo in empresa.Hijos)
-                    _treeView.Nodes.Add(CrearNodoRecursivo(hijo, traducciones));
+                // Árbol REAL desde BD (vía PermisoRelacion): roles, familias y patentes.
+                // Los nodos raíz son los que no tienen padre (roles y familias huérfanas).
+                var raices = _familiaBLL.ObtenerArbol();
+                var empresa = new TreeNode("📁 WardrobeFlow")
+                {
+                    NodeFont  = new Font("Segoe UI", 9f, FontStyle.Bold),
+                    ForeColor = Color.FromArgb(176, 62, 96)
+                };
+                foreach (BE.Componente raiz in raices)
+                    empresa.Nodes.Add(CrearNodoRecursivo(raiz, traducciones));
+                _treeView.Nodes.Add(empresa);
 
                 _treeView.ExpandAll();
             }
@@ -173,7 +181,7 @@ namespace GUI
                     ? new Font("Segoe UI", 9f, FontStyle.Bold)
                     : new Font("Segoe UI", 9f),
                 ForeColor = esFamilia
-                    ? Color.FromArgb(40, 80, 160)
+                    ? Color.FromArgb(176, 62, 96)
                     : Color.FromArgb(30, 110, 50)
             };
 
@@ -191,7 +199,7 @@ namespace GUI
 
         private void ConstruirUI()
         {
-            this.Text            = "Explorador del Patrón Composite — T04";
+            this.Text            = "Vista completa del sistema";
             this.Size            = new Size(680, 660);
             this.MinimumSize     = new Size(500, 500);
             this.StartPosition   = FormStartPosition.CenterScreen;
@@ -203,13 +211,13 @@ namespace GUI
             {
                 Dock      = DockStyle.Top,
                 Height    = 80,
-                BackColor = Color.FromArgb(64, 0, 64),
+                BackColor = Color.FromArgb(176, 62, 96),
                 Padding   = new Padding(14, 10, 14, 10)
             };
 
             _lblTitulo = new Label
             {
-                Text      = "Explorador del Patrón Composite",
+                Text      = "Vista completa del sistema",
                 Font      = new Font("Segoe UI", 14f, FontStyle.Bold),
                 ForeColor = Color.White,
                 AutoSize  = true,
@@ -220,7 +228,7 @@ namespace GUI
             {
                 Text      = "Estructura organizacional de WardrobeFlow — Solo lectura",
                 Font      = new Font("Segoe UI", 9f, FontStyle.Italic),
-                ForeColor = Color.FromArgb(220, 180, 220),
+                ForeColor = Color.FromArgb(244, 212, 226),
                 AutoSize  = true,
                 Location  = new Point(16, 42)
             };
@@ -232,7 +240,7 @@ namespace GUI
             {
                 Dock      = DockStyle.Top,
                 Height    = 30,
-                BackColor = Color.FromArgb(245, 240, 255),
+                BackColor = Color.FromArgb(252, 240, 246),
                 Padding   = new Padding(14, 5, 0, 0)
             };
 
@@ -240,7 +248,7 @@ namespace GUI
             {
                 Text      = "📁 Familia (nodo compuesto — Área o Rol)    🔑 Patente (hoja — permiso atómico)",
                 Font      = new Font("Segoe UI", 8.5f),
-                ForeColor = Color.FromArgb(60, 40, 80),
+                ForeColor = Color.FromArgb(110, 42, 74),
                 AutoSize  = true,
                 Location  = new Point(14, 6)
             };
@@ -255,7 +263,7 @@ namespace GUI
                 ShowLines     = true,
                 ShowPlusMinus = true,
                 BorderStyle   = BorderStyle.None,
-                BackColor     = Color.FromArgb(252, 250, 255),
+                BackColor     = Color.FromArgb(252, 250, 252),
                 Indent        = 20,
                 ItemHeight    = 24,
                 FullRowSelect = true,
@@ -269,7 +277,7 @@ namespace GUI
                 Height        = 46,
                 FlowDirection = FlowDirection.RightToLeft,
                 Padding       = new Padding(6, 6, 6, 6),
-                BackColor     = Color.FromArgb(245, 240, 255)
+                BackColor     = Color.FromArgb(252, 240, 246)
             };
 
             _btnCerrar = new Button
@@ -289,7 +297,7 @@ namespace GUI
             {
                 Text      = "⊟ Colapsar todo",
                 Size      = new Size(130, 32),
-                BackColor = Color.FromArgb(180, 160, 200),
+                BackColor = Color.FromArgb(210, 100, 135),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font      = new Font("Segoe UI", 9f),
@@ -302,7 +310,7 @@ namespace GUI
             {
                 Text      = "⊞ Expandir todo",
                 Size      = new Size(130, 32),
-                BackColor = Color.FromArgb(64, 0, 64),
+                BackColor = Color.FromArgb(176, 62, 96),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font      = new Font("Segoe UI", 9f),
@@ -311,7 +319,23 @@ namespace GUI
             _btnExpandir.FlatAppearance.BorderSize = 0;
             _btnExpandir.Click += (s, e) => _treeView.ExpandAll();
 
-            _panelBotones.Controls.AddRange(new Control[] { _btnCerrar, _btnColapsar, _btnExpandir });
+            // Actualizar: recarga el árbol desde la BD sin reabrir el form (estilo contorno
+            // para diferenciarlo de expandir/colapsar).
+            _btnActualizar = new Button
+            {
+                Text      = "↻ Actualizar",
+                Size      = new Size(120, 32),
+                BackColor = Color.White,
+                ForeColor = Color.FromArgb(176, 62, 96),
+                FlatStyle = FlatStyle.Flat,
+                Font      = new Font("Segoe UI", 9f),
+                Cursor    = Cursors.Hand
+            };
+            _btnActualizar.FlatAppearance.BorderSize = 1;
+            _btnActualizar.FlatAppearance.BorderColor = Color.FromArgb(176, 62, 96);
+            _btnActualizar.Click += (s, e) => CargarArbol();
+
+            _panelBotones.Controls.AddRange(new Control[] { _btnCerrar, _btnColapsar, _btnExpandir, _btnActualizar });
 
             this.Controls.Add(_treeView);
             this.Controls.Add(_panelBotones);

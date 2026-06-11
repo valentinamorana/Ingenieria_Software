@@ -56,11 +56,28 @@ namespace Seguridad
             {
                 byte[] hashCalculado = pbkdf2.GetBytes(HashSize);
 
+                // Comparación en TIEMPO CONSTANTE: recorre siempre los 32 bytes y acumula
+                // las diferencias con XOR, en vez de cortar en el primer byte distinto. Así
+                // el tiempo de respuesta no filtra cuántos bytes coincidieron (canal lateral).
+                int diferencia = 0;
                 for (int i = 0; i < HashSize; i++)
-                    if (hashBytes[i + SaltSize] != hashCalculado[i])
-                        return false;
-                return true;
+                    diferencia |= hashBytes[i + SaltSize] ^ hashCalculado[i];
+                return diferencia == 0;
             }
+        }
+
+        // Hash "señuelo" precalculado una sola vez. Se usa para verificar contra un hash
+        // VÁLIDO cuando el usuario no existe, de modo que el login consuma el mismo tiempo
+        // de PBKDF2 que con un usuario real y no se pueda enumerar usuarios por temporización.
+        private static readonly string _hashSenuelo = Hash("\0senuelo-sin-usuario\0");
+
+        /// <summary>
+        /// Ejecuta una verificación PBKDF2 contra el hash señuelo. Siempre devuelve false;
+        /// su único objetivo es igualar el costo temporal del camino "usuario inexistente".
+        /// </summary>
+        public static bool VerificacionSenuelo(string contrasena)
+        {
+            return VerificarContrasena(contrasena, _hashSenuelo);
         }
 
         // ── Validacion de requisitos de contraseña ────────────────────────────
@@ -157,14 +174,19 @@ namespace Seguridad
         /// <summary>
         /// Intenta desencriptar. Si falla (dato en texto plano o formato invalido),
         /// devuelve el valor original sin modificar.
+        /// Solo captura excepciones criptográficas y de formato, no errores del sistema.
         /// </summary>
         public static string TryDesencriptar(string valor)
         {
-            try   { return Desencriptar(valor); }
-            catch { return valor; }
+            try { return Desencriptar(valor); }
+            catch (CryptographicException) { return valor; }
+            catch (FormatException)        { return valor; }
+            catch (ArgumentException)      { return valor; }
         }
 
-        // Carga la clave AES desde key.dat. Si el archivo no existe lo crea con bytes aleatorios.
+        // Carga la clave AES desde key.dat, PROTEGIDA con DPAPI (ProtectedData, ámbito del
+        // usuario actual). Migra automáticamente un key.dat legacy en texto plano sin cambiar
+        // la clave (para no invalidar los datos ya cifrados).
         // ⚠ Eliminar key.dat hace que los DNI cifrados existentes sean irrecuperables.
         private static byte[] CargarOCrearClave()
         {
@@ -172,20 +194,42 @@ namespace Seguridad
 
             if (File.Exists(ruta))
             {
-                try
-                {
-                    byte[] datos = Convert.FromBase64String(File.ReadAllText(ruta).Trim());
-                    if (datos.Length == 16) return datos;
-                }
+                byte[] bytes = null;
+                try { bytes = Convert.FromBase64String(File.ReadAllText(ruta).Trim()); }
                 catch { }
+
+                if (bytes != null)
+                {
+                    // 1) Caso normal: el archivo es un blob DPAPI → desproteger.
+                    try
+                    {
+                        byte[] clave = ProtectedData.Unprotect(bytes, null, DataProtectionScope.CurrentUser);
+                        if (clave.Length == 16) return clave;
+                    }
+                    catch { }
+
+                    // 2) Legacy: clave plana de 16 bytes → migrar a DPAPI conservando la MISMA clave.
+                    if (bytes.Length == 16)
+                    {
+                        GuardarClaveProtegida(ruta, bytes);
+                        return bytes;
+                    }
+                }
             }
 
-            byte[] clave = new byte[16];
+            byte[] nueva = new byte[16];
             using (var rng = RandomNumberGenerator.Create())
-                rng.GetBytes(clave);
+                rng.GetBytes(nueva);
 
-            File.WriteAllText(ruta, Convert.ToBase64String(clave));
-            return clave;
+            GuardarClaveProtegida(ruta, nueva);
+            return nueva;
+        }
+
+        // Persiste la clave AES protegida con DPAPI (Base64 del blob protegido).
+        private static void GuardarClaveProtegida(string ruta, byte[] clave)
+        {
+            byte[] protegida = ProtectedData.Protect(clave, null, DataProtectionScope.CurrentUser);
+            File.WriteAllText(ruta, Convert.ToBase64String(protegida));
         }
 
         /// <summary>Convierte un array de bytes a Base64.</summary>

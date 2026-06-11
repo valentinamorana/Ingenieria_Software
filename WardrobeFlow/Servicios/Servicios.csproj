@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="Bitacora.cs" />
     <Compile Include="BitacoraNegocio.cs" />
-    <Compile Include="DigitoVerificador.cs" />
     <Compile Include="GeneradorCredenciales.cs" />
     <Compile Include="Multiidioma\Etiqueta.cs" />
     <Compile Include="Multiidioma\GestorIdioma.cs" />
@@ -51,6 +50,7 @@
     <Compile Include="Multiidioma\Idioma.cs" />
     <Compile Include="Multiidioma\Traduccion.cs" />
     <Compile Include="Multiidioma\Traductor.cs" />
+    <Compile Include="Multiidioma\TraductorPerfil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

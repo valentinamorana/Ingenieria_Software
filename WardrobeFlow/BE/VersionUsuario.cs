@@ -3,12 +3,15 @@ using System;
 namespace BE
 {
     /// <summary>
-    /// Snapshot del estado de un Usuario en un instante dado.
-    /// Persiste en la tabla HistorialUsuario.
-    /// Se guarda automáticamente antes de cada operación destructiva
-    /// (reset de clave, desbloqueo) para permitir reversión.
+    /// Patrón MEMENTO — Memento CONCRETO del Usuario.
+    ///
+    /// Guarda una "foto" del estado del Usuario (snapshot) en un instante dado y
+    /// persiste en la tabla HistorialUsuario. Expone metadatos (Fecha/Actor/Detalle)
+    /// vía <see cref="Memento.IMemento"/> para que el Caretaker liste el historial,
+    /// mientras que el estado capturado (los *Snapshot) solo lo usa el Originator
+    /// (BE.Usuario) al crear y restaurar el Memento.
     /// </summary>
-    public class VersionUsuario
+    public class VersionUsuario : Memento.IMemento
     {
         public int      Id               { get; set; }
         public int      IdUsuario        { get; set; }

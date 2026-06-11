@@ -35,7 +35,7 @@ using System.Data.SqlClient;
 
 namespace DAL
 {
-    public class Permiso
+    public class Permiso : Interfaces.IPermisoDAL
     {
         private readonly Acceso acceso = Acceso.GetInstance();
 
@@ -44,10 +44,25 @@ namespace DAL
         // Retorna los nodos raíz (Familias sin padre) listas para que BLL las envuelva.
         public List<BE.Componente> ObtenerArbol()
         {
-            var dt = acceso.Leer(
-                "SELECT IdPermiso, Nombre, NombreMenu, EsFamilia " +
-                "FROM Permiso WHERE Estado = 1 ORDER BY EsFamilia DESC, Nombre",
-                null);
+            // EsRol se lee de forma resiliente: si la columna aún no existe (BD sin migrar),
+            // se trata todo EsFamilia como Familia común.
+            DataTable dt;
+            try
+            {
+                dt = acceso.Leer(
+                    "SELECT IdPermiso, Nombre, NombreMenu, EsFamilia, " +
+                    "ISNULL(EsRol,0) AS EsRol " +
+                    "FROM Permiso WHERE Estado = 1 ORDER BY EsFamilia DESC, Nombre",
+                    null);
+            }
+            catch (SqlException)
+            {
+                dt = acceso.Leer(
+                    "SELECT IdPermiso, Nombre, NombreMenu, EsFamilia, " +
+                    "CAST(0 AS BIT) AS EsRol " +
+                    "FROM Permiso WHERE Estado = 1 ORDER BY EsFamilia DESC, Nombre",
+                    null);
+            }
 
             var nodos = new Dictionary<int, BE.Componente>();
 
@@ -55,8 +70,13 @@ namespace DAL
             {
                 int  id        = Convert.ToInt32(row["IdPermiso"]);
                 bool esFamilia = row["EsFamilia"] != DBNull.Value && Convert.ToBoolean(row["EsFamilia"]);
+                bool esRol     = row["EsRol"] != DBNull.Value && Convert.ToBoolean(row["EsRol"]);
 
-                if (esFamilia)
+                if (esRol)
+                {
+                    nodos[id] = new BE.Rol { Id = id, Nombre = row["Nombre"].ToString(), EsFijo = true };
+                }
+                else if (esFamilia)
                 {
                     nodos[id] = new BE.Familia { Id = id, Nombre = row["Nombre"].ToString() };
                 }
@@ -98,43 +118,23 @@ namespace DAL
             return raices;
         }
 
-        // Solo Patentes (EsFamilia=0) — usado por Login para poblar la sesión.
-        public List<BE.Permiso> ObtenerTodos()
-        {
-            var lista = new List<BE.Permiso>();
-            try
-            {
-                DataTable tabla = acceso.Leer(
-                    "SELECT IdPermiso, Nombre, NombreMenu, TipoComponente, Estado " +
-                    "FROM Permiso WHERE ISNULL(EsFamilia,0) = 0 ORDER BY TipoComponente, Nombre",
-                    null);
-
-                if (tabla == null) return lista;
-
-                foreach (DataRow row in tabla.Rows)
-                {
-                    lista.Add(new BE.Permiso
-                    {
-                        Id             = Convert.ToInt32(row["IdPermiso"]),
-                        Nombre         = row["Nombre"].ToString(),
-                        NombreMenu     = row["NombreMenu"].ToString(),
-                        TipoComponente = row["TipoComponente"].ToString(),
-                        Estado         = Convert.ToBoolean(row["Estado"])
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al obtener permisos.", ex);
-            }
-            return lista;
-        }
-
         // Roles disponibles en el sistema.
+        // T04: los roles son nodos del Composite (EsRol=1), de modo que un rol recién
+        // creado aparece aunque todavía no tenga permisos asignados.
+        // Fallback resiliente: si la columna EsRol no existe (BD sin migrar), usa RolPermiso.
         public List<string> ObtenerRoles()
         {
             var lista = new List<string>();
             try
+            {
+                DataTable tabla = acceso.Leer(
+                    "SELECT Nombre FROM Permiso WHERE ISNULL(EsRol,0) = 1 AND Estado = 1 " +
+                    "ORDER BY Nombre", null);
+                if (tabla == null) return lista;
+                foreach (DataRow row in tabla.Rows)
+                    lista.Add(row["Nombre"].ToString());
+            }
+            catch (SqlException)
             {
                 DataTable tabla = acceso.Leer(
                     "SELECT DISTINCT Rol FROM RolPermiso ORDER BY Rol", null);
@@ -186,33 +186,153 @@ namespace DAL
             return lista;
         }
 
-        public void AsignarPermiso(string rol, int idPermiso)
+        // ── T04 — CRUD del Composite (Patentes / Familias / Roles) ──────────────
+
+        // Devuelve el Id del nodo-rol cuyo Nombre coincide, o 0 si no existe.
+        public int ObtenerIdRol(string rolNombre)
+        {
+            if (string.IsNullOrWhiteSpace(rolNombre)) return 0;
+            DataTable t = acceso.Leer(
+                "SELECT TOP 1 IdPermiso FROM Permiso WHERE Nombre = @n AND ISNULL(EsRol,0) = 1",
+                new[] { new SqlParameter("@n", rolNombre) });
+            if (t == null || t.Rows.Count == 0) return 0;
+            return Convert.ToInt32(t.Rows[0]["IdPermiso"]);
+        }
+
+        // Alta de un componente (Patente, Familia o Rol). Devuelve el IdPermiso generado.
+        public int AltaComponente(string nombre, string nombreMenu, bool esFamilia, bool esRol, string tipoComponente)
         {
             try
             {
-                acceso.Escribir(
-                    "IF NOT EXISTS (SELECT 1 FROM RolPermiso WHERE Rol = @rol AND IdPermiso = @id) " +
-                    "INSERT INTO RolPermiso (Rol, IdPermiso) VALUES (@rol, @id)",
-                    new SqlParameter[] { new SqlParameter("@rol", rol), new SqlParameter("@id", idPermiso) });
+                DataTable t = acceso.Leer(
+                    "INSERT INTO Permiso (Nombre, NombreMenu, TipoComponente, Estado, EsFamilia, EsRol) " +
+                    "VALUES (@nom, @menu, @tipo, 1, @fam, @rol); " +
+                    "SELECT CAST(SCOPE_IDENTITY() AS INT) AS Id",
+                    new[]
+                    {
+                        new SqlParameter("@nom",  nombre),
+                        // NombreMenu puede ser NOT NULL en esquemas legacy: para familias/roles
+                        // (sin menú propio) se usa el nombre como valor por defecto.
+                        new SqlParameter("@menu", (object)(string.IsNullOrEmpty(nombreMenu) ? nombre : nombreMenu)),
+                        // TipoComponente puede ser NOT NULL en esquemas legacy → valor por defecto.
+                        new SqlParameter("@tipo", (object)(string.IsNullOrEmpty(tipoComponente) ? "General" : tipoComponente)),
+                        new SqlParameter("@fam",  esFamilia || esRol),
+                        new SqlParameter("@rol",  esRol)
+                    });
+                return (t != null && t.Rows.Count > 0) ? Convert.ToInt32(t.Rows[0]["Id"]) : 0;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error al asignar permiso {idPermiso} al rol '{rol}'.", ex);
+                throw new Exception($"Error al crear el componente '{nombre}'.", ex);
             }
         }
 
-        public void QuitarPermiso(string rol, int idPermiso)
+        // Modifica nombre y nombre de menú de un componente.
+        public void ModificarComponente(int idPermiso, string nombre, string nombreMenu)
         {
             try
             {
                 acceso.Escribir(
-                    "DELETE FROM RolPermiso WHERE Rol = @rol AND IdPermiso = @id",
-                    new SqlParameter[] { new SqlParameter("@rol", rol), new SqlParameter("@id", idPermiso) });
+                    "UPDATE Permiso SET Nombre = @nom, NombreMenu = @menu WHERE IdPermiso = @id",
+                    new[]
+                    {
+                        new SqlParameter("@nom",  nombre),
+                        new SqlParameter("@menu", (object)nombreMenu ?? DBNull.Value),
+                        new SqlParameter("@id",   idPermiso)
+                    });
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error al quitar permiso {idPermiso} del rol '{rol}'.", ex);
+                throw new Exception($"Error al modificar el componente {idPermiso}.", ex);
             }
+        }
+
+        // Baja lógica de un componente (Estado=0) y limpieza de sus relaciones,
+        // tanto como padre (sus hijos) como hijo (en otros nodos).
+        public void BajaComponente(int idPermiso)
+        {
+            try
+            {
+                acceso.Escribir(
+                    "DELETE FROM PermisoRelacion WHERE IdPadre = @id OR IdHijo = @id; " +
+                    "UPDATE Permiso SET Estado = 0 WHERE IdPermiso = @id",
+                    new[] { new SqlParameter("@id", idPermiso) });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al dar de baja el componente {idPermiso}.", ex);
+            }
+        }
+
+        // Ids de los hijos DIRECTOS de un nodo (un solo nivel).
+        public List<int> ObtenerIdsHijos(int idPadre)
+        {
+            var lista = new List<int>();
+            DataTable t = acceso.Leer(
+                "SELECT IdHijo FROM PermisoRelacion WHERE IdPadre = @p",
+                new[] { new SqlParameter("@p", idPadre) });
+            if (t == null) return lista;
+            foreach (DataRow row in t.Rows)
+                lista.Add(Convert.ToInt32(row["IdHijo"]));
+            return lista;
+        }
+
+        // Crea una arista padre→hijo en el árbol Composite (idempotente).
+        public void AgregarRelacion(int idPadre, int idHijo)
+        {
+            try
+            {
+                acceso.Escribir(
+                    "IF NOT EXISTS (SELECT 1 FROM PermisoRelacion WHERE IdPadre = @p AND IdHijo = @h) " +
+                    "INSERT INTO PermisoRelacion (IdPadre, IdHijo) VALUES (@p, @h)",
+                    new[] { new SqlParameter("@p", idPadre), new SqlParameter("@h", idHijo) });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al relacionar componentes {idPadre}→{idHijo}.", ex);
+            }
+        }
+
+        // Elimina una arista padre→hijo del árbol Composite.
+        public void QuitarRelacion(int idPadre, int idHijo)
+        {
+            try
+            {
+                acceso.Escribir(
+                    "DELETE FROM PermisoRelacion WHERE IdPadre = @p AND IdHijo = @h",
+                    new[] { new SqlParameter("@p", idPadre), new SqlParameter("@h", idHijo) });
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al quitar relación {idPadre}→{idHijo}.", ex);
+            }
+        }
+
+        // Cantidad de usuarios que tienen asignado el rol.
+        // Cubre el mismo criterio que el login (Rol ?? Perfil).
+        private const string FiltroUsuarioRol =
+            "(Rol = @rol OR (Rol IS NULL AND Perfil = @rol))";
+
+        public int ContarUsuariosPorRol(string rol)
+        {
+            DataTable t = acceso.Leer(
+                "SELECT COUNT(*) AS Total FROM Usuario WHERE " + FiltroUsuarioRol,
+                new[] { new SqlParameter("@rol", rol) });
+            if (t == null || t.Rows.Count == 0) return 0;
+            return Convert.ToInt32(t.Rows[0]["Total"]);
+        }
+
+        // Nombres de usuario que tienen asignado el rol (para advertir antes de eliminar).
+        public List<string> ObtenerUsuariosPorRol(string rol)
+        {
+            var lista = new List<string>();
+            DataTable t = acceso.Leer(
+                "SELECT Username FROM Usuario WHERE " + FiltroUsuarioRol + " ORDER BY Username",
+                new[] { new SqlParameter("@rol", rol) });
+            if (t == null) return lista;
+            foreach (DataRow row in t.Rows)
+                lista.Add(row["Username"].ToString());
+            return lista;
         }
 
     }

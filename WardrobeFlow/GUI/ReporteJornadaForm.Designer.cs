@@ -38,7 +38,7 @@ namespace GUI
             //
             // panelTop
             //
-            this.panelTop.BackColor = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.panelTop.BackColor = System.Drawing.Color.FromArgb(176, 62, 96);
             this.panelTop.Controls.Add(this.lblTitulo);
             this.panelTop.Controls.Add(this.lblSubtitulo);
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
@@ -109,7 +109,7 @@ namespace GUI
             //
             // btnGenerar
             //
-            this.btnGenerar.BackColor = System.Drawing.Color.FromArgb(146, 62, 96);
+            this.btnGenerar.BackColor = System.Drawing.Color.FromArgb(176, 62, 96);
             this.btnGenerar.FlatAppearance.BorderSize = 0;
             this.btnGenerar.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnGenerar.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);

@@ -135,7 +135,7 @@ namespace GUI
                 Width     = 170,
                 Height    = 32,
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(60, 120, 180),
+                BackColor = Color.FromArgb(210, 100, 135),
                 ForeColor = Color.White
             };
             _btnReparar.FlatAppearance.BorderSize = 0;
@@ -307,6 +307,11 @@ namespace GUI
                     diag.DVVCalculado,
                     diag.FilasRotas.Count);
 
+                if (diag.TablasAdicionalesCorruptas.Count > 0)
+                    _lblDVVDetalle.Text += "   |   " + string.Format(
+                        T("diag.tablas.corruptas", "Tablas con DV inválido: {0}"),
+                        string.Join(", ", diag.TablasAdicionalesCorruptas));
+
                 _gridRotas.Rows.Clear();
                 string sinDVH      = T("diag.fila.sinDVH",     "Sin DVH");
                 string noCoincide  = T("diag.fila.nocoincide", "DVH no coincide");
@@ -320,7 +325,31 @@ namespace GUI
                         estadoFila);
                 }
 
+                // Tablas adicionales (Cliente / Empleado / Pedido) con DV inválido: se listan
+                // como filas informativas para que el problema sea visible y se sepa que hay que
+                // recalcular (antes una corrupción en Cliente no aparecía por ningún lado).
+                foreach (var tablaCorrupta in diag.TablasAdicionalesCorruptas)
+                {
+                    int tIdx = _gridRotas.Rows.Add("—",
+                        string.Format(T("diag.tabla.corrupta", "Tabla '{0}'"), tablaCorrupta),
+                        "—", "—",
+                        T("diag.tabla.dvinvalido", "DV inválido — usá «Recalcular Todo»"));
+                    _gridRotas.Rows[tIdx].DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(180, 50, 50);
+                    _gridRotas.Rows[tIdx].ReadOnly = true;
+                }
+
+                // Si no hay NINGÚN problema (ni en Usuario ni en las tablas adicionales),
+                // mostrar un aviso claro en vez de una grilla vacía.
+                if (diag.FilasRotas.Count == 0 && diag.TablasAdicionalesCorruptas.Count == 0)
+                {
+                    int fIdx = _gridRotas.Rows.Add("", T("diag.sinfilas", "✓ Todo íntegro — no hay filas con problemas de integridad."), "", "", "");
+                    _gridRotas.Rows[fIdx].DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(40, 140, 60);
+                    _gridRotas.Rows[fIdx].ReadOnly = true;
+                }
+
                 _btnReparar.Enabled        = diag.FilasRotas.Count > 0;
+                // Habilitar el recálculo total si CUALQUIER tabla protegida está comprometida
+                // (incluye Cliente/Empleado/Pedido, no solo Usuario).
                 _btnRecalcularTodo.Enabled = !diag.Integro;
             }
             catch (Exception ex)
@@ -346,7 +375,7 @@ namespace GUI
                 var lista = BLL.Configuracion.ObtenerHistorialIntegridad(150);
                 foreach (var h in lista)
                 {
-                    _gridHistorial.Rows.Add(
+                    int idx = _gridHistorial.Rows.Add(
                         h.FechaVerificacion.ToString("dd/MM/yyyy HH:mm:ss"),
                         h.NombreTabla,
                         h.DVVAlmacenado?.ToString() ?? "—",
@@ -354,12 +383,48 @@ namespace GUI
                         h.FilasCorruptas.ToString(),
                         h.Resultado ? ok : fallo,
                         h.DisparadoPor);
+
+                    // Corrección pedida: al pasar el mouse sobre una verificación, explicar
+                    // POR QUÉ falló (o por qué está OK). El tooltip se fija en toda la fila.
+                    string tip = ConstruirTooltipHistorial(h);
+                    foreach (DataGridViewCell celda in _gridHistorial.Rows[idx].Cells)
+                        celda.ToolTipText = tip;
                 }
             }
             catch
             {
                 // Si la tabla aún no existe, mostrar vacío silenciosamente
             }
+        }
+
+        // Arma el texto del tooltip de una verificación del historial: si FALLÓ, detalla la causa
+        // (DVV que no coincide y/o filas con DVH inválido); si está OK, lo confirma.
+        private string ConstruirTooltipHistorial(BE.HistorialIntegridad h)
+        {
+            if (h.Resultado)
+                return T("diag.tip.ok", "Verificación correcta: los dígitos verificadores coinciden con los datos.");
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine(string.Format(
+                T("diag.tip.fallo.titulo", "Verificación FALLIDA — tabla {0}"), h.NombreTabla));
+
+            // DVV no coincide → se agregaron/quitaron/reordenaron filas.
+            if (h.DVVAlmacenado == null || h.DVVAlmacenado != h.DVVCalculado)
+                sb.AppendLine(string.Format(
+                    T("diag.tip.dvv.mismatch",
+                      "• El DVV no coincide: almacenado {0} ≠ calculado {1} (se insertaron, eliminaron o reordenaron filas)."),
+                    h.DVVAlmacenado?.ToString() ?? "—", h.DVVCalculado));
+
+            // Filas con DVH inválido → se modificó el contenido de esas filas.
+            if (h.FilasCorruptas > 0)
+                sb.AppendLine(string.Format(
+                    T("diag.tip.filas.corruptas",
+                      "• {0} fila(s) con DVH inválido: el contenido de esas filas fue modificado directamente en la base."),
+                    h.FilasCorruptas));
+
+            sb.Append(T("diag.tip.causa",
+                "Posible manipulación directa de la base de datos. Reparar desde la pestaña Diagnóstico o restaurar un backup."));
+            return sb.ToString();
         }
 
         private void GridHistorial_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)

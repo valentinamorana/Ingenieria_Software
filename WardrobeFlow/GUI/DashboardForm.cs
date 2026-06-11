@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Servicios.Multiidioma;
 
@@ -37,7 +38,10 @@ namespace GUI
         private readonly BLL.Bitacora _bllBitacora = new BLL.Bitacora();
 
         // ── Visibilidad por rol ───────────────────────────────────────────────
-        private readonly bool _verPrendas, _verClientes, _verPedidos, _verBackup;
+        private readonly bool _verPrendas, _verClientes, _verPedidos, _verBackup, _verStock;
+        // Actividad reciente = bitácora del sistema (dato sensible de auditoría): solo se muestra
+        // a quien tiene permiso de ver la auditoría (Administrador / Auditor), no a roles operativos.
+        private readonly bool _verActividad;
 
         // ── Controles de tarjetas (null si el rol no tiene permiso) ───────────
         private Label _numPrendas,  _txtPrendas;
@@ -61,6 +65,14 @@ namespace GUI
         private Label        _lblStTitulo;
         private DataGridView _dgvActividad;
 
+        // ── Panel de Tareas Pendientes ────────────────────────────────────────
+        private Panel        _panelTareas;
+        private DataGridView _dgvTareas;
+        private Label        _lblTareasTitulo;
+
+        // ── Auto-refresh timer ────────────────────────────────────────────────
+        private System.Windows.Forms.Timer _timer;
+
         public DashboardForm(List<BE.Permiso> permisos)
         {
             var nombres = new HashSet<string>();
@@ -72,6 +84,8 @@ namespace GUI
             _verClientes = nombres.Contains("mnuClientes");
             _verPedidos  = nombres.Contains("mnuPedidosVenta") || nombres.Contains("mnuPedidosRealizados");
             _verBackup   = nombres.Contains("mnuUsuarios");
+            _verStock    = nombres.Contains("mnuStock");
+            _verActividad = nombres.Contains("mnuAuditoria");
 
             this.Text            = "Panel de Control";
             this.Size            = new Size(870, 570);
@@ -92,13 +106,20 @@ namespace GUI
             try { string ico = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
             GestorIdioma.SuscribirObservador(this);
             Traducir(GestorIdioma.IdiomaActual);
+            // Cargar datos en background — el form aparece inmediatamente
             ActualizarMetricas();
             CargarActividadReciente();
             CargarMiniStats();
+            CargarTareasPendientes();
+            _timer = new System.Windows.Forms.Timer { Interval = 2 * 60 * 1000 };
+            _timer.Tick += (s, ev) => { ActualizarMetricas(); CargarActividadReciente(); CargarMiniStats(); CargarTareasPendientes(); };
+            _timer.Start();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            _timer?.Stop();
+            _timer?.Dispose();
             GestorIdioma.DesuscribirObservador(this);
             base.OnFormClosing(e);
         }
@@ -111,6 +132,7 @@ namespace GUI
             ActualizarMetricas();
             CargarActividadReciente();
             CargarMiniStats();
+            CargarTareasPendientes();
         }
 
         private string T(string key, string fallback)
@@ -142,47 +164,53 @@ namespace GUI
                 _dgvActividad.Columns["colTipo"].HeaderText  = T("dash.col.evento",  "Evento");
                 _dgvActividad.Columns["colUser"].HeaderText  = T("dash.col.usuario", "Usuario");
             }
+
+            // Panel "Mis Tareas Pendientes": título y encabezados del grid (antes quedaban
+            // siempre en español porque se fijaban una sola vez al construir la UI).
+            if (_lblTareasTitulo != null)
+                _lblTareasTitulo.Text = string.Format(T("dash.tareas.titulo", "Mis Tareas Pendientes ({0})"), 0);
+            if (_dgvTareas != null && _dgvTareas.Columns.Count >= 3)
+            {
+                _dgvTareas.Columns["colTipo"].HeaderText  = T("dash.tareas.col.tipo",  "Tipo");
+                _dgvTareas.Columns["colDesc"].HeaderText  = T("dash.tareas.col.desc",  "Descripción");
+                _dgvTareas.Columns["colFecha"].HeaderText = T("dash.tareas.col.fecha", "Desde");
+            }
         }
 
         // ── Métricas ──────────────────────────────────────────────────────────
 
         private void ActualizarMetricas()
         {
-            if (_verPrendas && _numPrendas != null)
-            {
-                try { _numPrendas.Text = _bllPrenda.ObtenerDisponibles().Count.ToString(); }
-                catch { _numPrendas.Text = "—"; }
-            }
-
-            if (_verClientes && _numClientes != null)
-            {
-                try { _numClientes.Text = _bllCliente.ObtenerTodos().Count.ToString(); }
-                catch { _numClientes.Text = "—"; }
-            }
-
-            if (_verPedidos && _numPedidos != null)
-            {
-                try { _numPedidos.Text = _bllPedido.ObtenerPendientes().Count.ToString(); }
-                catch { _numPedidos.Text = "—"; }
-            }
-
+            // Backup es I/O de archivo (rápido, sin BD) — se actualiza al instante
             if (_verBackup && _numBackup != null)
                 ActualizarTarjetaBackup();
 
-            if (_verPrendas && _numOcupacion != null)
-                ActualizarTarjetaOcupacion();
-
-            // Info de sesión
-            try
+            Task.Run(() =>
             {
-                var u    = _bllUsuario.ObtenerUsuarioActivo();
-                var hora = _bllUsuario.ObtenerFechaInicioSesion();
-                if (u != null)
-                    _lblSesion.Text =
-                        $"{u.Username}  ·  {u.Perfil ?? "—"}" +
-                        (hora.HasValue ? $"  ·  {T("dash.sesion.iniciada", "Sesión iniciada:")} {hora.Value:HH:mm}" : "");
-            }
-            catch { _lblSesion.Text = ""; }
+                int? nPrendas = null, nClientes = null, nPedidos = null;
+                BE.OcupacionStock ocup = null;
+                BE.Usuario usuario = null;
+                DateTime? hora = null;
+
+                if (_verPrendas)  try { nPrendas  = _bllPrenda.ObtenerDisponibles().Count; } catch { }
+                if (_verClientes) try { nClientes = _bllCliente.ObtenerTodos().Count; } catch { }
+                if (_verPedidos)  try { nPedidos  = _bllPedido.ObtenerPendientes().Count; } catch { }
+                if (_verPrendas)  try { ocup      = _bllPrenda.ObtenerOcupacion(); } catch { }
+                try { usuario = _bllUsuario.ObtenerUsuarioActivo(); hora = _bllUsuario.ObtenerFechaInicioSesion(); } catch { }
+
+                this.BeginInvoke(new Action(() =>
+                {
+                    if (IsDisposed) return;
+                    if (_numPrendas  != null) _numPrendas.Text  = nPrendas.HasValue  ? nPrendas.Value.ToString()  : "—";
+                    if (_numClientes != null) _numClientes.Text = nClientes.HasValue ? nClientes.Value.ToString() : "—";
+                    if (_numPedidos  != null) _numPedidos.Text  = nPedidos.HasValue  ? nPedidos.Value.ToString()  : "—";
+                    if (ocup != null) ActualizarTarjetaOcupacion(ocup);
+                    if (usuario != null)
+                        _lblSesion.Text =
+                            $"{usuario.Username}  ·  {usuario.Perfil ?? "—"}" +
+                            (hora.HasValue ? $"  ·  {T("dash.sesion.iniciada", "Sesión iniciada:")} {hora.Value:HH:mm}" : "");
+                }));
+            });
         }
 
         private void ActualizarTarjetaBackup()
@@ -273,47 +301,30 @@ namespace GUI
 
         // ── Ocupación del stock ───────────────────────────────────────────────
 
-        private void ActualizarTarjetaOcupacion()
+        private void ActualizarTarjetaOcupacion(BE.OcupacionStock oc)
         {
-            try
+            if (_numOcupacion == null) return;
+            _numOcupacion.Text = $"{oc.PorcentajeOcupacion}%";
+            _numOcupacion.Font = new System.Drawing.Font("Segoe UI", 28f, System.Drawing.FontStyle.Bold);
+
+            System.Drawing.Color fondo, tinta;
+            if (oc.PorcentajeOcupacion < 70)
+            { fondo = System.Drawing.Color.FromArgb(215, 240, 220); tinta = System.Drawing.Color.FromArgb(15, 85, 35); }
+            else if (oc.PorcentajeOcupacion <= 90)
+            { fondo = System.Drawing.Color.FromArgb(255, 248, 210); tinta = System.Drawing.Color.FromArgb(120, 90, 0); }
+            else
+            { fondo = System.Drawing.Color.FromArgb(255, 218, 218); tinta = System.Drawing.Color.FromArgb(160, 20, 20); }
+
+            if (_txtOcupacion != null)
             {
-                var oc = _bllPrenda.ObtenerOcupacion();
-                if (_numOcupacion == null) return;
-
-                _numOcupacion.Text = $"{oc.PorcentajeOcupacion}%";
-                _numOcupacion.Font = new System.Drawing.Font("Segoe UI", 28f, System.Drawing.FontStyle.Bold);
-
-                // Código de color: verde (< 70%) → amarillo (70-90%) → rojo (> 90%)
-                System.Drawing.Color fondo, tinta;
-                if (oc.PorcentajeOcupacion < 70)
-                {
-                    fondo = System.Drawing.Color.FromArgb(215, 240, 220);
-                    tinta = System.Drawing.Color.FromArgb(15, 85, 35);
-                }
-                else if (oc.PorcentajeOcupacion <= 90)
-                {
-                    fondo = System.Drawing.Color.FromArgb(255, 248, 210);
-                    tinta = System.Drawing.Color.FromArgb(120, 90, 0);
-                }
-                else
-                {
-                    fondo = System.Drawing.Color.FromArgb(255, 218, 218);
-                    tinta = System.Drawing.Color.FromArgb(160, 20, 20);
-                }
-
-                if (_txtOcupacion != null)
-                {
-                    _txtOcupacion.Text = string.Format(
-                        T("dash.ocupacion.detalle", "{0} en uso · {1} libres"),
-                        oc.EnUso, oc.Disponibles);
-                    _txtOcupacion.ForeColor = tinta;
-                }
-                _numOcupacion.ForeColor = tinta;
-                // Actualizar fondo del card buscando el panel padre
-                var card = _numOcupacion.Parent;
-                if (card != null) card.BackColor = fondo;
+                _txtOcupacion.Text = string.Format(
+                    T("dash.ocupacion.detalle", "{0} en uso · {1} libres"),
+                    oc.EnUso, oc.Disponibles);
+                _txtOcupacion.ForeColor = tinta;
             }
-            catch { if (_numOcupacion != null) _numOcupacion.Text = "—"; }
+            _numOcupacion.ForeColor = tinta;
+            var card = _numOcupacion.Parent;
+            if (card != null) card.BackColor = fondo;
         }
 
         // ── Recordatorio: config en archivo ──────────────────────────────────
@@ -356,7 +367,7 @@ namespace GUI
                 {
                     Text = T("dash.cfg.guardar", "Guardar"), Left = 80, Top = 104, Width = 90, Height = 30,
                     DialogResult = DialogResult.OK,
-                    BackColor    = Color.FromArgb(146, 62, 96),
+                    BackColor    = Color.FromArgb(176, 62, 96),
                     ForeColor    = Color.White, FlatStyle = FlatStyle.Flat
                 };
                 btnOk.FlatAppearance.BorderSize = 0;
@@ -394,7 +405,7 @@ namespace GUI
             {
                 using (var br = new System.Drawing.Drawing2D.LinearGradientBrush(
                     _panelHeader.ClientRectangle,
-                    Color.FromArgb(64, 0, 64),
+                    Color.FromArgb(210, 100, 135),
                     Color.FromArgb(176, 62, 96),
                     System.Drawing.Drawing2D.LinearGradientMode.Horizontal))
                     pe.Graphics.FillRectangle(br, _panelHeader.ClientRectangle);
@@ -424,7 +435,7 @@ namespace GUI
             };
             _btnRefrescar.FlatAppearance.BorderColor = Color.FromArgb(180, 230, 140, 170);
             _btnRefrescar.FlatAppearance.BorderSize  = 1;
-            _btnRefrescar.Click += (s, e) => { ActualizarMetricas(); CargarActividadReciente(); CargarMiniStats(); };
+            _btnRefrescar.Click += (s, e) => { ActualizarMetricas(); CargarActividadReciente(); CargarMiniStats(); CargarTareasPendientes(); };
 
             var lblSub = new Label
             {
@@ -464,7 +475,7 @@ namespace GUI
 
             if (_verPedidos)
                 _flowCards.Controls.Add(CrearTarjeta(
-                    Color.FromArgb(236, 196, 215), Color.FromArgb(146, 62, 96),
+                    Color.FromArgb(236, 196, 215), Color.FromArgb(176, 62, 96),
                     out _numPedidos, out _txtPedidos, out _));
 
             if (_verBackup)
@@ -511,6 +522,10 @@ namespace GUI
             };
 
             // ── Panel Actividad Reciente ──────────────────────────────────────
+            // Solo para quien puede ver la auditoría (Administrador / Auditor). Los roles
+            // operativos (Operador, Vendedor, etc.) no ven la bitácora en su dashboard.
+            if (_verActividad)
+            {
             _panelActividad = new Panel
             {
                 Dock      = DockStyle.Left,
@@ -523,7 +538,7 @@ namespace GUI
             {
                 Text      = "Actividad reciente",
                 Font      = new Font("Segoe UI", 9f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(146, 62, 96),
+                ForeColor = Color.FromArgb(176, 62, 96),
                 Dock      = DockStyle.Top,
                 Height    = 28,
                 Padding   = new Padding(10, 6, 0, 0),
@@ -558,6 +573,7 @@ namespace GUI
             _panelActividad.Controls.Add(_dgvActividad);
             _panelActividad.Controls.Add(_lblActTitulo);
             _panelActividad.Tag = _dgvActividad;
+            } // fin if (_verActividad)
 
             // ── Panel Mini-Stats ──────────────────────────────────────────────
             _panelMiniStats = new Panel
@@ -571,11 +587,11 @@ namespace GUI
             {
                 Text      = "Resumen de eventos",
                 Font      = new Font("Segoe UI", 9f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(64, 0, 64),
+                ForeColor = Color.FromArgb(176, 62, 96),
                 Dock      = DockStyle.Top,
                 Height    = 28,
                 Padding   = new Padding(4, 6, 0, 0),
-                BackColor = Color.FromArgb(240, 232, 248)
+                BackColor = Color.FromArgb(252, 240, 246)
             };
 
             var flStats = new FlowLayoutPanel
@@ -597,12 +613,12 @@ namespace GUI
             {
                 Dock      = DockStyle.Bottom,
                 Height    = 26,
-                BackColor = Color.FromArgb(64, 0, 64)
+                BackColor = Color.FromArgb(176, 62, 96)
             };
             _lblSesion = new Label
             {
                 Dock      = DockStyle.Fill,
-                ForeColor = Color.FromArgb(200, 180, 210),
+                ForeColor = Color.FromArgb(244, 212, 226),
                 Font      = new Font("Segoe UI", 8f),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding   = new Padding(10, 0, 0, 0)
@@ -611,20 +627,71 @@ namespace GUI
 
             // ── Área central (actividad + mini-stats) ─────────────────────────
             var panelCentro = new Panel { Dock = DockStyle.Fill, BackColor = Color.FromArgb(240, 240, 245) };
-            panelCentro.Controls.Add(_panelMiniStats);
-            panelCentro.Controls.Add(_panelActividad);
+            panelCentro.Controls.Add(_panelMiniStats);   // Dock=Fill: ocupa todo si no hay actividad
+            if (_panelActividad != null)
+                panelCentro.Controls.Add(_panelActividad);
 
-            // Ajustar anchuras al arrancar y en resize
+            // Ajustar anchuras al arrancar y en resize (solo si existe el panel de actividad)
             void AjustarAnchuras()
             {
+                if (_panelActividad == null) return;
                 int w = panelCentro.ClientSize.Width;
                 _panelActividad.Width = (int)(w * 0.55);
             }
             panelCentro.Resize += (s, e) => AjustarAnchuras();
 
+            // ── Panel Tareas Pendientes ───────────────────────────────────────
+            bool hayTareas = _verPedidos || _verStock;
+            _panelTareas = new Panel
+            {
+                Dock      = DockStyle.Top,
+                Height    = hayTareas ? 140 : 0,
+                Visible   = hayTareas,
+                BackColor = Color.White,
+                Padding   = new Padding(0)
+            };
+
+            _lblTareasTitulo = new Label
+            {
+                Text      = "Mis Tareas Pendientes",
+                Font      = new Font("Segoe UI", 9f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(176, 62, 96),
+                Dock      = DockStyle.Top,
+                Height    = 26,
+                Padding   = new Padding(10, 5, 0, 0),
+                BackColor = Color.FromArgb(252, 240, 248)
+            };
+
+            _dgvTareas = new DataGridView
+            {
+                Dock                      = DockStyle.Fill,
+                BackgroundColor           = Color.White,
+                BorderStyle               = BorderStyle.None,
+                RowHeadersVisible         = false,
+                AllowUserToAddRows        = false,
+                AllowUserToResizeRows     = false,
+                ReadOnly                  = true,
+                SelectionMode             = DataGridViewSelectionMode.FullRowSelect,
+                EnableHeadersVisualStyles = false,
+                Font                      = new Font("Segoe UI", 8f),
+                AutoSizeColumnsMode       = DataGridViewAutoSizeColumnsMode.Fill,
+                CellBorderStyle           = DataGridViewCellBorderStyle.SingleHorizontal,
+                GridColor                 = Color.FromArgb(235, 225, 232)
+            };
+            _dgvTareas.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(176, 62, 96);
+            _dgvTareas.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            _dgvTareas.ColumnHeadersDefaultCellStyle.Font      = new Font("Segoe UI", 8f, FontStyle.Bold);
+            _dgvTareas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colTipo",  HeaderText = "Tipo",        FillWeight = 22 });
+            _dgvTareas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colDesc",  HeaderText = "Descripción", FillWeight = 56 });
+            _dgvTareas.Columns.Add(new DataGridViewTextBoxColumn { Name = "colFecha", HeaderText = "Desde",       FillWeight = 22 });
+
+            _panelTareas.Controls.Add(_dgvTareas);
+            _panelTareas.Controls.Add(_lblTareasTitulo);
+
             // ── Ensamblar controles al formulario (orden: Dock procesa al revés)
             // Bottom → Top → Fill
             this.Controls.Add(panelCentro);
+            this.Controls.Add(_panelTareas);
             this.Controls.Add(_lblAviso);
             this.Controls.Add(_flowCards);
             this.Controls.Add(_panelHeader);
@@ -644,68 +711,115 @@ namespace GUI
             };
         }
 
+        private void CargarTareasPendientes()
+        {
+            if (_dgvTareas == null || !_panelTareas.Visible) return;
+
+            Task.Run(() =>
+            {
+                List<BE.MantenimientoPrenda> enMant  = null;
+                List<BE.Pedido>              pedPend = null;
+
+                if (_verStock)   try { enMant  = _bllPrenda.ObtenerEnMantenimiento(); } catch (Exception ex) { System.Diagnostics.Trace.TraceError("[DashboardForm.CargarTareasPendientes] " + ex.Message); }
+                if (_verPedidos) try { pedPend = _bllPedido.ObtenerPendientes(); }       catch (Exception ex) { System.Diagnostics.Trace.TraceError("[DashboardForm.CargarTareasPendientes] " + ex.Message); }
+
+                this.BeginInvoke(new Action(() =>
+                {
+                    if (IsDisposed || _dgvTareas == null || !_panelTareas.Visible) return;
+                    _dgvTareas.Rows.Clear();
+
+                    string tipoMant   = T("dash.tarea.mantenimiento", "Mantenimiento");
+                    string tipoPedido = T("dash.tarea.pedido",        "Pedido");
+
+                    if (enMant != null)
+                        foreach (var m in enMant)
+                        {
+                            int dias = (int)(DateTime.Today - m.FechaEntrada.Date).TotalDays;
+                            string desde = dias == 0 ? T("dash.hoy", "hoy") : string.Format(T("dash.hace_dias", "hace {0}d"), dias);
+                            var fila = _dgvTareas.Rows[_dgvTareas.Rows.Add(tipoMant, m.NombrePrenda, desde)];
+                            fila.DefaultCellStyle.ForeColor = dias >= 3 ? Color.FromArgb(160, 60, 0) : Color.FromArgb(60, 100, 60);
+                        }
+
+                    if (pedPend != null)
+                        foreach (var p in pedPend)
+                        {
+                            int dias = (int)(DateTime.Today - p.FechaPedido.Date).TotalDays;
+                            string desde = dias == 0 ? T("dash.hoy", "hoy") : string.Format(T("dash.hace_dias", "hace {0}d"), dias);
+                            string desc  = $"#{p.IdPedido} — {p.NombreCliente ?? $"Cliente {p.IdCliente}"}";
+                            var fila = _dgvTareas.Rows[_dgvTareas.Rows.Add(tipoPedido, desc, desde)];
+                            fila.DefaultCellStyle.ForeColor = dias >= 2 ? Color.FromArgb(160, 40, 40) : Color.FromArgb(160, 100, 0);
+                        }
+
+                    if (_dgvTareas.Rows.Count == 0)
+                    {
+                        _dgvTareas.Rows.Add("—", T("dash.tareas.sinpendientes", "Sin tareas pendientes"), "—");
+                        _dgvTareas.Rows[0].DefaultCellStyle.ForeColor = Color.Gray;
+                    }
+
+                    _lblTareasTitulo.Text = string.Format(
+                        T("dash.tareas.titulo", "Mis Tareas Pendientes ({0})"),
+                        _dgvTareas.Rows.Count == 1 && _dgvTareas.Rows[0].Cells["colTipo"].Value?.ToString() == "—" ? 0 : _dgvTareas.Rows.Count);
+                }));
+            });
+        }
+
         private void CargarActividadReciente()
         {
-            var dgv = _dgvActividad;
-            if (dgv == null) return;
-            dgv.Rows.Clear();
-            try
+            if (!_verActividad) return;   // sin permiso de auditoría no se construye el panel
+            Task.Run(() =>
             {
-                var dt = _bllBitacora.ObtenerUltimosNDiasSistema(7);
-                if (dt == null) return;
-                int n = 0;
-                foreach (System.Data.DataRow row in dt.Rows)
+                System.Data.DataTable dt = null;
+                try { dt = _bllBitacora.ObtenerUltimosNDiasSistema(7); }
+                catch (Exception ex) { System.Diagnostics.Trace.TraceError("[DashboardForm.CargarActividadReciente] " + ex.Message); }
+
+                this.BeginInvoke(new Action(() =>
                 {
-                    if (n >= 8) break;
-                    string fecha = row["fecha"]?.ToString() ?? "";
-                    string activ = row["actividad"]?.ToString() ?? "";
-                    string user  = row["usuario"]?.ToString() ?? "";
-                    dgv.Rows.Add(fecha, activ, user);
-                    n++;
-                }
-            }
-            catch { }
+                    if (IsDisposed || _dgvActividad == null) return;
+                    _dgvActividad.Rows.Clear();
+                    if (dt == null) return;
+                    int n = 0;
+                    foreach (System.Data.DataRow row in dt.Rows)
+                    {
+                        if (n >= 8) break;
+                        _dgvActividad.Rows.Add(row["fecha"]?.ToString() ?? "", row["actividad"]?.ToString() ?? "", row["usuario"]?.ToString() ?? "");
+                        n++;
+                    }
+                }));
+            });
         }
 
         private void CargarMiniStats()
         {
-            var fl = _panelMiniStats?.Tag as FlowLayoutPanel;
-            if (fl == null) return;
-            fl.Controls.Clear();
-            try
+            Task.Run(() =>
             {
-                // Negocio: últimos 30 días
-                var dtN = _bllBitacora.ObtenerUltimosNDiasSistema(30);
-                int totalSistema = dtN?.Rows.Count ?? 0;
+                System.Data.DataTable dtN = null, dtNeg = null;
+                try { dtN   = _bllBitacora.ObtenerUltimosNDiasSistema(30); } catch { }
+                try { dtNeg = _bllBitacora.ObtenerTodosNegocio(); } catch { }
 
-                var statsItems = new[]
+                this.BeginInvoke(new Action(() =>
                 {
-                    ("Sistema (30d)", totalSistema.ToString(), Color.FromArgb(64, 0, 64)),
-                };
+                    if (IsDisposed) return;
+                    var fl = _panelMiniStats?.Tag as FlowLayoutPanel;
+                    if (fl == null) return;
+                    fl.Controls.Clear();
 
-                foreach (var (etiqueta, valor, color) in statsItems)
-                    fl.Controls.Add(CrearMiniStatRow(etiqueta, valor, color));
-            }
-            catch { }
+                    fl.Controls.Add(CrearMiniStatRow("Sistema (30d)", (dtN?.Rows.Count ?? 0).ToString(), Color.FromArgb(176, 62, 96)));
 
-            try
-            {
-                var dtNeg = _bllBitacora.ObtenerTodosNegocio();
-                if (dtNeg != null)
-                {
-                    var conteos = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-                    foreach (System.Data.DataRow r in dtNeg.Rows)
+                    if (dtNeg != null)
                     {
-                        string tipo = r["Tipo"]?.ToString() ?? "";
-                        if (string.IsNullOrEmpty(tipo)) continue;
-                        if (!conteos.ContainsKey(tipo)) conteos[tipo] = 0;
-                        conteos[tipo]++;
+                        var conteos = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                        foreach (System.Data.DataRow r in dtNeg.Rows)
+                        {
+                            string tipo = r["Tipo"]?.ToString() ?? "";
+                            if (string.IsNullOrEmpty(tipo)) continue;
+                            if (!conteos.ContainsKey(tipo)) conteos[tipo] = 0;
+                            conteos[tipo]++;
+                        }
+                        foreach (var kv in conteos)
+                            fl.Controls.Add(CrearMiniStatRow(kv.Key, kv.Value.ToString(), Color.FromArgb(176, 62, 96)));
                     }
-                    foreach (var kv in conteos)
-                        fl.Controls.Add(CrearMiniStatRow(kv.Key, kv.Value.ToString(), Color.FromArgb(146, 62, 96)));
-                }
-            }
-            catch { }
+                }));
+            });
         }
 
         private static Panel CrearMiniStatRow(string label, string valor, Color color)

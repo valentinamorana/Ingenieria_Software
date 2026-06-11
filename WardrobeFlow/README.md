@@ -43,20 +43,17 @@ La GUI nunca accede a DAL ni a Seguridad directamente. Toda la lógica de negoci
 
 ## Roles del sistema
 
-| Rol | Permisos |
-|-----|----------|
-| **Administrador** | Acceso total: Inventario, Ventas, Administrar, Bitácora, Perfiles, Backup |
-| **Auditor** | Solo Bitácora |
-| **GerenteComercial** | Ventas completas + Bitácora de negocio |
-| **Vendedor** | Clientes, Planes, Pedidos de Venta |
-| **GerenteInventario** | Inventario completo + Pedidos Realizados |
-| **EncargadoDeStock** | Prendas (alta, modificación, cambio de estado) |
-| **OperadorLogistico** | Prendas (solo lectura) + Pedidos Realizados |
-| *(legacy)* Supervisor | Bitácora |
-| *(legacy)* ControladorDeStock | Prendas |
-| *(legacy)* OperadorDeInventario | Pedidos Realizados |
+| Rol | Permisos | Jerarquía (Composite) |
+|-----|----------|-----------------------|
+| **Administrador** | Acceso total: Inventario, Ventas, Administrar, Bitácora, Perfiles, Backup | — (acceso total) |
+| **Auditor** | Solo Bitácora / Auditoría | rol plano |
+| **Vendedor** | Prendas, Clientes, Planes, Realizar Ventas | rol base comercial |
+| **GerenteComercial** | lo de Vendedor + Ver Pedidos Realizados | ⊃ Vendedor |
+| **OperadorLogistico** | Ver Pedidos Realizados (despacho) | rol base inventario |
+| **OperadorDeInventario** | Ver Prendas + Gestionar Stock (mantenimiento) | rol base inventario |
+| **GerenteInventario** | lo de ambos operadores + Categorías/Outfits | ⊃ OperadorLogistico + OperadorDeInventario |
 
-Los permisos se asignan desde **Administrar → Perfiles y Permisos** y se almacenan en `RolPermiso`. Se cargan en sesión al hacer login.
+Los permisos se resuelven recursivamente desde el árbol Composite (tabla `PermisoRelacion`) y se cargan en sesión al hacer login. Se gestionan desde **Administrar → Perfiles y Permisos**, donde además se pueden **mapear controles** individuales a una patente. Los roles `Supervisor`, `ControladorDeStock` y `EncargadoDeStock` de versiones previas se **migran automáticamente** a los vigentes.
 
 ---
 
@@ -64,9 +61,10 @@ Los permisos se asignan desde **Administrar → Perfiles y Permisos** y se almac
 
 | Módulo | Descripción |
 |--------|-------------|
-| **Login / Logout** | Autenticación con bloqueo de cuenta tras 3 intentos fallidos (BD) y bloqueo de sesión en memoria |
-| **Usuarios** | ABM de empleados; contraseñas generadas automáticamente (RNG criptográfico) y exportadas a `CredencialesGeneradas/` |
-| **Perfiles y Permisos** | Árbol de permisos por rol con TreeView recursivo (Composite); asignación/remoción en tiempo real |
+| **Login / Logout** | Autenticación con **bloqueo de login progresivo** (1/5/15/60 min tras 3 intentos), claves de emergencia de autodesbloqueo y bloqueo de sesión en memoria |
+| **Usuarios** | ABM de empleados con baja lógica/purga; contraseñas generadas automáticamente (RNG criptográfico) y exportadas a `Documentos\WardrobeFlow\` |
+| **Perfiles y Permisos** | Árbol de permisos por rol con TreeView recursivo (Composite); asignación/remoción en tiempo real; **mapeo de controles** por patente; gestión delegable con anti-autobloqueo |
+| **Mi Perfil** | Preferencias de UI por usuario (idioma, tipografía, tamaño, tema, formato de fecha) aplicadas en vivo, con "volver a valores de fábrica" |
 | **Clientes** | ABM de suscriptores con plan, vencimiento y columna `en uso / límite`; filas en ámbar cuando la suscripción vence en ≤ 7 días |
 | **Prendas** | Inventario con estados (Disponible · EnUso · EnLimpieza · Baja) y transiciones validadas en BLL |
 | **Planes de Suscripción** | ABM de planes; bloquea desactivación si hay clientes asignados; bloquea asignación de plan con límite menor al stock en uso |
@@ -75,8 +73,8 @@ Los permisos se asignan desde **Administrar → Perfiles y Permisos** y se almac
 | **Bitácora** | Registro de eventos del sistema y de negocio con filtros, criticidad y exportación a PDF |
 | **Historial de Cambios** | Snapshots de versiones de usuarios con restauración a estado anterior |
 | **Idiomas** | ABM de traducciones directamente en la BD |
-| **Dashboard** | KPIs en tiempo real: prendas disponibles, clientes, pedidos pendientes, ocupación del stock (%) con semáforo de color, días sin backup y actividad reciente |
-| **Backup / Restauración** | Generación y restauración de `.bak`; lista con autor, fecha y tamaño de cada copia |
+| **Dashboard** | Panel de control personalizado por rol: el Administrador ve KPIs globales (prendas, clientes, pedidos, backup, ocupación de stock con semáforo); el Vendedor ve su pipeline de pedidos por estado; el ControladorDeStock sus métricas de stock; el Supervisor su resumen de auditoría; el Operador su vista de pedidos. Todos con auto-refresh periódico y carga asíncrona (Task.Run + BeginInvoke) |
+| **Backup / Restauración** | Generación de copias **cifradas con contraseña** (`.wfbak`, AES+PBKDF2) con verificación de integridad previa; restauración con contraseña (compatible con `.bak` planos legacy); lista con autor, fecha y tamaño |
 | **Reporte de Jornada** | Exportación PDF de actividad del día filtrable por rol |
 | **Diagnóstico de Integridad** | Visualización y reparación asistida de filas con DVH/DVV corruptos |
 
@@ -88,8 +86,9 @@ Los permisos se asignan desde **Administrar → Perfiles y Permisos** y se almac
 |--------|-------|
 | **Singleton** | `SessionManager` (sesión activa) · `ContadorSesion` (intentos de login) · `DAL.Acceso` (conexión BD) |
 | **Observer** | `GestorIdioma` (Subject) → formularios como observers — cambio de idioma dinámico en tiempo de ejecución |
-| **Composite** | `Componente` → `Familia` (nodo) / `Patente` (hoja) — árbol jerárquico de permisos por rol |
-| **Herencia** | `FormBase` → todos los formularios heredan `MostrarOk()`, `MostrarError()` y soporte de traducción de `AppException` |
+| **Composite** | `Componente` → `Familia` (nodo) / `Patente` (hoja) / `Rol` — árbol jerárquico de permisos; resolución recursiva con dedup y anti-ciclos. Permisos también a **nivel de control** (`ControlMapeado` + `ManejadorSeguridad`) |
+| **Memento** | `BE.Usuario` (Originator) + `BE.VersionUsuario` (Memento) + `BLL.CuidadorHistorial` (Caretaker) — rollback de cambios sobre usuarios, persiste en `HistorialUsuario` |
+| **Herencia** | `FormBase` → todos los formularios heredan `MostrarOk()`, `MostrarError()`, traducción de `AppException` y aplicación de seguridad por control |
 
 ---
 
@@ -108,19 +107,20 @@ Las siguientes reglas están implementadas y validadas en la capa BLL (nunca en 
 
 ## Características de seguridad
 
-- Contraseñas **nunca en texto plano**: PBKDF2-SHA256 con salt aleatorio de 16 bytes y 100.000 iteraciones
+- Contraseñas **nunca en texto plano**: PBKDF2-SHA256 con salt aleatorio de 16 bytes y 100.000 iteraciones; verificación en **tiempo constante** y login resistente a enumeración (hash señuelo)
 - Datos sensibles (DNI) encriptados con AES-128-CBC
-- Bloqueo de cuenta tras 3 intentos fallidos consecutivos (persistido en BD)
-- Bloqueo de sesión tras 3 intentos fallidos (en memoria, requiere reiniciar la app)
-- **Dígitos verificadores** (DVH por fila + DVV por tabla) sobre la tabla `Usuario` — detecta manipulación directa en BD antes de permitir el login
-- Contraseñas generadas automáticamente (RNG criptográfico + Fisher-Yates) al crear usuarios o resetear claves; se exportan a `CredencialesGeneradas/`
+- **Bloqueo de login progresivo**: 1 → 5 → 15 → 60 min según reincidencia; auto-reactivación al expirar; **claves de emergencia** de un solo uso para autodesbloqueo del admin
+- Bloqueo de sesión en memoria + **handler global** de excepciones no controladas (las registra en bitácora)
+- **Backups cifrados** con contraseña (AES-128 + PBKDF2) y **Clave Maestra de Recuperación** opcional (hash en `App.config`) para `ConfirmarAdminForm`
+- **Dígitos verificadores** (DVH por fila + DVV por tabla) sobre `Usuario`, `Cliente` y `Empleado` — detecta manipulación directa en BD antes de permitir el login
+- Contraseñas generadas automáticamente (RNG criptográfico + Fisher-Yates) al crear usuarios o resetear claves; se exportan a `Documentos\WardrobeFlow\`
 - Verificación periódica de integridad cada 30 minutos desde el `Menu` principal (Timer + BLL.Configuracion)
 
 ---
 
 ## Multiidioma
 
-Soporta **Español · English · Русский** con cambio dinámico en tiempo de ejecución (sin reiniciar). Las traducciones se almacenan en la tabla `Traduccion` de la BD; el código hardcodeado actúa solo como fallback de primer arranque. La preferencia de idioma se persiste por usuario en la BD y se restaura automáticamente al hacer login. Agregar un nuevo idioma requiere únicamente insertar filas en la BD, sin tocar el código.
+Soporta **Español · English · Русский · Português** con cambio dinámico en tiempo de ejecución (sin reiniciar). Las traducciones se almacenan en la tabla `Traduccion` de la BD; el código hardcodeado actúa como fallback **por clave** (un idioma incompleto cae al idioma por defecto). La preferencia de idioma se persiste por usuario en la BD y se restaura automáticamente al hacer login. Se pueden **agregar idiomas nuevos** desde la administración; la grilla de traducciones muestra el texto del idioma por defecto como **referencia** para completar el nuevo idioma a mano.
 
 ---
 
@@ -134,13 +134,15 @@ Soporta **Español · English · Русский** con cambio dinámico en tiempo
 
 ### Base de datos
 
-Ejecutar los scripts SQL en orden desde SSMS:
+Ejecutar el script correspondiente desde SSMS (ambos idempotentes, en `WardrobeFlow/BD/`):
 
 ```
-SQL/WardrobeFlowDB_Create.sql       -- Creación de base y tablas iniciales
-SQL/WardrobeFlowDB_Alter_v3.0.sql   -- Agrega DVH (Usuario) y tabla DVVertical
-SQL/WardrobeFlowDB_Alter_v4.0.sql   -- Agrega IdIdioma (preferencia de idioma por usuario)
+BD/01_Crear_BaseDeDatos.sql       -- Instalación NUEVA: estructura + datos semilla + árbol Composite
+BD/02_Actualizar_BaseDeDatos.sql  -- BD EXISTENTE: aplica migraciones (columnas/tablas nuevas + datos)
 ```
+
+- **Instalación nueva** → ejecutar `01_Crear_BaseDeDatos.sql`.
+- **Actualizar una BD existente** → ejecutar `02_Actualizar_BaseDeDatos.sql`.
 
 ### Cadena de conexión
 

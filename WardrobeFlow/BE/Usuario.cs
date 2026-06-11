@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace BE
@@ -14,7 +15,7 @@ namespace BE
     ///
     /// La lista Permisos se carga en memoria tras el login (no persiste en esta tabla).
     /// </summary>
-    public class Usuario
+    public class Usuario : Memento.IOriginator
     {
         public int Id { get; set; }
 
@@ -32,6 +33,58 @@ namespace BE
 
         public int IntentosFallidos { get; set; }
 
+        // ── Bloqueo de login PROGRESIVO ─────────────────────────────────────────
+        // CantidadBloqueos: cuántas veces se bloqueó la cuenta (define la duración del bloqueo:
+        // 1/5/15/60 min). FechaBloqueo: instante del último bloqueo (para saber cuándo expira);
+        // null = no bloqueada por tiempo. No forman parte del DVH (metadata operativa).
+        public int CantidadBloqueos { get; set; }
+
+        public DateTime? FechaBloqueo { get; set; }
+
         public string IdIdioma { get; set; } = "ES";
+
+        // ── RF-10 — Baja lógica (archivado) ─────────────────────────────────────
+        // Activo=false → usuario archivado: no puede iniciar sesión ni aparece en la
+        // lista de gestión. FechaBaja registra cuándo se archivó (para la purga >1 año).
+        public bool Activo { get; set; } = true;
+
+        public DateTime? FechaBaja { get; set; }
+
+        // ── Patrón MEMENTO — rol Originator ─────────────────────────────────────
+
+        /// <summary>
+        /// Captura el estado restaurable del usuario (clave, estado de bloqueo e
+        /// intentos) en un Memento concreto (BE.VersionUsuario).
+        /// </summary>
+        public Memento.IMemento CrearMemento(string actor, string detalle)
+        {
+            return new VersionUsuario
+            {
+                IdUsuario        = this.Id,
+                Fecha            = DateTime.Now,
+                Actor            = actor,
+                Detalle          = detalle,
+                UsernameSnapshot = this.Username,
+                ClaveSnapshot    = this.Contraseña,
+                EstadoSnapshot   = !this.Bloqueado,   // true = activo
+                IntentosSnapshot = this.IntentosFallidos
+            };
+        }
+
+        /// <summary>
+        /// Restaura el estado del usuario a partir de un Memento previo.
+        /// Solo el Originator conoce qué campos del Memento aplicar.
+        /// </summary>
+        public void RestaurarDesde(Memento.IMemento memento)
+        {
+            var v = memento as VersionUsuario;
+            if (v == null)
+                throw new InvalidOperationException(
+                    "El memento recibido no corresponde a un Usuario.");
+
+            this.Contraseña       = v.ClaveSnapshot;
+            this.Bloqueado        = !v.EstadoSnapshot;
+            this.IntentosFallidos = v.IntentosSnapshot;
+        }
     }
 }

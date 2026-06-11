@@ -20,6 +20,7 @@ namespace BLL
     {
         private readonly DAL.Idioma     dalIdioma     = new DAL.Idioma();
         private readonly DAL.Traduccion dalTraduccion = new DAL.Traduccion();
+        private readonly DAL.Control    dalControl    = new DAL.Control();
 
         // Se vuelve true la primera vez que se seedea en esta sesión.
         // Evita re-seedear en cada cambio de idioma; InsertarSiNoExiste lo hace idempotente.
@@ -45,6 +46,31 @@ namespace BLL
         public List<BE.Idioma> ObtenerTodosLosIdiomas()
         {
             return dalIdioma.ObtenerTodos();
+        }
+
+        // Crea un idioma nuevo (queda inactivo hasta que el admin lo active).
+        public void CrearIdioma(string codigo, string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(codigo) || string.IsNullOrWhiteSpace(nombre))
+                throw new BE.AppException("err.bll.idioma.campos",
+                    "El código y el nombre del idioma son obligatorios.");
+            codigo = codigo.Trim().ToUpperInvariant();
+            if (codigo.Length > 5)
+                throw new BE.AppException("err.bll.idioma.codigo_largo",
+                    "El código de idioma no puede superar los 5 caracteres.");
+            if (dalIdioma.ExisteCodigo(codigo))
+                throw new BE.AppException("err.bll.idioma.duplicado",
+                    "Ya existe un idioma con el código '{0}'.", codigo);
+            dalIdioma.Crear(codigo, nombre.Trim());
+        }
+
+        // Renombra un idioma existente.
+        public void ModificarIdioma(int idIdioma, string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                throw new BE.AppException("err.bll.idioma.nombre",
+                    "El nombre del idioma es obligatorio.");
+            dalIdioma.Modificar(idIdioma, nombre.Trim());
         }
 
         public void ActivarIdioma(int idIdioma)
@@ -92,6 +118,26 @@ namespace BLL
         {
             if (string.IsNullOrEmpty(texto)) return;
             dalTraduccion.GuardarTraduccion(idControl, idIdioma, texto);
+        }
+
+        // ── Controles (textos traducibles del sistema) — T05 ─────────────────────
+
+        // Todos los controles traducibles, para el grid de Controles del FormIdiomas.
+        public List<BE.Control> ObtenerControles()
+        {
+            return dalControl.ObtenerTodos();
+        }
+
+        // Cantidad de controles SIN traducción cargada (texto vacío o inexistente) para un idioma.
+        // Usado para advertir al activar un idioma con cobertura incompleta (T05).
+        public int ContarTraduccionesFaltantes(int idIdioma)
+        {
+            int totalControles = dalControl.ObtenerTodos().Count;
+            int conTexto = 0;
+            foreach (var f in dalTraduccion.ObtenerPorIdioma(idIdioma))
+                if (!string.IsNullOrWhiteSpace(f.Texto)) conTexto++;
+            int faltantes = totalControles - conTexto;
+            return faltantes < 0 ? 0 : faltantes;
         }
 
         // ── Seeding ──────────────────────────────────────────────────────────

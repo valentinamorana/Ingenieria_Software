@@ -61,5 +61,32 @@ namespace BE
         {
             _hijos.Clear();
         }
+
+        // Paso RECURSIVO: un compuesto agrega las hojas de TODOS sus hijos. Si un hijo es a su
+        // vez otra Familia/Rol, éste recorre los suyos — la recursión baja hasta las Patentes.
+        // Es el mismo mecanismo que CalcularPrecioBase() de LoteArticulos, que suma recursivamente
+        // (y soporta lotes-dentro-de-lotes igual que acá rol-dentro-de-rol).
+        // 'visitados' evita revisitar nodos compartidos o cortar ante datos cíclicos corruptos.
+        internal override void RecolectarPatentes(IDictionary<int, Patente> acumulador, HashSet<int> visitados)
+        {
+            if (Id != 0 && !visitados.Add(Id)) return;
+            foreach (var hijo in _hijos)
+                hijo.RecolectarPatentes(acumulador, visitados);
+        }
+
+        public override string ObtenerDescripcion(int nivel = 0)
+        {
+            if (nivel > 50) return new string(' ', nivel * 2) + "- ...";   // tope defensivo de profundidad
+            var sb      = new System.Text.StringBuilder();
+            string sangria = new string(' ', nivel * 2);
+            string tipo    = this is Rol ? "Rol" : "Familia";
+            sb.Append($"{sangria}+ [{tipo}] {Nombre}");
+            foreach (var hijo in _hijos)
+            {
+                sb.AppendLine();
+                sb.Append(hijo.ObtenerDescripcion(nivel + 1));
+            }
+            return sb.ToString();
+        }
     }
 }

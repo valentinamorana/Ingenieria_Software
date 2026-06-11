@@ -10,7 +10,9 @@ namespace GUI
     public partial class RestauracionForm : Form, IIdiomaObserver
     {
         private readonly BLL.ResultadoIntegridad _resultado;
-        private readonly Dictionary<string, Button> _btnsIdioma = new Dictionary<string, Button>();
+        // Selector de idioma como dropdown (reemplaza los botones). Soporta idiomas dinámicos de BD.
+        private ComboBox _cmbIdioma;
+        private bool _suprimirIdiomaChange = false;
 
         public bool RestauradoExitosamente { get; private set; }
 
@@ -29,69 +31,75 @@ namespace GUI
         {
             try { string ico = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico"); if (System.IO.File.Exists(ico)) this.Icon = new System.Drawing.Icon(ico); } catch { }
             GestorIdioma.SuscribirObservador(this);
-            AgregarBotonesIdioma();
+            AgregarComboIdioma();
             Traducir(GestorIdioma.IdiomaActual);
         }
 
-        private void AgregarBotonesIdioma()
+        private void AgregarComboIdioma()
         {
             IList<Idioma> idiomas;
             try { idiomas = new BLL.IdiomaService().ObtenerIdiomasActivosComoIdioma(); }
             catch { idiomas = Traductor.ObtenerIdiomas(); }
 
-            // Botones en la esquina superior-derecha del header (y=8, no superpone el subtítulo)
-            int btnW = 40, gap = 6;
-            int x = pnlHeader.Width - 16;
-            foreach (var idioma in idiomas)
+            // Combo en la esquina superior-derecha del header.
+            int w = 130;
+            _cmbIdioma = new ComboBox
             {
-                x -= (btnW + gap);
-                string cod = idioma.Id;
-                var btn = new Button
-                {
-                    Text      = cod,
-                    Size      = new Size(btnW, 22),
-                    Location  = new Point(x, 8),
-                    FlatStyle = FlatStyle.Flat,
-                    BackColor = Color.White,
-                    ForeColor = Color.FromArgb(176, 136, 152),
-                    Font      = new Font("Segoe UI", 8f),
-                    Cursor    = Cursors.Hand
-                };
-                btn.FlatAppearance.BorderSize  = 1;
-                btn.FlatAppearance.BorderColor = Color.FromArgb(224, 200, 216);
-                btn.Click += (s, ev) =>
-                {
-                    try
-                    {
-                        var dict = new BLL.IdiomaService().CargarTraducciones(cod);
-                        GestorIdioma.CambiarIdioma(idioma, dict);
-                    }
-                    catch { GestorIdioma.CambiarIdioma(idioma); }
-                };
-                pnlHeader.Controls.Add(btn);
-                btn.BringToFront();
-                _btnsIdioma[cod] = btn;
-            }
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Size          = new Size(w, 22),
+                Location      = new Point(pnlHeader.Width - w - 16, 8),
+                Anchor        = AnchorStyles.Top | AnchorStyles.Right,
+                FlatStyle     = FlatStyle.Flat,
+                Font          = new Font("Segoe UI", 8.5f),
+                ForeColor     = Color.FromArgb(176, 62, 96),
+                BackColor     = Color.White,
+                DisplayMember = "Nombre",
+                ValueMember   = "Id"
+            };
+            _suprimirIdiomaChange = true;
+            _cmbIdioma.DataSource = new List<Idioma>(idiomas);
+            _suprimirIdiomaChange = false;
+            _cmbIdioma.SelectedIndexChanged += CmbIdioma_Changed;
+            pnlHeader.Controls.Add(_cmbIdioma);
+            _cmbIdioma.BringToFront();
 
-            // Limitar ancho del subtítulo para que no llegue hasta los botones
-            int areaBoton = idiomas.Count * (btnW + gap) + 20;
-            lblSubtitulo.MaximumSize = new Size(pnlHeader.Width - areaBoton - 24, 0);
+            // El subtítulo va DEBAJO del combo, así que puede usar el ancho completo del header
+            // (antes se le restaba el ancho del combo y el texto se cortaba).
+            lblSubtitulo.Size = new Size(pnlHeader.Width - 40, lblSubtitulo.Height);
 
-            MarcarActivo(GestorIdioma.IdiomaActual?.Id ?? "ES");
+            SeleccionarIdioma(GestorIdioma.IdiomaActual?.Id ?? "ES");
         }
 
-        private void MarcarActivo(string cod)
+        // Selecciona en el combo el idioma indicado SIN disparar el cambio (uso interno).
+        private void SeleccionarIdioma(string cod)
         {
-            foreach (var kv in _btnsIdioma)
+            if (_cmbIdioma?.Items == null) return;
+            for (int i = 0; i < _cmbIdioma.Items.Count; i++)
+                if (_cmbIdioma.Items[i] is Idioma idm &&
+                    string.Equals(idm.Id, cod, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (_cmbIdioma.SelectedIndex != i)
+                    {
+                        bool prev = _suprimirIdiomaChange;
+                        _suprimirIdiomaChange = true;
+                        _cmbIdioma.SelectedIndex = i;
+                        _suprimirIdiomaChange = prev;
+                    }
+                    break;
+                }
+        }
+
+        private void CmbIdioma_Changed(object sender, EventArgs e)
+        {
+            if (_suprimirIdiomaChange) return;
+            var idioma = _cmbIdioma.SelectedItem as Idioma;
+            if (idioma == null) return;
+            try
             {
-                bool activo = kv.Key == cod;
-                kv.Value.Font      = new Font("Segoe UI", 8f, activo ? FontStyle.Bold : FontStyle.Regular);
-                kv.Value.ForeColor = activo ? Color.FromArgb(146, 62, 96) : Color.FromArgb(176, 136, 152);
-                kv.Value.BackColor = activo ? Color.FromArgb(243, 234, 240) : Color.White;
-                kv.Value.FlatAppearance.BorderColor = activo
-                    ? Color.FromArgb(201, 160, 186)
-                    : Color.FromArgb(224, 200, 216);
+                var dict = new BLL.IdiomaService().CargarTraducciones(idioma.Id);
+                GestorIdioma.CambiarIdioma(idioma, dict);
             }
+            catch { GestorIdioma.CambiarIdioma(idioma); }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -111,13 +119,13 @@ namespace GUI
             lblTitulo.Text          = T("lbl.rest.titulo",    "Integridad del Sistema Comprometida");
             lblSubtitulo.Text       = T("lbl.rest.subtitulo", "Se detectaron discrepancias en los dígitos verificadores. El acceso está bloqueado.");
             lblDetalle.Text         = T("lbl.rest.detalle",   "Detalle del error:");
-            btnRecalcular.Text      = T("btn.rest.recalcular","Recalcular Dígitos Verificadores");
+            btnRecalcular.Text      = T("btn.rest.recalcular","Recalcular Dígitos");
             btnRestaurarBackup.Text = T("btn.rest.backup",    "Restaurar desde Backup");
             btnSalir.Text           = T("btn.rest.salir",     "Salir");
 
             // Regenerar el mensaje de detalle en el idioma activo
             txtDetalle.Text = ConstruirMensaje(t);
-            MarcarActivo(idioma?.Id ?? "ES");
+            SeleccionarIdioma(idioma?.Id ?? "ES");
         }
 
         private string ConstruirMensaje(IDictionary<string, Traduccion> t)
@@ -192,7 +200,7 @@ namespace GUI
 
                 using (var ofd = new OpenFileDialog())
                 {
-                    ofd.Filter = "Copia de Seguridad SQL (*.bak)|*.bak";
+                    ofd.Filter = "Copias de Seguridad (*.wfbak;*.bak)|*.wfbak;*.bak";
                     ofd.Title  = "Seleccionar Backup para Restaurar";
 
                     if (ofd.ShowDialog() != DialogResult.OK) return;
@@ -205,9 +213,23 @@ namespace GUI
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Warning) != DialogResult.Yes) return;
 
+                    // Si el backup está cifrado (.wfbak), pedir la contraseña para descifrarlo.
+                    string clave = null;
+                    if (Backup.EsCifrado(ofd.FileName))
+                    {
+                        using (var dlg = new InputDialog(
+                            TC("dlg.backup.clave.titulo", "Contraseña del backup"),
+                            TC("dlg.backup.clave.ingresar", "Ingresá la contraseña con la que se cifró este backup:"),
+                            esPassword: true))
+                        {
+                            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+                            clave = dlg.InputText;
+                        }
+                    }
+
                     try
                     {
-                        new Backup().RestaurarBackup("RestauracionIntegridad", ofd.FileName);
+                        new Backup().RestaurarBackup("RestauracionIntegridad", ofd.FileName, clave);
                         var t2 = Servicios.Multiidioma.Traductor.ObtenerTraducciones(Servicios.Multiidioma.GestorIdioma.IdiomaActual);
                         string T2(string k, string fb) => t2.ContainsKey(k) ? t2[k].Texto : fb;
                         MessageBox.Show(T2("msg.backup.restauradaexito", "Base de datos restaurada con éxito.\nLa aplicación se reiniciará."),
