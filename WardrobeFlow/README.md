@@ -73,7 +73,7 @@ Los permisos se resuelven recursivamente desde el árbol Composite (tabla `Permi
 | **Bitácora** | Registro de eventos del sistema y de negocio con filtros, criticidad y exportación a PDF |
 | **Historial de Cambios** | Snapshots de versiones de usuarios con restauración a estado anterior |
 | **Idiomas** | ABM de traducciones directamente en la BD |
-| **Dashboard** | KPIs en tiempo real: prendas disponibles, clientes, pedidos pendientes, ocupación del stock (%) con semáforo de color, días sin backup y actividad reciente |
+| **Dashboard** | Panel de control personalizado por rol: el Administrador ve KPIs globales (prendas, clientes, pedidos, backup, ocupación de stock con semáforo); el Vendedor ve su pipeline de pedidos por estado; el ControladorDeStock sus métricas de stock; el Supervisor su resumen de auditoría; el Operador su vista de pedidos. Todos con auto-refresh periódico y carga asíncrona (Task.Run + BeginInvoke) |
 | **Backup / Restauración** | Generación de copias **cifradas con contraseña** (`.wfbak`, AES+PBKDF2) con verificación de integridad previa; restauración con contraseña (compatible con `.bak` planos legacy); lista con autor, fecha y tamaño |
 | **Reporte de Jornada** | Exportación PDF de actividad del día filtrable por rol |
 | **Diagnóstico de Integridad** | Visualización y reparación asistida de filas con DVH/DVV corruptos |
@@ -87,6 +87,7 @@ Los permisos se resuelven recursivamente desde el árbol Composite (tabla `Permi
 | **Singleton** | `SessionManager` (sesión activa) · `ContadorSesion` (intentos de login) · `DAL.Acceso` (conexión BD) |
 | **Observer** | `GestorIdioma` (Subject) → formularios como observers — cambio de idioma dinámico en tiempo de ejecución |
 | **Composite** | `Componente` → `Familia` (nodo) / `Patente` (hoja) / `Rol` — árbol jerárquico de permisos; resolución recursiva con dedup y anti-ciclos. Permisos también a **nivel de control** (`ControlMapeado` + `ManejadorSeguridad`) |
+| **Memento** | `BE.Usuario` (Originator) + `BE.VersionUsuario` (Memento) + `BLL.CuidadorHistorial` (Caretaker) — rollback de cambios sobre usuarios, persiste en `HistorialUsuario` |
 | **Herencia** | `FormBase` → todos los formularios heredan `MostrarOk()`, `MostrarError()`, traducción de `AppException` y aplicación de seguridad por control |
 
 ---
@@ -139,6 +140,9 @@ Ejecutar el script correspondiente desde SSMS (ambos idempotentes, en `WardrobeF
 BD/01_Crear_BaseDeDatos.sql       -- Instalación NUEVA: estructura + datos semilla + árbol Composite
 BD/02_Actualizar_BaseDeDatos.sql  -- BD EXISTENTE: aplica migraciones (columnas/tablas nuevas + datos)
 ```
+
+- **Instalación nueva** → ejecutar `01_Crear_BaseDeDatos.sql`.
+- **Actualizar una BD existente** → ejecutar `02_Actualizar_BaseDeDatos.sql`.
 
 ### Cadena de conexión
 
