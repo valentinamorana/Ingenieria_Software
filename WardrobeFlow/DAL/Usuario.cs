@@ -117,11 +117,15 @@ namespace DAL
             {
                 // Columna IdIdioma/Activo no existe: migración pendiente. Funciona con "ES" por
                 // defecto y sin filtro de archivado (en una BD sin migrar nadie está archivado).
+                // IMPORTANTE: se crea un SqlParameter NUEVO — el del primer intento ya quedó
+                // adherido a su SqlCommand y reusarlo lanza "Otro SqlParameterCollection ya
+                // contiene SqlParameter".
                 return LeerUsuarioPorQuery(
                     "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
                     "       Estado, IntentosFallidos " +
                     "FROM Usuario WHERE Username = @Username",
-                    parametros, idiomaDefault: "ES");
+                    new SqlParameter[] { new SqlParameter("@Username", username) },
+                    idiomaDefault: "ES");
             }
             catch (Exception ex)
             {
@@ -423,11 +427,14 @@ namespace DAL
             catch (System.Data.SqlClient.SqlException sqlEx)
                 when (sqlEx.Message.Contains("IdIdioma"))
             {
+                // SqlParameter NUEVO en el fallback (no reusar el del primer intento; ver nota
+                // en ObtenerPorUsername).
                 return LeerUsuarioPorQuery(
                     "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
                     "       Estado, IntentosFallidos " +
                     "FROM Usuario WHERE IdUsuario = @IdUsuario",
-                    parametros, idiomaDefault: "ES");
+                    new SqlParameter[] { new SqlParameter("@IdUsuario", idUsuario) },
+                    idiomaDefault: "ES");
             }
             catch (Exception ex)
             {

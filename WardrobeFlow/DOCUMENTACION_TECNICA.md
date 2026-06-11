@@ -211,6 +211,18 @@ public static void Logout()
 
 La BLL llama a `TienePermiso` antes de cada operación sensible; si retorna `false`, lanza `AppException` con el mensaje de acceso denegado traducido.
 
+### 3.1.1 BLLHelper — guardas de autorización centralizadas (fail-closed)
+
+Para evitar duplicar el mismo bloque de re-validación en cada clase de negocio (DRY), las guardas viven en un único helper interno `BLL/BLLHelper.cs`. Todas son **fail-closed**: sin sesión activa lanzan `err.bll.sesion_expirada` antes de evaluar cualquier permiso.
+
+| Guarda | Regla | La usan |
+|--------|-------|---------|
+| `ValidarPermiso(nombrePatente)` | Sesión activa **y** `SessionManager.TienePermiso(patente)` (el Administrador pasa por bypass) | `BLL.Pedido`, `BLL.Cliente`, `BLL.Prenda`, `BLL.PlanSuscripcion` |
+| `ExigirAdministrador(clave, mensaje)` | Sesión activa **y** `Usuario.EsAdministrador`. Clave/mensaje de error personalizables por módulo | `BLL.Usuario`, `BLL.Backup`, `BLL.RecuperacionAdmin` |
+| `ExigirGestionUsuarios()` | Sesión activa **y** (Administrador por bypass **o** un rol con la patente `mnuUsuarios`) | `BLL.Familia`, `BLL.ControlMapeado` |
+
+Cada clase de negocio mantiene un wrapper privado de una línea (ej. `ValidarEsAdministrador()` en `BLL.Usuario` delega en `ExigirAdministrador`), de modo que los call-sites quedan legibles y el guard real existe en un solo lugar. Tras la Etapa 4, gestionar permisos dejó de ser exclusivo del Administrador: también puede hacerlo un rol que tenga la patente de Gestión de Usuarios (`ExigirGestionUsuarios`), mientras que las operaciones críticas sobre usuarios y backups siguen restringidas a Administrador (`ExigirAdministrador`).
+
 ### 3.2 Políticas de login
 
 ```
@@ -545,9 +557,10 @@ GestorPermisos (GUI)
 
 ### 5.6 Validaciones de negocio
 
-- Solo el **Administrador** puede gestionar perfiles (verificado en BLL con `TienePermiso`)
+- Gestionar perfiles requiere `BLLHelper.ExigirGestionUsuarios()`: Administrador (bypass) **o** un rol con la patente `mnuUsuarios` (decisión de la Etapa 4)
+- **Anti-autobloqueo:** un usuario no-administrador no puede quitarse a sí mismo el acceso de Gestión de Usuarios editando su propio rol (`GuardarAsignacionRol` lo rechaza con `err.bll.familia.autobloqueo`)
 - No se puede eliminar un rol si tiene usuarios asignados activos
-- `AgregarHijo()` en `Familia` verifica referencias circulares con un recorrido de profundidad máxima de 50 niveles
+- `AgregarHijo()` en `Familia` verifica referencias circulares **directas** (un nodo hijo de sí mismo) **e indirectas** (`this` ya es descendiente del que se agrega), con un recorrido de profundidad máxima de 50 niveles. Editar un rol que contiene otro rol está permitido; la validación solo rechaza la relación puntual que cerraría un ciclo
 - Un rol puede embeber otros roles (herencia de permisos), y los permisos efectivos se resuelven recursivamente deduplicando
 
 ### 5.7 Diagrama de clases simplificado
@@ -919,14 +932,25 @@ Detectar manipulaciones directas sobre la base de datos (ediciones con SSMS, int
 
 ### 9.2 Entidades protegidas
 
-| Tabla | Protección |
-|-------|-----------|
-| `Usuario` | DVH por fila + DVV de tabla (verificación pre-login) |
-| `Cliente` | DVH por fila + DVV de tabla (verificación periódica) |
-| `Empleado` | DVH por fila + DVV de tabla (verificación periódica) |
-| `Pedido` | DVH por fila + DVV de tabla (verificación periódica) |
+| Tabla | Protección | ¿Cuándo se verifica? |
+|-------|-----------|----------------------|
+| `Usuario` | DVH por fila + DVV de tabla | Pre-login (arranque), antes de cada backup y antes de altas/reset de usuarios |
+| `Cliente` | DVH por fila + DVV de tabla | Administrar → Diagnóstico de Integridad |
+| `Empleado` | DVH por fila + DVV de tabla | Administrar → Diagnóstico de Integridad |
+| `Pedido` | DVH por fila + DVV de tabla | Administrar → Diagnóstico de Integridad |
 
-**Diseño genérico:** `DAL.DigitoVerificador.RecalcularTabla(tabla, pkCol, columnas)` opera sobre cualquier tabla indicando su nombre, PK y las columnas a incluir en el cálculo — reutilizable sin cambiar código.
+**Campos que entran al DVH de cada tabla** (solo estos disparan la alarma; la PK siempre se incluye primero):
+
+| Tabla | PK | Campos del DVH |
+|-------|-----|----------------|
+| `Usuario` | `IdUsuario` | `Username, Clave, Rol, Perfil, Estado, IntentosFallidos` |
+| `Cliente` | `IdCliente` | `Nombre, Apellido, DNI, Email, MetodoPago` |
+| `Empleado` | `IdEmpleado` | `Nombre, Apellido, DNI, Email, Puesto, Legajo` |
+| `Pedido` | `IdPedido` | `IdCliente, IdEmpleado, Estado` + huella de las líneas (los `IdPrenda` de `PedidoPrenda`, ordenados) |
+
+> La inclusión de **`Rol`** en el DVH de `Usuario` es deliberada: detecta el caso clásico de escalar privilegios cambiando el rol directamente en la BD por fuera de la app (cubierto por los tests `DVH_IncluyeRol_DetectaManipulacionDeRol` y `CamposParaDVH_IncluyeRolEnElOrdenEsperado`).
+
+**Diseño genérico:** `DAL.DigitoVerificador.RecalcularTabla(tabla, pkCol, columnas)` opera sobre cualquier tabla indicando su nombre, PK y las columnas a incluir en el cálculo — reutilizable sin cambiar código. Los identificadores (tabla/columnas) se validan contra una lista blanca de nombres simples y se encierran en `[ ]`, de modo que sea imposible inyectar SQL aunque una constante cambie.
 
 ### 9.3 Algoritmo DVH (Dígito Verificador Horizontal)
 
