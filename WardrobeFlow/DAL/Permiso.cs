@@ -35,6 +35,18 @@ using System.Data.SqlClient;
 
 namespace DAL
 {
+    /// <summary>
+    /// DAL del Composite de permisos (T04).
+    ///
+    /// FUENTE DE VERDAD EN RUNTIME: la tabla [PermisoRelacion] (aristas padre→hijo). Todo el CRUD
+    /// de autorización lee/escribe ahí.
+    ///
+    /// [RolPermiso] es LEGACY y de SEED/BOOTSTRAP únicamente: los scripts SQL la usan para sembrar
+    /// las asignaciones planas rol→patente y, desde ellas, generar los nodos-rol y las aristas de
+    /// [PermisoRelacion]. En runtime NO se escribe nunca y solo se LEE en ramas de fallback, para
+    /// bases todavía sin migrar al Composite (sin columna EsRol / sin PermisoRelacion poblada).
+    /// En una base migrada esas ramas no se ejecutan.
+    /// </summary>
     public class Permiso : Interfaces.IPermisoDAL
     {
         private readonly Acceso acceso = Acceso.GetInstance();
@@ -121,7 +133,8 @@ namespace DAL
         // Roles disponibles en el sistema.
         // T04: los roles son nodos del Composite (EsRol=1), de modo que un rol recién
         // creado aparece aunque todavía no tenga permisos asignados.
-        // Fallback resiliente: si la columna EsRol no existe (BD sin migrar), usa RolPermiso.
+        // FALLBACK LEGACY: solo si la columna EsRol no existe (BD sin migrar) se cae a [RolPermiso].
+        // En una BD migrada esta rama no se ejecuta (ver nota de la clase sobre RolPermiso).
         public List<string> ObtenerRoles()
         {
             var lista = new List<string>();
@@ -149,7 +162,10 @@ namespace DAL
             return lista;
         }
 
-        // Patentes activas asignadas a un rol — para sesión y para marcar Asignado en el árbol.
+        // Patentes activas asignadas a un rol leídas desde [RolPermiso] (asignación PLANA, legacy).
+        // FALLBACK LEGACY: BLL.Familia solo llama acá cuando el rol NO existe como nodo del Composite
+        // (BD sin migrar). En una BD migrada la resolución es 100% por PermisoRelacion y este método
+        // no se invoca. No deprecar la lectura sin migrar antes las bases viejas.
         public List<BE.Permiso> ObtenerPorRol(string rol)
         {
             var lista = new List<BE.Permiso>();

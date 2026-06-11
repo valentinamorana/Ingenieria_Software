@@ -13,8 +13,9 @@ namespace GUI
     /// <summary>
     /// Capa de Presentación — Formulario Menú Principal (MDI Container).
     ///
-    /// Al iniciarse, construye el menú dinámicamente según los permisos
-    /// del usuario logueado (cargados desde RolPermiso en el Login).
+    /// Al iniciarse, construye el menú dinámicamente según los permisos EFECTIVOS
+    /// del usuario logueado, resueltos en el Login desde el árbol Composite
+    /// (tabla PermisoRelacion — la única fuente de verdad de autorización).
     ///
     /// Roles del sistema (documento G04 — WardrobeFlow_Iteracion1.docx):
     ///

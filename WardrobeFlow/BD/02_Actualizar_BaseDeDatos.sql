@@ -300,7 +300,10 @@ ELSE
     PRINT 'Tabla BitacoraNegocio ya existe — sin cambios.';
 GO
 
--- RolPermiso (asignación de permisos a roles)
+-- RolPermiso (asignación PLANA rol→patente) — LEGACY / SOLO SEED-BOOTSTRAP.
+-- Se usa únicamente para sembrar el árbol: desde estas asignaciones se generan los nodos-rol y
+-- las aristas de [PermisoRelacion], que es la ÚNICA fuente de verdad de autorización en runtime.
+-- El sistema NO escribe esta tabla en runtime y solo la lee en fallbacks para BDs sin migrar.
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'RolPermiso')
 BEGIN
     CREATE TABLE RolPermiso (
