@@ -192,20 +192,9 @@ namespace GUI
 
             try
             {
-                var tc = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
-                string TC(string k, string fb) => tc.ContainsKey(k) ? tc[k].Texto : fb;
-
-                // Determinar plan seleccionado
                 int? idPlan = null;
                 if (cmbPlan.SelectedIndex > 0 && _planes != null && _planes.Count >= cmbPlan.SelectedIndex)
                     idPlan = _planes[cmbPlan.SelectedIndex - 1].IdPlan;
-
-                // Bloquear guardado si no hay plan asignado
-                if (idPlan == null)
-                {
-                    lblMensaje.Text = TC("err.cli.plan_requerido", "Debe seleccionar un plan de suscripción.");
-                    return;
-                }
 
                 ClienteEditado = new BE.Cliente
                 {

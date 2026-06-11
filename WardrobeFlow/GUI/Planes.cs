@@ -228,30 +228,10 @@ namespace GUI
                 var t = Traductor.ObtenerTraducciones(_idioma);
                 string T(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
 
-                string nomTrim = txtNombre.Text.Trim();
-                if (string.IsNullOrWhiteSpace(nomTrim))
-                {
-                    MostrarError(T("err.plan.nombre_requerido", "El nombre del plan es obligatorio."));
-                    return;
-                }
-                foreach (char c in nomTrim)
-                {
-                    if (!char.IsLetter(c) && c != ' ')
-                    {
-                        MostrarError(T("err.plan.nombre_letras", "El nombre solo puede contener letras."));
-                        return;
-                    }
-                }
-                if (nudPrecio.Value <= 0)
-                {
-                    MostrarError(T("err.plan.precio_cero", "El precio debe ser mayor a cero."));
-                    return;
-                }
-
                 var plan = new BE.PlanSuscripcion
                 {
                     IdPlan        = _idEnEdicion,
-                    Nombre        = nomTrim,
+                    Nombre        = txtNombre.Text.Trim(),
                     LimitePrendas = (int)nudLimite.Value,
                     Precio        = nudPrecio.Value,
                     Estado        = true

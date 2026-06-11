@@ -88,9 +88,14 @@ namespace BLL
                 throw new BE.AppException("err.bll.plan.limite_invalido",
                     "El límite de prendas debe ser mayor que cero.");
 
-            if (plan.Precio < 0)
-                throw new BE.AppException("err.bll.plan.precio_negativo",
-                    "El precio no puede ser negativo.");
+            foreach (char c in plan.Nombre)
+                if (!char.IsLetter(c) && c != ' ')
+                    throw new BE.AppException("err.bll.plan.nombre_letras",
+                        "El nombre del plan solo puede contener letras y espacios.");
+
+            if (plan.Precio <= 0)
+                throw new BE.AppException("err.bll.plan.precio_cero",
+                    "El precio debe ser mayor a cero.");
         }
     }
 }

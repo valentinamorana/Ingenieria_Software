@@ -192,6 +192,10 @@ namespace BLL
                     throw new BE.AppException("err.bll.cliente.dni_numeros",
                         "El DNI solo puede contener números.");
 
+            if (!cliente.IdPlan.HasValue)
+                throw new BE.AppException("err.bll.cliente.plan_requerido",
+                    "Debe seleccionar un plan de suscripción.");
+
             if (!cliente.FechaNacimiento.HasValue)
                 throw new BE.AppException("err.bll.cliente.fechanac_requerida",
                     "La fecha de nacimiento es obligatoria.");
