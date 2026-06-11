@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 
 namespace DAL
 {
@@ -220,36 +221,125 @@ namespace DAL
         // Cancelado, deben estar Disponibles. Evita dejar el stock inconsistente.
         public void ReconciliarPrendasConEstado(int idPedido)
         {
+            acceso.EjecutarTransaccion((conexion, tx) => ReconciliarEnTx(conexion, tx, idPedido));
+        }
+
+        // Núcleo de la reconciliación, sobre una transacción YA abierta. Reutilizable por la
+        // restauración atómica (RestaurarOperacionAtomica) para no abrir una segunda transacción.
+        private void ReconciliarEnTx(SqlConnection conexion, SqlTransaction tx, int idPedido)
+        {
+            int estado, idCliente;
+            using (var cmd = new SqlCommand(
+                "SELECT Estado, IdCliente FROM Pedido WHERE IdPedido=@IdPedido", conexion, tx))
+            {
+                cmd.Parameters.AddWithValue("@IdPedido", idPedido);
+                using (var rd = cmd.ExecuteReader())
+                {
+                    if (!rd.Read()) return;
+                    estado    = Convert.ToInt32(rd["Estado"]);
+                    idCliente = Convert.ToInt32(rd["IdCliente"]);
+                }
+            }
+
+            bool cancelado = estado == (int)BE.EstadoPedido.Cancelado;
+
+            using (var cmd = new SqlCommand(
+                "UPDATE Prenda SET Estado=@Estado, IdClienteActual=@IdCliente " +
+                "WHERE IdPrenda IN (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
+                conexion, tx))
+            {
+                cmd.Parameters.AddWithValue("@Estado",
+                    cancelado ? (int)BE.EstadoPrenda.Disponible : (int)BE.EstadoPrenda.EnUso);
+                cmd.Parameters.AddWithValue("@IdCliente",
+                    cancelado ? (object)DBNull.Value : idCliente);
+                cmd.Parameters.AddWithValue("@IdPedido", idPedido);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        // ── T06b — Restauración ATÓMICA desde el historial ──────────────────────
+        // Revierte TODOS los campos del pedido a sus valores anteriores Y reconcilia el estado
+        // de sus prendas dentro de UNA ÚNICA transacción: si cualquier paso falla, se revierte
+        // todo (EjecutarTransaccion hace Rollback), evitando que el pedido quede con un estado y
+        // las prendas con otro. El DV se recalcula aparte (es recomputable y no debe abortar el rollback).
+        public void RestaurarOperacionAtomica(int idPedido, IList<(string Campo, string ValorAnterior)> campos)
+        {
             acceso.EjecutarTransaccion((conexion, tx) =>
             {
-                int estado, idCliente;
-                using (var cmd = new SqlCommand(
-                    "SELECT Estado, IdCliente FROM Pedido WHERE IdPedido=@IdPedido", conexion, tx))
-                {
-                    cmd.Parameters.AddWithValue("@IdPedido", idPedido);
-                    using (var rd = cmd.ExecuteReader())
-                    {
-                        if (!rd.Read()) return;
-                        estado    = Convert.ToInt32(rd["Estado"]);
-                        idCliente = Convert.ToInt32(rd["IdCliente"]);
-                    }
-                }
-
-                bool cancelado = estado == (int)BE.EstadoPedido.Cancelado;
-
-                using (var cmd = new SqlCommand(
-                    "UPDATE Prenda SET Estado=@Estado, IdClienteActual=@IdCliente " +
-                    "WHERE IdPrenda IN (SELECT IdPrenda FROM PedidoPrenda WHERE IdPedido=@IdPedido)",
-                    conexion, tx))
-                {
-                    cmd.Parameters.AddWithValue("@Estado",
-                        cancelado ? (int)BE.EstadoPrenda.Disponible : (int)BE.EstadoPrenda.EnUso);
-                    cmd.Parameters.AddWithValue("@IdCliente",
-                        cancelado ? (object)DBNull.Value : idCliente);
-                    cmd.Parameters.AddWithValue("@IdPedido", idPedido);
-                    cmd.ExecuteNonQuery();
-                }
+                foreach (var c in campos)
+                    RestaurarCampoEnTx(conexion, tx, idPedido, c.Campo, c.ValorAnterior);
+                ReconciliarEnTx(conexion, tx, idPedido);
             });
+        }
+
+        // Restaura un campo de [Pedido] a su valor anterior, sobre una transacción YA abierta.
+        // Campos soportados: Estado | FechaDespacho | FechaEntrega | MotivoCancelacion.
+        // "Prendas" (informativo: el estado de las prendas se reconcilia aparte) y "FechaPedido"
+        // (inmutable una vez creado el pedido) se omiten silenciosamente.
+        private void RestaurarCampoEnTx(SqlConnection conexion, SqlTransaction tx,
+                                        int idPedido, string campo, string valorAnterior)
+        {
+            string sql;
+            SqlParameter[] parametros;
+
+            switch (campo)
+            {
+                case "Estado":
+                    if (!Enum.TryParse(valorAnterior, out BE.EstadoPedido estado))
+                        throw new Exception($"Valor de estado inválido para restaurar: '{valorAnterior}'.");
+                    sql = "UPDATE Pedido SET Estado = @Valor WHERE IdPedido = @IdPedido";
+                    parametros = new[]
+                    {
+                        new SqlParameter("@Valor",    (int)estado),
+                        new SqlParameter("@IdPedido", idPedido)
+                    };
+                    break;
+
+                case "FechaDespacho":
+                    sql = "UPDATE Pedido SET FechaDespacho = @Valor WHERE IdPedido = @IdPedido";
+                    parametros = new[]
+                    {
+                        new SqlParameter("@Valor", string.IsNullOrEmpty(valorAnterior)
+                            ? (object)DBNull.Value
+                            : DateTime.ParseExact(valorAnterior, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)),
+                        new SqlParameter("@IdPedido", idPedido)
+                    };
+                    break;
+
+                case "FechaEntrega":
+                    sql = "UPDATE Pedido SET FechaEntrega = @Valor WHERE IdPedido = @IdPedido";
+                    parametros = new[]
+                    {
+                        new SqlParameter("@Valor", string.IsNullOrEmpty(valorAnterior)
+                            ? (object)DBNull.Value
+                            : DateTime.ParseExact(valorAnterior, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)),
+                        new SqlParameter("@IdPedido", idPedido)
+                    };
+                    break;
+
+                case "MotivoCancelacion":
+                    sql = "UPDATE Pedido SET MotivoCancelacion = @Valor WHERE IdPedido = @IdPedido";
+                    parametros = new[]
+                    {
+                        new SqlParameter("@Valor", string.IsNullOrEmpty(valorAnterior)
+                            ? (object)DBNull.Value : valorAnterior),
+                        new SqlParameter("@IdPedido", idPedido)
+                    };
+                    break;
+
+                case "Prendas":      // informativo — el estado de las prendas se reconcilia aparte
+                case "FechaPedido":  // inmutable una vez creado el pedido
+                    return;
+
+                default:
+                    throw new Exception($"Campo '{campo}' no es restaurable desde el historial.");
+            }
+
+            using (var cmd = new SqlCommand(sql, conexion, tx))
+            {
+                cmd.Parameters.AddRange(parametros);
+                cmd.ExecuteNonQuery();
+            }
         }
 
         // Cancela el pedido, guarda el motivo y libera las prendas a Disponible.

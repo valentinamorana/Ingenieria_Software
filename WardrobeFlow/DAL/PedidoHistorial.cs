@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Globalization;
 
 namespace DAL
 {
@@ -11,7 +10,6 @@ namespace DAL
     /// Responsabilidades:
     ///   - Insertar lotes de cambios (todos los campos de un evento van en una transacción).
     ///   - Consultar el historial de un pedido con filtros opcionales.
-    ///   - Restaurar un campo del Pedido a su valor anterior (escritura directa sobre [Pedido]).
     ///   - Obtener el próximo IdOperacion para agrupar los campos de un mismo evento.
     /// </summary>
     public class PedidoHistorial
@@ -152,90 +150,9 @@ namespace DAL
             return lista;
         }
 
-        // ── Restauración ──────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Restaura un campo de la tabla Pedido al valor anterior registrado en el historial.
-        /// Convierte el valor string al tipo correcto según el nombre del campo.
-        ///
-        /// Campos soportados: Estado | FechaDespacho | FechaEntrega | MotivoCancelacion
-        /// (El campo "Prendas" es informativo — no se modifica aquí).
-        /// </summary>
-        public void RestaurarCampo(int idPedido, string campo, string valorAnterior)
-        {
-            string sql;
-            SqlParameter[] parametros;
-
-            switch (campo)
-            {
-                case "Estado":
-                    // Convertir el nombre del enum a su valor int
-                    if (!Enum.TryParse(valorAnterior, out BE.EstadoPedido estado))
-                        throw new Exception($"Valor de estado inválido para restaurar: '{valorAnterior}'.");
-                    sql = "UPDATE Pedido SET Estado = @Valor WHERE IdPedido = @IdPedido";
-                    parametros = new[]
-                    {
-                        new SqlParameter("@Valor",    (int)estado),
-                        new SqlParameter("@IdPedido", idPedido)
-                    };
-                    break;
-
-                case "FechaDespacho":
-                    sql = "UPDATE Pedido SET FechaDespacho = @Valor WHERE IdPedido = @IdPedido";
-                    object fechaDesp = string.IsNullOrEmpty(valorAnterior)
-                        ? (object)DBNull.Value
-                        : DateTime.ParseExact(valorAnterior, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-                    parametros = new[]
-                    {
-                        new SqlParameter("@Valor",    fechaDesp),
-                        new SqlParameter("@IdPedido", idPedido)
-                    };
-                    break;
-
-                case "FechaEntrega":
-                    sql = "UPDATE Pedido SET FechaEntrega = @Valor WHERE IdPedido = @IdPedido";
-                    object fechaEntr = string.IsNullOrEmpty(valorAnterior)
-                        ? (object)DBNull.Value
-                        : DateTime.ParseExact(valorAnterior, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-                    parametros = new[]
-                    {
-                        new SqlParameter("@Valor",    fechaEntr),
-                        new SqlParameter("@IdPedido", idPedido)
-                    };
-                    break;
-
-                case "MotivoCancelacion":
-                    sql = "UPDATE Pedido SET MotivoCancelacion = @Valor WHERE IdPedido = @IdPedido";
-                    parametros = new[]
-                    {
-                        new SqlParameter("@Valor",    string.IsNullOrEmpty(valorAnterior)
-                                                        ? (object)DBNull.Value : valorAnterior),
-                        new SqlParameter("@IdPedido", idPedido)
-                    };
-                    break;
-
-                case "Prendas":
-                    // Informativo: no hay campo "Prendas" en la tabla Pedido.
-                    // El estado de las prendas se gestiona desde su propia tabla.
-                    return;
-
-                case "FechaPedido":
-                    // FechaPedido es inmutable una vez creado el pedido — se omite silenciosamente.
-                    return;
-
-                default:
-                    throw new Exception($"Campo '{campo}' no es restaurable desde el historial.");
-            }
-
-            try
-            {
-                acceso.Escribir(sql, parametros);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error al restaurar el campo '{campo}' del Pedido #{idPedido}.", ex);
-            }
-        }
+        // La restauración de los campos del Pedido se realiza de forma ATÓMICA en
+        // DAL.Pedido.RestaurarOperacionAtomica (campos + reconciliación de prendas en una
+        // única transacción). Esta clase solo registra y consulta el historial.
 
         // ── Helper ────────────────────────────────────────────────────────────
 
