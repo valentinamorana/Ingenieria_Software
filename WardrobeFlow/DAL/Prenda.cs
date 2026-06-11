@@ -94,7 +94,11 @@ namespace DAL
         // Devuelve las prendas actualmente asignadas a un cliente.
         public List<BE.Prenda> ObtenerPorCliente(int idCliente)
         {
-            SqlParameter[] p = { new SqlParameter("@IdCliente", idCliente) };
+            SqlParameter[] p =
+            {
+                new SqlParameter("@IdCliente", idCliente),
+                new SqlParameter("@Estado",    (int)BE.EstadoPrenda.EnUso),
+            };
             var lista = new List<BE.Prenda>();
             try
             {
@@ -104,7 +108,7 @@ namespace DAL
                     "       c.Nombre + ' ' + c.Apellido AS NombreCliente " +
                     "FROM Prenda p " +
                     "LEFT JOIN Cliente c ON c.IdCliente = p.IdClienteActual " +
-                    $"WHERE p.IdClienteActual = @IdCliente AND p.Estado = {(int)BE.EstadoPrenda.EnUso}",
+                    "WHERE p.IdClienteActual = @IdCliente AND p.Estado = @Estado",
                     p);
 
                 foreach (DataRow row in tabla.Rows)

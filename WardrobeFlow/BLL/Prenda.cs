@@ -57,7 +57,7 @@ namespace BLL
         // Cambia el estado de una prenda validando la transición.
         // Al entrar a EnLimpieza abre un registro de mantenimiento;
         // al volver a Disponible desde EnLimpieza lo cierra.
-        public void CambiarEstado(string modulo, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado)
+        public void CambiarEstado(string modulo, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado, string actor = null)
         {
             ValidarPermiso(BE.Patentes.Stock);
             if (!prenda.TransicionPermitida(nuevoEstado))
@@ -84,9 +84,6 @@ namespace BLL
 
             if (nuevoEstado == BE.EstadoPrenda.EnLimpieza)
             {
-                string actor = Seguridad.SessionManager.IsLoggedIn
-                    ? Seguridad.SessionManager.GetInstance().Usuario.Username
-                    : null;
                 dalMantenimiento.IniciarMantenimiento(prenda.IdPrenda, actor);
             }
             else if (prenda.Estado == BE.EstadoPrenda.EnLimpieza &&

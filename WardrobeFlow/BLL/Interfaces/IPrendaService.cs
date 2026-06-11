@@ -26,7 +26,7 @@ namespace BLL.Interfaces
         void Modificar(string modulo, BE.Prenda prenda);
 
         // Cambia el estado de una prenda validando las transiciones permitidas por negocio.
-        void CambiarEstado(string modulo, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado);
+        void CambiarEstado(string modulo, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado, string actor = null);
 
         // Devuelve el historial de registros de mantenimiento/limpieza de una prenda.
         System.Collections.Generic.List<BE.MantenimientoPrenda> ObtenerHistorialMantenimiento(int idPrenda);

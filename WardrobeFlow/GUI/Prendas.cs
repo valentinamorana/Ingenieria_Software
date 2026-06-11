@@ -379,7 +379,10 @@ namespace GUI
                 if (dlg.ShowDialog(this) != DialogResult.OK) return;
                 try
                 {
-                    prendaBLL.CambiarEstado(this.Text, prenda, dlg.EstadoSeleccionado);
+                    string actor = Seguridad.SessionManager.IsLoggedIn
+                        ? Seguridad.SessionManager.GetInstance().Usuario.Username
+                        : null;
+                    prendaBLL.CambiarEstado(this.Text, prenda, dlg.EstadoSeleccionado, actor);
                     string fmtEstAct = T_est("msg.prenda.estadoact", "Estado de '{0}' actualizado a {1}.");
                     MostrarOk(string.Format(fmtEstAct, prenda.Nombre, EstadoLabel(dlg.EstadoSeleccionado)));
                     CargarPrendas();
