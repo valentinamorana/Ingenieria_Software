@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Security.AccessControl;
@@ -7,7 +9,7 @@ using System.Security.Principal;
 
 namespace DAL
 {
-    public class Backup
+    public class Backup : Interfaces.IBackupDAL
     {
         private readonly string _cadenaConexionMaster;
 
@@ -141,6 +143,65 @@ namespace DAL
             }
             catch { /* header ilegible → null (la verificación de corrupción se hace en VerificarBackup) */ }
             return null;
+        }
+
+        // RF-08 — Cuenta, sobre la base de datos ACTUAL (en vivo), los registros con fecha
+        // POSTERIOR a la del backup: son exactamente los que se perderían al restaurar.
+        // Se recorren las tablas de negocio que llevan marca temporal. Cada tabla se cuenta
+        // de forma independiente y tolerante a fallos (si una no existe en una BD legacy,
+        // se omite esa línea en vez de abortar todo el preview).
+        public List<BE.CambioPosterior> ContarCambiosPosterioresA(DateTime fecha)
+        {
+            // (Entidad legible, Tabla, Columna de fecha). El orden define el del resumen.
+            var fuentes = new (string Entidad, string Tabla, string Columna)[]
+            {
+                ("Pedidos",                       "Pedido",             "FechaPedido"),
+                ("Clientes nuevos",               "Cliente",            "FechaAlta"),
+                ("Prendas nuevas",                "Prenda",             "FechaAlta"),
+                ("Cambios de estado de pedidos",  "PedidoHistorial",    "Fecha"),
+                ("Mantenimientos de prendas",     "MantenimientoPrenda","FechaEntrada"),
+                ("Cambios sobre usuarios",        "HistorialUsuario",   "Fecha"),
+                ("Movimientos de negocio",        "BitacoraNegocio",    "Fecha"),
+                ("Registros de bitácora",         "Bitacora",           "fecha"),
+            };
+
+            var acceso   = Acceso.GetInstance();
+            var resultado = new List<BE.CambioPosterior>();
+
+            foreach (var f in fuentes)
+            {
+                try
+                {
+                    // Tabla/columna son CONSTANTES del sistema (no entrada de usuario) y se encierran
+                    // en corchetes; la fecha SÍ va parametrizada. Defensa en profundidad igual que el DV.
+                    string sql = "SELECT COUNT(*) AS Cantidad FROM " + Id(f.Tabla) +
+                                 " WHERE " + Id(f.Columna) + " > @fecha";
+                    DataTable dt = acceso.Leer(sql, new[] { new SqlParameter("@fecha", fecha) });
+                    int cant = (dt != null && dt.Rows.Count > 0) ? Convert.ToInt32(dt.Rows[0]["Cantidad"]) : 0;
+                    if (cant > 0)
+                        resultado.Add(new BE.CambioPosterior { Entidad = f.Entidad, Cantidad = cant });
+                }
+                catch
+                {
+                    // Tabla inexistente / columna ausente en una BD vieja → se omite esa fuente.
+                }
+            }
+
+            return resultado;
+        }
+
+        // Valida que un identificador de tabla/columna sea un nombre simple y lo devuelve entre
+        // corchetes. Falla cerrado si no cumple. (Mismo criterio que DAL.DigitoVerificador.Id.)
+        private static string Id(string identificador)
+        {
+            if (string.IsNullOrEmpty(identificador))
+                throw new ArgumentException("Identificador SQL vacío.");
+            foreach (char c in identificador)
+                if (!(char.IsLetterOrDigit(c) || c == '_'))
+                    throw new ArgumentException($"Identificador SQL inválido: '{identificador}'.");
+            if (char.IsDigit(identificador[0]))
+                throw new ArgumentException($"Identificador SQL inválido: '{identificador}'.");
+            return "[" + identificador + "]";
         }
 
         public void RestaurarBackup(string rutaOrigen)

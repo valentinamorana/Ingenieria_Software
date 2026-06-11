@@ -51,6 +51,7 @@
     <Compile Include="Interfaces\IUsuarioDAL.cs" />
     <Compile Include="Interfaces\IPreferenciaDAL.cs" />
     <Compile Include="Interfaces\IClaveRecuperacionDAL.cs" />
+    <Compile Include="Interfaces\IBackupDAL.cs" />
     <Compile Include="Idioma.cs" />
     <Compile Include="Traduccion.cs" />
     <Compile Include="Control.cs" />

@@ -207,8 +207,13 @@ namespace GUI
 
                     var tC = Servicios.Multiidioma.Traductor.ObtenerTraducciones(Servicios.Multiidioma.GestorIdioma.IdiomaActual);
                     string TC(string k, string fb) => tC.ContainsKey(k) ? tC[k].Texto : fb;
+
+                    // RF-08 — Informar el alcance de la pérdida (fecha + registros posteriores)
+                    // también en el flujo de restauración por integridad comprometida.
+                    string alcance = ConstruirAlcancePerdida(ofd.FileName, TC);
+
                     if (MessageBox.Show(
-                        TC("conf.rest.sobreescribir", "¿Está seguro? Esta operación sobrescribirá todos los datos actuales y reiniciará la aplicación."),
+                        TC("conf.rest.sobreescribir", "¿Está seguro? Esta operación sobrescribirá todos los datos actuales y reiniciará la aplicación.") + alcance,
                         TC("msg.backup.titulorestaura", "Confirmar Restauración"),
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Warning) != DialogResult.Yes) return;
@@ -245,6 +250,42 @@ namespace GUI
                     }
                 }
             }
+        }
+
+        // RF-08 — Arma el aviso de alcance de la pérdida: fecha del backup + desglose de los
+        // registros de la base actual posteriores a esa fecha (los que se perderían). Tolerante
+        // a fallos: si no puede leerse la fecha o contar, devuelve el aviso genérico.
+        private string ConstruirAlcancePerdida(string ruta, Func<string, string, string> TC)
+        {
+            try
+            {
+                var bll = new Backup();
+                DateTime? fecha = bll.ObtenerFechaBackup(ruta);
+                if (!fecha.HasValue)
+                    return TC("msg.backup.alcance.desconocido",
+                        "\n\nNo se pudo determinar la fecha del backup. Se perderán todos los cambios posteriores a su creación.");
+
+                var sb = new System.Text.StringBuilder();
+                sb.Append(string.Format(
+                    TC("msg.backup.alcance",
+                       "\n\nEl backup es del {0} (hace {1} día(s)).\nSe PERDERÁN todos los cambios posteriores a esa fecha."),
+                    fecha.Value.ToString("dd/MM/yyyy HH:mm"),
+                    Math.Max(0, (int)(DateTime.Now - fecha.Value).TotalDays)));
+
+                var cambios = bll.ObtenerCambiosDesde(fecha);
+                if (cambios == null || cambios.Count == 0)
+                    sb.Append(TC("msg.backup.sinperdida",
+                        "\n\nNo hay registros nuevos posteriores a esa fecha: no se perdería información reciente."));
+                else
+                {
+                    sb.Append(TC("msg.backup.perdida.titulo",
+                        "\n\nSe perderán estos registros creados después del backup:"));
+                    foreach (var c in cambios)
+                        sb.Append($"\n  • {c.Entidad}: {c.Cantidad}");
+                }
+                return sb.ToString();
+            }
+            catch { return string.Empty; }
         }
 
         private void btnSalir_Click(object sender, EventArgs e)

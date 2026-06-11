@@ -247,6 +247,10 @@ namespace GUI
                       "\n\nEl backup es del {0} (hace {1} día(s)).\nSe PERDERÁN todos los cambios posteriores a esa fecha."),
                     fechaBackup.Value.ToString("dd/MM/yyyy HH:mm"),
                     Math.Max(0, (int)antiguedad.TotalDays));
+
+                // RF-08 — Detalle a nivel REGISTRO: qué se perderá concretamente, no solo "todo lo
+                // posterior a la fecha". Se cuentan las filas de la base actual posteriores al backup.
+                alcance += ConstruirDetallePerdida(fechaBackup);
             }
             else
             {
@@ -284,6 +288,32 @@ namespace GUI
                 MessageBox.Show(
                     string.Format(T("msg.backup.errorrestaurar", "Error al restaurar:\n{0}"), ex.Message),
                     T("msg.error.titulo", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // RF-08 — Construye el desglose de lo que se perderá al restaurar: cuántos registros de
+        // cada entidad existen en la base actual con fecha posterior a la del backup. Si no hay
+        // ninguno, lo informa explícitamente (restaurar es seguro respecto a datos posteriores).
+        private string ConstruirDetallePerdida(DateTime? fechaBackup)
+        {
+            try
+            {
+                var cambios = _bll.ObtenerCambiosDesde(fechaBackup);
+                if (cambios == null || cambios.Count == 0)
+                    return T("msg.backup.sinperdida",
+                        "\n\nNo hay registros nuevos posteriores a esa fecha: no se perdería información reciente.");
+
+                var sb = new System.Text.StringBuilder();
+                sb.Append(T("msg.backup.perdida.titulo",
+                    "\n\nSe perderán estos registros creados después del backup:"));
+                foreach (var c in cambios)
+                    sb.Append($"\n  • {c.Entidad}: {c.Cantidad}");
+                return sb.ToString();
+            }
+            catch
+            {
+                // El preview es informativo; si el conteo falla no debe impedir la restauración.
+                return string.Empty;
             }
         }
 

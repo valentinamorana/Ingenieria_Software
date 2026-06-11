@@ -39,6 +39,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackupTests.cs" />
     <Compile Include="CasosPruebaEspecialesTests.cs" />
     <Compile Include="ClaveEmergenciaTests.cs" />
     <Compile Include="DigitoVerificadorTests.cs" />
@@ -47,6 +48,7 @@
     <Compile Include="MementoTests.cs" />
     <Compile Include="FamiliaPermisosTests.cs" />
     <Compile Include="TraductorI18nTests.cs" />
+    <Compile Include="Fakes\FakeBackupDAL.cs" />
     <Compile Include="Fakes\FakePermisoDAL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

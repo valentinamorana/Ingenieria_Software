@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -8,8 +9,19 @@ namespace BLL
 {
     public class Backup
     {
-        private readonly DAL.Backup       _dal      = new DAL.Backup();
-        private readonly Servicios.Bitacora _bitacora = new Servicios.Bitacora();
+        private readonly DAL.Interfaces.IBackupDAL _dal;
+        // Bitácora perezosa: solo se instancia cuando una operación de escritura la usa, para que
+        // construir BLL.Backup (y testear el preview RF-08) no toque la BD ni el App.config.
+        private Servicios.Bitacora _bitacoraLazy;
+        private Servicios.Bitacora _bitacora => _bitacoraLazy ?? (_bitacoraLazy = new Servicios.Bitacora());
+
+        // DI: el constructor por defecto usa el DAL real; el otro permite inyectar un doble
+        // de prueba (tests del preview de pérdida RF-08 sin tocar SQL Server).
+        public Backup() : this(new DAL.Backup()) { }
+        public Backup(DAL.Interfaces.IBackupDAL dal)
+        {
+            _dal = dal;
+        }
 
         // Extensión de los backups CIFRADOS (con contraseña). Los .bak planos legacy se siguen
         // pudiendo restaurar para no romper copias anteriores.
@@ -112,6 +124,18 @@ namespace BLL
         public DateTime? ObtenerFechaBackup(string rutaArchivo)
         {
             return _dal.ObtenerFechaBackup(rutaArchivo);
+        }
+
+        // RF-08 — Preview de pérdida a nivel REGISTRO: dada la fecha del backup, devuelve cuántos
+        // registros de la base actual son posteriores a esa fecha (los que se perderían al
+        // restaurar), desglosados por entidad. Solo incluye entidades con al menos 1 registro.
+        // Es de SOLO LECTURA (no abre sesión ni modifica nada): se puede usar también en el
+        // flujo de arranque (RestauracionForm), donde todavía no hay sesión iniciada.
+        // Devuelve lista vacía si la fecha es null o no hay cambios posteriores.
+        public List<BE.CambioPosterior> ObtenerCambiosDesde(DateTime? fechaBackup)
+        {
+            if (!fechaBackup.HasValue) return new List<BE.CambioPosterior>();
+            return _dal.ContarCambiosPosterioresA(fechaBackup.Value);
         }
 
         // Indica si un archivo es un backup CIFRADO (por su extensión .wfbak).
