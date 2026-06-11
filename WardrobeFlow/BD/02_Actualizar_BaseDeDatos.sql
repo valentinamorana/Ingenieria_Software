@@ -464,6 +464,18 @@ END
 ELSE
     PRINT 'Usuario.FechaBloqueo ya existe — sin cambios.';
 GO
+-- Cambio de clave OBLIGATORIO en el primer login tras un alta o un reset de contraseña.
+-- RequiereCambioClave = 1 mientras la cuenta tenga una clave temporal/generada que el usuario
+-- todavía no reemplazó. NO forma parte del DVH (metadata operativa, no identidad protegida).
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+               WHERE TABLE_NAME='Usuario' AND COLUMN_NAME='RequiereCambioClave')
+BEGIN
+    ALTER TABLE Usuario ADD RequiereCambioClave BIT NOT NULL DEFAULT 0;
+    PRINT 'Columna RequiereCambioClave agregada a Usuario (cambio de clave obligatorio).';
+END
+ELSE
+    PRINT 'Usuario.RequiereCambioClave ya existe — sin cambios.';
+GO
 UPDATE Usuario SET CantidadBloqueos = 0 WHERE CantidadBloqueos IS NULL;
 GO
 

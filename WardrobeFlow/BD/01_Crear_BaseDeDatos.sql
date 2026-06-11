@@ -51,6 +51,7 @@ BEGIN
         FechaBaja        DATETIME      NULL,                 -- RF-10: fecha de archivado (para purga >1 año)
         CantidadBloqueos INT           NOT NULL DEFAULT 0,   -- Bloqueo progresivo: nº de bloqueos (define duración)
         FechaBloqueo     DATETIME      NULL,                 -- Bloqueo progresivo: instante del último bloqueo
+        RequiereCambioClave BIT        NOT NULL DEFAULT 0,   -- 1 = clave temporal/generada pendiente de cambio
         CONSTRAINT UQ_Usuario_Username UNIQUE (Username)
     );
     PRINT 'Tabla Usuario creada.';

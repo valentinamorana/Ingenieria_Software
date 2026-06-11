@@ -50,6 +50,11 @@ namespace BE
 
         public DateTime? FechaBaja { get; set; }
 
+        // Cambio de clave OBLIGATORIO: true cuando la cuenta tiene una clave temporal/generada
+        // (alta nueva o reset) que el usuario todavía no reemplazó. El login fuerza el cambio
+        // antes de abrir el menú. No forma parte del DVH (metadata operativa).
+        public bool RequiereCambioClave { get; set; }
+
         // ── Patrón MEMENTO — rol Originator ─────────────────────────────────────
 
         /// <summary>

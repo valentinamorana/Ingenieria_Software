@@ -417,6 +417,25 @@ namespace GUI
                 // (mismo mensaje exista o no el usuario). Acá solo reaccionamos al resultado.
                 if (usuarioBLL.Login(this.Text, txtUsuario.Text, txtContraseña.Text))
                 {
+                    // Si la cuenta tiene una clave temporal/generada (alta o reset), forzar el
+                    // cambio ANTES de abrir el sistema. Sin cambio no se permite ingresar.
+                    var u = usuarioBLL.ObtenerUsuarioActivo();
+                    if (u != null && u.RequiereCambioClave)
+                    {
+                        using (var dlg = new CambioClaveObligatorioForm())
+                        {
+                            if (dlg.ShowDialog(this) != DialogResult.OK)
+                            {
+                                usuarioBLL.Logout(this.Text);
+                                MostrarErrorLogin(
+                                    Tx("err.login.debecambiarclave",
+                                       "Debés cambiar tu contraseña temporal para ingresar."),
+                                    bloqueado: false);
+                                return;
+                            }
+                        }
+                    }
+
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }

@@ -47,10 +47,12 @@
     <Compile Include="CompositeTests.cs" />
     <Compile Include="MementoTests.cs" />
     <Compile Include="SessionManagerTests.cs" />
+    <Compile Include="UsuarioCambioClaveTests.cs" />
     <Compile Include="FamiliaPermisosTests.cs" />
     <Compile Include="TraductorI18nTests.cs" />
     <Compile Include="Fakes\FakeBackupDAL.cs" />
     <Compile Include="Fakes\FakePermisoDAL.cs" />
+    <Compile Include="Fakes\FakeUsuarioDAL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

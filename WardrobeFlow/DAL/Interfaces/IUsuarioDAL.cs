@@ -18,6 +18,8 @@ namespace DAL.Interfaces
         void             ResetearIntentosFallidos(string username);
         void             ResetearTodasLasClaves(string claveHasheada);
         void             ResetearClave(int idUsuario, string claveHasheada);
+        // Cambio de clave por el propio usuario (baja el flag RequiereCambioClave).
+        void             CambiarClave(int idUsuario, string claveHasheada);
         void             GuardarIdioma(int idUsuario, string idIdioma);
         // RF-10 — baja lógica (archivar) y purga física diferida.
         void             BajaLogica(int idUsuario);

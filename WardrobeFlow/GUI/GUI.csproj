@@ -72,6 +72,9 @@
     <Compile Include="InputDialog.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="CambioClaveObligatorioForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="ManejadorSeguridad.cs" />
     <Compile Include="RegistroControles.cs" />
     <Compile Include="MapeoControlesForm.cs">

@@ -46,7 +46,11 @@ namespace DAL
 
                 BE.Usuario nuevo = ObtenerPorUsername(username);
                 if (nuevo != null)
+                {
+                    // Clave generada por el sistema → el usuario debe cambiarla en su primer login.
+                    SetRequiereCambioClave(nuevo.Id, true);
                     RecalcularDVH(nuevo.Id);
+                }
             }
             catch (Exception ex)
             {
@@ -80,7 +84,10 @@ namespace DAL
                 CantidadBloqueos = tabla.Columns.Contains("CantidadBloqueos") && row["CantidadBloqueos"] != DBNull.Value
                                        ? Convert.ToInt32(row["CantidadBloqueos"]) : 0,
                 FechaBloqueo     = tabla.Columns.Contains("FechaBloqueo") && row["FechaBloqueo"] != DBNull.Value
-                                       ? (DateTime?)Convert.ToDateTime(row["FechaBloqueo"]) : null
+                                       ? (DateTime?)Convert.ToDateTime(row["FechaBloqueo"]) : null,
+                // Cambio de clave obligatorio (columna opcional; false si la BD no está migrada).
+                RequiereCambioClave = tabla.Columns.Contains("RequiereCambioClave") && row["RequiereCambioClave"] != DBNull.Value
+                                       && Convert.ToInt32(row["RequiereCambioClave"]) == 1
             };
         }
 
@@ -99,13 +106,14 @@ namespace DAL
                 return LeerUsuarioPorQuery(
                     "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
                     "       Estado, IntentosFallidos, ISNULL(IdIdioma, 'ES') AS IdIdioma, " +
-                    "       CantidadBloqueos, FechaBloqueo " +
+                    "       CantidadBloqueos, FechaBloqueo, RequiereCambioClave " +
                     "FROM Usuario WHERE Username = @Username AND ISNULL(Activo, 1) = 1",
                     parametros);
             }
             catch (System.Data.SqlClient.SqlException sqlEx)
                 when (sqlEx.Message.Contains("IdIdioma") || sqlEx.Message.Contains("Activo")
-                      || sqlEx.Message.Contains("CantidadBloqueos") || sqlEx.Message.Contains("FechaBloqueo"))
+                      || sqlEx.Message.Contains("CantidadBloqueos") || sqlEx.Message.Contains("FechaBloqueo")
+                      || sqlEx.Message.Contains("RequiereCambioClave"))
             {
                 // Columna IdIdioma/Activo no existe: migración pendiente. Funciona con "ES" por
                 // defecto y sin filtro de archivado (en una BD sin migrar nadie está archivado).
@@ -279,6 +287,8 @@ namespace DAL
                 acceso.Escribir(
                     "UPDATE Usuario SET Clave = @clave",
                     new SqlParameter[] { new SqlParameter("@clave", claveHasheada) });
+                // Reset masivo → todas las cuentas quedan con clave temporal: forzar el cambio.
+                SetRequiereCambioClaveTodos(true);
                 RecalcularTodosDVH();
             }
             catch (Exception ex)
@@ -322,6 +332,8 @@ namespace DAL
                         new SqlParameter("@clave",     claveHasheada),
                         new SqlParameter("@idUsuario", idUsuario)
                     });
+                // Clave reseteada por un admin → el usuario debe cambiarla en su próximo login.
+                SetRequiereCambioClave(idUsuario, true);
                 RecalcularDVH(idUsuario);
             }
             catch (Exception ex)
@@ -332,6 +344,68 @@ namespace DAL
 
         // Obtiene un usuario por su clave primaria (IdUsuario).
         // Incluye Estado e IntentosFallidos para el control de bloqueo.
+        // Cambio de clave por el PROPIO usuario (clave ya hasheada por la BLL).
+        // Persiste la nueva clave, baja el flag RequiereCambioClave y recalcula el DVH.
+        public void CambiarClave(int idUsuario, string claveHasheada)
+        {
+            try
+            {
+                acceso.Escribir(
+                    "UPDATE Usuario SET Clave = @clave WHERE IdUsuario = @idUsuario",
+                    new SqlParameter[]
+                    {
+                        new SqlParameter("@clave",     claveHasheada),
+                        new SqlParameter("@idUsuario", idUsuario)
+                    });
+                // El usuario ya eligió su propia clave → deja de ser temporal.
+                SetRequiereCambioClave(idUsuario, false);
+                RecalcularDVH(idUsuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al cambiar la clave del usuario ID {idUsuario}.", ex);
+            }
+        }
+
+        // Marca/desmarca el flag de cambio obligatorio para un usuario. Tolerante a BD sin migrar:
+        // si la columna no existe, se ignora (la función simplemente no aplica). El flag NO entra
+        // al DVH, por lo que cambiarlo no requiere recalcular dígitos verificadores.
+        private void SetRequiereCambioClave(int idUsuario, bool requiere)
+        {
+            try
+            {
+                acceso.Escribir(
+                    "UPDATE Usuario SET RequiereCambioClave = @r WHERE IdUsuario = @id",
+                    new SqlParameter[]
+                    {
+                        new SqlParameter("@r",  requiere ? 1 : 0),
+                        new SqlParameter("@id", idUsuario)
+                    });
+            }
+            catch (System.Data.SqlClient.SqlException ex) when (ex.Message.Contains("RequiereCambioClave"))
+            {
+                // BD sin migrar (falta la columna): el cambio obligatorio queda inactivo. No es crítico.
+                System.Diagnostics.Trace.TraceWarning(
+                    "[DAL.Usuario.SetRequiereCambioClave] Columna RequiereCambioClave ausente; ejecutá 02_Actualizar.");
+            }
+        }
+
+        // Igual que el anterior pero para TODOS los usuarios (tras un reset masivo de claves).
+        private void SetRequiereCambioClaveTodos(bool requiere)
+        {
+            try
+            {
+                acceso.Escribir(
+                    "UPDATE Usuario SET RequiereCambioClave = @r",
+                    new SqlParameter[] { new SqlParameter("@r", requiere ? 1 : 0) });
+            }
+            catch (System.Data.SqlClient.SqlException ex) when (ex.Message.Contains("RequiereCambioClave"))
+            {
+                System.Diagnostics.Trace.TraceWarning(
+                    "[DAL.Usuario.SetRequiereCambioClaveTodos] Columna RequiereCambioClave ausente; ejecutá 02_Actualizar.");
+            }
+        }
+
         public override BE.Usuario ObtenerPorId(int idUsuario)
         {
             SqlParameter[] parametros = new SqlParameter[]
