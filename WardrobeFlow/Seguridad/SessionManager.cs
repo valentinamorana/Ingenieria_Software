@@ -36,8 +36,7 @@ namespace Seguridad
         {
             var s = _session;
             if (s?.Usuario == null) return false;
-            if (string.Equals(s.Usuario.Perfil, BE.Roles.Administrador, StringComparison.OrdinalIgnoreCase))
-                return true;
+            if (s.Usuario.EsAdministrador) return true;
             return s.Usuario.Permisos != null &&
                    s.Usuario.Permisos.Exists(p => p.NombreMenu == nombreMenu);
         }

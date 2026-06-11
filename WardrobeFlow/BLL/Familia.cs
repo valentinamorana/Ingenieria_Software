@@ -20,8 +20,6 @@ namespace BLL
         private Servicios.Bitacora _bitacoraLazy;
         private Servicios.Bitacora _bitacora => _bitacoraLazy ?? (_bitacoraLazy = new Servicios.Bitacora());
 
-        private const string RolAdministrador = BE.Roles.Administrador;
-
         // Inyección de dependencias: el constructor por defecto usa el DAL real;
         // el segundo permite inyectar un doble de prueba (tests unitarios sin BD).
         public Familia() : this(new DAL.Permiso()) { }
@@ -37,8 +35,7 @@ namespace BLL
         private static bool EsAdminEnSesion()
         {
             return Seguridad.SessionManager.IsLoggedIn &&
-                   (Seguridad.SessionManager.GetInstance().Usuario.Perfil ?? "")
-                       .Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase);
+                   Seguridad.SessionManager.GetInstance().Usuario.EsAdministrador;
         }
 
         // Re-validación en el BACKEND. Tras la Etapa 4, administrar permisos no es exclusivo del

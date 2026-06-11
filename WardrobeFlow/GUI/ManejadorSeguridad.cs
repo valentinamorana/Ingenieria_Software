@@ -54,7 +54,7 @@ namespace GUI
                     .ToList();
 
                 // B1 — el Administrador ve todo.
-                bool esAdmin = string.Equals(usuario.Perfil, BE.Roles.Administrador, StringComparison.OrdinalIgnoreCase);
+                bool esAdmin = usuario.EsAdministrador;
 
                 var patentesUsuario = new HashSet<int>();
                 if (usuario.Permisos != null)

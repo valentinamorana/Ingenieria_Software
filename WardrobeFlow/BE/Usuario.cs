@@ -27,6 +27,13 @@ namespace BE
 
         public string Rol { get; set; }
 
+        // Identifica al Administrador del sistema en UN SOLO lugar (flag), en vez de repetir la
+        // comparación de strings dispersa por SessionManager, BLL y GUI. Considera tanto Perfil
+        // como Rol, es case-insensitive y null-safe. Si el modelo migrara a un Id/columna de BD,
+        // este es el único punto a cambiar.
+        public bool EsAdministrador =>
+            Roles.EsAdministrador(Perfil) || Roles.EsAdministrador(Rol);
+
         public List<Permiso> Permisos { get; set; } = new List<Permiso>();
 
         public bool Bloqueado { get; set; }

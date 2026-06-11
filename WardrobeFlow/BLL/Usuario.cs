@@ -25,7 +25,6 @@ namespace BLL
         }
 
         private const int    MaxIntentosFallidos  = 3;
-        private const string RolAdministrador    = BE.Roles.Administrador;
 
         // Clave temporal por defecto para el reset masivo. Configurable en App.config
         // (appSettings["ClaveTemporalDefault"]); si falta o está vacía, usa un fallback válido.
@@ -74,8 +73,7 @@ namespace BLL
             if (!SessionManager.IsLoggedIn)
                 throw new BE.AppException("err.bll.sesion_expirada",
                     "La sesión expiró. Volvé a iniciar sesión.");
-            string perfil = SessionManager.GetInstance().Usuario.Perfil ?? "";
-            if (!perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase))
+            if (!SessionManager.GetInstance().Usuario.EsAdministrador)
                 throw new BE.AppException("err.bll.usuario.sin_permiso",
                     "Solo un Administrador puede gestionar usuarios.");
         }
@@ -321,7 +319,7 @@ namespace BLL
                 throw new BE.AppException("err.bll.usuario.autobaja",
                     "No podés archivar tu propio usuario mientras tenés la sesión abierta.");
 
-            if ((perfilObjetivo ?? "").Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase)
+            if (BE.Roles.EsAdministrador(perfilObjetivo)
                 && adminsActivos <= 1)
                 throw new BE.AppException("err.bll.usuario.ultimo_admin",
                     "No se puede archivar al último Administrador activo del sistema. " +
@@ -507,8 +505,7 @@ namespace BLL
 
             if (!Encriptador.VerificarContrasena(password, usuario.Contraseña)) return false;
 
-            string perfil = usuario.Perfil ?? "";
-            return perfil.Equals(RolAdministrador, StringComparison.OrdinalIgnoreCase);
+            return usuario.EsAdministrador;
         }
 
         // Convierte el nombre visible del perfil al código interno usado en BD.

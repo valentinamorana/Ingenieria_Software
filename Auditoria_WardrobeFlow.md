@@ -2,7 +2,7 @@
 
 **Auditor:** Revisión final universitaria / pre-producción
 **Fecha:** 11/06/2026
-**Alcance:** BE · BLL · DAL · GUI · Seguridad · Servicios · BD (23 tablas) · Tests (59 casos)
+**Alcance:** BE · BLL · DAL · GUI · Seguridad · Servicios · BD (23 tablas) · Tests (65 casos)
 **Veredicto adelantado:** proyecto de calidad netamente superior a una entrega académica promedio. Arquitectura y seguridad de nivel profesional; las debilidades son de *deuda técnica acotada*, no de diseño roto.
 
 ---
@@ -146,7 +146,7 @@ Esquema sólido: **23 tablas, 24 FK, 23 PK, 6 UNIQUE/CHECK**, integridad referen
 | Credenciales generadas exportadas en **.txt plano** en disco (`CredencialesGeneradas/`) | Media | `Usuario.cs:203,232` `ExportarCredenciales` | Aceptable por flujo, pero mostrar en pantalla de un solo uso o cifrar el archivo. |
 | ~~Clave temporal **hardcodeada** `"Wardrobe1!"`~~ **(RESUELTO)** | Media | `Usuario.cs` | La clave temporal salió a `App.config` (`appSettings["ClaveTemporalDefault"]`, con fallback). Además, tras un alta o reset la cuenta queda con `RequiereCambioClave=1` y el login **fuerza el cambio** antes de abrir el sistema (`CambioClaveObligatorioForm` → `BLL.Usuario.CambiarClavePropia`). |
 | AES-128 (no 256) y PBKDF2 100k | Baja | `Encriptador.cs:16,125` | Subir a AES-256 y ~210k iteraciones (OWASP 2023). |
-| Bypass de admin por *string* "Administrador" | Baja | `SessionManager.cs:36` | Si se crea un rol con ese nombre, gana acceso total. Identificar admin por flag/ID, no por texto. |
+| ~~Bypass de admin por *string* "Administrador" disperso~~ **(RESUELTO)** | Baja | `BE.Usuario.EsAdministrador` / `BE.Roles.EsAdministrador` | La decisión "es admin" se centralizó en un **flag único** (`Usuario.EsAdministrador`, derivado en un solo lugar, case-insensitive, null-safe, sobre Perfil **y** Rol). Todos los guards de runtime (SessionManager, BLL Backup/Usuario/Familia/ControlMapeado/RecuperacionAdmin, GUI ManejadorSeguridad) lo usan en vez de `string.Equals` repetido. Único punto a migrar si se pasa a Id/columna de BD. |
 
 **Nota Seguridad: 9/10** — supera ampliamente lo esperable en contexto académico.
 
@@ -158,7 +158,7 @@ Esquema sólido: **23 tablas, 24 FK, 23 PK, 6 UNIQUE/CHECK**, integridad referen
 
 **Debilidades:** `Traductor.cs` (4197 líneas) lastra cualquier métrica de complejidad/duplicación; forms de 800-900 líneas; algo de duplicación (guardas, backups); ~28k líneas totales con concentración de complejidad en pocos archivos.
 
-**Tests:** 59 pruebas unitarias cubriendo **lo crítico** (Composite, DV, Encriptador, Memento, claves de emergencia, casos especiales, i18n, preview de pérdida de backup, excepciones de sesión, cambio de clave obligatorio) con *fakes* inyectados. Buena disciplina de testing para una entrega académica.
+**Tests:** 65 pruebas unitarias cubriendo **lo crítico** (Composite, DV, Encriptador, Memento, claves de emergencia, casos especiales, i18n, preview de pérdida de backup, excepciones de sesión, cambio de clave obligatorio, identidad de Administrador) con *fakes* inyectados. Buena disciplina de testing para una entrega académica.
 
 **Nota Calidad: 8/10**
 
