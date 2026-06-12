@@ -3804,3 +3804,8 @@ RU	btn.adminusr.nuevo	➕ Новый пользователь
 RU	btn.adminusr.crear	💾 Создать
 RU	msg.adminusr.modoalta	Введите данные нового пользователя и нажмите Создать.
 RU	msg.adminusr.creado	Пользователь {0} создан. Учётные данные: {1}
+
+ES	col.ver.registro	Usuario (ID)
+EN	col.ver.registro	User (ID)
+PT	col.ver.registro	Usuário (ID)
+RU	col.ver.registro	Пользователь (ID)

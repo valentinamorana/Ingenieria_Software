@@ -20,6 +20,7 @@ namespace GUI
             this.btnCargar   = new System.Windows.Forms.Button();
             this.dgv         = new System.Windows.Forms.DataGridView();
             this.colId       = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colRegistro = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colFecha    = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colActor    = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colCampo    = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -101,13 +102,19 @@ namespace GUI
             this.dgv.TabIndex  = 4;
             this.dgv.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[]
             {
-                this.colId, this.colFecha, this.colActor, this.colCampo, this.colAnterior, this.colNuevo
+                this.colId, this.colRegistro, this.colFecha, this.colActor, this.colCampo, this.colAnterior, this.colNuevo
             });
 
             // ── colId (oculta: referencia a la versión para restaurar) ────────
             this.colId.Name        = "colId";
             this.colId.HeaderText  = "ID";
             this.colId.Visible     = false;
+
+            // ── colRegistro (identificador del registro afectado: usuario + ID) ──
+            this.colRegistro.Name        = "colRegistro";
+            this.colRegistro.HeaderText  = "Usuario (ID)";
+            this.colRegistro.FillWeight  = 18;
+            this.colRegistro.MinimumWidth= 110;
 
             // ── colFecha ─────────────────────────────────────────────────────
             this.colFecha.Name        = "colFecha";
@@ -177,6 +184,7 @@ namespace GUI
         private System.Windows.Forms.Button                   btnCargar;
         private System.Windows.Forms.DataGridView             dgv;
         private System.Windows.Forms.DataGridViewTextBoxColumn colId;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colRegistro;
         private System.Windows.Forms.DataGridViewTextBoxColumn colFecha;
         private System.Windows.Forms.DataGridViewTextBoxColumn colActor;
         private System.Windows.Forms.DataGridViewTextBoxColumn colCampo;

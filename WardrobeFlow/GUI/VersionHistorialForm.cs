@@ -61,6 +61,7 @@ namespace GUI
 
             if (dgv.Columns.Count > 0)
             {
+                dgv.Columns["colRegistro"].HeaderText = T("col.ver.registro", "Usuario (ID)");
                 dgv.Columns["colFecha"].HeaderText    = T("col.ver.fecha",    "Fecha");
                 dgv.Columns["colActor"].HeaderText    = T("col.ver.actor",    "Modificado por");
                 dgv.Columns["colCampo"].HeaderText    = T("col.ver.campo",    "Campo");
@@ -131,11 +132,13 @@ namespace GUI
                 var prev = asc[i - 1];
                 var cur  = asc[i];
                 string fechaTxt = cur.Fecha.ToString("dd/MM/yyyy HH:mm:ss");
+                // Identificador del registro afectado: usuario + ID.
+                string registroTxt = $"{cur.UsernameSnapshot} (ID {cur.IdUsuario})";
 
                 void Cmp(string campo, string viejo, string nuevo)
                 {
                     if (!string.Equals(viejo ?? "", nuevo ?? "", StringComparison.Ordinal))
-                        filas.Add(new object[] { cur.Id, fechaTxt, cur.Actor, campo, viejo ?? "", nuevo ?? "" });
+                        filas.Add(new object[] { cur.Id, registroTxt, fechaTxt, cur.Actor, campo, viejo ?? "", nuevo ?? "" });
                 }
 
                 Cmp(Campo("col.ver.f.usuario",  "Usuario"),    prev.UsernameSnapshot, cur.UsernameSnapshot);
