@@ -46,6 +46,7 @@
     <Compile Include="EncriptadorTests.cs" />
     <Compile Include="CompositeTests.cs" />
     <Compile Include="MementoTests.cs" />
+    <Compile Include="UsuarioAbmTests.cs" />
     <Compile Include="RolAdminTests.cs" />
     <Compile Include="SessionManagerTests.cs" />
     <Compile Include="TraductorCorpusTests.cs" />

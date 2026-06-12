@@ -152,26 +152,29 @@ namespace Tests
         [TestMethod]
         public void Caso5_MultiplesNivelesDeRollback()
         {
-            // Patrón Memento: se capturan varias versiones y se deshace nivel por nivel.
-            var u  = new BE.Usuario { Id = 1, Username = "u", Contraseña = "v1", Bloqueado = false, IntentosFallidos = 0 };
+            // Patrón Memento: se capturan varias versiones de los DATOS ADMINISTRATIVOS (no sensibles)
+            // y se deshace nivel por nivel. El control de cambios NO versiona la contraseña, así que
+            // el rollback opera sobre nombre/apellido/email (revisión 11/06).
+            var u  = new BE.Usuario { Id = 1, Username = "u", Nombre = "v1", Apellido = "A1", Contraseña = "secreta" };
             var m1 = u.CrearMemento("admin", "estado v1");
 
-            u.Contraseña = "v2"; u.IntentosFallidos = 1;
+            u.Nombre = "v2"; u.Apellido = "A2";
             var m2 = u.CrearMemento("admin", "estado v2");
 
-            u.Contraseña = "v3"; u.Bloqueado = true; u.IntentosFallidos = 3;
+            u.Nombre = "v3"; u.Apellido = "A3"; u.Contraseña = "otra";
 
             // Rollback nivel 1: v3 → v2
             u.RestaurarDesde(m2);
-            Assert.AreEqual("v2", u.Contraseña);
-            Assert.AreEqual(1, u.IntentosFallidos);
-            Assert.IsFalse(u.Bloqueado);
+            Assert.AreEqual("v2", u.Nombre);
+            Assert.AreEqual("A2", u.Apellido);
 
             // Rollback nivel 2: v2 → v1
             u.RestaurarDesde(m1);
-            Assert.AreEqual("v1", u.Contraseña);
-            Assert.AreEqual(0, u.IntentosFallidos);
-            Assert.IsFalse(u.Bloqueado);
+            Assert.AreEqual("v1", u.Nombre);
+            Assert.AreEqual("A1", u.Apellido);
+
+            // La contraseña nunca se revierte por el rollback (no es un dato versionable).
+            Assert.AreEqual("otra", u.Contraseña);
         }
 
         // ── Caso 6 — Cambiar idioma con múltiples usuarios conectados (RNF-05) ────
