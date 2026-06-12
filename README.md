@@ -30,8 +30,11 @@ Arquitectura en capas, con dependencias **acíclicas** (`GUI → BLL → Servici
 - `DAL.Acceso` — instancia única de acceso a la base de datos (con soporte de transacciones).
 - `Seguridad.ContadorSesion` — control de intentos por sesión.
 
+> **Revisión 11/06.** Se aplicaron las correcciones de la revisión: permisos (patentes) como **catálogo fijo** (no editable) con **roles administrables** y **Familias retiradas** del modelo; **dos paneles** de usuarios (operaciones de cuenta vs. ABM de datos); **Historial de Cambios a nivel de campo** (sin contraseñas) con rollback registrado como nueva entrada; **cambio de rol** con protección del último admin; **acceso a DV exclusivo de Administrador** (fail-closed + registro); **mensaje de error genérico** ante fallos no controlados; y **traducciones**: no se persisten en blanco y se completó la cobertura de dashboards/paneles.
+
 ### Composite — Perfiles y Permisos (T04)
 El patrón Composite es el **motor real de autorización**:
+- **Revisión 11/06:** las **Familias** se eliminaron del modelo (la migración aplana `Rol → Patente` y desactiva los nodos Familia, preservando los permisos efectivos). Los **permisos** son un **catálogo fijo** (solo se asignan a roles); los **roles** se crean/renombran/eliminan y admiten *rol-en-rol* (Composite vigente).
 - `BE.Componente` (abstracto) → `BE.Patente` (hoja, permiso simple) + `BE.Familia` (nodo compuesto) + `BE.Rol : Familia` (rol asignable que puede contener familias, patentes y **otros roles**).
 - La composición se persiste en la tabla **`PermisoRelacion`** (única fuente de verdad). Un rol es una fila de `Permiso` con `EsRol = 1`.
 - Los **permisos efectivos** de un usuario se resuelven **recursivamente** (`BLL.Familia.ObtenerPermisosEfectivos`), recorriendo rol → roles/familias → patentes y deduplicando permisos repetidos.
@@ -56,6 +59,7 @@ El patrón Composite es el **motor real de autorización**:
 - **Memento** → `BE.VersionUsuario : BE.Memento.IMemento` (cápsula del estado; expone solo metadatos al Caretaker).
 - **Caretaker** → `BLL.CuidadorHistorial` (guarda/recupera el historial sin interpretar el estado; persiste en `HistorialUsuario`).
 - Permite **deshacer** cambios (rollback) sobre un usuario. Antes de restaurar, se guarda un memento del estado actual → habilita el *rollback de un rollback*. Si no se puede guardar el snapshot, la operación se **aborta** (fail-safe).
+- **Revisión 11/06:** el Memento versiona los **datos administrativos NO sensibles** (nombre, apellido, nombre de usuario, fecha de nacimiento, email). La **contraseña no se versiona ni se revierte**. El **Historial de Cambios** se muestra a **nivel de campo** (identificador del registro, campo, valor anterior, valor nuevo, quién y cuándo) y el **rollback queda registrado como una nueva entrada**.
 
 ### Dígitos Verificadores (T07)
 - **DVH** (horizontal, por fila) y **DVV** (vertical, por tabla, en `DVVertical`), con módulo primo `999_983` (mucho más resistente a colisiones que mod 10).

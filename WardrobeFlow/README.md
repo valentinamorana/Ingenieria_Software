@@ -53,7 +53,11 @@ La GUI nunca accede a DAL ni a Seguridad directamente. Toda la lógica de negoci
 | **OperadorDeInventario** | Ver Prendas + Gestionar Stock (mantenimiento) | rol base inventario |
 | **GerenteInventario** | lo de ambos operadores + Categorías/Outfits | ⊃ OperadorLogistico + OperadorDeInventario |
 
-Los permisos se resuelven recursivamente desde el árbol Composite (tabla `PermisoRelacion`) y se cargan en sesión al hacer login. Se gestionan desde **Administrar → Perfiles y Permisos**, donde además se pueden **mapear controles** individuales a una patente. Los roles `Supervisor`, `ControladorDeStock` y `EncargadoDeStock` de versiones previas se **migran automáticamente** a los vigentes.
+Los permisos se resuelven recursivamente desde el árbol Composite (tabla `PermisoRelacion`) y se cargan en sesión al hacer login. Se gestionan desde **Administrar → Perfiles y Permisos**.
+
+> **Revisión 11/06 — simplificación de roles y permisos.** Los **permisos (patentes)** son ahora un **catálogo fijo** del sistema: no se crean, editan ni eliminan desde la UI; solo se **asignan** a roles. Los **roles** sí son administrables (crear, renombrar, eliminar y asignarles permisos u otros roles — *rol-en-rol*, que mantiene vivo el patrón Composite). Las **Familias** se **retiraron** del modelo: la migración aplana las relaciones `Rol → Patente` y desactiva los nodos Familia conservando los permisos efectivos de cada rol. Los roles `Supervisor`, `ControladorDeStock` y `EncargadoDeStock` de versiones previas se **migran automáticamente** a los vigentes.
+
+**Cambio de rol de un usuario.** Se realiza desde **Administrar → Administración de Usuarios → Cambiar rol** (solo Administrador). La operación valida que no se quite el rol al **último Administrador activo**, graba un snapshot (Memento) y queda registrada en bitácora.
 
 ---
 
@@ -62,8 +66,9 @@ Los permisos se resuelven recursivamente desde el árbol Composite (tabla `Permi
 | Módulo | Descripción |
 |--------|-------------|
 | **Login / Logout** | Autenticación con **bloqueo de login progresivo** (1/5/15/60 min tras 3 intentos), claves de emergencia de autodesbloqueo y bloqueo de sesión en memoria |
-| **Usuarios** | ABM de empleados con baja lógica/purga; contraseñas generadas automáticamente (RNG criptográfico) y exportadas a `Documentos\WardrobeFlow\` |
-| **Perfiles y Permisos** | Árbol de permisos por rol con TreeView recursivo (Composite); asignación/remoción en tiempo real; **mapeo de controles** por patente; gestión delegable con anti-autobloqueo |
+| **Usuarios** (operaciones de cuenta) | Panel "grueso": alta de empleados, **reset de contraseña**, **desbloqueo**, **archivado** (baja lógica) y **purga** diferida; contraseñas generadas automáticamente (RNG criptográfico) y exportadas a `Documentos\WardrobeFlow\` |
+| **Administración de Usuarios** (ABM de datos) | Panel de edición de datos administrativos **no sensibles**: modificar nombre, apellido, nombre de usuario, fecha de nacimiento y email; **búsqueda/filtros** por nombre, apellido o email; **cambiar rol**; y **ver el Historial de Cambios**. Nunca edita ni muestra la contraseña |
+| **Perfiles y Permisos** | Árbol Composite por rol con TreeView recursivo; **ABM de roles** y asignación/remoción de permisos en tiempo real; los permisos son un catálogo fijo (no editable); **mapeo de controles** por patente; gestión delegable con anti-autobloqueo |
 | **Mi Perfil** | Preferencias de UI por usuario (idioma, tipografía, tamaño, tema, formato de fecha) aplicadas en vivo, con "volver a valores de fábrica" |
 | **Clientes** | ABM de suscriptores con plan, vencimiento y columna `en uso / límite`; filas en ámbar cuando la suscripción vence en ≤ 7 días |
 | **Prendas** | Inventario con estados (Disponible · EnUso · EnLimpieza · Baja) y transiciones validadas en BLL |
@@ -71,7 +76,7 @@ Los permisos se resuelven recursivamente desde el árbol Composite (tabla `Permi
 | **Pedidos de Venta** | Creación de pedidos respetando límite del plan; bloquea nuevo pedido si el cliente ya tiene uno Despachado sin entregar; alerta proactiva si la suscripción vence pronto |
 | **Pedidos Realizados** | Ciclo post-venta: Despachar → Marcar Entregado → Registrar Devolución; filtros por estado y días |
 | **Bitácora** | Registro de eventos del sistema y de negocio con filtros, criticidad y exportación a PDF |
-| **Historial de Cambios** | Snapshots de versiones de usuarios con restauración a estado anterior |
+| **Historial de Cambios** | Cambios de datos administrativos por usuario a **nivel de campo** (campo · valor anterior · valor nuevo · quién modificó · fecha/hora); **rollback** que se registra como una **nueva entrada**. No incluye ni revierte contraseñas |
 | **Idiomas** | ABM de traducciones directamente en la BD |
 | **Dashboard** | Panel de control personalizado por rol: el Administrador ve KPIs globales (prendas, clientes, pedidos, backup, ocupación de stock con semáforo); el Vendedor ve su pipeline de pedidos por estado; el ControladorDeStock sus métricas de stock; el Supervisor su resumen de auditoría; el Operador su vista de pedidos. Todos con auto-refresh periódico y carga asíncrona (Task.Run + BeginInvoke) |
 | **Backup / Restauración** | Generación de copias **cifradas con contraseña** (`.wfbak`, AES+PBKDF2) con verificación de integridad previa; restauración con contraseña (compatible con `.bak` planos legacy); lista con autor, fecha y tamaño |
@@ -86,8 +91,8 @@ Los permisos se resuelven recursivamente desde el árbol Composite (tabla `Permi
 |--------|-------|
 | **Singleton** | `SessionManager` (sesión activa) · `ContadorSesion` (intentos de login) · `DAL.Acceso` (conexión BD) |
 | **Observer** | `GestorIdioma` (Subject) → formularios como observers — cambio de idioma dinámico en tiempo de ejecución |
-| **Composite** | `Componente` → `Familia` (nodo) / `Patente` (hoja) / `Rol` — árbol jerárquico de permisos; resolución recursiva con dedup y anti-ciclos. Permisos también a **nivel de control** (`ControlMapeado` + `ManejadorSeguridad`) |
-| **Memento** | `BE.Usuario` (Originator) + `BE.VersionUsuario` (Memento) + `BLL.CuidadorHistorial` (Caretaker) — rollback de cambios sobre usuarios, persiste en `HistorialUsuario` |
+| **Composite** | `Componente` → `Patente` (hoja) / `Rol` (nodo compuesto, anidable *rol-en-rol*) — árbol de permisos; resolución recursiva con dedup y anti-ciclos. Las Familias se retiraron del modelo (revisión 11/06); el patrón sigue vigente vía Rol. Permisos también a **nivel de control** (`ControlMapeado` + `ManejadorSeguridad`) |
+| **Memento** | `BE.Usuario` (Originator) + `BE.VersionUsuario` (Memento) + `BLL.CuidadorHistorial` (Caretaker) — versiona los **datos administrativos no sensibles** (nombre/apellido/usuario/fecha nac./email), persiste en `HistorialUsuario` y permite rollback. La contraseña **no** se versiona ni se revierte |
 | **Herencia** | `FormBase` → todos los formularios heredan `MostrarOk()`, `MostrarError()`, traducción de `AppException` y aplicación de seguridad por control |
 
 ---
@@ -110,7 +115,8 @@ Las siguientes reglas están implementadas y validadas en la capa BLL (nunca en 
 - Contraseñas **nunca en texto plano**: PBKDF2-SHA256 con salt aleatorio de 16 bytes y 100.000 iteraciones; verificación en **tiempo constante** y login resistente a enumeración (hash señuelo)
 - Datos sensibles (DNI) encriptados con AES-128-CBC
 - **Bloqueo de login progresivo**: 1 → 5 → 15 → 60 min según reincidencia; auto-reactivación al expirar; **claves de emergencia** de un solo uso para autodesbloqueo del admin
-- Bloqueo de sesión en memoria + **handler global** de excepciones no controladas (las registra en bitácora)
+- Bloqueo de sesión en memoria + **handler global** de excepciones no controladas: registra el detalle técnico en bitácora y muestra al usuario un **mensaje genérico** (*"Ha ocurrido un error inesperado. Por favor, contacte al administrador del sistema."*), sin exponer información técnica
+- **Acceso a Dígitos Verificadores (fail-closed):** recalcular/reparar DV es exclusivo del **Administrador**. Un usuario autenticado sin permiso queda **bloqueado**, el intento se **registra** en bitácora (visible para el administrador) y se muestra un mensaje genérico; el flujo de reparación de arranque (break-glass) sigue autorizado por `ConfirmarAdminForm`/Clave Maestra
 - **Backups cifrados** con contraseña (AES-128 + PBKDF2) y **Clave Maestra de Recuperación** opcional (hash en `App.config`) para `ConfirmarAdminForm`
 - **Dígitos verificadores** (DVH por fila + DVV por tabla) sobre `Usuario`, `Cliente` y `Empleado` — detecta manipulación directa en BD antes de permitir el login
 - Contraseñas generadas automáticamente (RNG criptográfico + Fisher-Yates) al crear usuarios o resetear claves; se exportan a `Documentos\WardrobeFlow\`
@@ -120,7 +126,9 @@ Las siguientes reglas están implementadas y validadas en la capa BLL (nunca en 
 
 ## Multiidioma
 
-Soporta **Español · English · Русский · Português** con cambio dinámico en tiempo de ejecución (sin reiniciar). Las traducciones se almacenan en la tabla `Traduccion` de la BD; el código hardcodeado actúa como fallback **por clave** (un idioma incompleto cae al idioma por defecto). La preferencia de idioma se persiste por usuario en la BD y se restaura automáticamente al hacer login. Se pueden **agregar idiomas nuevos** desde la administración; la grilla de traducciones muestra el texto del idioma por defecto como **referencia** para completar el nuevo idioma a mano.
+Soporta **Español · English · Русский · Português** con cambio dinámico en tiempo de ejecución (sin reiniciar). Las traducciones se almacenan en la tabla `Traduccion` de la BD; un corpus embebido (`traducciones.tsv`) actúa como fallback **por clave** (un idioma incompleto cae al idioma por defecto). La preferencia de idioma se persiste por usuario en la BD y se restaura automáticamente al hacer login. Se pueden **agregar idiomas nuevos** desde la administración; la grilla de traducciones muestra el texto del idioma por defecto como **referencia** para completar el nuevo idioma a mano.
+
+> **Revisión 11/06 — consistencia de traducciones.** Una traducción **en blanco ya no se persiste** ni pisa el texto por defecto: las claves sin completar caen al fallback en vez de mostrarse vacías. Se completó además la cobertura de los **dashboards** y se sumaron las claves del panel de Administración de Usuarios y del Historial de Cambios en los 4 idiomas.
 
 ---
 
