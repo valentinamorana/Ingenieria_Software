@@ -116,8 +116,11 @@ namespace BLL
         // Persiste el texto editado de una traducción.
         public void GuardarTraduccion(int idControl, int idIdioma, string texto)
         {
-            if (string.IsNullOrEmpty(texto)) return;
-            dalTraduccion.GuardarTraduccion(idControl, idIdioma, texto);
+            // No se persisten traducciones en blanco/whitespace: una clave sin completar debe
+            // quedar SIN traducción en BD para que el Traductor use el fallback por clave (texto del
+            // idioma por defecto), en vez de guardar "" y dejar el control vacío en pantalla.
+            if (string.IsNullOrWhiteSpace(texto)) return;
+            dalTraduccion.GuardarTraduccion(idControl, idIdioma, texto.Trim());
         }
 
         // ── Controles (textos traducibles del sistema) — T05 ─────────────────────

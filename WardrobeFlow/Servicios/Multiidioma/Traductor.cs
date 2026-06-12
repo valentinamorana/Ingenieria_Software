@@ -104,7 +104,11 @@ namespace Servicios.Multiidioma
                 // base: idioma default completo (desde el corpus embebido)
                 foreach (var kv in ObtenerTraduccionesHardcode(ObtenerIdiomaDefault()))
                     merged[kv.Key] = kv.Value.Texto;
-                foreach (var kv in cache) merged[kv.Key] = kv.Value;       // overlay: idioma activo
+                // overlay: idioma activo, pero SOLO con textos no vacíos. Una traducción en blanco
+                // (clave sin completar en ese idioma) NO debe pisar el texto por defecto, o el control
+                // quedaría vacío en pantalla. Tratar vacío/whitespace como "sin traducción".
+                foreach (var kv in cache)
+                    if (!string.IsNullOrWhiteSpace(kv.Value)) merged[kv.Key] = kv.Value;
                 return Construir(merged);
             }
 

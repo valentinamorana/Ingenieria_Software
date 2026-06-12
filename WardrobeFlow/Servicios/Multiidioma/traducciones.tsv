@@ -3570,3 +3570,237 @@ PT	msg.idiomas.guardadas.error	{0} salva(s) e {1} com erro.
 PT	err.mant.cargar	Erro ao carregar histórico: {0}
 PT	alerta.integridad.titulo	Alerta de Integridade
 PT	alerta.integridad.msg	ALERTA: Problemas de integridade detectados na tabela Usuario.\n\nLinhas com DVH inválido: {0}\nDVV armazenado: {1}  |  DVV calculado: {2}\n\nVá a Administrar → Diagnóstico de Integridade para reparar.
+
+ES	msg.error.inesperado	Ha ocurrido un error inesperado. Por favor, contacte al administrador del sistema.
+ES	mnu.adminusuarios	Administración de Usuarios
+ES	frm.adminusuarios	Administración de Usuarios
+ES	lbl.adminusr.titulo	Administración de Usuarios
+ES	lbl.adminusr.buscar	Buscar (nombre, apellido o email):
+ES	lbl.adminusr.datos	Datos del usuario seleccionado
+ES	lbl.adminusr.nombre	Nombre:
+ES	lbl.adminusr.apellido	Apellido:
+ES	lbl.adminusr.username	Nombre de usuario:
+ES	lbl.adminusr.email	Email:
+ES	lbl.adminusr.nacimiento	Fecha de nacimiento:
+ES	lbl.adminusr.rol	Rol:
+ES	btn.adminusr.buscar	🔍 Buscar
+ES	btn.adminusr.refrescar	↻ Ver todos
+ES	btn.adminusr.guardar	💾 Guardar cambios
+ES	btn.adminusr.cambiarrol	🔁 Cambiar rol
+ES	btn.adminusr.historial	📜 Ver historial de cambios
+ES	col.adminusr.nombre	Nombre
+ES	col.adminusr.apellido	Apellido
+ES	col.adminusr.email	Email
+ES	msg.adminusr.cargados	{0} usuario(s).
+ES	msg.adminusr.guardado	Datos del usuario actualizados correctamente.
+ES	msg.adminusr.rolcambiado	Rol del usuario actualizado correctamente.
+ES	err.adminusr.rol_vacio	Seleccioná un rol.
+ES	col.ver.campo	Campo
+ES	col.ver.anterior	Valor anterior
+ES	col.ver.nuevo	Valor nuevo
+ES	col.ver.f.usuario	Usuario
+ES	col.ver.f.nombre	Nombre
+ES	col.ver.f.apellido	Apellido
+ES	col.ver.f.email	Email
+ES	col.ver.f.fechanac	Fecha nac.
+
+EN	msg.error.inesperado	An unexpected error occurred. Please contact the system administrator.
+EN	mnu.adminusuarios	User Administration
+EN	frm.adminusuarios	User Administration
+EN	lbl.adminusr.titulo	User Administration
+EN	lbl.adminusr.buscar	Search (name, surname or email):
+EN	lbl.adminusr.datos	Selected user data
+EN	lbl.adminusr.nombre	Name:
+EN	lbl.adminusr.apellido	Surname:
+EN	lbl.adminusr.username	Username:
+EN	lbl.adminusr.email	Email:
+EN	lbl.adminusr.nacimiento	Date of birth:
+EN	lbl.adminusr.rol	Role:
+EN	btn.adminusr.buscar	🔍 Search
+EN	btn.adminusr.refrescar	↻ Show all
+EN	btn.adminusr.guardar	💾 Save changes
+EN	btn.adminusr.cambiarrol	🔁 Change role
+EN	btn.adminusr.historial	📜 View change history
+EN	col.adminusr.nombre	Name
+EN	col.adminusr.apellido	Surname
+EN	col.adminusr.email	Email
+EN	msg.adminusr.cargados	{0} user(s).
+EN	msg.adminusr.guardado	User data updated successfully.
+EN	msg.adminusr.rolcambiado	User role updated successfully.
+EN	err.adminusr.rol_vacio	Select a role.
+EN	col.ver.campo	Field
+EN	col.ver.anterior	Previous value
+EN	col.ver.nuevo	New value
+EN	col.ver.f.usuario	Username
+EN	col.ver.f.nombre	Name
+EN	col.ver.f.apellido	Surname
+EN	col.ver.f.email	Email
+EN	col.ver.f.fechanac	Birth date
+PT	msg.error.inesperado	Ocorreu um erro inesperado. Entre em contato com o administrador do sistema.
+PT	mnu.adminusuarios	Administração de Usuários
+PT	frm.adminusuarios	Administração de Usuários
+PT	lbl.adminusr.titulo	Administração de Usuários
+PT	lbl.adminusr.buscar	Buscar (nome, sobrenome ou email):
+PT	lbl.adminusr.datos	Dados do usuário selecionado
+PT	lbl.adminusr.nombre	Nome:
+PT	lbl.adminusr.apellido	Sobrenome:
+PT	lbl.adminusr.username	Nome de usuário:
+PT	lbl.adminusr.email	Email:
+PT	lbl.adminusr.nacimiento	Data de nascimento:
+PT	lbl.adminusr.rol	Papel:
+PT	btn.adminusr.buscar	🔍 Buscar
+PT	btn.adminusr.refrescar	↻ Ver todos
+PT	btn.adminusr.guardar	💾 Salvar alterações
+PT	btn.adminusr.cambiarrol	🔁 Alterar papel
+PT	btn.adminusr.historial	📜 Ver histórico de alterações
+PT	col.adminusr.nombre	Nome
+PT	col.adminusr.apellido	Sobrenome
+PT	col.adminusr.email	Email
+PT	msg.adminusr.cargados	{0} usuário(s).
+PT	msg.adminusr.guardado	Dados do usuário atualizados com sucesso.
+PT	msg.adminusr.rolcambiado	Papel do usuário atualizado com sucesso.
+PT	err.adminusr.rol_vacio	Selecione um papel.
+PT	col.ver.campo	Campo
+PT	col.ver.anterior	Valor anterior
+PT	col.ver.nuevo	Novo valor
+PT	col.ver.f.usuario	Usuário
+PT	col.ver.f.nombre	Nome
+PT	col.ver.f.apellido	Sobrenome
+PT	col.ver.f.email	Email
+PT	col.ver.f.fechanac	Data nasc.
+
+RU	msg.error.inesperado	Произошла непредвиденная ошибка. Пожалуйста, обратитесь к администратору системы.
+RU	mnu.adminusuarios	Управление пользователями
+RU	frm.adminusuarios	Управление пользователями
+RU	lbl.adminusr.titulo	Управление пользователями
+RU	lbl.adminusr.buscar	Поиск (имя, фамилия или эл. почта):
+RU	lbl.adminusr.datos	Данные выбранного пользователя
+RU	lbl.adminusr.nombre	Имя:
+RU	lbl.adminusr.apellido	Фамилия:
+RU	lbl.adminusr.username	Имя пользователя:
+RU	lbl.adminusr.email	Эл. почта:
+RU	lbl.adminusr.nacimiento	Дата рождения:
+RU	lbl.adminusr.rol	Роль:
+RU	btn.adminusr.buscar	🔍 Поиск
+RU	btn.adminusr.refrescar	↻ Показать всех
+RU	btn.adminusr.guardar	💾 Сохранить изменения
+RU	btn.adminusr.cambiarrol	🔁 Сменить роль
+RU	btn.adminusr.historial	📜 История изменений
+RU	col.adminusr.nombre	Имя
+RU	col.adminusr.apellido	Фамилия
+RU	col.adminusr.email	Эл. почта
+RU	msg.adminusr.cargados	Пользователей: {0}.
+RU	msg.adminusr.guardado	Данные пользователя успешно обновлены.
+RU	msg.adminusr.rolcambiado	Роль пользователя успешно обновлена.
+RU	err.adminusr.rol_vacio	Выберите роль.
+RU	col.ver.campo	Поле
+RU	col.ver.anterior	Прежнее значение
+RU	col.ver.nuevo	Новое значение
+RU	col.ver.f.usuario	Имя пользователя
+RU	col.ver.f.nombre	Имя
+RU	col.ver.f.apellido	Фамилия
+RU	col.ver.f.email	Эл. почта
+RU	col.ver.f.fechanac	Дата рожд.
+
+ES	dash.despachados	Pedidos
+despachados
+ES	dash.entregados	Pedidos
+entregados
+ES	dash.kan.despachado	Despachado
+ES	dash.kan.entregado	Entregado
+ES	dash.kan.pendiente	Pendiente
+ES	dash.mant.activo	En
+mantenimiento
+ES	dash.mant.encurso	En curso (2-7d)
+ES	dash.mant.reciente	Reciente (< 2d)
+ES	dash.mant.urgente	Urgente (> 7d)
+ES	dash.operador.titulo	Panel de Operaciones
+ES	dash.planes	Planes
+activos
+ES	dash.stock.titulo	Panel de Stock
+ES	dash.sup.bitacora	Actividad reciente
+ES	dash.sup.mant	En mantenimiento
+ES	dash.sup.pedidos	Pedidos pendientes
+ES	dash.supervisor.titulo	Panel de Supervisor
+ES	dash.vendedor.titulo	Panel de Ventas
+EN	dash.despachados	Dispatched
+orders
+EN	dash.entregados	Delivered
+orders
+EN	dash.kan.despachado	Dispatched
+EN	dash.kan.entregado	Delivered
+EN	dash.kan.pendiente	Pending
+EN	dash.mant.activo	Under
+maintenance
+EN	dash.mant.encurso	In progress (2-7d)
+EN	dash.mant.reciente	Recent (< 2d)
+EN	dash.mant.urgente	Urgent (> 7d)
+EN	dash.operador.titulo	Operations Panel
+EN	dash.planes	Active
+plans
+EN	dash.stock.titulo	Stock Panel
+EN	dash.sup.bitacora	Recent activity
+EN	dash.sup.mant	Under maintenance
+EN	dash.sup.pedidos	Pending orders
+EN	dash.supervisor.titulo	Supervisor Panel
+EN	dash.vendedor.titulo	Sales Panel
+
+PT	dash.despachados	Pedidos
+despachados
+PT	dash.entregados	Pedidos
+entregues
+PT	dash.kan.despachado	Despachado
+PT	dash.kan.entregado	Entregue
+PT	dash.kan.pendiente	Pendente
+PT	dash.mant.activo	Em
+manutenção
+PT	dash.mant.encurso	Em andamento (2-7d)
+PT	dash.mant.reciente	Recente (< 2d)
+PT	dash.mant.urgente	Urgente (> 7d)
+PT	dash.operador.titulo	Painel de Operações
+PT	dash.planes	Planos
+ativos
+PT	dash.stock.titulo	Painel de Estoque
+PT	dash.sup.bitacora	Atividade recente
+PT	dash.sup.mant	Em manutenção
+PT	dash.sup.pedidos	Pedidos pendentes
+PT	dash.supervisor.titulo	Painel de Supervisor
+PT	dash.vendedor.titulo	Painel de Vendas
+RU	dash.despachados	Отгружено
+заказов
+RU	dash.entregados	Доставлено
+заказов
+RU	dash.kan.despachado	Отгружен
+RU	dash.kan.entregado	Доставлен
+RU	dash.kan.pendiente	В ожидании
+RU	dash.mant.activo	На
+обслуживании
+RU	dash.mant.encurso	В процессе (2-7д)
+RU	dash.mant.reciente	Недавно (< 2д)
+RU	dash.mant.urgente	Срочно (> 7д)
+RU	dash.operador.titulo	Панель операций
+RU	dash.planes	Активных
+планов
+RU	dash.stock.titulo	Панель склада
+RU	dash.sup.bitacora	Недавняя активность
+RU	dash.sup.mant	На обслуживании
+RU	dash.sup.pedidos	Заказы в ожидании
+RU	dash.supervisor.titulo	Панель супервайзера
+RU	dash.vendedor.titulo	Панель продаж
+
+ES	btn.adminusr.nuevo	➕ Nuevo usuario
+ES	btn.adminusr.crear	💾 Crear usuario
+ES	msg.adminusr.modoalta	Cargá los datos del nuevo usuario y presioná Crear.
+ES	msg.adminusr.creado	Usuario {0} creado. Credenciales en: {1}
+EN	btn.adminusr.nuevo	➕ New user
+EN	btn.adminusr.crear	💾 Create user
+EN	msg.adminusr.modoalta	Enter the new user data and press Create.
+EN	msg.adminusr.creado	User {0} created. Credentials at: {1}
+PT	btn.adminusr.nuevo	➕ Novo usuário
+PT	btn.adminusr.crear	💾 Criar usuário
+PT	msg.adminusr.modoalta	Informe os dados do novo usuário e pressione Criar.
+PT	msg.adminusr.creado	Usuário {0} criado. Credenciais em: {1}
+RU	btn.adminusr.nuevo	➕ Новый пользователь
+RU	btn.adminusr.crear	💾 Создать
+RU	msg.adminusr.modoalta	Введите данные нового пользователя и нажмите Создать.
+RU	msg.adminusr.creado	Пользователь {0} создан. Учётные данные: {1}
