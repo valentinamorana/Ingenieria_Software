@@ -52,6 +52,15 @@ namespace GUI
         private ToolStripMenuItem _miPerfilItem;
         // Ítem "Administración de Usuarios" (panel ABM de datos) — se agrega por código bajo Administrar.
         private ToolStripMenuItem _adminUsuariosItem;
+        // Submenús de "Administrar" (reorganización): "Usuarios ▸" y "Sistema ▸".
+        private ToolStripMenuItem _grpUsuarios, _grpSistema;
+
+        // Helper de traducción con fallback (para ítems creados por código).
+        private static string Tx(string key, string fallback)
+        {
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            return t.ContainsKey(key) ? t[key].Texto : fallback;
+        }
         // Usuario cargado en el constructor; reutilizado en OnLoad para no hacer dos SELECT
         private BE.Usuario _usuarioActivo;
 
@@ -119,16 +128,38 @@ namespace GUI
             _miPerfilItem.Click += MiPerfil_Click;
             usuarioToolStripMenuItem.DropDownItems.Insert(0, _miPerfilItem);
 
-            // "Administración de Usuarios" — panel ABM de datos (modificar nombre/apellido/usuario/
-            // fecha nac./email, cambiar rol y ver el historial de cambios). Se agrega bajo Administrar,
-            // junto a "Usuarios" (operaciones de cuenta). Su visibilidad la gobierna AplicarPermisos.
+            // ── Reorganización del menú "Administrar" en submenús ──────────────────
+            // El panel ABM de datos de usuario (modificar nombre/apellido/usuario/fecha nac./email,
+            // cambiar rol y ver historial). Va dentro del submenú "Usuarios".
             _adminUsuariosItem = new ToolStripMenuItem(
                 Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual).ContainsKey("mnu.adminusuarios")
                     ? Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual)["mnu.adminusuarios"].Texto
                     : "Administración de Usuarios") { Tag = "mnu.adminusuarios", Name = "adminUsuariosToolStripMenuItem" };
             _adminUsuariosItem.Click += AdminUsuarios_Click;
-            int idxUsuarios = gestionToolStripMenuItem.DropDownItems.IndexOf(usuariosToolStripMenuItem);
-            gestionToolStripMenuItem.DropDownItems.Insert(idxUsuarios < 0 ? 0 : idxUsuarios + 1, _adminUsuariosItem);
+
+            // "Usuarios" (operaciones de cuenta) pasa a llamarse "Cuentas de Usuario" para no
+            // confundirse con "Administración de Usuarios".
+            usuariosToolStripMenuItem.Tag  = "mnu.cuentas";
+            usuariosToolStripMenuItem.Text = Tx("mnu.cuentas", "Cuentas de Usuario");
+
+            // Submenú "Usuarios": ABM de datos + cuentas de usuario + historial de cambios.
+            _grpUsuarios = new ToolStripMenuItem(Tx("mnu.grp.usuarios", "Usuarios")) { Tag = "mnu.grp.usuarios", Name = "grpUsuariosToolStripMenuItem" };
+            _grpUsuarios.DropDownItems.Add(_adminUsuariosItem);
+            _grpUsuarios.DropDownItems.Add(usuariosToolStripMenuItem);
+            _grpUsuarios.DropDownItems.Add(historialUsuariosToolStripMenuItem);
+
+            // Submenú "Sistema": herramientas transversales.
+            _grpSistema = new ToolStripMenuItem(Tx("mnu.grp.sistema", "Sistema")) { Tag = "mnu.grp.sistema", Name = "grpSistemaToolStripMenuItem" };
+            _grpSistema.DropDownItems.Add(idiomasToolStripMenuItem);
+            _grpSistema.DropDownItems.Add(backupToolStripMenuItem);
+            _grpSistema.DropDownItems.Add(integridadToolStripMenuItem);
+
+            // Reconstruir el dropdown de "Administrar": Usuarios ▸, Perfiles, ──── , Sistema ▸.
+            gestionToolStripMenuItem.DropDownItems.Clear();
+            gestionToolStripMenuItem.DropDownItems.Add(_grpUsuarios);
+            gestionToolStripMenuItem.DropDownItems.Add(perfilesToolStripMenuItem);
+            gestionToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+            gestionToolStripMenuItem.DropDownItems.Add(_grpSistema);
 
             // Construir menú dinámico según permisos del rol
             RegistroControles.Registrar(this);   // Etapa 4 (C1) — registra los ítems del menú para la pantalla de mapeo
@@ -246,6 +277,8 @@ namespace GUI
             bool tieneUsuarios = nombresMenu.Contains("mnuUsuarios");
             usuariosToolStripMenuItem.Visible = tieneUsuarios;
             if (_adminUsuariosItem != null) _adminUsuariosItem.Visible = tieneUsuarios;
+            if (_grpUsuarios != null) _grpUsuarios.Visible = tieneUsuarios;
+            if (_grpSistema  != null) _grpSistema.Visible  = tieneUsuarios;
             perfilesToolStripMenuItem.Visible = tieneUsuarios;
             idiomasToolStripMenuItem.Visible  = tieneUsuarios;   // solo Admin gestiona traducciones
             historialUsuariosToolStripMenuItem.Visible = tieneUsuarios;
@@ -750,6 +783,8 @@ namespace GUI
             Aplicar(pedidosVentaToolStripMenuItem,      t);
             Aplicar(pedidosRealizadosToolStripMenuItem, t);
             Aplicar(gestionToolStripMenuItem,           t);
+            Aplicar(_grpUsuarios,                       t);
+            Aplicar(_grpSistema,                        t);
             Aplicar(usuariosToolStripMenuItem,          t);
             Aplicar(_adminUsuariosItem,                 t);
             Aplicar(perfilesToolStripMenuItem,          t);

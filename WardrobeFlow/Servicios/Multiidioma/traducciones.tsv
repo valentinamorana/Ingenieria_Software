@@ -3818,3 +3818,16 @@ PT	perm.dlg.rol.permisos	Permissões a atribuir (catálogo fixo do sistema):
 PT	perm.msg.nombrevacio	O nome do papel não pode estar vazio.
 RU	perm.dlg.rol.permisos	Права для назначения (фиксированный каталог системы):
 RU	perm.msg.nombrevacio	Имя роли не может быть пустым.
+
+ES	mnu.grp.usuarios	Usuarios
+ES	mnu.grp.sistema	Sistema
+ES	mnu.cuentas	Cuentas de Usuario
+EN	mnu.grp.usuarios	Users
+EN	mnu.grp.sistema	System
+EN	mnu.cuentas	User Accounts
+PT	mnu.grp.usuarios	Usuários
+PT	mnu.grp.sistema	Sistema
+PT	mnu.cuentas	Contas de Usuário
+RU	mnu.grp.usuarios	Пользователи
+RU	mnu.grp.sistema	Система
+RU	mnu.cuentas	Учётные записи
