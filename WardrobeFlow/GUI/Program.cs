@@ -118,7 +118,20 @@ namespace GUI
             }
             catch { /* si falla el logueo, igual mostramos el error */ }
 
-            MessageBox.Show(ex.Message, "Error inesperado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            // #6 — Ante un error NO controlado se muestra un mensaje GENÉRICO (no se expone
+            // información técnica al usuario). El detalle técnico ya quedó en la bitácora.
+            string titulo  = "Error inesperado";
+            string mensaje = "Ha ocurrido un error inesperado. Por favor, contacte al administrador del sistema.";
+            try
+            {
+                var t = Servicios.Multiidioma.Traductor.ObtenerTraducciones(
+                            Servicios.Multiidioma.GestorIdioma.IdiomaActual);
+                if (t.ContainsKey("msg.error.titulo"))     titulo  = t["msg.error.titulo"].Texto;
+                if (t.ContainsKey("msg.error.inesperado"))  mensaje = t["msg.error.inesperado"].Texto;
+            }
+            catch { /* sin i18n disponible: se usa el texto por defecto */ }
+
+            MessageBox.Show(mensaje, titulo, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

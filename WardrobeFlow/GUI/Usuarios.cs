@@ -172,6 +172,17 @@ namespace GUI
             // todas queden accesibles aunque la resolución/DPI reduzca el alto disponible.
             panelAlta.AutoScroll = true;
 
+            // Revisión: el ALTA de usuario ("Nuevo usuario") se movió a "Administración de Usuarios".
+            // Esta pantalla queda como gestión de CUENTA: resetear contraseña, desbloquear y archivar/purgar.
+            // Se ocultan los controles de alta y se suben las secciones de reset/desbloqueo para no dejar hueco.
+            foreach (var c in new Control[] { lblTitulo, lblUser, txtUsername, lblPerfil, cmbPerfil, btnAgregar })
+                if (c != null) c.Visible = false;
+            btnRefrescar.Location = new Point(12, 12);
+            const int subir = 230;
+            foreach (var c in new Control[] { separador1, lblResetTitulo, lblResetInfo, btnResetearClave,
+                                              separador2, lblDesbloquearTitulo, lblDesbloquearInfo, btnDesbloquear })
+                if (c != null) c.Location = new Point(c.Location.X, c.Location.Y - subir);
+
             // ── RF-10 — Archivar / Ver archivados / Purgar ────────────────────────
             // (El reseteo masivo de claves y el recálculo de DV se quitaron de acá: el primero es
             //  una operación peligrosa innecesaria; el recálculo de DV vive en Diagnóstico de Integridad.)

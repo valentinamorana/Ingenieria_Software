@@ -124,10 +124,14 @@ namespace GUI
                 return;
             }
 
-            // Excepción INESPERADA: se registra en la bitácora (criterio: excepciones
-            // registradas) antes de mostrarla al usuario.
+            // Excepción INESPERADA: se registra en la bitácora (con el detalle técnico) y al
+            // usuario se le muestra SOLO un mensaje GENÉRICO, sin exponer información técnica (#6).
             RegistrarExcepcion(ex);
-            MostrarError(ex.Message);
+            var tg = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string generico = tg.ContainsKey("msg.error.inesperado")
+                ? tg["msg.error.inesperado"].Texto
+                : "Ha ocurrido un error inesperado. Por favor, contacte al administrador del sistema.";
+            MostrarError(generico);
         }
 
         // Registra una excepción inesperada en la bitácora con criticidad Alta.

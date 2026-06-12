@@ -22,8 +22,9 @@ namespace GUI
             this.colId       = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colFecha    = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colActor    = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colDetalle  = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colEstado   = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colCampo    = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colAnterior = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colNuevo    = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnRestaurar= new System.Windows.Forms.Button();
             this.pnlTop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv)).BeginInit();
@@ -100,38 +101,43 @@ namespace GUI
             this.dgv.TabIndex  = 4;
             this.dgv.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[]
             {
-                this.colId, this.colFecha, this.colActor, this.colDetalle, this.colEstado
+                this.colId, this.colFecha, this.colActor, this.colCampo, this.colAnterior, this.colNuevo
             });
 
-            // ── colId ────────────────────────────────────────────────────────
+            // ── colId (oculta: referencia a la versión para restaurar) ────────
             this.colId.Name        = "colId";
             this.colId.HeaderText  = "ID";
-            this.colId.FillWeight  = 5;
-            this.colId.MinimumWidth= 40;
+            this.colId.Visible     = false;
 
             // ── colFecha ─────────────────────────────────────────────────────
             this.colFecha.Name        = "colFecha";
             this.colFecha.HeaderText  = "Fecha";
-            this.colFecha.FillWeight  = 18;
+            this.colFecha.FillWeight  = 20;
             this.colFecha.MinimumWidth= 130;
 
             // ── colActor ─────────────────────────────────────────────────────
             this.colActor.Name        = "colActor";
             this.colActor.HeaderText  = "Modificado por";
-            this.colActor.FillWeight  = 15;
+            this.colActor.FillWeight  = 16;
             this.colActor.MinimumWidth= 100;
 
-            // ── colDetalle ───────────────────────────────────────────────────
-            this.colDetalle.Name        = "colDetalle";
-            this.colDetalle.HeaderText  = "Detalle";
-            this.colDetalle.FillWeight  = 47;
-            this.colDetalle.MinimumWidth= 200;
+            // ── colCampo ─────────────────────────────────────────────────────
+            this.colCampo.Name        = "colCampo";
+            this.colCampo.HeaderText  = "Campo";
+            this.colCampo.FillWeight  = 16;
+            this.colCampo.MinimumWidth= 90;
 
-            // ── colEstado ────────────────────────────────────────────────────
-            this.colEstado.Name        = "colEstado";
-            this.colEstado.HeaderText  = "Estado";
-            this.colEstado.FillWeight  = 15;
-            this.colEstado.MinimumWidth= 80;
+            // ── colAnterior ──────────────────────────────────────────────────
+            this.colAnterior.Name        = "colAnterior";
+            this.colAnterior.HeaderText  = "Valor anterior";
+            this.colAnterior.FillWeight  = 24;
+            this.colAnterior.MinimumWidth= 120;
+
+            // ── colNuevo ─────────────────────────────────────────────────────
+            this.colNuevo.Name        = "colNuevo";
+            this.colNuevo.HeaderText  = "Valor nuevo";
+            this.colNuevo.FillWeight  = 24;
+            this.colNuevo.MinimumWidth= 120;
 
             // ── btnRestaurar ─────────────────────────────────────────────────
             this.btnRestaurar.BackColor                  = System.Drawing.Color.FromArgb(210, 100, 135);
@@ -173,8 +179,9 @@ namespace GUI
         private System.Windows.Forms.DataGridViewTextBoxColumn colId;
         private System.Windows.Forms.DataGridViewTextBoxColumn colFecha;
         private System.Windows.Forms.DataGridViewTextBoxColumn colActor;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colDetalle;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colEstado;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colCampo;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colAnterior;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colNuevo;
         private System.Windows.Forms.Button                   btnRestaurar;
     }
 }

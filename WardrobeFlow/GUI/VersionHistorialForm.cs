@@ -11,10 +11,17 @@ namespace GUI
         private readonly BLL.Usuario        _bllUsuario  = new BLL.Usuario();
 
         private List<BE.VersionUsuario> _versiones = new List<BE.VersionUsuario>();
+        private int _preseleccionarId = 0;   // si >0, se preselecciona ese usuario al abrir
 
         public VersionHistorialForm()
         {
             InitializeComponent();
+        }
+
+        // Abre el historial ya filtrado a un usuario concreto (desde Administración de Usuarios).
+        public VersionHistorialForm(int idUsuario) : this()
+        {
+            _preseleccionarId = idUsuario;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -24,6 +31,13 @@ namespace GUI
             GestorIdioma.SuscribirObservador(this);
             Traducir(GestorIdioma.IdiomaActual);
             CargarUsuarios();
+
+            // Si se abrió para un usuario concreto, preseleccionarlo y cargar su historial.
+            if (_preseleccionarId > 0)
+            {
+                cboUsuario.SelectedValue = _preseleccionarId;
+                if (cboUsuario.SelectedValue != null) btnCargar_Click(null, EventArgs.Empty);
+            }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -47,11 +61,11 @@ namespace GUI
 
             if (dgv.Columns.Count > 0)
             {
-                dgv.Columns["colId"].HeaderText      = T("col.ver.id",       "ID");
-                dgv.Columns["colFecha"].HeaderText   = T("col.ver.fecha",    "Fecha");
-                dgv.Columns["colActor"].HeaderText   = T("col.ver.actor",    "Modificado por");
-                dgv.Columns["colDetalle"].HeaderText = T("col.ver.detalle",  "Detalle");
-                dgv.Columns["colEstado"].HeaderText  = T("col.ver.estado",   "Estado");
+                dgv.Columns["colFecha"].HeaderText    = T("col.ver.fecha",    "Fecha");
+                dgv.Columns["colActor"].HeaderText    = T("col.ver.actor",    "Modificado por");
+                dgv.Columns["colCampo"].HeaderText    = T("col.ver.campo",    "Campo");
+                dgv.Columns["colAnterior"].HeaderText = T("col.ver.anterior", "Valor anterior");
+                dgv.Columns["colNuevo"].HeaderText    = T("col.ver.nuevo",    "Valor nuevo");
             }
         }
 
@@ -90,19 +104,50 @@ namespace GUI
             }
         }
 
+        // Muestra el historial como CAMBIOS a nivel de campo (Identificador del registro = IdUsuario,
+        // Campo, Valor anterior, Valor nuevo, Usuario que modificó y Fecha/hora). Se computa el diff
+        // entre cada versión y la anterior; solo se listan datos administrativos NO sensibles (la
+        // contraseña nunca se versiona ni se muestra).
         private void CargarGrilla()
         {
             dgv.Rows.Clear();
-            foreach (var v in _versiones)
+
+            // Ordenar ascendente por fecha (luego por Id) para comparar transiciones consecutivas.
+            var asc = new List<BE.VersionUsuario>(_versiones);
+            asc.Sort((a, b) =>
             {
-                dgv.Rows.Add(
-                    v.Id,
-                    v.Fecha.ToString("dd/MM/yyyy HH:mm:ss"),
-                    v.Actor,
-                    v.Detalle,
-                    v.EstadoSnapshot ? "Activo" : "Bloqueado"
-                );
+                int c = a.Fecha.CompareTo(b.Fecha);
+                return c != 0 ? c : a.Id.CompareTo(b.Id);
+            });
+
+            var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string Campo(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+
+            string Fnac(DateTime? f) => f?.ToString("dd/MM/yyyy") ?? "";
+
+            var filas = new List<object[]>();
+            for (int i = 1; i < asc.Count; i++)
+            {
+                var prev = asc[i - 1];
+                var cur  = asc[i];
+                string fechaTxt = cur.Fecha.ToString("dd/MM/yyyy HH:mm:ss");
+
+                void Cmp(string campo, string viejo, string nuevo)
+                {
+                    if (!string.Equals(viejo ?? "", nuevo ?? "", StringComparison.Ordinal))
+                        filas.Add(new object[] { cur.Id, fechaTxt, cur.Actor, campo, viejo ?? "", nuevo ?? "" });
+                }
+
+                Cmp(Campo("col.ver.f.usuario",  "Usuario"),    prev.UsernameSnapshot, cur.UsernameSnapshot);
+                Cmp(Campo("col.ver.f.nombre",   "Nombre"),     prev.NombreSnapshot,   cur.NombreSnapshot);
+                Cmp(Campo("col.ver.f.apellido", "Apellido"),   prev.ApellidoSnapshot, cur.ApellidoSnapshot);
+                Cmp(Campo("col.ver.f.email",    "Email"),      prev.EmailSnapshot,    cur.EmailSnapshot);
+                Cmp(Campo("col.ver.f.fechanac", "Fecha nac."), Fnac(prev.FechaNacSnapshot), Fnac(cur.FechaNacSnapshot));
             }
+
+            // Mostrar lo más reciente primero.
+            filas.Reverse();
+            foreach (var f in filas) dgv.Rows.Add(f);
         }
 
         private void btnRestaurar_Click(object sender, EventArgs e)

@@ -50,6 +50,8 @@ namespace GUI
         private ToolStripLabel _lblIdioma;
         // Item "Mi Perfil" (preferencias del usuario) — creado dinámicamente, traducible por Observer
         private ToolStripMenuItem _miPerfilItem;
+        // Ítem "Administración de Usuarios" (panel ABM de datos) — se agrega por código bajo Administrar.
+        private ToolStripMenuItem _adminUsuariosItem;
         // Usuario cargado en el constructor; reutilizado en OnLoad para no hacer dos SELECT
         private BE.Usuario _usuarioActivo;
 
@@ -116,6 +118,17 @@ namespace GUI
                     : "Mi Perfil");
             _miPerfilItem.Click += MiPerfil_Click;
             usuarioToolStripMenuItem.DropDownItems.Insert(0, _miPerfilItem);
+
+            // "Administración de Usuarios" — panel ABM de datos (modificar nombre/apellido/usuario/
+            // fecha nac./email, cambiar rol y ver el historial de cambios). Se agrega bajo Administrar,
+            // junto a "Usuarios" (operaciones de cuenta). Su visibilidad la gobierna AplicarPermisos.
+            _adminUsuariosItem = new ToolStripMenuItem(
+                Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual).ContainsKey("mnu.adminusuarios")
+                    ? Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual)["mnu.adminusuarios"].Texto
+                    : "Administración de Usuarios") { Tag = "mnu.adminusuarios", Name = "adminUsuariosToolStripMenuItem" };
+            _adminUsuariosItem.Click += AdminUsuarios_Click;
+            int idxUsuarios = gestionToolStripMenuItem.DropDownItems.IndexOf(usuariosToolStripMenuItem);
+            gestionToolStripMenuItem.DropDownItems.Insert(idxUsuarios < 0 ? 0 : idxUsuarios + 1, _adminUsuariosItem);
 
             // Construir menú dinámico según permisos del rol
             RegistroControles.Registrar(this);   // Etapa 4 (C1) — registra los ítems del menú para la pantalla de mapeo
@@ -232,6 +245,7 @@ namespace GUI
             // ── Administrar (Usuarios + Perfiles) ─────────────────────────────
             bool tieneUsuarios = nombresMenu.Contains("mnuUsuarios");
             usuariosToolStripMenuItem.Visible = tieneUsuarios;
+            if (_adminUsuariosItem != null) _adminUsuariosItem.Visible = tieneUsuarios;
             perfilesToolStripMenuItem.Visible = tieneUsuarios;
             idiomasToolStripMenuItem.Visible  = tieneUsuarios;   // solo Admin gestiona traducciones
             historialUsuariosToolStripMenuItem.Visible = tieneUsuarios;
@@ -424,6 +438,16 @@ namespace GUI
                 if (hijo is Usuarios) { hijo.BringToFront(); return; }
             }
             new Usuarios { MdiParent = this }.Show();
+        }
+
+        // Abre el panel de Administración de Usuarios (ABM de datos no sensibles + cambiar rol + historial).
+        private void AdminUsuarios_Click(object sender, EventArgs e)
+        {
+            foreach (Form hijo in this.MdiChildren)
+            {
+                if (hijo is AdministracionUsuariosForm) { hijo.BringToFront(); return; }
+            }
+            new AdministracionUsuariosForm { MdiParent = this }.Show();
         }
 
         /// <summary>
@@ -727,6 +751,7 @@ namespace GUI
             Aplicar(pedidosRealizadosToolStripMenuItem, t);
             Aplicar(gestionToolStripMenuItem,           t);
             Aplicar(usuariosToolStripMenuItem,          t);
+            Aplicar(_adminUsuariosItem,                 t);
             Aplicar(perfilesToolStripMenuItem,          t);
             Aplicar(idiomasToolStripMenuItem,           t);
             Aplicar(historialUsuariosToolStripMenuItem, t);
