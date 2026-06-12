@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace DAL.Interfaces
@@ -9,6 +10,9 @@ namespace DAL.Interfaces
         List<BE.Usuario> ObtenerArchivados();
         BE.Usuario       ObtenerPorUsername(string username);
         void             Alta(string username, string clave, string perfil);
+        // ABM — modificación de datos administrativos NO sensibles y cambio de rol.
+        void             Modificar(int idUsuario, string nombre, string apellido, string username, DateTime? fechaNacimiento, string email);
+        void             CambiarRol(int idUsuario, string rol);
         void             Bloquear(int idUsuario);
         // Bloqueo progresivo: marca el bloqueo con timestamp e incrementa la escala / auto-desbloqueo al expirar.
         void             BloquearConTiempo(int idUsuario);

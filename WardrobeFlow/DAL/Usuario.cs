@@ -87,7 +87,13 @@ namespace DAL
                                        ? (DateTime?)Convert.ToDateTime(row["FechaBloqueo"]) : null,
                 // Cambio de clave obligatorio (columna opcional; false si la BD no está migrada).
                 RequiereCambioClave = tabla.Columns.Contains("RequiereCambioClave") && row["RequiereCambioClave"] != DBNull.Value
-                                       && Convert.ToInt32(row["RequiereCambioClave"]) == 1
+                                       && Convert.ToInt32(row["RequiereCambioClave"]) == 1,
+                // Datos administrativos NO sensibles (columnas opcionales; null si BD sin migrar).
+                Nombre          = tabla.Columns.Contains("Nombre")   && row["Nombre"]   != DBNull.Value ? row["Nombre"].ToString()   : null,
+                Apellido        = tabla.Columns.Contains("Apellido") && row["Apellido"] != DBNull.Value ? row["Apellido"].ToString() : null,
+                Email           = tabla.Columns.Contains("Email")    && row["Email"]    != DBNull.Value ? row["Email"].ToString()    : null,
+                FechaNacimiento = tabla.Columns.Contains("FechaNacimiento") && row["FechaNacimiento"] != DBNull.Value
+                                       ? (DateTime?)Convert.ToDateTime(row["FechaNacimiento"]) : null
             };
         }
 
@@ -106,14 +112,17 @@ namespace DAL
                 return LeerUsuarioPorQuery(
                     "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
                     "       Estado, IntentosFallidos, ISNULL(IdIdioma, 'ES') AS IdIdioma, " +
-                    "       CantidadBloqueos, FechaBloqueo, RequiereCambioClave " +
+                    "       CantidadBloqueos, FechaBloqueo, RequiereCambioClave, " +
+                    "       Nombre, Apellido, Email, FechaNacimiento " +
                     "FROM Usuario WHERE Username = @Username AND ISNULL(Activo, 1) = 1",
                     parametros);
             }
             catch (System.Data.SqlClient.SqlException sqlEx)
                 when (sqlEx.Message.Contains("IdIdioma") || sqlEx.Message.Contains("Activo")
                       || sqlEx.Message.Contains("CantidadBloqueos") || sqlEx.Message.Contains("FechaBloqueo")
-                      || sqlEx.Message.Contains("RequiereCambioClave"))
+                      || sqlEx.Message.Contains("RequiereCambioClave")
+                      || sqlEx.Message.Contains("Nombre") || sqlEx.Message.Contains("Apellido")
+                      || sqlEx.Message.Contains("Email")  || sqlEx.Message.Contains("FechaNacimiento"))
             {
                 // Columna IdIdioma/Activo no existe: migración pendiente. Funciona con "ES" por
                 // defecto y sin filtro de archivado (en una BD sin migrar nadie está archivado).
@@ -302,18 +311,23 @@ namespace DAL
         }
 
         // Aplica el snapshot de una versión histórica a la fila activa del usuario.
+        // SOLO restaura datos administrativos NO sensibles (username/nombre/apellido/fecha nac./email);
+        // la contraseña y el estado de bloqueo NUNCA se revierten (no hay rollback de credenciales).
+        // El Username forma parte del DVH → recalcular tras el UPDATE.
         public void RestaurarVersion(BE.VersionUsuario v)
         {
             try
             {
                 acceso.Escribir(
-                    "UPDATE Usuario SET Clave = @Clave, Estado = @Estado, IntentosFallidos = @Intentos " +
-                    "WHERE IdUsuario = @Id",
+                    "UPDATE Usuario SET Username = @Username, Nombre = @Nombre, Apellido = @Apellido, " +
+                    "       FechaNacimiento = @FechaNac, Email = @Email WHERE IdUsuario = @Id",
                     new SqlParameter[]
                     {
-                        new SqlParameter("@Clave",    v.ClaveSnapshot),
-                        new SqlParameter("@Estado",   v.EstadoSnapshot ? 1 : 0),
-                        new SqlParameter("@Intentos", v.IntentosSnapshot),
+                        new SqlParameter("@Username", (object)v.UsernameSnapshot ?? DBNull.Value),
+                        new SqlParameter("@Nombre",   (object)v.NombreSnapshot   ?? DBNull.Value),
+                        new SqlParameter("@Apellido", (object)v.ApellidoSnapshot ?? DBNull.Value),
+                        new SqlParameter("@FechaNac", (object)v.FechaNacSnapshot ?? DBNull.Value),
+                        new SqlParameter("@Email",    (object)v.EmailSnapshot    ?? DBNull.Value),
                         new SqlParameter("@Id",       v.IdUsuario)
                     });
                 RecalcularDVH(v.IdUsuario);
@@ -371,6 +385,54 @@ namespace DAL
             }
         }
 
+        // ABM — Modifica los datos administrativos NO sensibles de un usuario (nombre, apellido,
+        // username, fecha de nacimiento, email). El Username forma parte del DVH, por lo que se
+        // recalcula tras el UPDATE para no dejar la fila marcada como corrupta.
+        public void Modificar(int idUsuario, string nombre, string apellido, string username,
+                              DateTime? fechaNacimiento, string email)
+        {
+            try
+            {
+                acceso.Escribir(
+                    "UPDATE Usuario SET Username = @username, Nombre = @nombre, Apellido = @apellido, " +
+                    "       FechaNacimiento = @fechaNac, Email = @email WHERE IdUsuario = @id",
+                    new SqlParameter[]
+                    {
+                        new SqlParameter("@username", (object)username ?? DBNull.Value),
+                        new SqlParameter("@nombre",   (object)nombre   ?? DBNull.Value),
+                        new SqlParameter("@apellido", (object)apellido ?? DBNull.Value),
+                        new SqlParameter("@fechaNac", (object)fechaNacimiento ?? DBNull.Value),
+                        new SqlParameter("@email",    (object)email    ?? DBNull.Value),
+                        new SqlParameter("@id",       idUsuario)
+                    });
+                RecalcularDVH(idUsuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al modificar el usuario ID {idUsuario}.", ex);
+            }
+        }
+
+        // ABM — Cambia el rol/perfil de un usuario. Rol forma parte del DVH → recalcular.
+        public void CambiarRol(int idUsuario, string rol)
+        {
+            try
+            {
+                acceso.Escribir(
+                    "UPDATE Usuario SET Rol = @rol, Perfil = @rol WHERE IdUsuario = @id",
+                    new SqlParameter[]
+                    {
+                        new SqlParameter("@rol", (object)rol ?? DBNull.Value),
+                        new SqlParameter("@id",  idUsuario)
+                    });
+                RecalcularDVH(idUsuario);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al cambiar el rol del usuario ID {idUsuario}.", ex);
+            }
+        }
+
         // Marca/desmarca el flag de cambio obligatorio para un usuario. Tolerante a BD sin migrar:
         // si la columna no existe, se ignora (la función simplemente no aplica). El flag NO entra
         // al DVH, por lo que cambiarlo no requiere recalcular dígitos verificadores.
@@ -420,12 +482,15 @@ namespace DAL
             {
                 return LeerUsuarioPorQuery(
                     "SELECT IdUsuario AS Id, Username, Clave AS Contraseña, Rol, Perfil, " +
-                    "       Estado, IntentosFallidos, ISNULL(IdIdioma, 'ES') AS IdIdioma " +
+                    "       Estado, IntentosFallidos, ISNULL(IdIdioma, 'ES') AS IdIdioma, " +
+                    "       Nombre, Apellido, Email, FechaNacimiento " +
                     "FROM Usuario WHERE IdUsuario = @IdUsuario",
                     parametros);
             }
             catch (System.Data.SqlClient.SqlException sqlEx)
-                when (sqlEx.Message.Contains("IdIdioma"))
+                when (sqlEx.Message.Contains("IdIdioma") || sqlEx.Message.Contains("Nombre")
+                      || sqlEx.Message.Contains("Apellido") || sqlEx.Message.Contains("Email")
+                      || sqlEx.Message.Contains("FechaNacimiento"))
             {
                 // SqlParameter NUEVO en el fallback (no reusar el del primer intento; ver nota
                 // en ObtenerPorUsername).
@@ -587,22 +652,47 @@ namespace DAL
                 {
                     tabla = acceso.Leer(
                         "SELECT IdUsuario AS Id, Username, Perfil, Estado, IntentosFallidos, " +
-                        "       ISNULL(Activo, 1) AS Activo, FechaBaja " +
+                        "       ISNULL(Activo, 1) AS Activo, FechaBaja, " +
+                        "       Nombre, Apellido, Email, FechaNacimiento " +
                         "FROM Usuario WHERE " + filtro + " ORDER BY Username",
                         null);
                 }
                 catch (System.Data.SqlClient.SqlException sqlEx)
-                    when (sqlEx.Message.Contains("Activo") || sqlEx.Message.Contains("FechaBaja"))
+                    when (sqlEx.Message.Contains("Activo") || sqlEx.Message.Contains("FechaBaja")
+                          || sqlEx.Message.Contains("Nombre") || sqlEx.Message.Contains("Apellido")
+                          || sqlEx.Message.Contains("Email")  || sqlEx.Message.Contains("FechaNacimiento"))
                 {
-                    // BD sin migrar: no existe el concepto de archivado → no hay archivados.
-                    if (!soloActivos) return lista;
-                    tabla = acceso.Leer(
-                        "SELECT IdUsuario AS Id, Username, Perfil, Estado, IntentosFallidos " +
-                        "FROM Usuario ORDER BY Username", null);
+                    // BD sin migrar: sin columnas de archivado/perfil. Si la migración base de
+                    // RF-10 (Activo) tampoco existe y se piden archivados, no hay ninguno.
+                    bool tieneArchivado = true;
+                    try
+                    {
+                        tabla = acceso.Leer(
+                            "SELECT IdUsuario AS Id, Username, Perfil, Estado, IntentosFallidos, " +
+                            "       ISNULL(Activo, 1) AS Activo, FechaBaja " +
+                            "FROM Usuario WHERE " + filtro + " ORDER BY Username", null);
+                    }
+                    catch (System.Data.SqlClient.SqlException sqlEx2)
+                        when (sqlEx2.Message.Contains("Activo") || sqlEx2.Message.Contains("FechaBaja"))
+                    {
+                        tieneArchivado = false;
+                        tabla = null;
+                    }
+                    if (!tieneArchivado)
+                    {
+                        if (!soloActivos) return lista;
+                        tabla = acceso.Leer(
+                            "SELECT IdUsuario AS Id, Username, Perfil, Estado, IntentosFallidos " +
+                            "FROM Usuario ORDER BY Username", null);
+                    }
                 }
 
                 bool tieneActivo    = tabla.Columns.Contains("Activo");
                 bool tieneFechaBaja = tabla.Columns.Contains("FechaBaja");
+                bool tieneNombre    = tabla.Columns.Contains("Nombre");
+                bool tieneApellido  = tabla.Columns.Contains("Apellido");
+                bool tieneEmail     = tabla.Columns.Contains("Email");
+                bool tieneFechaNac  = tabla.Columns.Contains("FechaNacimiento");
                 foreach (DataRow row in tabla.Rows)
                 {
                     lista.Add(new BE.Usuario
@@ -615,7 +705,12 @@ namespace DAL
                                               ? Convert.ToInt32(row["IntentosFallidos"]) : 0,
                         Activo = !tieneActivo || row["Activo"] == DBNull.Value || Convert.ToInt32(row["Activo"]) == 1,
                         FechaBaja = tieneFechaBaja && row["FechaBaja"] != DBNull.Value
-                                        ? (DateTime?)Convert.ToDateTime(row["FechaBaja"]) : null
+                                        ? (DateTime?)Convert.ToDateTime(row["FechaBaja"]) : null,
+                        Nombre   = tieneNombre   && row["Nombre"]   != DBNull.Value ? row["Nombre"].ToString()   : null,
+                        Apellido = tieneApellido && row["Apellido"] != DBNull.Value ? row["Apellido"].ToString() : null,
+                        Email    = tieneEmail    && row["Email"]    != DBNull.Value ? row["Email"].ToString()    : null,
+                        FechaNacimiento = tieneFechaNac && row["FechaNacimiento"] != DBNull.Value
+                                        ? (DateTime?)Convert.ToDateTime(row["FechaNacimiento"]) : null
                     });
                 }
             }

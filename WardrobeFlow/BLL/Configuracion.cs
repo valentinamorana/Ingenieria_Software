@@ -385,6 +385,7 @@ namespace BLL
 
         public static void RepararFilas(IEnumerable<int> ids)
         {
+            ExigirAdminParaDV("Reparar filas (DV)");
             var dvDAL  = new DAL.DigitoVerificador();
             var svc    = Seguridad.CalculadorDV.Crear();
             var todas  = dvDAL.ObtenerFilasUsuario();
@@ -404,10 +405,42 @@ namespace BLL
             dvDAL.GuardarDVV("Usuario", svc.CalcularDVV(dvhValues));
         }
 
+        // #5 — Guard fail-closed para operaciones sobre Dígitos Verificadores.
+        // Si hay una sesión iniciada, EXIGE que sea Administrador: un usuario autenticado sin
+        // permiso queda BLOQUEADO, el intento se REGISTRA en bitácora (criticidad Alta, visible
+        // para el administrador) y se lanza una AppException con mensaje genérico. Si NO hay sesión,
+        // es el flujo de reparación de ARRANQUE (break-glass), ya autorizado por ConfirmarAdminForm
+        // / Clave Maestra antes de llegar acá, por lo que se permite.
+        private static void ExigirAdminParaDV(string operacion)
+        {
+            if (!Seguridad.SessionManager.IsLoggedIn) return;   // break-glass de arranque
+
+            var u = Seguridad.SessionManager.GetInstance().Usuario;
+            if (u != null && u.EsAdministrador) return;
+
+            // Acceso no autorizado: registrar el evento para que el administrador lo vea.
+            try
+            {
+                new Servicios.Bitacora().RegistrarSinSesion(
+                    modulo:     "Integridad de Datos",
+                    actividad:  "Acceso DENEGADO a Dígitos Verificadores",
+                    criticidad: BE.Criticidad.Alta,
+                    idUsuario:  u?.Id,
+                    detalle:    $"El usuario '{u?.Username ?? "?"}' (rol '{u?.Perfil ?? "?"}') intentó ejecutar " +
+                                $"'{operacion}' sin permiso de Administrador a las {DateTime.Now:HH:mm:ss}.");
+            }
+            catch { /* el fallo del log no debe ocultar el bloqueo */ }
+
+            throw new BE.AppException("err.bll.dv.sin_permiso",
+                "No tenés permiso para ejecutar operaciones sobre los Dígitos Verificadores. " +
+                "Esta acción es exclusiva del Administrador y quedó registrada.");
+        }
+
         // Recalcula y persiste DVH de cada fila de Usuario y el DVV de la tabla.
-        // Llamado por el Administrador desde Usuarios → "Recalcular DV".
+        // Llamado por el Administrador desde Diagnóstico de Integridad → "Recalcular DV".
         public static void RecalcularIntegridadDV()
         {
+            ExigirAdminParaDV("Recalcular DV");
             var dvDAL = new DAL.DigitoVerificador();
             var svc   = Seguridad.CalculadorDV.Crear();
             var filas = dvDAL.ObtenerFilasUsuario();

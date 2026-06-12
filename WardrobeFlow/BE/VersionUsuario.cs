@@ -13,14 +13,22 @@ namespace BE
     /// </summary>
     public class VersionUsuario : Memento.IMemento
     {
-        public int      Id               { get; set; }
-        public int      IdUsuario        { get; set; }
-        public DateTime Fecha            { get; set; }
-        public string   Actor            { get; set; }
-        public string   Detalle          { get; set; }
-        public string   UsernameSnapshot { get; set; }
-        public string   ClaveSnapshot    { get; set; }
-        public bool     EstadoSnapshot   { get; set; } // true = activo, false = bloqueado
-        public int      IntentosSnapshot { get; set; }
+        public int       Id               { get; set; }
+        public int       IdUsuario        { get; set; }
+        public DateTime  Fecha            { get; set; }
+        public string    Actor            { get; set; }
+        public string    Detalle          { get; set; }
+        public string    UsernameSnapshot { get; set; }
+
+        // Datos administrativos NO sensibles versionados (Historial de Cambios).
+        public string    NombreSnapshot   { get; set; }
+        public string    ApellidoSnapshot { get; set; }
+        public DateTime? FechaNacSnapshot { get; set; }
+        public string    EmailSnapshot    { get; set; }
+
+        // Estado de seguridad: trazabilidad interna; NO se muestra ni se restaura.
+        public string    ClaveSnapshot    { get; set; }
+        public bool      EstadoSnapshot   { get; set; } // true = activo, false = bloqueado
+        public int       IntentosSnapshot { get; set; }
     }
 }
