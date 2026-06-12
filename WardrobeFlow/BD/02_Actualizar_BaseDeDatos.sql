@@ -366,6 +366,24 @@ ELSE
     PRINT 'Tabla HistorialUsuario ya existe — sin cambios.';
 GO
 
+-- T06 (revisión) — Snapshots de datos administrativos NO sensibles en el Historial de Cambios.
+-- El historial pasa a versionar nombre/apellido/fecha nac./email (además del username);
+-- la clave queda solo como trazabilidad interna y NUNCA se muestra ni se restaura.
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='HistorialUsuario' AND COLUMN_NAME='NombreSnap')
+    ALTER TABLE HistorialUsuario ADD NombreSnap NVARCHAR(100) NULL;
+GO
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='HistorialUsuario' AND COLUMN_NAME='ApellidoSnap')
+    ALTER TABLE HistorialUsuario ADD ApellidoSnap NVARCHAR(100) NULL;
+GO
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='HistorialUsuario' AND COLUMN_NAME='FechaNacSnap')
+    ALTER TABLE HistorialUsuario ADD FechaNacSnap DATE NULL;
+GO
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='HistorialUsuario' AND COLUMN_NAME='EmailSnap')
+    ALTER TABLE HistorialUsuario ADD EmailSnap NVARCHAR(200) NULL;
+GO
+PRINT 'HistorialUsuario: columnas de snapshot administrativo verificadas.';
+GO
+
 -- HistorialIntegridad (historial de verificaciones de integridad DV — T07)
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'HistorialIntegridad')
 BEGIN
@@ -480,6 +498,39 @@ ELSE
     PRINT 'Usuario.RequiereCambioClave ya existe — sin cambios.';
 GO
 UPDATE Usuario SET CantidadBloqueos = 0 WHERE CantidadBloqueos IS NULL;
+GO
+
+-- ABM (revisión) — Datos administrativos NO sensibles del usuario (nombre, apellido,
+-- fecha de nacimiento, email). Editables desde Administración de Usuarios y versionados
+-- por el Historial de Cambios. NO entran al DVH (metadata administrativa).
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Usuario' AND COLUMN_NAME='Nombre')
+    ALTER TABLE Usuario ADD Nombre NVARCHAR(100) NULL;
+GO
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Usuario' AND COLUMN_NAME='Apellido')
+    ALTER TABLE Usuario ADD Apellido NVARCHAR(100) NULL;
+GO
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Usuario' AND COLUMN_NAME='FechaNacimiento')
+    ALTER TABLE Usuario ADD FechaNacimiento DATE NULL;
+GO
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Usuario' AND COLUMN_NAME='Email')
+    ALTER TABLE Usuario ADD Email NVARCHAR(200) NULL;
+GO
+PRINT 'Usuario: columnas de datos administrativos (Nombre/Apellido/FechaNacimiento/Email) verificadas.';
+GO
+
+-- Completar datos administrativos de los usuarios semilla que estén vacíos (idempotente).
+UPDATE u SET u.Nombre = v.Nombre, u.Apellido = v.Apellido, u.Email = v.Email, u.FechaNacimiento = v.FechaNac
+FROM Usuario u
+JOIN (VALUES
+    ('admin',       N'Admin',     N'Sistema',  'admin@wardrobeflow.com',       '1985-01-15'),
+    ('vendedor',    N'Valentina', N'Bolívar',  'vendedor@wardrobeflow.com',    '1995-06-20'),
+    ('operador',    N'Oscar',     N'Pérez',    'operador@wardrobeflow.com',    '1990-03-10'),
+    ('auditor',     N'Ana',       N'Díaz',     'auditor@wardrobeflow.com',     '1988-09-05'),
+    ('gcomercial',  N'Gabriel',   N'Morán',    'gcomercial@wardrobeflow.com',  '1983-11-25'),
+    ('ginventario', N'Gisela',    N'Ortiz',    'ginventario@wardrobeflow.com', '1986-07-30'),
+    ('logistico',   N'Lucas',     N'Gómez',    'logistico@wardrobeflow.com',   '1992-02-18')
+) AS v(Username, Nombre, Apellido, Email, FechaNac) ON u.Username = v.Username
+WHERE u.Nombre IS NULL AND u.Apellido IS NULL;
 GO
 
 -- ============================================================
@@ -715,6 +766,46 @@ BEGIN
     UPDATE DVVertical SET DVV = 0 WHERE NombreTabla = 'Usuario';
     PRINT 'DV de Usuario reseteado para recálculo en el próximo arranque.';
 END
+GO
+
+-- ============================================================
+-- Simplificación de Permisos — ELIMINAR FAMILIAS del árbol Composite (revisión)
+-- Los permisos (patentes) son un catálogo fijo y las FAMILIAS se retiran de la experiencia.
+-- (1) Se materializan las relaciones Rol→Patente alcanzables a través de familias (por si un
+--     usuario había anidado familias dentro de roles), (2) se quitan las aristas que tocan
+--     familias y (3) se desactivan los nodos Familia. El anidamiento Rol→Rol se preserva
+--     (el patrón Composite sigue vigente). Idempotente.
+-- ============================================================
+IF EXISTS (SELECT 1 FROM Permiso WHERE ISNULL(EsFamilia,0)=1 AND ISNULL(EsRol,0)=0 AND Estado=1)
+BEGIN
+    ;WITH Arbol AS (
+        SELECT r.IdPermiso AS IdRol, pr.IdHijo AS IdNodo
+        FROM Permiso r
+        JOIN PermisoRelacion pr ON pr.IdPadre = r.IdPermiso
+        WHERE r.EsRol = 1
+        UNION ALL
+        SELECT a.IdRol, pr.IdHijo
+        FROM Arbol a
+        JOIN Permiso n ON n.IdPermiso = a.IdNodo AND ISNULL(n.EsFamilia,0)=1 AND ISNULL(n.EsRol,0)=0
+        JOIN PermisoRelacion pr ON pr.IdPadre = a.IdNodo
+    )
+    INSERT INTO PermisoRelacion (IdPadre, IdHijo)
+    SELECT DISTINCT a.IdRol, a.IdNodo
+    FROM Arbol a
+    JOIN Permiso p ON p.IdPermiso = a.IdNodo AND ISNULL(p.EsFamilia,0)=0 AND ISNULL(p.EsRol,0)=0
+    WHERE NOT EXISTS (SELECT 1 FROM PermisoRelacion x WHERE x.IdPadre=a.IdRol AND x.IdHijo=a.IdNodo)
+    OPTION (MAXRECURSION 50);
+
+    DELETE r FROM PermisoRelacion r
+    JOIN Permiso p ON (p.IdPermiso = r.IdPadre OR p.IdPermiso = r.IdHijo)
+    WHERE ISNULL(p.EsFamilia,0)=1 AND ISNULL(p.EsRol,0)=0;
+
+    UPDATE Permiso SET Estado = 0 WHERE ISNULL(EsFamilia,0)=1 AND ISNULL(EsRol,0)=0;
+
+    PRINT 'Familias eliminadas del Composite: roles aplanados a Rol->Patente.';
+END
+ELSE
+    PRINT 'No hay familias activas — árbol ya aplanado.';
 GO
 
 -- ============================================================

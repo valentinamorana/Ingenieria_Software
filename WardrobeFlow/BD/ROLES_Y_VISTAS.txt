@@ -1,8 +1,23 @@
 ================================================================
  WardrobeFlow — JERARQUÍA DE ROLES Y SUS VISTAS
  (2da entrega — patrón Composite, rol-dentro-de-rol)
- Actualizado: consolidación de roles v8.
+ Actualizado: consolidación de roles v8 + revisión 11/06.
 ================================================================
+
+REVISIÓN 11/06 — SIMPLIFICACIÓN DE PERMISOS (FAMILIAS RETIRADAS)
+---------------------------------------------------------------
+  • Los PERMISOS (patentes) son un CATÁLOGO FIJO: no se crean/editan/eliminan
+    desde la UI; solo se ASIGNAN a roles.
+  • Los ROLES sí son administrables (crear / renombrar / eliminar / asignarles
+    permisos u otros roles → rol-en-rol, que mantiene vivo el Composite).
+  • Las FAMILIAS se ELIMINARON del modelo. La migración (en 01_Crear y 02_Actualizar):
+      1) materializa las relaciones Rol → Patente alcanzables vía familias,
+      2) borra las aristas que tocan familias,
+      3) desactiva (Estado = 0) los nodos Familia.
+    Los permisos EFECTIVOS de cada rol no cambian; el árbol queda Rol → Patente
+    (+ Rol → Rol para la herencia entre roles).
+  • El CAMBIO DE ROL de un usuario se hace desde Administrar → Administración de
+    Usuarios → Cambiar rol (solo Administrador; protege al último admin activo).
 
 QUÉ CAMBIÓ EN LA CONSOLIDACIÓN (v8)
 -----------------------------------

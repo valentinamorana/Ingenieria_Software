@@ -52,6 +52,10 @@ BEGIN
         CantidadBloqueos INT           NOT NULL DEFAULT 0,   -- Bloqueo progresivo: nº de bloqueos (define duración)
         FechaBloqueo     DATETIME      NULL,                 -- Bloqueo progresivo: instante del último bloqueo
         RequiereCambioClave BIT        NOT NULL DEFAULT 0,   -- 1 = clave temporal/generada pendiente de cambio
+        Nombre           NVARCHAR(100) NULL,                 -- ABM: datos administrativos NO sensibles
+        Apellido         NVARCHAR(100) NULL,
+        FechaNacimiento  DATE          NULL,
+        Email            NVARCHAR(200) NULL,
         CONSTRAINT UQ_Usuario_Username UNIQUE (Username)
     );
     PRINT 'Tabla Usuario creada.';
@@ -373,7 +377,11 @@ BEGIN
         Actor        NVARCHAR(100) NOT NULL,
         Detalle      NVARCHAR(500) NOT NULL,
         UsernameSnap NVARCHAR(100) NOT NULL,
-        ClaveSnap    NVARCHAR(500) NOT NULL,
+        NombreSnap   NVARCHAR(100) NULL,        -- Snapshots de datos administrativos NO sensibles
+        ApellidoSnap NVARCHAR(100) NULL,
+        FechaNacSnap DATE          NULL,
+        EmailSnap    NVARCHAR(200) NULL,
+        ClaveSnap    NVARCHAR(500) NOT NULL,    -- Trazabilidad interna: nunca se muestra ni se restaura
         EstadoSnap   BIT           NOT NULL,
         IntentosSnap INT           NOT NULL
     );
@@ -673,6 +681,23 @@ WHERE NOT EXISTS (SELECT 1 FROM Usuario u WHERE u.Username = v.Username);
 PRINT 'Usuarios demo de roles nuevos inicializados.';
 GO
 
+-- ── Datos administrativos (NO sensibles) de los usuarios semilla — ABM ───────
+-- Solo completa los que estén vacíos (idempotente). Habilita búsqueda por nombre/apellido/email.
+UPDATE u SET u.Nombre = v.Nombre, u.Apellido = v.Apellido, u.Email = v.Email, u.FechaNacimiento = v.FechaNac
+FROM Usuario u
+JOIN (VALUES
+    ('admin',       N'Admin',     N'Sistema',      'admin@wardrobeflow.com',       '1985-01-15'),
+    ('vendedor',    N'Valentina', N'Bolívar',      'vendedor@wardrobeflow.com',    '1995-06-20'),
+    ('operador',    N'Oscar',     N'Pérez',        'operador@wardrobeflow.com',    '1990-03-10'),
+    ('auditor',     N'Ana',       N'Díaz',         'auditor@wardrobeflow.com',     '1988-09-05'),
+    ('gcomercial',  N'Gabriel',   N'Morán',        'gcomercial@wardrobeflow.com',  '1983-11-25'),
+    ('ginventario', N'Gisela',    N'Ortiz',        'ginventario@wardrobeflow.com', '1986-07-30'),
+    ('logistico',   N'Lucas',     N'Gómez',        'logistico@wardrobeflow.com',   '1992-02-18')
+) AS v(Username, Nombre, Apellido, Email, FechaNac) ON u.Username = v.Username
+WHERE u.Nombre IS NULL AND u.Apellido IS NULL;
+PRINT 'Datos administrativos de usuarios semilla aplicados.';
+GO
+
 -- Supervisor → COMPUESTO: se quitan las patentes de Vendedor asignadas directo (quedan por
 -- herencia) y se agrega la arista Supervisor → Vendedor; conserva su Auditoría propia.
 DELETE r FROM PermisoRelacion r
@@ -755,6 +780,50 @@ BEGIN
     PRINT 'Roles consolidados; DV de Usuario reseteado para recálculo en el próximo arranque.';
 END
 PRINT 'Consolidación de roles (v8) aplicada.';
+GO
+
+-- ============================================================
+-- Simplificación de Permisos — ELIMINAR FAMILIAS del árbol Composite
+-- Decisión de revisión: los permisos (patentes) son un catálogo fijo y las FAMILIAS se
+-- retiran de la experiencia. Para no perder permisos efectivos: (1) se materializan las
+-- relaciones Rol→Patente alcanzables a través de familias, (2) se quitan las aristas que
+-- tocan familias y (3) se desactivan los nodos Familia. El anidamiento Rol→Rol se preserva,
+-- de modo que el patrón Composite sigue vigente (Rol = nodo compuesto, Patente = hoja).
+-- Idempotente: si no hay familias activas, no hace nada.
+-- ============================================================
+IF EXISTS (SELECT 1 FROM Permiso WHERE ISNULL(EsFamilia,0)=1 AND ISNULL(EsRol,0)=0 AND Estado=1)
+BEGIN
+    -- (1) Patentes alcanzables desde cada Rol descendiendo SOLO por familias (no por roles).
+    ;WITH Arbol AS (
+        SELECT r.IdPermiso AS IdRol, pr.IdHijo AS IdNodo
+        FROM Permiso r
+        JOIN PermisoRelacion pr ON pr.IdPadre = r.IdPermiso
+        WHERE r.EsRol = 1
+        UNION ALL
+        SELECT a.IdRol, pr.IdHijo
+        FROM Arbol a
+        JOIN Permiso n ON n.IdPermiso = a.IdNodo AND ISNULL(n.EsFamilia,0)=1 AND ISNULL(n.EsRol,0)=0
+        JOIN PermisoRelacion pr ON pr.IdPadre = a.IdNodo
+    )
+    INSERT INTO PermisoRelacion (IdPadre, IdHijo)
+    SELECT DISTINCT a.IdRol, a.IdNodo
+    FROM Arbol a
+    JOIN Permiso p ON p.IdPermiso = a.IdNodo AND ISNULL(p.EsFamilia,0)=0 AND ISNULL(p.EsRol,0)=0
+    WHERE NOT EXISTS (SELECT 1 FROM PermisoRelacion x WHERE x.IdPadre=a.IdRol AND x.IdHijo=a.IdNodo)
+    OPTION (MAXRECURSION 50);
+
+    -- (2) Quitar todas las aristas que toquen una Familia (como padre o como hijo).
+    DELETE r FROM PermisoRelacion r
+    JOIN Permiso p ON (p.IdPermiso = r.IdPadre OR p.IdPermiso = r.IdHijo)
+    WHERE ISNULL(p.EsFamilia,0)=1 AND ISNULL(p.EsRol,0)=0;
+
+    -- (3) Desactivar los nodos Familia (no se borran: conservan trazabilidad/FKs).
+    UPDATE Permiso SET Estado = 0 WHERE ISNULL(EsFamilia,0)=1 AND ISNULL(EsRol,0)=0;
+
+    PRINT 'Familias eliminadas del Composite: roles aplanados a Rol->Patente.';
+END
+ELSE
+    PRINT 'No hay familias activas — árbol ya aplanado.';
 GO
 
 -- ============================================================
