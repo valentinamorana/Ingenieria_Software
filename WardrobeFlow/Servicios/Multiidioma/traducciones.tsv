@@ -3809,3 +3809,12 @@ ES	col.ver.registro	Usuario (ID)
 EN	col.ver.registro	User (ID)
 PT	col.ver.registro	Usuário (ID)
 RU	col.ver.registro	Пользователь (ID)
+
+ES	perm.dlg.rol.permisos	Permisos a asignar (catálogo fijo del sistema):
+ES	perm.msg.nombrevacio	El nombre del rol no puede estar vacío.
+EN	perm.dlg.rol.permisos	Permissions to assign (fixed system catalog):
+EN	perm.msg.nombrevacio	The role name cannot be empty.
+PT	perm.dlg.rol.permisos	Permissões a atribuir (catálogo fixo do sistema):
+PT	perm.msg.nombrevacio	O nome do papel não pode estar vazio.
+RU	perm.dlg.rol.permisos	Права для назначения (фиксированный каталог системы):
+RU	perm.msg.nombrevacio	Имя роли не может быть пустым.

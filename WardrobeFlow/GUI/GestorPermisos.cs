@@ -276,17 +276,64 @@ namespace GUI
         }
 
         // ── CRUD de ROLES (los permisos son un catálogo fijo: no se crean/eliminan) ──
+        // Alta de rol: nombre + selección de permisos (catálogo FIJO) a asignar en el momento
+        // de crearlo. Los permisos del rol se pueden seguir ajustando luego con Asignar/Quitar.
         private void NuevoRol()
         {
-            string nombre = Pedir(T("perm.dlg.rol.t", "Nuevo rol"), T("perm.dlg.rol.p", "Nombre del nuevo rol:"));
-            if (string.IsNullOrWhiteSpace(nombre)) return;
+            var patentes = _familiaBLL.ObtenerPatentesDisponibles();
+            patentes.Sort((a, b) => string.Compare(a.Nombre, b.Nombre, StringComparison.OrdinalIgnoreCase));
+
+            if (!PedirRolConPermisos(patentes, out string nombre, out List<int> idsSel)) return;
             try
             {
                 _familiaBLL.CrearRol(nombre.Trim());
-                MostrarOk(string.Format(T("perm.ok.rolcreado", "Rol '{0}' creado."), nombre.Trim()));
+                if (idsSel.Count > 0)
+                    _familiaBLL.GuardarAsignacionRol(nombre.Trim(), idsSel);   // asigna los permisos elegidos
+                GUI.Menu.RefrescarSeguridadAbierta();
+                MostrarOk(string.Format(T("perm.ok.rolcreado", "Rol '{0}' creado con {1} permiso(s)."), nombre.Trim(), idsSel.Count));
                 CargarArbol();
             }
             catch (Exception ex) { MostrarError(ex.Message); }
+        }
+
+        // Diálogo de alta de rol: nombre + checklist de permisos del catálogo (no se crean permisos).
+        private bool PedirRolConPermisos(List<BE.Patente> patentes, out string nombre, out List<int> ids)
+        {
+            nombre = null; ids = new List<int>();
+            var tr = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+            string txtOk = tr.ContainsKey("btn.aceptar")  ? tr["btn.aceptar"].Texto  : "Aceptar";
+            string txtCa = tr.ContainsKey("btn.cancelar") ? tr["btn.cancelar"].Texto : "Cancelar";
+            using (var f = new Form())
+            {
+                f.Text = T("perm.dlg.rol.t", "Nuevo rol");
+                f.Size = new Size(430, 470); f.StartPosition = FormStartPosition.CenterParent;
+                f.FormBorderStyle = FormBorderStyle.FixedDialog; f.MinimizeBox = false; f.MaximizeBox = false;
+                f.Font = new Font("Segoe UI", 9f);
+
+                var lblN = new Label { Text = T("perm.dlg.rol.p", "Nombre del nuevo rol:"),
+                    Location = new Point(14, 14), AutoSize = true, ForeColor = RosaOscuro, Font = new Font("Segoe UI", 9f, FontStyle.Bold) };
+                var txt  = new TextBox { Location = new Point(16, 38), Size = new Size(390, 24) };
+                var lblP = new Label { Text = T("perm.dlg.rol.permisos", "Permisos a asignar (catálogo fijo del sistema):"),
+                    Location = new Point(14, 72), AutoSize = true, ForeColor = RosaOscuro, Font = new Font("Segoe UI", 9f, FontStyle.Bold) };
+                var clb  = new CheckedListBox { Location = new Point(16, 96), Size = new Size(390, 290),
+                    CheckOnClick = true, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Segoe UI", 9f) };
+                foreach (var p in patentes) clb.Items.Add(p);   // BE.Patente.ToString() == Nombre
+
+                var ok = new Button { Text = txtOk, DialogResult = DialogResult.OK, Location = new Point(232, 398), Size = new Size(82, 30),
+                    BackColor = RosaPrimario, ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+                ok.FlatAppearance.BorderSize = 0;
+                var ca = new Button { Text = txtCa, DialogResult = DialogResult.Cancel, Location = new Point(322, 398), Size = new Size(84, 30) };
+                f.AcceptButton = ok; f.CancelButton = ca;
+                f.Controls.AddRange(new Control[] { lblN, txt, lblP, clb, ok, ca });
+
+                if (f.ShowDialog(this) != DialogResult.OK) return false;
+                nombre = txt.Text;
+                if (string.IsNullOrWhiteSpace(nombre))
+                { MostrarError(T("perm.msg.nombrevacio", "El nombre del rol no puede estar vacío.")); return false; }
+                foreach (var o in clb.CheckedItems)
+                    if (o is BE.Patente pat) ids.Add(pat.Id);
+                return true;
+            }
         }
 
         private void Renombrar()
