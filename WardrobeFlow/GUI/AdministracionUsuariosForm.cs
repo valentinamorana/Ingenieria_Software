@@ -147,6 +147,8 @@ namespace GUI
 
                 _dgv.DataSource = tabla;
                 if (_dgv.Columns.Contains("ID")) _dgv.Columns["ID"].Visible = false;
+                // El email es más largo que el resto: darle más ancho relativo para que no se trunque.
+                if (_dgv.Columns.Contains("Email")) _dgv.Columns["Email"].FillWeight = 170;
                 TraducirHeaders();
 
                 _lblMensaje.ForeColor = Color.DarkGreen;
@@ -229,16 +231,42 @@ namespace GUI
             _txtNombre.Focus();
         }
 
-        // Guarda: crea (modo alta) o actualiza (usuario seleccionado).
+        // Guarda: crea (modo alta) o actualiza (usuario seleccionado). En edición, "Guardar cambios"
+        // persiste TANTO los datos administrativos COMO el rol si cambió (el botón "Cambiar rol" queda
+        // como atajo). Así no hay confusión de "cambié el rol pero no se guardó".
         private void Guardar()
         {
             if (_modoAlta) { Alta(); return; }
             if (_idSeleccionado == 0) return;
+
+            var actual = _usuarios.Find(x => x.Id == _idSeleccionado);
+            string rolSel = (_cmbRol.SelectedItem as RolItem)?.Value;
             try
             {
+                bool huboCambio = false;
                 DateTime? fnac = _dtpNacimiento.Checked ? (DateTime?)_dtpNacimiento.Value.Date : null;
-                _usuarioBLL.Modificar(this.Text, _idSeleccionado,
-                    _txtNombre.Text, _txtApellido.Text, _txtUsername.Text, fnac, _txtEmail.Text);
+
+                // Datos administrativos (si no cambió nada, la BLL lanza 'sin_cambios' y lo ignoramos).
+                try
+                {
+                    _usuarioBLL.Modificar(this.Text, _idSeleccionado,
+                        _txtNombre.Text, _txtApellido.Text, _txtUsername.Text, fnac, _txtEmail.Text);
+                    huboCambio = true;
+                }
+                catch (BE.AppException ex) when (ex.Clave == "err.bll.usuario.sin_cambios") { }
+
+                // Rol (solo si el seleccionado difiere del actual).
+                if (!string.IsNullOrWhiteSpace(rolSel) && actual != null
+                    && !string.Equals(rolSel, actual.Perfil, StringComparison.OrdinalIgnoreCase))
+                {
+                    _usuarioBLL.CambiarRol(this.Text, _idSeleccionado, rolSel);
+                    GUI.Menu.RefrescarSeguridadAbierta();
+                    huboCambio = true;
+                }
+
+                if (!huboCambio)
+                { MostrarError(T("err.bll.usuario.sin_cambios", "No hay cambios para guardar.")); return; }
+
                 MostrarOk(T("msg.adminusr.guardado", "Datos del usuario actualizados correctamente."));
                 CargarUsuarios(_txtBuscar.Text);
             }

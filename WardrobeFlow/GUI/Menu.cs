@@ -128,6 +128,10 @@ namespace GUI
             _miPerfilItem.Click += MiPerfil_Click;
             usuarioToolStripMenuItem.DropDownItems.Insert(0, _miPerfilItem);
 
+            // El menú de sesión pasa a llamarse "Sesión" (evita confundirlo con "Perfiles y Permisos").
+            usuarioToolStripMenuItem.Tag  = "mnu.sesion";
+            usuarioToolStripMenuItem.Text = Tx("mnu.sesion", "Sesión");
+
             // ── Reorganización del menú "Administrar" en submenús ──────────────────
             // El panel ABM de datos de usuario (modificar nombre/apellido/usuario/fecha nac./email,
             // cambiar rol y ver historial). Va dentro del submenú "Usuarios".

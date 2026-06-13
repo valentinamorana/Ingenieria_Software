@@ -96,9 +96,10 @@ namespace BE
                 ApellidoSnapshot = this.Apellido,
                 FechaNacSnapshot = this.FechaNacimiento,
                 EmailSnapshot    = this.Email,
-                // Estado de seguridad: trazabilidad interna, no se restaura en el rollback.
-                ClaveSnapshot    = this.Contraseña,
-                EstadoSnapshot   = !this.Bloqueado,   // true = activo
+                // NO se versiona el hash de la contraseña: el control de cambios es solo de datos
+                // administrativos. Se guarda vacío para no dejar huella de credenciales en el historial.
+                ClaveSnapshot    = string.Empty,
+                EstadoSnapshot   = !this.Bloqueado,   // true = activo (metadata operativa, no se restaura)
                 IntentosSnapshot = this.IntentosFallidos
             };
         }

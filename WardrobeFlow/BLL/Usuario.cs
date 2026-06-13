@@ -279,11 +279,19 @@ namespace BLL
                 throw new BE.AppException("err.bll.usuario.sin_cambios",
                     "No hay cambios para guardar.");
 
+            string actor = SessionManager.GetInstance().Usuario.Username;
+
+            // Si el usuario NO tiene historial previo (p. ej. usuarios semilla creados por script),
+            // se graba un snapshot BASELINE del estado ACTUAL (antes del cambio) para que el Historial
+            // de Cambios tenga "valor anterior" desde la primera modificación (diff entre versiones).
+            var versionBLL = new VersionUsuario();
+            if (versionBLL.ObtenerPorUsuario(idUsuario).Count == 0)
+                versionBLL.GrabarVersion(idUsuario, actor, "Estado administrativo inicial.");
+
             usuarioDAL.Modificar(idUsuario, nuevoNombre, nuevoApellido, nuevoUsername, fechaNacimiento, nuevoEmail);
 
             // Snapshot del NUEVO estado (después del UPDATE) → alimenta el Historial de Cambios.
-            new VersionUsuario().GrabarVersion(idUsuario,
-                SessionManager.GetInstance().Usuario.Username, detalle);
+            versionBLL.GrabarVersion(idUsuario, actor, detalle);
 
             bitacora.RegistrarSinSesion(
                 modulo:     modulo,
@@ -430,12 +438,20 @@ namespace BLL
             return usuarioDAL.ObtenerTodos().Find(u => u.Id == idUsuario);
         }
 
-        // Usernames de los demás usuarios activos (para validar unicidad excluyendo 'idExcluir').
+        // Usernames de los demás usuarios (para validar unicidad excluyendo 'idExcluir').
+        // Incluye ACTIVOS y ARCHIVADOS: el UNIQUE(Username) es global, así que un username de un
+        // usuario archivado igual está tomado (evita un error de BD poco claro al chocar con la UQ).
         private List<string> ObtenerUsernamesExcepto(int idExcluir)
         {
             var lista = new List<string>();
             foreach (var u in usuarioDAL.ObtenerTodos())
                 if (u.Id != idExcluir) lista.Add(u.Username);
+            try
+            {
+                foreach (var u in usuarioDAL.ObtenerArchivados())
+                    if (u.Id != idExcluir) lista.Add(u.Username);
+            }
+            catch { /* BD sin migrar (sin archivados): se valida solo contra activos */ }
             return lista;
         }
 

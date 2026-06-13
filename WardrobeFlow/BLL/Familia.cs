@@ -215,6 +215,7 @@ namespace BLL
 
         // ── T04 — CRUD de componentes (Patentes / Familias / Roles) ─────────────
 
+        [Obsolete("Los permisos (patentes) son un catálogo fijo del sistema; no se crean desde la app (revisión 11/06). Se conserva por compatibilidad.")]
         public int CrearPatente(string nombre, string nombreMenu)
         {
             VerificarPuedeGestionar();
@@ -224,6 +225,7 @@ namespace BLL
             return id;
         }
 
+        [Obsolete("Las Familias se retiraron del modelo (revisión 11/06): el árbol es Rol→Patente. Se conserva por compatibilidad.")]
         public int CrearFamilia(string nombre)
         {
             VerificarPuedeGestionar();
