@@ -33,16 +33,6 @@ namespace GUI
         // ── Combo Tipo Evento (DB keys paralelas a los ítems del combo) ──────────
         private readonly List<string> _tipoEventoDB = new List<string>();
 
-        // ── Estado para impresión paginada ────────────────────────────────────
-        private DataTable   _tablaImpresion;
-        private string      _tituloImpresion;
-        private string[]    _headersImpresion;   // headers traducidos capturados del DataGridView
-        private int         _paginaActual;
-        private int         _filaImpresion;
-        private Font        _fuenteHeader;
-        private Font        _fuenteCelda;
-        private Font        _fuenteTitulo;
-
         private readonly string _tabInicial;
         private Panel _leyendaCriticidad;
 
@@ -481,166 +471,33 @@ namespace GUI
         }
 
         // ══════════════════════════════════════════════════════════════════════
-        // EXPORTAR PDF — PrintDocument + PrintPreviewDialog
+        // EXPORTAR PDF — Patrón Factory Method (ver GUI/Exportacion)
         // ══════════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Abre una vista previa de impresión del contenido actual de la grilla.
-        /// Desde ahí el usuario puede imprimir directamente o seleccionar
-        /// "Microsoft Print to PDF" para guardar como archivo PDF.
+        /// Arma el reporte tabular (con los HeaderText ya traducidos del DataGridView)
+        /// y delega la exportación en el producto que fabrica el GeneradorBitacora
+        /// (Factory Method). El render del PDF y la vista previa viven ahora en
+        /// GUI.Exportacion.ExportadorPdf — este formulario es solo el cliente del patrón.
         /// </summary>
         private void ExportarPdf(DataGridView dgv, string titulo)
         {
-            if (dgv.Rows.Count == 0)
-            {
-                var tB = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
-                string T_b(string k, string fb) => tB.ContainsKey(k) ? tB[k].Texto : fb;
-                MessageBox.Show(
-                    T_b("err.pdf.sinDatos",  "No hay datos para exportar."),
-                    T_b("lbl.exportarpdf",   "Exportar PDF"),
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            // Capturar datos y headers traducidos para la impresión.
-            // Se usan los HeaderText del DataGridView (ya traducidos) en vez de
-            // los ColumnName del DataTable (nombres crudos de BD).
-            _tablaImpresion  = (DataTable)dgv.DataSource;
-            _tituloImpresion = titulo;
-            _headersImpresion = new string[dgv.Columns.Count];
+            var headers = new string[dgv.Columns.Count];
             for (int i = 0; i < dgv.Columns.Count; i++)
-                _headersImpresion[i] = dgv.Columns[i].HeaderText;
-            _fuenteTitulo = new Font("Segoe UI", 13, FontStyle.Bold);
-            _fuenteHeader = new Font("Segoe UI", 8,  FontStyle.Bold);
-            _fuenteCelda  = new Font("Segoe UI", 7.5f);
+                headers[i] = dgv.Columns[i].HeaderText;
 
-            var doc = new PrintDocument();
-            doc.DefaultPageSettings.Landscape = true;
-            doc.DefaultPageSettings.Margins   = new Margins(40, 40, 40, 40);
-            doc.BeginPrint += (s2, e2) => { _filaImpresion = 0; _paginaActual = 1; };
-            doc.PrintPage  += ImprimirPagina;
-
-            using (var preview = new PrintPreviewDialog())
+            var reporte = new Exportacion.ReporteExportable
             {
-                preview.Document = doc;
-                preview.Width    = 1050;
-                preview.Height   = 780;
-                preview.Text     = $"{T("bit.pdf.vistaprevia", "Vista Previa")} — {titulo}";
-                preview.ShowDialog(this);
-            }
-        }
+                Titulo        = titulo,
+                NombreArchivo = titulo,
+                Encabezados   = headers,
+                Datos         = dgv.DataSource as DataTable
+            };
 
-        /// <summary>
-        /// Renderiza una página del documento de impresión.
-        /// Dibuja el título, encabezados de columna y filas de datos.
-        /// Continúa en páginas adicionales si los datos no caben en una sola.
-        /// </summary>
-        private void ImprimirPagina(object sender, PrintPageEventArgs e)
-        {
-            Graphics  g      = e.Graphics;
-            Rectangle margen = e.MarginBounds;
-
-            float y          = margen.Top;
-            float xIzq       = margen.Left;
-            float anchoTotal = margen.Width;
-
-            var vinoOscuro = Color.FromArgb(176, 62, 96);
-            var vinoClaro  = Color.FromArgb(252, 228, 235);
-            var vinoMedio  = Color.FromArgb(110, 40, 70);
-
-            // ── Título (solo en la primera página) ───────────────────────────
-            if (_paginaActual == 1)
-            {
-                using (var brTitulo = new SolidBrush(vinoOscuro))
-                    g.DrawString(_tituloImpresion, _fuenteTitulo, brTitulo, xIzq, y);
-                y += _fuenteTitulo.GetHeight(g) + 4;
-
-                using (var brSub = new SolidBrush(vinoMedio))
-                    g.DrawString(
-                        $"{T("rpt.txt.generado", "Generado")}: {DateTime.Now:dd/MM/yyyy HH:mm}   |   " +
-                        string.Format(T("msg.bit.registros", "{0} registro(s)"), _tablaImpresion.Rows.Count),
-                        _fuenteCelda, brSub, xIzq, y);
-                y += _fuenteCelda.GetHeight(g) + 6;
-
-                using (var penLinea = new Pen(vinoOscuro, 1.5f))
-                    g.DrawLine(penLinea, xIzq, y, xIzq + anchoTotal, y);
-                y += 5;
-            }
-
-            // ── Calcular anchos de columna ────────────────────────────────────
-            int nCols      = _tablaImpresion.Columns.Count;
-            float colAncho = anchoTotal / nCols;
-
-            // ── Encabezados ───────────────────────────────────────────────────
-            float alturaHeader = _fuenteHeader.GetHeight(g) + 8;
-
-            using (var brushHeaderBg = new SolidBrush(vinoOscuro))
-            using (var brushHeaderFg = new SolidBrush(Color.White))
-            {
-                g.FillRectangle(brushHeaderBg, xIzq, y, anchoTotal, alturaHeader);
-
-                for (int col = 0; col < nCols; col++)
-                {
-                    string nombre = (_headersImpresion != null && col < _headersImpresion.Length)
-                        ? _headersImpresion[col]
-                        : _tablaImpresion.Columns[col].ColumnName;
-                    var rect = new RectangleF(
-                        xIzq + col * colAncho + 3, y + 3,
-                        colAncho - 6, alturaHeader - 6);
-                    g.DrawString(nombre, _fuenteHeader, brushHeaderFg, rect,
-                        new StringFormat { Trimming = StringTrimming.EllipsisCharacter });
-                }
-            }
-            y += alturaHeader + 2;
-
-            // ── Filas de datos ────────────────────────────────────────────────
-            float alturaCelda = _fuenteCelda.GetHeight(g) + 5;
-            bool  alternar    = false;
-
-            using (var brushAlternar  = new SolidBrush(vinoClaro))
-            using (var brushTexto     = new SolidBrush(Color.FromArgb(40, 15, 28)))
-            using (var penSeparador   = new Pen(Color.FromArgb(220, 180, 200), 0.5f))
-            {
-                while (_filaImpresion < _tablaImpresion.Rows.Count)
-                {
-                    if (y + alturaCelda > margen.Bottom - 20) break;
-
-                    DataRow fila = _tablaImpresion.Rows[_filaImpresion];
-
-                    if (alternar)
-                        g.FillRectangle(brushAlternar, xIzq, y, anchoTotal, alturaCelda);
-
-                    for (int col = 0; col < nCols; col++)
-                    {
-                        string valor = fila[col]?.ToString() ?? "";
-                        var rect = new RectangleF(
-                            xIzq + col * colAncho + 3, y + 1,
-                            colAncho - 6, alturaCelda - 2);
-                        g.DrawString(valor, _fuenteCelda, brushTexto, rect,
-                            new StringFormat { Trimming = StringTrimming.EllipsisCharacter });
-                    }
-
-                    g.DrawLine(penSeparador, xIzq, y + alturaCelda, xIzq + anchoTotal, y + alturaCelda);
-
-                    y        += alturaCelda;
-                    alternar  = !alternar;
-                    _filaImpresion++;
-                }
-            }
-
-            // ── Pie de página ─────────────────────────────────────────────────
-            using (var penPie  = new Pen(vinoOscuro, 1f))
-            using (var brPie   = new SolidBrush(vinoMedio))
-            {
-                g.DrawLine(penPie, xIzq, margen.Bottom - 16, xIzq + anchoTotal, margen.Bottom - 16);
-                g.DrawString(
-                    string.Format(T("bit.pdf.pagina", "WardrobeFlow — Página {0}"), _paginaActual),
-                    _fuenteCelda, brPie, xIzq, margen.Bottom - 14);
-            }
-
-            // ¿Hay más filas? Entonces hay más páginas
-            e.HasMorePages = _filaImpresion < _tablaImpresion.Rows.Count;
-            if (e.HasMorePages) _paginaActual++;
+            // Creator → Factory Method → Product (Exportador concreto)
+            Exportacion.GeneradorReporte generador  = new Exportacion.GeneradorBitacora();
+            Exportacion.Exportador       exportador = generador.CrearExportador("pdf");
+            exportador.Exportar(reporte, this);
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────

@@ -224,25 +224,23 @@ namespace GUI
                     ? $"Comparacion_{dtpJornada.Value:yyyyMMdd}_vs_{dtpJornada2.Value:yyyyMMdd}"
                     : $"ReporteJornada_{dtpJornada.Value:yyyyMMdd}";
 
-                string T(string k, string fb) { var t2 = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual); return t2.ContainsKey(k) ? t2[k].Texto : fb; }
+                var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string Tk(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
 
-                using (var dlg = new SaveFileDialog())
+                var reporte = new Exportacion.ReporteExportable
                 {
-                    dlg.Title            = T("rpt.dlg.guardartxt", "Guardar como TXT");
-                    dlg.Filter           = "Archivo de texto (*.txt)|*.txt";
-                    dlg.FileName         = $"{nombreBase}.txt";
-                    dlg.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                    Titulo        = $"{Tk("frm.reportejornada", "Reporte de Jornada")} — {dtpJornada.Value:dd/MM/yyyy}",
+                    NombreArchivo = nombreBase,
+                    TextoPlano    = rtbReporte.Text
+                };
 
-                    if (dlg.ShowDialog() != DialogResult.OK) return;
+                // Creator → Factory Method → Product (Exportador concreto a .TXT)
+                Exportacion.GeneradorReporte generador  = new Exportacion.GeneradorJornada();
+                Exportacion.Exportador       exportador = generador.CrearExportador("txt");
+                string ruta = exportador.Exportar(reporte, this);
 
-                    File.WriteAllText(dlg.FileName, rtbReporte.Text, Encoding.UTF8);
-
-                    lblStatus.Text = $"{lbl["rptoegenerado"]}: {Path.GetFileName(dlg.FileName)}";
-                    MessageBox.Show(
-                        string.Format(T("rpt.dlg.exito.msg", "Archivo guardado:\n{0}"), dlg.FileName),
-                        T("rpt.dlg.exito.titulo", "Éxito"),
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                if (ruta != null)
+                    lblStatus.Text = $"{lbl["rptoegenerado"]}: {Path.GetFileName(ruta)}";
             }
             catch (Exception ex)
             {
@@ -254,87 +252,20 @@ namespace GUI
         {
             try
             {
-                string[] lines     = rtbReporte.Lines;
-                int      lineIndex = 0;
-                int      pageNum   = 0;
+                var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
+                string Tk(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
 
-                var vinoOscuro = Color.FromArgb(176, 62, 96);
-                var vinoMedio  = Color.FromArgb(110, 40, 70);
-
-                using (var pd = new PrintDocument())
+                var reporte = new Exportacion.ReporteExportable
                 {
-                    pd.DocumentName = $"ReporteJornada_{dtpJornada.Value:yyyyMMdd}";
-                    pd.DefaultPageSettings.Margins = new System.Drawing.Printing.Margins(40, 40, 40, 40);
+                    Titulo        = $"{Tk("frm.reportejornada", "Reporte de Jornada")} — {dtpJornada.Value:dd/MM/yyyy}",
+                    NombreArchivo = $"ReporteJornada_{dtpJornada.Value:yyyyMMdd}",
+                    TextoPlano    = rtbReporte.Text
+                };
 
-                    pd.BeginPrint += (s2, e2) => { lineIndex = 0; pageNum = 0; };
-
-                    pd.PrintPage += (s, e) =>
-                    {
-                        pageNum++;
-                        var g      = e.Graphics;
-                        var margen = e.MarginBounds;
-                        float y    = margen.Top;
-
-                        var tt = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
-                        string Tv2(string k, string fb) => tt.ContainsKey(k) ? tt[k].Texto : fb;
-
-                        using (var fuenteTitulo  = new Font("Segoe UI", 13f, FontStyle.Bold))
-                        using (var fuenteSub     = new Font("Segoe UI", 8f, FontStyle.Regular))
-                        using (var fuenteCuerpo  = new Font("Consolas", 8.5f))
-                        using (var brMedio       = new SolidBrush(vinoMedio))
-                        using (var brTexto       = new SolidBrush(Color.FromArgb(40, 15, 28)))
-                        using (var penLinea      = new Pen(vinoOscuro, 1.5f))
-                        using (var penPie        = new Pen(vinoOscuro, 1f))
-                        {
-                            if (pageNum == 1)
-                            {
-                                float headerH = fuenteTitulo.GetHeight(g) + 14;
-                                using (var brHeaderBg = new SolidBrush(vinoOscuro))
-                                    g.FillRectangle(brHeaderBg, margen.Left, y, margen.Width, headerH);
-                                g.DrawString(
-                                    $"{Tv2("frm.reportejornada", "Reporte de Jornada")} — {dtpJornada.Value:dd/MM/yyyy}",
-                                    fuenteTitulo, Brushes.White,
-                                    margen.Left + 6, y + 5);
-                                y += headerH + 4;
-
-                                g.DrawString(
-                                    $"{Tv2("rpt.txt.generado", "Generado")}: {DateTime.Now:dd/MM/yyyy HH:mm}",
-                                    fuenteSub, brMedio, margen.Left, y);
-                                y += fuenteSub.GetHeight(g) + 4;
-                                g.DrawLine(penLinea, margen.Left, y, margen.Right, y);
-                                y += 6;
-                            }
-
-                            float lineH = fuenteCuerpo.GetHeight(g);
-                            while (lineIndex < lines.Length)
-                            {
-                                if (y + lineH > margen.Bottom - 20) break;
-                                g.DrawString(lines[lineIndex], fuenteCuerpo, brTexto, margen.Left, y);
-                                lineIndex++;
-                                y += lineH;
-                            }
-
-                            g.DrawLine(penPie, margen.Left, margen.Bottom - 16, margen.Right, margen.Bottom - 16);
-                            g.DrawString(
-                                string.Format(Tv2("bit.pdf.pagina", "WardrobeFlow — Página {0}"), pageNum),
-                                fuenteSub, brMedio, margen.Left, margen.Bottom - 14);
-                        }
-
-                        e.HasMorePages = lineIndex < lines.Length;
-                    };
-
-                    var tPrev = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
-                    string Tv3(string k, string fb) => tPrev.ContainsKey(k) ? tPrev[k].Texto : fb;
-
-                    using (var preview = new PrintPreviewDialog())
-                    {
-                        preview.Document = pd;
-                        preview.Width    = 1050;
-                        preview.Height   = 780;
-                        preview.Text     = $"{Tv3("bit.pdf.vistaprevia", "Vista Previa")} — {Tv3("frm.reportejornada", "Reporte de Jornada")}";
-                        preview.ShowDialog(this);
-                    }
-                }
+                // Creator → Factory Method → Product (Exportador concreto a PDF)
+                Exportacion.GeneradorReporte generador  = new Exportacion.GeneradorJornada();
+                Exportacion.Exportador       exportador = generador.CrearExportador("pdf");
+                exportador.Exportar(reporte, this);
             }
             catch (Exception ex)
             {
