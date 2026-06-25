@@ -3932,3 +3932,127 @@ ES	msg.idiomas.guardada.una	Traducción guardada.
 EN	msg.idiomas.guardada.una	Translation saved.
 RU	msg.idiomas.guardada.una	Перевод сохранён.
 PT	msg.idiomas.guardada.una	Tradução salva.
+ES	btn.cambioclave.cambiar	Cambiar
+EN	btn.cambioclave.cambiar	Change
+RU	btn.cambioclave.cambiar	Изменить
+PT	btn.cambioclave.cambiar	Alterar
+ES	btn.cambioclave.cancelar	Cancelar
+EN	btn.cambioclave.cancelar	Cancel
+RU	btn.cambioclave.cancelar	Отмена
+PT	btn.cambioclave.cancelar	Cancelar
+ES	btn.cerrar	Cerrar
+EN	btn.cerrar	Close
+RU	btn.cerrar	Закрыть
+PT	btn.cerrar	Fechar
+ES	dlg.backup.clave.ingresar	Ingresá la contraseña con la que se cifró este backup:
+EN	dlg.backup.clave.ingresar	Enter the password used to encrypt this backup:
+RU	dlg.backup.clave.ingresar	Введите пароль, которым был зашифрован этот бэкап:
+PT	dlg.backup.clave.ingresar	Digite a senha com que este backup foi criptografado:
+ES	dlg.backup.clave.nocoincide	Las contraseñas no coinciden.
+EN	dlg.backup.clave.nocoincide	The passwords do not match.
+RU	dlg.backup.clave.nocoincide	Пароли не совпадают.
+PT	dlg.backup.clave.nocoincide	As senhas não coincidem.
+ES	dlg.backup.clave.nueva	Ingresá una contraseña para CIFRAR el backup.\nLa vas a necesitar para restaurarlo (no se puede recuperar).
+EN	dlg.backup.clave.nueva	Enter a password to ENCRYPT the backup.\nYou will need it to restore it (it cannot be recovered).
+RU	dlg.backup.clave.nueva	Введите пароль для ШИФРОВАНИЯ бэкапа.\nОн понадобится для восстановления (восстановить нельзя).
+PT	dlg.backup.clave.nueva	Digite uma senha para CRIPTOGRAFAR o backup.\nVocê vai precisar dela para restaurá-lo (não pode ser recuperada).
+ES	dlg.backup.clave.repetir	Repetí la contraseña para confirmar:
+EN	dlg.backup.clave.repetir	Repeat the password to confirm:
+RU	dlg.backup.clave.repetir	Повторите пароль для подтверждения:
+PT	dlg.backup.clave.repetir	Repita a senha para confirmar:
+ES	dlg.backup.clave.titulo	Contraseña del backup
+EN	dlg.backup.clave.titulo	Backup password
+RU	dlg.backup.clave.titulo	Пароль бэкапа
+PT	dlg.backup.clave.titulo	Senha do backup
+ES	dlg.backup.clave.vacia	La contraseña no puede estar vacía.
+EN	dlg.backup.clave.vacia	The password cannot be empty.
+RU	dlg.backup.clave.vacia	Пароль не может быть пустым.
+PT	dlg.backup.clave.vacia	A senha não pode estar vazia.
+ES	err.bll.usuario.sin_cambios	No hay cambios para guardar.
+EN	err.bll.usuario.sin_cambios	There are no changes to save.
+RU	err.bll.usuario.sin_cambios	Нет изменений для сохранения.
+PT	err.bll.usuario.sin_cambios	Não há alterações para salvar.
+ES	err.cambioclave.nocoincide	Las contraseñas no coinciden.
+EN	err.cambioclave.nocoincide	The passwords do not match.
+RU	err.cambioclave.nocoincide	Пароли не совпадают.
+PT	err.cambioclave.nocoincide	As senhas não coincidem.
+ES	err.login.debecambiarclave	Debés cambiar tu contraseña temporal para ingresar.
+EN	err.login.debecambiarclave	You must change your temporary password to log in.
+RU	err.login.debecambiarclave	Чтобы войти, необходимо сменить временный пароль.
+PT	err.login.debecambiarclave	Você precisa alterar sua senha temporária para entrar.
+ES	frm.cambioclave.titulo	Cambio de contraseña obligatorio
+EN	frm.cambioclave.titulo	Mandatory password change
+RU	frm.cambioclave.titulo	Обязательная смена пароля
+PT	frm.cambioclave.titulo	Alteração de senha obrigatória
+ES	frm.mapeocontroles	Mapeo de controles por permiso
+EN	frm.mapeocontroles	Control mapping by permission
+RU	frm.mapeocontroles	Сопоставление элементов по разрешению
+PT	frm.mapeocontroles	Mapeamento de controles por permissão
+ES	lbl.cambioclave.info	Tu contraseña es temporal. Definí una nueva para continuar.
+EN	lbl.cambioclave.info	Your password is temporary. Set a new one to continue.
+RU	lbl.cambioclave.info	Ваш пароль временный. Задайте новый, чтобы продолжить.
+PT	lbl.cambioclave.info	Sua senha é temporária. Defina uma nova para continuar.
+ES	lbl.cambioclave.nueva	Nueva contraseña:
+EN	lbl.cambioclave.nueva	New password:
+RU	lbl.cambioclave.nueva	Новый пароль:
+PT	lbl.cambioclave.nueva	Nova senha:
+ES	lbl.cambioclave.reglas	Mínimo 8 caracteres, con al menos un número y un carácter especial.
+EN	lbl.cambioclave.reglas	At least 8 characters, including a number and a special character.
+RU	lbl.cambioclave.reglas	Минимум 8 символов, минимум одна цифра и один спецсимвол.
+PT	lbl.cambioclave.reglas	Mínimo de 8 caracteres, com pelo menos um número e um caractere especial.
+ES	lbl.cambioclave.repetir	Repetir contraseña:
+EN	lbl.cambioclave.repetir	Repeat password:
+RU	lbl.cambioclave.repetir	Повторите пароль:
+PT	lbl.cambioclave.repetir	Repetir senha:
+ES	lbl.cli.fechanac	Fecha de Nacimiento *
+EN	lbl.cli.fechanac	Date of Birth *
+RU	lbl.cli.fechanac	Дата рождения *
+PT	lbl.cli.fechanac	Data de Nascimento *
+ES	map.asociados	Asociados a la patente
+EN	map.asociados	Linked to the permission
+RU	map.asociados	Связаны с разрешением
+PT	map.asociados	Associados à permissão
+ES	map.disponibles	Controles disponibles
+EN	map.disponibles	Available controls
+RU	map.disponibles	Доступные элементы
+PT	map.disponibles	Controles disponíveis
+ES	map.formulario	Formulario:
+EN	map.formulario	Form:
+RU	map.formulario	Форма:
+PT	map.formulario	Formulário:
+ES	map.guardado	Mapeo guardado.
+EN	map.guardado	Mapping saved.
+RU	map.guardado	Сопоставление сохранено.
+PT	map.guardado	Mapeamento salvo.
+ES	map.guardar	💾 Guardar
+EN	map.guardar	💾 Save
+RU	map.guardar	💾 Сохранить
+PT	map.guardar	💾 Salvar
+ES	map.patente	Patente:
+EN	map.patente	Permission:
+RU	map.patente	Разрешение:
+PT	map.patente	Permissão:
+ES	map.sinforms	Abrí los formularios que quieras mapear y volvé a entrar acá.
+EN	map.sinforms	Open the forms you want to map and come back here.
+RU	map.sinforms	Откройте формы, которые хотите сопоставить, и вернитесь сюда.
+PT	map.sinforms	Abra os formulários que deseja mapear e volte aqui.
+ES	msg.backup.perdida.titulo	\n\nSe perderán estos registros creados después del backup:
+EN	msg.backup.perdida.titulo	\n\nThese records created after the backup will be lost:
+RU	msg.backup.perdida.titulo	\n\nБудут потеряны записи, созданные после бэкапа:
+PT	msg.backup.perdida.titulo	\n\nEstes registros criados após o backup serão perdidos:
+ES	msg.backup.sinperdida	\n\nNo hay registros nuevos posteriores a esa fecha: no se perdería información reciente.
+EN	msg.backup.sinperdida	\n\nThere are no new records after that date: no recent data would be lost.
+RU	msg.backup.sinperdida	\n\nНет новых записей после этой даты: недавние данные не будут потеряны.
+PT	msg.backup.sinperdida	\n\nNão há registros novos após essa data: nenhuma informação recente seria perdida.
+ES	msg.cambioclave.exito	Contraseña actualizada. Ya podés usar el sistema.
+EN	msg.cambioclave.exito	Password updated. You can now use the system.
+RU	msg.cambioclave.exito	Пароль обновлён. Теперь можно пользоваться системой.
+PT	msg.cambioclave.exito	Senha atualizada. Você já pode usar o sistema.
+ES	perm.msg.selelirol	Seleccioná un ROL del árbol para eliminar (los permisos no se eliminan).
+EN	perm.msg.selelirol	Select a ROLE from the tree to delete (permissions are not deleted).
+RU	perm.msg.selelirol	Выберите РОЛЬ в дереве для удаления (разрешения не удаляются).
+PT	perm.msg.selelirol	Selecione um PAPEL na árvore para excluir (as permissões não são excluídas).
+ES	perm.msg.selmodrol	Seleccioná un ROL del árbol para renombrar (los permisos no se editan).
+EN	perm.msg.selmodrol	Select a ROLE from the tree to rename (permissions are not edited).
+RU	perm.msg.selmodrol	Выберите РОЛЬ в дереве для переименования (разрешения не редактируются).
+PT	perm.msg.selmodrol	Selecione um PAPEL na árvore para renomear (as permissões não são editadas).
