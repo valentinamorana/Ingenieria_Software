@@ -69,21 +69,23 @@ namespace BLL
                 throw new BE.AppException("err.bll.usuario.no_existe",
                     "El usuario de la versión ya no existe.");
 
-            // 1) Guardar el estado actual como Memento ANTES de restaurar. El detalle describe
-            //    el CAMBIO que produce el rollback ("campo: 'antes' → 'después'"), igual que una
-            //    edición normal: un rollback es en sí mismo un cambio y debe quedar trazado como tal.
-            //    Fail-safe: si falla, aborta antes de modificar nada.
+            // Detalle del cambio que produce el rollback ("campo: 'actual' → 'restaurado'").
             string diff    = DescribirRestauracion(originator, memento);
             string detalle = diff == null
                 ? $"Restauración a versión ID {idVersion}: sin cambios de datos."
                 : $"Restauración a versión ID {idVersion} — {diff}";
-            _caretaker.Guardar(originator.Id, originator.CrearMemento(actor, detalle));
 
-            // 2) El Originator restaura su estado desde el Memento elegido.
+            // 1) Aplicar la restauración: el Originator toma el estado de la versión elegida y se
+            //    persiste (UPDATE a la tabla Usuario).
             originator.RestaurarDesde(memento);
-
-            // 3) Persistir el estado restaurado.
             _dalUsuario.RestaurarVersion(memento);
+
+            // 2) Snapshot del NUEVO estado (= valores restaurados), en el MISMO orden que una
+            //    edición (Modificar: primero UPDATE, después snapshot). Así el último snapshot
+            //    SIEMPRE refleja el estado vigente del usuario y el Historial muestra el rollback
+            //    como un cambio más. El estado previo al rollback ya quedó como snapshot anterior,
+            //    de modo que el propio rollback también se puede deshacer.
+            _caretaker.Guardar(memento.IdUsuario, originator.CrearMemento(actor, detalle));
 
             _bitacora.Registrar(modulo,
                 $"Restauración a versión ID {idVersion} — usuario ID {memento.IdUsuario} ({memento.UsernameSnapshot})",

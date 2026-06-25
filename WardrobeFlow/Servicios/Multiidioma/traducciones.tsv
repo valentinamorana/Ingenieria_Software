@@ -4056,3 +4056,11 @@ ES	perm.msg.selmodrol	Seleccioná un ROL del árbol para renombrar (los permisos
 EN	perm.msg.selmodrol	Select a ROLE from the tree to rename (permissions are not edited).
 RU	perm.msg.selmodrol	Выберите РОЛЬ в дереве для переименования (разрешения не редактируются).
 PT	perm.msg.selmodrol	Selecione um PAPEL na árvore para renomear (as permissões não são editadas).
+ES	hist.rollback	reversión
+EN	hist.rollback	rollback
+RU	hist.rollback	откат
+PT	hist.rollback	reversão
+ES	msg.historial.confirmar.revertir	¿Revertir al estado anterior a este cambio?\n\n«{0}»:  «{2}»  →  «{1}»\n\nEl usuario volverá a los valores previos a esta modificación. Es reversible (queda registrado como un nuevo cambio).
+EN	msg.historial.confirmar.revertir	Revert to the state before this change?\n\n«{0}»:  «{2}»  →  «{1}»\n\nThe user will return to the values prior to this modification. It is reversible (logged as a new change).
+RU	msg.historial.confirmar.revertir	Вернуть состояние до этого изменения?\n\n«{0}»:  «{2}»  →  «{1}»\n\nПользователь вернётся к значениям до этого изменения. Действие обратимо (записывается как новое изменение).
+PT	msg.historial.confirmar.revertir	Reverter ao estado anterior a esta alteração?\n\n«{0}»:  «{2}»  →  «{1}»\n\nO usuário voltará aos valores anteriores a esta modificação. É reversível (registrado como uma nova alteração).

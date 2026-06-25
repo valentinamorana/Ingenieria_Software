@@ -134,11 +134,17 @@ namespace GUI
                 string fechaTxt = cur.Fecha.ToString("dd/MM/yyyy HH:mm:ss");
                 // Identificador del registro afectado: usuario + ID.
                 string registroTxt = $"{cur.UsernameSnapshot} (ID {cur.IdUsuario})";
+                // Si esta versión proviene de una restauración, se marca en "Modificado por".
+                string actorTxt = EsRestauracion(cur)
+                    ? $"{cur.Actor} · {Campo("hist.rollback", "rollback")}"
+                    : cur.Actor;
 
+                // colId = id de la versión ANTERIOR: "Restaurar" revierte el cambio, dejando al
+                // usuario en el estado PREVIO a esta modificación (no en el nuevo valor).
                 void Cmp(string campo, string viejo, string nuevo)
                 {
                     if (!string.Equals(viejo ?? "", nuevo ?? "", StringComparison.Ordinal))
-                        filas.Add(new object[] { cur.Id, registroTxt, fechaTxt, cur.Actor, campo, viejo ?? "", nuevo ?? "" });
+                        filas.Add(new object[] { prev.Id, registroTxt, fechaTxt, actorTxt, campo, viejo ?? "", nuevo ?? "" });
                 }
 
                 Cmp(Campo("col.ver.f.usuario",  "Usuario"),    prev.UsernameSnapshot, cur.UsernameSnapshot);
@@ -151,6 +157,16 @@ namespace GUI
             // Mostrar lo más reciente primero.
             filas.Reverse();
             foreach (var f in filas) dgv.Rows.Add(f);
+        }
+
+        // Una versión proviene de un rollback si su detalle es una restauración (formato nuevo
+        // "Restauración a versión..." o el legacy "...antes de restaurar..."). Marcador interno
+        // en español: no es texto de UI, solo se usa para detectar el origen.
+        private static bool EsRestauracion(BE.VersionUsuario v)
+        {
+            if (string.IsNullOrEmpty(v.Detalle)) return false;
+            return v.Detalle.IndexOf("Restauración a versión", StringComparison.OrdinalIgnoreCase) >= 0
+                || v.Detalle.IndexOf("antes de restaurar",     StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private void btnRestaurar_Click(object sender, EventArgs e)
@@ -167,13 +183,17 @@ namespace GUI
                 return;
             }
 
-            int idVersion = Convert.ToInt32(dgv.CurrentRow.Cells["colId"].Value);
-            var ver = _versiones.Find(v => v.Id == idVersion);
-            if (ver == null) return;
+            // colId guarda la versión ANTERIOR al cambio: restaurarla revierte la modificación.
+            int idVersionPrev = Convert.ToInt32(dgv.CurrentRow.Cells["colId"].Value);
+            if (_versiones.Find(v => v.Id == idVersionPrev) == null) return;
 
-            string tpl = T("msg.historial.confirmar",
-                "¿Restaurar al usuario '{0}' al estado del {1}?\n\nDetalle del snapshot: {2}\n\nEsta acción es reversible (se graba un nuevo snapshot antes de restaurar).");
-            string msg = string.Format(tpl, ver.UsernameSnapshot, ver.Fecha.ToString("dd/MM/yyyy HH:mm"), ver.Detalle);
+            string campo    = dgv.CurrentRow.Cells["colCampo"].Value?.ToString()    ?? "";
+            string anterior = dgv.CurrentRow.Cells["colAnterior"].Value?.ToString() ?? "";
+            string nuevo    = dgv.CurrentRow.Cells["colNuevo"].Value?.ToString()    ?? "";
+
+            string tpl = T("msg.historial.confirmar.revertir",
+                "¿Revertir al estado anterior a este cambio?\n\n«{0}»:  «{2}»  →  «{1}»\n\nEl usuario volverá a los valores previos a esta modificación. Es reversible (queda registrado como un nuevo cambio).");
+            string msg = string.Format(tpl, campo, anterior, nuevo);
 
             if (MessageBox.Show(msg, T("msg.backup.titulorestaura", "Confirmar Restauración"),
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
@@ -181,7 +201,7 @@ namespace GUI
 
             try
             {
-                _bll.RestaurarVersion(this.Text, idVersion);
+                _bll.RestaurarVersion(this.Text, idVersionPrev);
                 MessageBox.Show(
                     T("msg.historial.restaurado",  "Versión restaurada correctamente."),
                     T("rpt.dlg.exito.titulo",       "Éxito"),
