@@ -69,11 +69,15 @@ namespace BLL
                 throw new BE.AppException("err.bll.usuario.no_existe",
                     "El usuario de la versión ya no existe.");
 
-            // 1) Guardar el estado actual como Memento (permite deshacer la restauración).
+            // 1) Guardar el estado actual como Memento ANTES de restaurar. El detalle describe
+            //    el CAMBIO que produce el rollback ("campo: 'antes' → 'después'"), igual que una
+            //    edición normal: un rollback es en sí mismo un cambio y debe quedar trazado como tal.
             //    Fail-safe: si falla, aborta antes de modificar nada.
-            _caretaker.Guardar(originator.Id,
-                originator.CrearMemento(actor,
-                    $"Snapshot automático antes de restaurar versión ID {idVersion}."));
+            string diff    = DescribirRestauracion(originator, memento);
+            string detalle = diff == null
+                ? $"Restauración a versión ID {idVersion}: sin cambios de datos."
+                : $"Restauración a versión ID {idVersion} — {diff}";
+            _caretaker.Guardar(originator.Id, originator.CrearMemento(actor, detalle));
 
             // 2) El Originator restaura su estado desde el Memento elegido.
             originator.RestaurarDesde(memento);
@@ -84,6 +88,31 @@ namespace BLL
             _bitacora.Registrar(modulo,
                 $"Restauración a versión ID {idVersion} — usuario ID {memento.IdUsuario} ({memento.UsernameSnapshot})",
                 BE.Criticidad.Alta);
+        }
+
+        // Describe el cambio que produce un rollback comparando el estado ACTUAL (antes) con el
+        // estado DESTINO de la versión a restaurar (después). Mismo formato "campo: 'a' → 'b'; ..."
+        // que usa una edición normal, así el historial muestra QUÉ cambió el rollback (no solo que
+        // ocurrió). Solo datos administrativos no sensibles. Devuelve null si no cambia nada.
+        private static string DescribirRestauracion(BE.Usuario actual, BE.VersionUsuario destino)
+        {
+            var partes = new System.Collections.Generic.List<string>();
+            void Cmp(string campo, string viejo, string nuevo)
+            {
+                if (!string.Equals(viejo ?? "", nuevo ?? "", System.StringComparison.Ordinal))
+                    partes.Add($"{campo}: '{viejo ?? ""}' → '{nuevo ?? ""}'");
+            }
+            Cmp("Usuario",  actual.Username, destino.UsernameSnapshot);
+            Cmp("Nombre",   actual.Nombre,   destino.NombreSnapshot);
+            Cmp("Apellido", actual.Apellido, destino.ApellidoSnapshot);
+            Cmp("Email",    actual.Email,    destino.EmailSnapshot);
+
+            string fechaVieja = actual.FechaNacimiento?.ToString("yyyy-MM-dd") ?? "";
+            string fechaNueva = destino.FechaNacSnapshot?.ToString("yyyy-MM-dd") ?? "";
+            if (!string.Equals(fechaVieja, fechaNueva, System.StringComparison.Ordinal))
+                partes.Add($"Fecha nac.: '{fechaVieja}' → '{fechaNueva}'");
+
+            return partes.Count == 0 ? null : string.Join("; ", partes);
         }
     }
 }
