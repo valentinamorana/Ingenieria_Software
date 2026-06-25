@@ -191,6 +191,10 @@ namespace GUI
             dgvTraducciones.AllowUserToDeleteRows  = false;
             dgvTraducciones.AutoSizeColumnsMode    = DataGridViewAutoSizeColumnsMode.Fill;
             dgvTraducciones.RowHeadersVisible      = false;
+            // Guardado automático: al confirmar la edición de una celda (Enter o salir de
+            // la celda) se persiste la traducción en BD, sin tener que apretar "Guardar".
+            dgvTraducciones.CellEndEdit           -= DgvTraducciones_CellEndEdit;
+            dgvTraducciones.CellEndEdit           += DgvTraducciones_CellEndEdit;
 
             // dgvControles — listado de controles traducibles del sistema (solo lectura)
             dgvControles.SelectionMode          = DataGridViewSelectionMode.FullRowSelect;
@@ -412,6 +416,45 @@ namespace GUI
             catch (Exception ex) { MostrarError(ex); }
         }
 
+        // ── Guardado automático al confirmar una celda (Enter / salir de la celda) ──
+        private void DgvTraducciones_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            if (_idIdiomaSeleccionado == 0 || e.RowIndex < 0) return;
+            if (!dgvTraducciones.Columns.Contains("colTexto")) return;
+            if (dgvTraducciones.Columns[e.ColumnIndex].Name != "colTexto") return;
+
+            var row = dgvTraducciones.Rows[e.RowIndex];
+            if (row.Cells["colIdControl"].Value == null) return;
+
+            int    idControl = Convert.ToInt32(row.Cells["colIdControl"].Value);
+            string texto     = row.Cells["colTexto"].Value?.ToString() ?? string.Empty;
+
+            try
+            {
+                _bllIdioma.GuardarTraduccion(idControl, _idIdiomaSeleccionado, texto);
+                MostrarOk(Tx("msg.idiomas.guardada.una", "Traducción guardada."));
+                RefrescarTraduccionesEnVivoSiActivo();   // impacta en el sistema al instante
+            }
+            catch (Exception ex)
+            {
+                MostrarError(ex);
+            }
+        }
+
+        // Si el idioma editado es el ACTIVO, recarga el diccionario desde BD y notifica a
+        // todos los observers (patrón Observer) para que los forms reflejen el cambio en vivo.
+        private void RefrescarTraduccionesEnVivoSiActivo()
+        {
+            var idiomaActual  = GestorIdioma.IdiomaActual;
+            var idiomaEditado = _idiomas.Find(i => i.IdIdioma == _idIdiomaSeleccionado);
+            if (idiomaActual != null && idiomaEditado != null
+                && idiomaEditado.Codigo == idiomaActual.Id)
+            {
+                var dictActualizado = _bllIdioma.CargarTraducciones(idiomaActual.Id);
+                GestorIdioma.CambiarIdioma(idiomaActual, dictActualizado);
+            }
+        }
+
         // ── Guardar traducción editada ────────────────────────────────────────
 
         private void BtnGuardar_Click(object sender, EventArgs e)
@@ -457,18 +500,8 @@ namespace GUI
                 string fmtG = tG.ContainsKey("msg.idiomas.guardadas") ? tG["msg.idiomas.guardadas"].Texto : "{0} traducción(es) guardadas correctamente.";
                 MostrarOk(string.Format(fmtG, guardadas));
 
-                // Si el idioma editado es el que está activo ahora mismo,
-                // recargar el diccionario desde BD y notificar a todos los observers
-                // para que los forms reflejen los cambios en vivo (requisito T05).
-                var idiomaActual  = GestorIdioma.IdiomaActual;
-                var idiomaEditado = _idiomas.Find(i => i.IdIdioma == _idIdiomaSeleccionado);
-
-                if (idiomaActual != null && idiomaEditado != null
-                    && idiomaEditado.Codigo == idiomaActual.Id)
-                {
-                    var dictActualizado = _bllIdioma.CargarTraducciones(idiomaActual.Id);
-                    GestorIdioma.CambiarIdioma(idiomaActual, dictActualizado);
-                }
+                // Si el idioma editado es el activo, refrescar en vivo (Observer).
+                RefrescarTraduccionesEnVivoSiActivo();
             }
             else
             {

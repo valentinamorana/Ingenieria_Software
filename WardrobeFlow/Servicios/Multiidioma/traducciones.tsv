@@ -3920,3 +3920,15 @@ PT	alert.backup.nunca	Não há backups registrados.
 PT	alert.backup.dias	Há {0} dia(s) sem realizar backup.
 PT	alert.prendas.limpieza	{0} peça(s) em limpeza.
 PT	alert.dv.corruptos	Integridade comprometida: {0} linha(s) com DV inválido.
+ES	diag.sinfilas	✓ Todo íntegro — no hay filas con problemas de integridad.
+ES	diag.fila.recalculado	Recalculado en vivo
+EN	diag.sinfilas	✓ All consistent — no rows with integrity problems.
+EN	diag.fila.recalculado	Recalculated live
+RU	diag.sinfilas	✓ Всё в порядке — нет строк с проблемами целостности.
+RU	diag.fila.recalculado	Пересчитано в реальном времени
+PT	diag.sinfilas	✓ Tudo íntegro — não há linhas com problemas de integridade.
+PT	diag.fila.recalculado	Recalculado em tempo real
+ES	msg.idiomas.guardada.una	Traducción guardada.
+EN	msg.idiomas.guardada.una	Translation saved.
+RU	msg.idiomas.guardada.una	Перевод сохранён.
+PT	msg.idiomas.guardada.una	Tradução salva.

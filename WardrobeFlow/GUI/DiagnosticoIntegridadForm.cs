@@ -16,6 +16,7 @@ namespace GUI
         private Button      _btnReparar;
         private Button      _btnRecalcularTodo;
         private Label       _lblFilasRotas;
+        private Label       _lblGridVacio;   // cartel "Todo íntegro" sobre la grilla (estado vacío)
 
         // ── Tab historial ─────────────────────────────────────────────────────
         private DataGridView _gridHistorial;
@@ -155,8 +156,22 @@ namespace GUI
 
             panelBotones.Controls.AddRange(new Control[] { _btnRecalcularTodo, _btnReparar, _btnActualizar });
 
+            // Cartel de estado vacío ("Todo íntegro"): se muestra SOBRE la grilla en vez de
+            // inyectar una fila falsa (que antes caía en la columna Usuario y confundía).
+            _lblGridVacio = new Label
+            {
+                Dock      = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font      = new Font("Segoe UI", 11f, FontStyle.Bold),
+                ForeColor = Color.FromArgb(40, 140, 60),
+                BackColor = Color.White,
+                Visible   = false,
+                Text      = T("diag.sinfilas", "✓ Todo íntegro — no hay filas con problemas de integridad.")
+            };
+
             var contenedor = new Panel { Dock = DockStyle.Fill };
             contenedor.Controls.Add(_gridRotas);
+            contenedor.Controls.Add(_lblGridVacio);
             contenedor.Controls.Add(_lblFilasRotas);
 
             tab.Controls.Add(contenedor);
@@ -315,7 +330,7 @@ namespace GUI
                 _gridRotas.Rows.Clear();
                 string sinDVH      = T("diag.fila.sinDVH",     "Sin DVH");
                 string noCoincide  = T("diag.fila.nocoincide", "DVH no coincide");
-                string dvhRuntime  = T("diag.col.dvh.calc",    "DVH Calculado") + " (runtime)";
+                string dvhRuntime  = T("diag.fila.recalculado", "Recalculado en vivo");
                 foreach (var fila in diag.FilasRotas)
                 {
                     string estadoFila = fila.DVHAlmacenado == null ? sinDVH : noCoincide;
@@ -339,13 +354,11 @@ namespace GUI
                 }
 
                 // Si no hay NINGÚN problema (ni en Usuario ni en las tablas adicionales),
-                // mostrar un aviso claro en vez de una grilla vacía.
-                if (diag.FilasRotas.Count == 0 && diag.TablasAdicionalesCorruptas.Count == 0)
-                {
-                    int fIdx = _gridRotas.Rows.Add("", T("diag.sinfilas", "✓ Todo íntegro — no hay filas con problemas de integridad."), "", "", "");
-                    _gridRotas.Rows[fIdx].DefaultCellStyle.ForeColor = System.Drawing.Color.FromArgb(40, 140, 60);
-                    _gridRotas.Rows[fIdx].ReadOnly = true;
-                }
+                // mostrar el cartel "Todo íntegro" SOBRE la grilla (no como fila en Usuario).
+                bool gridVacio = diag.FilasRotas.Count == 0 && diag.TablasAdicionalesCorruptas.Count == 0;
+                _lblGridVacio.Text    = T("diag.sinfilas", "✓ Todo íntegro — no hay filas con problemas de integridad.");
+                _lblGridVacio.Visible = gridVacio;
+                if (gridVacio) _lblGridVacio.BringToFront(); else _lblGridVacio.SendToBack();
 
                 _btnReparar.Enabled        = diag.FilasRotas.Count > 0;
                 // Habilitar el recálculo total si CUALQUIER tabla protegida está comprometida
