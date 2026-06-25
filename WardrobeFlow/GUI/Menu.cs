@@ -171,11 +171,15 @@ namespace GUI
             // ── Centro de Alertas ──────────────────────────────────────────────
             // Ítem top-level visible para todos los usuarios autenticados (igual que
             // "Panel de Control"). El conteo de alertas se calcula en background.
-            _alertasItem = new ToolStripMenuItem { Tag = "mnu.alertas", Name = "alertasToolStripMenuItem" };
+            // Alineado a la DERECHA del MenuStrip (bajo la X de la ventana), en la misma barra.
+            _alertasItem = new ToolStripMenuItem
+            {
+                Tag       = "mnu.alertas",
+                Name      = "alertasToolStripMenuItem",
+                Alignment = ToolStripItemAlignment.Right
+            };
             _alertasItem.Click += AlertasItem_Click;
-            int idxAlertas = menuStrip1.Items.IndexOf(usuarioToolStripMenuItem);
-            if (idxAlertas >= 0) menuStrip1.Items.Insert(idxAlertas, _alertasItem);
-            else                 menuStrip1.Items.Add(_alertasItem);
+            menuStrip1.Items.Add(_alertasItem);
             RefrescarTextoAlertas();
 
             // Construir menú dinámico según permisos del rol
