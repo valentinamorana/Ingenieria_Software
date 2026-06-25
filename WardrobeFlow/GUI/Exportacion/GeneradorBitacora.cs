@@ -16,6 +16,8 @@ namespace GUI.Exportacion
                 return new ExportadorPdf(Origen);
             else if (formato == "txt")
                 return new ExportadorTxt(Origen);
+            else if (formato == "csv")
+                return new ExportadorCsv(Origen);
             else
                 return null;
         }

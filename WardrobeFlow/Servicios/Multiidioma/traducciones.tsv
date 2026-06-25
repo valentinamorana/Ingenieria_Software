@@ -3836,3 +3836,87 @@ ES	mnu.sesion	Sesión
 EN	mnu.sesion	Session
 PT	mnu.sesion	Sessão
 RU	mnu.sesion	Сеанс
+ES	rpt.menu.guardarcsv	Guardar eventos como .CSV
+ES	rpt.dlg.guardarcsv	Guardar como CSV
+ES	bit.menu.exportarpdf	Exportar a PDF
+ES	bit.menu.exportarcsv	Exportar a CSV
+ES	rpt.tendencia	Tendencia (rango)
+ES	rpt.txt.tend.titulo	TENDENCIA DE ACTIVIDAD
+ES	rpt.txt.tend.dias	Días analizados
+ES	rpt.txt.tend.total	Total de eventos
+ES	rpt.txt.tend.promedio	Promedio diario
+ES	rpt.txt.tend.diapico	Día de mayor actividad
+ES	rpt.txt.tend.diavalle	Día de menor actividad
+ES	rpt.txt.tend.detalle	DETALLE POR DÍA
+ES	mnu.alertas	Alertas
+ES	frm.alertas	Centro de Alertas
+ES	alert.sinalertas	No hay alertas activas. Todo en orden.
+ES	alert.subs.vencidas	{0} suscripción(es) vencida(s).
+ES	alert.subs.porvencer	{0} suscripción(es) vence(n) en los próximos 7 días.
+ES	alert.backup.nunca	No hay backups registrados.
+ES	alert.backup.dias	Hace {0} día(s) que no se realiza un backup.
+ES	alert.prendas.limpieza	{0} prenda(s) en limpieza.
+ES	alert.dv.corruptos	Integridad comprometida: {0} fila(s) con DV inválido.
+EN	rpt.menu.guardarcsv	Save events as .CSV
+EN	rpt.dlg.guardarcsv	Save as CSV
+EN	bit.menu.exportarpdf	Export to PDF
+EN	bit.menu.exportarcsv	Export to CSV
+EN	rpt.tendencia	Trend (range)
+EN	rpt.txt.tend.titulo	ACTIVITY TREND
+EN	rpt.txt.tend.dias	Days analyzed
+EN	rpt.txt.tend.total	Total events
+EN	rpt.txt.tend.promedio	Daily average
+EN	rpt.txt.tend.diapico	Busiest day
+EN	rpt.txt.tend.diavalle	Quietest day
+EN	rpt.txt.tend.detalle	DAILY BREAKDOWN
+EN	mnu.alertas	Alerts
+EN	frm.alertas	Alert Center
+EN	alert.sinalertas	No active alerts. All good.
+EN	alert.subs.vencidas	{0} expired subscription(s).
+EN	alert.subs.porvencer	{0} subscription(s) expiring in the next 7 days.
+EN	alert.backup.nunca	No backups on record.
+EN	alert.backup.dias	{0} day(s) since the last backup.
+EN	alert.prendas.limpieza	{0} garment(s) in cleaning.
+EN	alert.dv.corruptos	Integrity compromised: {0} row(s) with invalid VD.
+RU	rpt.menu.guardarcsv	Сохранить события как .CSV
+RU	rpt.dlg.guardarcsv	Сохранить как CSV
+RU	bit.menu.exportarpdf	Экспорт в PDF
+RU	bit.menu.exportarcsv	Экспорт в CSV
+RU	rpt.tendencia	Динамика (диапазон)
+RU	rpt.txt.tend.titulo	ДИНАМИКА АКТИВНОСТИ
+RU	rpt.txt.tend.dias	Проанализировано дней
+RU	rpt.txt.tend.total	Всего событий
+RU	rpt.txt.tend.promedio	Среднее за день
+RU	rpt.txt.tend.diapico	День максимальной активности
+RU	rpt.txt.tend.diavalle	День минимальной активности
+RU	rpt.txt.tend.detalle	ПОДРОБНО ПО ДНЯМ
+RU	mnu.alertas	Оповещения
+RU	frm.alertas	Центр оповещений
+RU	alert.sinalertas	Активных оповещений нет. Всё в порядке.
+RU	alert.subs.vencidas	Просроченных подписок: {0}.
+RU	alert.subs.porvencer	Подписок, истекающих в ближайшие 7 дней: {0}.
+RU	alert.backup.nunca	Резервных копий нет.
+RU	alert.backup.dias	Дней с последней резервной копии: {0}.
+RU	alert.prendas.limpieza	Вещей в чистке: {0}.
+RU	alert.dv.corruptos	Целостность нарушена: строк с неверным КЦ: {0}.
+PT	rpt.menu.guardarcsv	Salvar eventos como .CSV
+PT	rpt.dlg.guardarcsv	Salvar como CSV
+PT	bit.menu.exportarpdf	Exportar para PDF
+PT	bit.menu.exportarcsv	Exportar para CSV
+PT	rpt.tendencia	Tendência (intervalo)
+PT	rpt.txt.tend.titulo	TENDÊNCIA DE ATIVIDADE
+PT	rpt.txt.tend.dias	Dias analisados
+PT	rpt.txt.tend.total	Total de eventos
+PT	rpt.txt.tend.promedio	Média diária
+PT	rpt.txt.tend.diapico	Dia de maior atividade
+PT	rpt.txt.tend.diavalle	Dia de menor atividade
+PT	rpt.txt.tend.detalle	DETALHE POR DIA
+PT	mnu.alertas	Alertas
+PT	frm.alertas	Central de Alertas
+PT	alert.sinalertas	Não há alertas ativos. Tudo em ordem.
+PT	alert.subs.vencidas	{0} assinatura(s) vencida(s).
+PT	alert.subs.porvencer	{0} assinatura(s) vence(m) nos próximos 7 dias.
+PT	alert.backup.nunca	Não há backups registrados.
+PT	alert.backup.dias	Há {0} dia(s) sem realizar backup.
+PT	alert.prendas.limpieza	{0} peça(s) em limpeza.
+PT	alert.dv.corruptos	Integridade comprometida: {0} linha(s) com DV inválido.

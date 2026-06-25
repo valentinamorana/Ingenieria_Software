@@ -54,6 +54,9 @@ namespace GUI
         private ToolStripMenuItem _adminUsuariosItem;
         // Submenús de "Administrar" (reorganización): "Usuarios ▸" y "Sistema ▸".
         private ToolStripMenuItem _grpUsuarios, _grpSistema;
+        // Centro de Alertas (ítem top-level con badge de cantidad) — creado por código.
+        private ToolStripMenuItem _alertasItem;
+        private int _alertasCount = -1;
 
         // Helper de traducción con fallback (para ítems creados por código).
         private static string Tx(string key, string fallback)
@@ -165,9 +168,58 @@ namespace GUI
             gestionToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
             gestionToolStripMenuItem.DropDownItems.Add(_grpSistema);
 
+            // ── Centro de Alertas ──────────────────────────────────────────────
+            // Ítem top-level visible para todos los usuarios autenticados (igual que
+            // "Panel de Control"). El conteo de alertas se calcula en background.
+            _alertasItem = new ToolStripMenuItem { Tag = "mnu.alertas", Name = "alertasToolStripMenuItem" };
+            _alertasItem.Click += AlertasItem_Click;
+            int idxAlertas = menuStrip1.Items.IndexOf(usuarioToolStripMenuItem);
+            if (idxAlertas >= 0) menuStrip1.Items.Insert(idxAlertas, _alertasItem);
+            else                 menuStrip1.Items.Add(_alertasItem);
+            RefrescarTextoAlertas();
+
             // Construir menú dinámico según permisos del rol
             RegistroControles.Registrar(this);   // Etapa 4 (C1) — registra los ítems del menú para la pantalla de mapeo
             AplicarPermisos(_usuarioActivo?.Permisos);
+        }
+
+        // Abre el Centro de Alertas como hijo MDI (reusa la instancia abierta si existe).
+        private void AlertasItem_Click(object sender, EventArgs e)
+        {
+            foreach (Form hijo in this.MdiChildren)
+                if (hijo is AlertasForm) { hijo.BringToFront(); return; }
+            new AlertasForm { MdiParent = this }.Show();
+            ActualizarBadgeAlertas(); // refrescar el badge tras consultar
+        }
+
+        // Compone el texto del ítem: icono + etiqueta traducida + (N) si hay alertas.
+        private void RefrescarTextoAlertas()
+        {
+            if (_alertasItem == null) return;
+            string baseTxt = "🔔 " + Tx("mnu.alertas", "Alertas");
+            _alertasItem.Text      = _alertasCount > 0 ? $"{baseTxt} ({_alertasCount})" : baseTxt;
+            _alertasItem.ForeColor = _alertasCount > 0 ? Color.FromArgb(255, 235, 130) : Color.White;
+        }
+
+        // Calcula la cantidad de alertas en background (la lógica vive en BLL.PanelAlertas)
+        // y actualiza el badge sin bloquear la UI.
+        private void ActualizarBadgeAlertas()
+        {
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                int n;
+                try { n = new BLL.PanelAlertas().Contar(); } catch { n = 0; }
+                try
+                {
+                    this.BeginInvoke(new Action(() =>
+                    {
+                        if (IsDisposed) return;
+                        _alertasCount = n;
+                        RefrescarTextoAlertas();
+                    }));
+                }
+                catch { }
+            });
         }
 
         // Abre "Mi Perfil" como diálogo modal (preferencias del usuario en sesión).
@@ -649,6 +701,9 @@ namespace GUI
             dash.Show();
             try { PreferenciasUI.Aplicar(dash); } catch { }
 
+            // Calcular el badge del Centro de Alertas (en background, vía BLL).
+            ActualizarBadgeAlertas();
+
             // 4. Cargar traducciones de BD en background (no bloquea la UI)
             // RF-22/23 — Al ingresar se aplica el idioma PREFERIDO del usuario (persistido en BD).
             // El login queda en el idioma elegido en esa pantalla; el Menú ya abre en el del usuario.
@@ -801,6 +856,9 @@ namespace GUI
             Aplicar(bitNegocioToolStripMenuItem,        t);
             Aplicar(reporteJornadaToolStripMenuItem,    t);
             Aplicar(cerrarSesionToolStripMenuItem,      t);
+
+            // Ítem de Alertas: tiene icono + badge, se compone aparte (no por Tag directo).
+            RefrescarTextoAlertas();
         }
 
         /// <summary>

@@ -249,6 +249,10 @@
     <Compile Include="Exportacion\GeneradorReporte.cs" />
     <Compile Include="Exportacion\GeneradorBitacora.cs" />
     <Compile Include="Exportacion\GeneradorJornada.cs" />
+    <Compile Include="Exportacion\ExportadorCsv.cs" />
+    <Compile Include="AlertasForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <EmbeddedResource Include="Bitacora.resx">
       <DependentUpon>Bitacora.cs</DependentUpon>
     </EmbeddedResource>

@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Alerta.cs" />
     <Compile Include="AppException.cs" />
     <Compile Include="LoginException.cs" />
     <Compile Include="Bitacora.cs" />

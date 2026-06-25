@@ -374,7 +374,8 @@ namespace GUI
 
         private void BtnExportSistema_Click(object sender, EventArgs e)
         {
-            ExportarPdf(dgvSistema, T("bit.pdf.titulosistema", "Bitácora del Sistema — WardrobeFlow"));
+            MostrarMenuExportar((Control)sender, dgvSistema,
+                T("bit.pdf.titulosistema", "Bitácora del Sistema — WardrobeFlow"));
         }
 
         private void DgvSistema_DataBindingComplete(object sender,
@@ -406,7 +407,8 @@ namespace GUI
 
         private void BtnExportNegocio_Click(object sender, EventArgs e)
         {
-            ExportarPdf(dgvNegocio, T("bit.pdf.titulonegocio", "Bitácora de Negocio — WardrobeFlow"));
+            MostrarMenuExportar((Control)sender, dgvNegocio,
+                T("bit.pdf.titulonegocio", "Bitácora de Negocio — WardrobeFlow"));
         }
 
         // ── Carga ─────────────────────────────────────────────────────────────
@@ -475,12 +477,26 @@ namespace GUI
         // ══════════════════════════════════════════════════════════════════════
 
         /// <summary>
+        /// Despliega un menú con los formatos de exportación disponibles (PDF / CSV)
+        /// junto al botón de exportar. Cada opción usa el mismo Factory Method.
+        /// </summary>
+        private void MostrarMenuExportar(Control ancla, DataGridView dgv, string titulo)
+        {
+            var menu = new ContextMenuStrip();
+            menu.Items.Add(T("bit.menu.exportarpdf", "Exportar a PDF"), null,
+                (s, e) => ExportarReporte(dgv, titulo, "pdf"));
+            menu.Items.Add(T("bit.menu.exportarcsv", "Exportar a CSV"), null,
+                (s, e) => ExportarReporte(dgv, titulo, "csv"));
+            menu.Show(ancla, new Point(0, ancla.Height));
+        }
+
+        /// <summary>
         /// Arma el reporte tabular (con los HeaderText ya traducidos del DataGridView)
         /// y delega la exportación en el producto que fabrica el GeneradorBitacora
-        /// (Factory Method). El render del PDF y la vista previa viven ahora en
-        /// GUI.Exportacion.ExportadorPdf — este formulario es solo el cliente del patrón.
+        /// (Factory Method). El render del PDF/CSV vive en GUI.Exportacion — este
+        /// formulario es solo el cliente del patrón.
         /// </summary>
-        private void ExportarPdf(DataGridView dgv, string titulo)
+        private void ExportarReporte(DataGridView dgv, string titulo, string formato)
         {
             var headers = new string[dgv.Columns.Count];
             for (int i = 0; i < dgv.Columns.Count; i++)
@@ -494,10 +510,10 @@ namespace GUI
                 Datos         = dgv.DataSource as DataTable
             };
 
-            // Creator → Factory Method → Product (Exportador concreto)
+            // Creator → Factory Method → Product (Exportador concreto según el formato)
             Exportacion.GeneradorReporte generador  = new Exportacion.GeneradorBitacora();
-            Exportacion.Exportador       exportador = generador.CrearExportador("pdf");
-            exportador.Exportar(reporte, this);
+            Exportacion.Exportador       exportador = generador.CrearExportador(formato);
+            exportador?.Exportar(reporte, this);
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────

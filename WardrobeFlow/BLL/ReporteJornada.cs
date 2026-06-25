@@ -117,6 +117,82 @@ namespace BLL
             return sb.ToString();
         }
 
+        // ── Eventos crudos de una jornada (para exportar a CSV tabular) ───────
+        // Devuelve el DataTable de eventos de negocio del día. La GUI lo usa para
+        // exportar a CSV; toda la consulta vive acá (la GUI no arma SQL ni filtra).
+        public DataTable ObtenerEventosDelDia(DateTime fecha)
+        {
+            return _bllBitacora.BuscarPorFiltrosNegocio(fecha.Date, fecha.Date, null, null, null);
+        }
+
+        // ── Tendencia de actividad en un rango de fechas ──────────────────────
+        // Agrega los eventos de negocio por día entre 'desde' y 'hasta' (inclusive) y
+        // arma un resumen: total, promedio diario, día pico y día valle, con el detalle
+        // por jornada. Toda la lógica de agregación vive en BLL (la GUI solo lo muestra).
+        public string GenerarTendencia(DateTime desde, DateTime hasta, IDictionary<string, string> lbl = null)
+        {
+            string L(string k, string fb) => (lbl != null && lbl.ContainsKey(k)) ? lbl[k] : fb;
+
+            if (hasta.Date < desde.Date)
+            {
+                DateTime tmp = desde; desde = hasta; hasta = tmp;
+            }
+
+            var conteos     = new List<KeyValuePair<DateTime, int>>();
+            int total       = 0;
+            DateTime diaPico = desde.Date, diaValle = desde.Date;
+            int maxC = -1, minC = int.MaxValue;
+
+            for (DateTime d = desde.Date; d <= hasta.Date; d = d.AddDays(1))
+            {
+                int c;
+                try { c = _bllBitacora.BuscarPorFiltrosNegocio(d, d, null, null, null).Rows.Count; }
+                catch { c = 0; }
+
+                conteos.Add(new KeyValuePair<DateTime, int>(d, c));
+                total += c;
+                if (c > maxC) { maxC = c; diaPico  = d; }
+                if (c < minC) { minC = c; diaValle = d; }
+            }
+
+            int dias       = conteos.Count;
+            double promedio = dias > 0 ? (double)total / dias : 0;
+
+            var sb = new StringBuilder();
+            sb.AppendLine("═══════════════════════════════════════════════════════════");
+            sb.AppendLine($"   {L("tend.titulo", "TENDENCIA DE ACTIVIDAD")}");
+            sb.AppendLine($"   {desde:dd'/'MM'/'yyyy}  →  {hasta:dd'/'MM'/'yyyy}");
+            sb.AppendLine("   WardrobeFlow");
+            sb.AppendLine("═══════════════════════════════════════════════════════════");
+            sb.AppendLine();
+
+            sb.AppendLine($"▌ {L("resumen", "RESUMEN DEL SISTEMA")}");
+            sb.AppendLine(new string('─', 59));
+            sb.AppendLine($"  {L("tend.dias",     "Días analizados"),-26}: {dias}");
+            sb.AppendLine($"  {L("tend.total",    "Total de eventos"),-26}: {total}");
+            sb.AppendLine($"  {L("tend.promedio", "Promedio diario"),-26}: {promedio:0.0}");
+            if (total > 0)
+            {
+                sb.AppendLine($"  {L("tend.diapico",  "Día de mayor actividad"),-26}: {diaPico:dd'/'MM'/'yyyy} ({maxC})");
+                sb.AppendLine($"  {L("tend.diavalle", "Día de menor actividad"),-26}: {diaValle:dd'/'MM'/'yyyy} ({(minC == int.MaxValue ? 0 : minC)})");
+            }
+            sb.AppendLine();
+
+            sb.AppendLine($"▌ {L("tend.detalle", "DETALLE POR DÍA")}");
+            sb.AppendLine(new string('─', 59));
+            foreach (var kv in conteos)
+            {
+                int barras = kv.Value > 0 && maxC > 0 ? (int)System.Math.Round(20.0 * kv.Value / maxC) : 0;
+                sb.AppendLine($"  {kv.Key:dd'/'MM'/'yyyy}  {new string('█', barras),-20}  {kv.Value}");
+            }
+            sb.AppendLine(new string('─', 59));
+
+            sb.AppendLine();
+            sb.AppendLine($"  {L("generado", "Generado")}: {DateTime.Now:dd'/'MM'/'yyyy HH:mm:ss}");
+            sb.AppendLine(new string('═', 59));
+            return sb.ToString();
+        }
+
         // ── Comparación de dos jornadas ───────────────────────────────────────
 
         public string GenerarComparacion(DateTime fecha1, DateTime fecha2, IDictionary<string, string> lbl = null)
