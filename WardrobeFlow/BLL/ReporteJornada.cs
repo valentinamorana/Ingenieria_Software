@@ -138,25 +138,18 @@ namespace BLL
                 DateTime tmp = desde; desde = hasta; hasta = tmp;
             }
 
-            var conteos     = new List<KeyValuePair<DateTime, int>>();
-            int total       = 0;
-            DateTime diaPico = desde.Date, diaValle = desde.Date;
-            int maxC = -1, minC = int.MaxValue;
-
+            // Recolección de datos: una consulta por día del rango.
+            var conteos = new List<KeyValuePair<DateTime, int>>();
             for (DateTime d = desde.Date; d <= hasta.Date; d = d.AddDays(1))
             {
                 int c;
                 try { c = _bllBitacora.BuscarPorFiltrosNegocio(d, d, null, null, null).Rows.Count; }
                 catch { c = 0; }
-
                 conteos.Add(new KeyValuePair<DateTime, int>(d, c));
-                total += c;
-                if (c > maxC) { maxC = c; diaPico  = d; }
-                if (c < minC) { minC = c; diaValle = d; }
             }
 
-            int dias       = conteos.Count;
-            double promedio = dias > 0 ? (double)total / dias : 0;
+            // Agregación PURA (sin BD → testeable de forma determinista).
+            EstadisticaTendencia est = CalcularTendencia(conteos);
 
             var sb = new StringBuilder();
             sb.AppendLine("═══════════════════════════════════════════════════════════");
@@ -168,13 +161,13 @@ namespace BLL
 
             sb.AppendLine($"▌ {L("resumen", "RESUMEN DEL SISTEMA")}");
             sb.AppendLine(new string('─', 59));
-            sb.AppendLine($"  {L("tend.dias",     "Días analizados"),-26}: {dias}");
-            sb.AppendLine($"  {L("tend.total",    "Total de eventos"),-26}: {total}");
-            sb.AppendLine($"  {L("tend.promedio", "Promedio diario"),-26}: {promedio:0.0}");
-            if (total > 0)
+            sb.AppendLine($"  {L("tend.dias",     "Días analizados"),-26}: {est.DiasAnalizados}");
+            sb.AppendLine($"  {L("tend.total",    "Total de eventos"),-26}: {est.TotalEventos}");
+            sb.AppendLine($"  {L("tend.promedio", "Promedio diario"),-26}: {est.PromedioDiario:0.0}");
+            if (est.TotalEventos > 0)
             {
-                sb.AppendLine($"  {L("tend.diapico",  "Día de mayor actividad"),-26}: {diaPico:dd'/'MM'/'yyyy} ({maxC})");
-                sb.AppendLine($"  {L("tend.diavalle", "Día de menor actividad"),-26}: {diaValle:dd'/'MM'/'yyyy} ({(minC == int.MaxValue ? 0 : minC)})");
+                sb.AppendLine($"  {L("tend.diapico",  "Día de mayor actividad"),-26}: {est.DiaPico:dd'/'MM'/'yyyy} ({est.MaxEventos})");
+                sb.AppendLine($"  {L("tend.diavalle", "Día de menor actividad"),-26}: {est.DiaValle:dd'/'MM'/'yyyy} ({est.MinEventos})");
             }
             sb.AppendLine();
 
@@ -182,7 +175,7 @@ namespace BLL
             sb.AppendLine(new string('─', 59));
             foreach (var kv in conteos)
             {
-                int barras = kv.Value > 0 && maxC > 0 ? (int)System.Math.Round(20.0 * kv.Value / maxC) : 0;
+                int barras = kv.Value > 0 && est.MaxEventos > 0 ? (int)System.Math.Round(20.0 * kv.Value / est.MaxEventos) : 0;
                 sb.AppendLine($"  {kv.Key:dd'/'MM'/'yyyy}  {new string('█', barras),-20}  {kv.Value}");
             }
             sb.AppendLine(new string('─', 59));
@@ -191,6 +184,36 @@ namespace BLL
             sb.AppendLine($"  {L("generado", "Generado")}: {DateTime.Now:dd'/'MM'/'yyyy HH:mm:ss}");
             sb.AppendLine(new string('═', 59));
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// NÚCLEO PURO de la tendencia: dada la serie de (día → cantidad de eventos),
+        /// calcula total, promedio diario y los días pico/valle. Sin acceso a datos →
+        /// 100% testeable de forma determinista.
+        /// </summary>
+        public static EstadisticaTendencia CalcularTendencia(IList<KeyValuePair<DateTime, int>> conteos)
+        {
+            var est = new EstadisticaTendencia();
+            if (conteos == null || conteos.Count == 0) return est;
+
+            est.DiasAnalizados = conteos.Count;
+            int maxC = -1, minC = int.MaxValue, total = 0;
+            DateTime diaPico = conteos[0].Key, diaValle = conteos[0].Key;
+
+            foreach (var kv in conteos)
+            {
+                total += kv.Value;
+                if (kv.Value > maxC) { maxC = kv.Value; diaPico  = kv.Key; }
+                if (kv.Value < minC) { minC = kv.Value; diaValle = kv.Key; }
+            }
+
+            est.TotalEventos   = total;
+            est.PromedioDiario = (double)total / conteos.Count;
+            est.DiaPico        = diaPico;
+            est.MaxEventos     = maxC < 0 ? 0 : maxC;
+            est.DiaValle       = diaValle;
+            est.MinEventos     = minC == int.MaxValue ? 0 : minC;
+            return est;
         }
 
         // ── Comparación de dos jornadas ───────────────────────────────────────
@@ -266,5 +289,17 @@ namespace BLL
                 sb.AppendLine($"  ► {L("eventostot","Eventos totales")}: {n}");
             }
         }
+    }
+
+    /// <summary>Estadística agregada de una tendencia de actividad (resultado puro).</summary>
+    public class EstadisticaTendencia
+    {
+        public int      DiasAnalizados { get; set; }
+        public int      TotalEventos   { get; set; }
+        public double   PromedioDiario { get; set; }
+        public DateTime DiaPico        { get; set; }
+        public int      MaxEventos     { get; set; }
+        public DateTime DiaValle       { get; set; }
+        public int      MinEventos     { get; set; }
     }
 }
