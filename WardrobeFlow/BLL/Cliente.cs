@@ -22,10 +22,6 @@ namespace BLL
             this.dalCliente = dalCliente;
         }
 
-        // T04 — Delegado a BLLHelper para no duplicar la lógica en cada clase BLL.
-        private static void ValidarPermiso(string nombrePatente) =>
-            BLLHelper.ValidarPermiso(nombrePatente);
-
         // Devuelve todos los clientes con plan y stock utilizado.
         public List<BE.Cliente> ObtenerTodos()
         {
@@ -42,7 +38,7 @@ namespace BLL
         // Valida campos obligatorios y unicidad de DNI.
         public void Alta(string modulo, BE.Cliente cliente)
         {
-            ValidarPermiso(BE.Patentes.Clientes);
+            PermisosAccion.Exigir(BE.Patentes.ClientesEditar, BE.Patentes.Clientes);
             Validar(cliente);
 
             if (dalCliente.ExisteDNI(cliente.DNI))
@@ -64,7 +60,7 @@ namespace BLL
         // Bloquea si el nuevo plan tiene menos capacidad que las prendas actualmente en uso.
         public void Modificar(string modulo, BE.Cliente cliente)
         {
-            ValidarPermiso(BE.Patentes.Clientes);
+            PermisosAccion.Exigir(BE.Patentes.ClientesEditar, BE.Patentes.Clientes);
             Validar(cliente);
 
             if (dalCliente.ExisteDNIParaOtro(cliente.DNI, cliente.IdCliente))
@@ -102,7 +98,7 @@ namespace BLL
         // No se puede eliminar si tiene prendas actualmente en uso.
         public void Baja(string modulo, BE.Cliente cliente)
         {
-            ValidarPermiso(BE.Patentes.Clientes);
+            PermisosAccion.Exigir(BE.Patentes.ClientesEditar, BE.Patentes.Clientes);
             // Bloquear baja si el cliente tiene prendas en uso actualmente
             if (cliente.StockUtilizado > 0)
                 throw new BE.AppException("err.bll.cliente.baja_prendas",

@@ -19,7 +19,7 @@ namespace BLL
         // Da de alta una nueva prenda. Estado inicial siempre Disponible.
         public void Alta(string modulo, BE.Prenda prenda)
         {
-            ValidarPermiso(BE.Patentes.Stock);
+            PermisosAccion.Exigir(BE.Patentes.StockEditar, BE.Patentes.Stock);
             Validar(prenda);
             prenda.Estado    = BE.EstadoPrenda.Disponible;
             prenda.FechaAlta = DateTime.Now;
@@ -41,7 +41,7 @@ namespace BLL
         // No afecta estado ni cliente asignado.
         public void Modificar(string modulo, BE.Prenda prenda)
         {
-            ValidarPermiso(BE.Patentes.Stock);
+            PermisosAccion.Exigir(BE.Patentes.StockEditar, BE.Patentes.Stock);
             Validar(prenda);
             dalPrenda.Modificar(prenda);
 
@@ -59,7 +59,7 @@ namespace BLL
         // al volver a Disponible desde EnLimpieza lo cierra.
         public void CambiarEstado(string modulo, BE.Prenda prenda, BE.EstadoPrenda nuevoEstado, string actor = null)
         {
-            ValidarPermiso(BE.Patentes.Stock);
+            PermisosAccion.Exigir(BE.Patentes.StockEditar, BE.Patentes.Stock);
             if (!prenda.TransicionPermitida(nuevoEstado))
             {
                 // Se lanza una clave traducible por caso (antes el motivo era texto fijo en
@@ -133,10 +133,6 @@ namespace BLL
                 Disponibles = disponibles
             };
         }
-
-        // T04 — Delegado a BLLHelper para no duplicar la lógica en cada clase BLL.
-        private static void ValidarPermiso(string nombrePatente) =>
-            BLLHelper.ValidarPermiso(nombrePatente);
 
         private void Validar(BE.Prenda prenda)
         {

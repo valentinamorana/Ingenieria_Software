@@ -54,6 +54,7 @@
     <Compile Include="UsuarioCambioClaveTests.cs" />
     <Compile Include="FamiliaPermisosTests.cs" />
     <Compile Include="UltimoAdminGuardTests.cs" />
+    <Compile Include="PermisosAccionTests.cs" />
     <Compile Include="TraductorI18nTests.cs" />
     <Compile Include="SerializadorCsvTests.cs" />
     <Compile Include="PanelAlertasTests.cs" />

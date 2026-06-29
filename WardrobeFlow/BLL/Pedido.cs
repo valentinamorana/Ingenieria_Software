@@ -22,15 +22,11 @@ namespace BLL
         public List<BE.Pedido> ObtenerPendientes() => dalPedido.ObtenerPendientes();
         public BE.Pedido ObtenerPorId(int id) => dalPedido.ObtenerPorId(id);
 
-        // T04 — Delegado a BLLHelper para no duplicar la lógica en cada clase BLL.
-        private static void ValidarPermiso(string nombrePatente) =>
-            BLLHelper.ValidarPermiso(nombrePatente);
-
         // Crear Pedido
         // Crea un nuevo pedido para un cliente. Devuelve el ID generado.
         public int CrearPedido(string modulo, int idCliente, List<BE.Prenda> prendas)
         {
-            ValidarPermiso(BE.Patentes.PedidosVenta);
+            PermisosAccion.Exigir(BE.Patentes.PedidosVentaEditar, BE.Patentes.PedidosVenta);
             ValidarParametrosEntrada(prendas);
 
             var cliente = ObtenerClienteValidado(idCliente);
@@ -65,7 +61,7 @@ namespace BLL
         // Marca el pedido como Despachado.
         public void Despachar(string modulo, BE.Pedido pedido)
         {
-            ValidarPermiso(BE.Patentes.PedidosVenta);
+            PermisosAccion.Exigir(BE.Patentes.PedidosVentaEditar, BE.Patentes.PedidosVenta);
             if (!pedido.PuedeDespachar())
                 throw new BE.AppException("err.bll.pedido.despachar_estado",
                     "Solo se pueden despachar pedidos Pendientes. Este pedido está '{0}'.",
@@ -96,7 +92,7 @@ namespace BLL
         // Marca el pedido como Entregado.
         public void MarcarEntregado(string modulo, BE.Pedido pedido)
         {
-            ValidarPermiso(BE.Patentes.PedidosVenta);
+            PermisosAccion.Exigir(BE.Patentes.PedidosVentaEditar, BE.Patentes.PedidosVenta);
             if (!pedido.PuedeEntregarse())
                 throw new BE.AppException("err.bll.pedido.entregar_estado",
                     "Solo se pueden marcar como entregados los pedidos Despachados. Este pedido está '{0}'.",
@@ -125,7 +121,7 @@ namespace BLL
         // Registra la devolución de prendas de un pedido Entregado.
         public void RegistrarDevolucion(string modulo, BE.Pedido pedido)
         {
-            ValidarPermiso(BE.Patentes.PedidosRealizados);
+            PermisosAccion.Exigir(BE.Patentes.PedidosRealizadosEditar, BE.Patentes.PedidosRealizados);
             if (pedido.Estado != BE.EstadoPedido.Entregado)
                 throw new BE.AppException("err.bll.pedido.devolucion_estado",
                     "Solo se puede registrar la devolución de pedidos ya Entregados. Este pedido está '{0}'.",
@@ -160,7 +156,7 @@ namespace BLL
         // Cancela un pedido Pendiente. Requiere motivo.
         public void Cancelar(string modulo, BE.Pedido pedido, string motivo)
         {
-            ValidarPermiso(BE.Patentes.PedidosVenta);
+            PermisosAccion.Exigir(BE.Patentes.PedidosVentaEditar, BE.Patentes.PedidosVenta);
             if (!pedido.PuedeCancelarse())
                 throw new BE.AppException("err.bll.pedido.cancelar_estado",
                     "Solo se pueden cancelar pedidos en estado Pendiente. Este pedido está '{0}'.",
@@ -193,7 +189,7 @@ namespace BLL
         // Revierte la cancelación si todas las prendas siguen Disponibles.
         public void DesCancelar(string modulo, BE.Pedido pedido)
         {
-            ValidarPermiso(BE.Patentes.PedidosVenta);
+            PermisosAccion.Exigir(BE.Patentes.PedidosVentaEditar, BE.Patentes.PedidosVenta);
             if (!pedido.PuedeDesCancelarse())
                 throw new BE.AppException("err.bll.pedido.descancelar_estado",
                     "Solo se pueden des-cancelar pedidos Cancelados. Este pedido está '{0}'.",

@@ -15,5 +15,15 @@ namespace BE
         public const string PlanSuscripciones = "mnuPlanSuscripciones";
         public const string PedidosVenta      = "mnuPedidosVenta";
         public const string PedidosRealizados = "mnuPedidosRealizados";
+
+        // ── Patentes de ACCIÓN granular ("Configurar") — separan VER de EDITAR ───────
+        // Cada una gobierna las operaciones de escritura (alta/modificación/baja) del módulo.
+        // Convención: <patente de ver> + "Editar". Si la patente no existe en el catálogo,
+        // BLL.PermisosAccion cae al permiso de VER (retrocompatibilidad — ver PermisosAccion).
+        public const string StockEditar             = "mnuStockEditar";
+        public const string ClientesEditar          = "mnuClientesEditar";
+        public const string PlanSuscripcionesEditar = "mnuPlanSuscripcionesEditar";
+        public const string PedidosVentaEditar      = "mnuPedidosVentaEditar";
+        public const string PedidosRealizadosEditar = "mnuPedidosRealizadosEditar";
     }
 }

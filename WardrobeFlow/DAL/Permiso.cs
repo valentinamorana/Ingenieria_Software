@@ -280,6 +280,29 @@ namespace DAL
             }
         }
 
+        // NombreMenu de todas las PATENTES (permisos simples) activas. Sirve para saber qué
+        // patentes de acción granular ("…Editar") están DEFINIDAS en el catálogo, y así
+        // BLL.PermisosAccion decide si exige el permiso de edición o cae al de ver (legacy).
+        public List<string> ObtenerNombresMenuPatentes()
+        {
+            var lista = new List<string>();
+            DataTable t;
+            try
+            {
+                t = acceso.Leer(
+                    "SELECT NombreMenu FROM Permiso " +
+                    "WHERE ISNULL(EsFamilia,0) = 0 AND Estado = 1 AND NombreMenu IS NOT NULL", null);
+            }
+            catch { return lista; }   // BD sin columnas esperadas → vacío → fallback legacy
+            if (t == null) return lista;
+            foreach (DataRow row in t.Rows)
+            {
+                string nm = row["NombreMenu"]?.ToString();
+                if (!string.IsNullOrEmpty(nm)) lista.Add(nm);
+            }
+            return lista;
+        }
+
         // Ids de los hijos DIRECTOS de un nodo (un solo nivel).
         public List<int> ObtenerIdsHijos(int idPadre)
         {
