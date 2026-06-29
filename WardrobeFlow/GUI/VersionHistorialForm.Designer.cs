@@ -23,9 +23,7 @@ namespace GUI
             this.colRegistro = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colFecha    = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colActor    = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colCampo    = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colAnterior = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colNuevo    = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colDetalle  = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnRestaurar= new System.Windows.Forms.Button();
             this.pnlTop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv)).BeginInit();
@@ -102,7 +100,7 @@ namespace GUI
             this.dgv.TabIndex  = 4;
             this.dgv.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[]
             {
-                this.colId, this.colRegistro, this.colFecha, this.colActor, this.colCampo, this.colAnterior, this.colNuevo
+                this.colId, this.colRegistro, this.colFecha, this.colActor, this.colDetalle
             });
 
             // ── colId (oculta: referencia a la versión para restaurar) ────────
@@ -128,23 +126,11 @@ namespace GUI
             this.colActor.FillWeight  = 16;
             this.colActor.MinimumWidth= 100;
 
-            // ── colCampo ─────────────────────────────────────────────────────
-            this.colCampo.Name        = "colCampo";
-            this.colCampo.HeaderText  = "Campo";
-            this.colCampo.FillWeight  = 16;
-            this.colCampo.MinimumWidth= 90;
-
-            // ── colAnterior ──────────────────────────────────────────────────
-            this.colAnterior.Name        = "colAnterior";
-            this.colAnterior.HeaderText  = "Valor anterior";
-            this.colAnterior.FillWeight  = 24;
-            this.colAnterior.MinimumWidth= 120;
-
-            // ── colNuevo ─────────────────────────────────────────────────────
-            this.colNuevo.Name        = "colNuevo";
-            this.colNuevo.HeaderText  = "Valor nuevo";
-            this.colNuevo.FillWeight  = 24;
-            this.colNuevo.MinimumWidth= 120;
+            // ── colDetalle (cambios realizados en ese guardado: "campo: 'a' → 'b'; ...") ──
+            this.colDetalle.Name        = "colDetalle";
+            this.colDetalle.HeaderText  = "Cambios realizados";
+            this.colDetalle.FillWeight  = 46;
+            this.colDetalle.MinimumWidth= 220;
 
             // ── btnRestaurar ─────────────────────────────────────────────────
             this.btnRestaurar.BackColor                  = System.Drawing.Color.FromArgb(210, 100, 135);
@@ -187,9 +173,7 @@ namespace GUI
         private System.Windows.Forms.DataGridViewTextBoxColumn colRegistro;
         private System.Windows.Forms.DataGridViewTextBoxColumn colFecha;
         private System.Windows.Forms.DataGridViewTextBoxColumn colActor;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colCampo;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colAnterior;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colNuevo;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colDetalle;
         private System.Windows.Forms.Button                   btnRestaurar;
     }
 }

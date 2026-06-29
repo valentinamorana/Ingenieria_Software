@@ -64,9 +64,7 @@ namespace GUI
                 dgv.Columns["colRegistro"].HeaderText = T("col.ver.registro", "Usuario (ID)");
                 dgv.Columns["colFecha"].HeaderText    = T("col.ver.fecha",    "Fecha");
                 dgv.Columns["colActor"].HeaderText    = T("col.ver.actor",    "Modificado por");
-                dgv.Columns["colCampo"].HeaderText    = T("col.ver.campo",    "Campo");
-                dgv.Columns["colAnterior"].HeaderText = T("col.ver.anterior", "Valor anterior");
-                dgv.Columns["colNuevo"].HeaderText    = T("col.ver.nuevo",    "Valor nuevo");
+                dgv.Columns["colDetalle"].HeaderText  = T("col.ver.detalle",  "Cambios realizados");
             }
         }
 
@@ -105,58 +103,38 @@ namespace GUI
             }
         }
 
-        // Muestra el historial como CAMBIOS a nivel de campo (Identificador del registro = IdUsuario,
-        // Campo, Valor anterior, Valor nuevo, Usuario que modificó y Fecha/hora). Se computa el diff
-        // entre cada versión y la anterior; solo se listan datos administrativos NO sensibles (la
-        // contraseña nunca se versiona ni se muestra).
+        // Muestra el historial como VERSIONES (snapshots) del usuario: una fila por cada GUARDADO.
+        // Cada fila es un estado completo en un instante dado (modelo snapshot/Memento), con su Id de
+        // versión, fecha, autor y el detalle de qué cambió en ese guardado. "Restaurar" deja al usuario
+        // EXACTAMENTE en el estado de la versión elegida (punto en el tiempo), sin arrastrar ni perder
+        // los demás guardados. Solo datos administrativos NO sensibles (la contraseña nunca se versiona).
         private void CargarGrilla()
         {
             dgv.Rows.Clear();
 
-            // Ordenar ascendente por fecha (luego por Id) para comparar transiciones consecutivas.
-            var asc = new List<BE.VersionUsuario>(_versiones);
-            asc.Sort((a, b) =>
-            {
-                int c = a.Fecha.CompareTo(b.Fecha);
-                return c != 0 ? c : a.Id.CompareTo(b.Id);
-            });
-
             var t = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
             string Campo(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
 
-            string Fnac(DateTime? f) => f?.ToString("dd/MM/yyyy") ?? "";
-
-            var filas = new List<object[]>();
-            for (int i = 1; i < asc.Count; i++)
+            // Más reciente primero (el DAL ya devuelve ORDER BY Fecha DESC; se reordena por las dudas).
+            var orden = new List<BE.VersionUsuario>(_versiones);
+            orden.Sort((a, b) =>
             {
-                var prev = asc[i - 1];
-                var cur  = asc[i];
-                string fechaTxt = cur.Fecha.ToString("dd/MM/yyyy HH:mm:ss");
-                // Identificador del registro afectado: usuario + ID.
-                string registroTxt = $"{cur.UsernameSnapshot} (ID {cur.IdUsuario})";
+                int c = b.Fecha.CompareTo(a.Fecha);
+                return c != 0 ? c : b.Id.CompareTo(a.Id);
+            });
+
+            foreach (var v in orden)
+            {
+                string fechaTxt    = v.Fecha.ToString("dd/MM/yyyy HH:mm:ss");
+                string registroTxt = $"{v.UsernameSnapshot} (ID {v.IdUsuario})";
                 // Si esta versión proviene de una restauración, se marca en "Modificado por".
-                string actorTxt = EsRestauracion(cur)
-                    ? $"{cur.Actor} · {Campo("hist.rollback", "rollback")}"
-                    : cur.Actor;
+                string actorTxt = EsRestauracion(v)
+                    ? $"{v.Actor} · {Campo("hist.rollback", "rollback")}"
+                    : v.Actor;
 
-                // colId = id de la versión ANTERIOR: "Restaurar" revierte el cambio, dejando al
-                // usuario en el estado PREVIO a esta modificación (no en el nuevo valor).
-                void Cmp(string campo, string viejo, string nuevo)
-                {
-                    if (!string.Equals(viejo ?? "", nuevo ?? "", StringComparison.Ordinal))
-                        filas.Add(new object[] { prev.Id, registroTxt, fechaTxt, actorTxt, campo, viejo ?? "", nuevo ?? "" });
-                }
-
-                Cmp(Campo("col.ver.f.usuario",  "Usuario"),    prev.UsernameSnapshot, cur.UsernameSnapshot);
-                Cmp(Campo("col.ver.f.nombre",   "Nombre"),     prev.NombreSnapshot,   cur.NombreSnapshot);
-                Cmp(Campo("col.ver.f.apellido", "Apellido"),   prev.ApellidoSnapshot, cur.ApellidoSnapshot);
-                Cmp(Campo("col.ver.f.email",    "Email"),      prev.EmailSnapshot,    cur.EmailSnapshot);
-                Cmp(Campo("col.ver.f.fechanac", "Fecha nac."), Fnac(prev.FechaNacSnapshot), Fnac(cur.FechaNacSnapshot));
+                // colId = Id de ESTA versión: "Restaurar" deja al usuario en el estado de este snapshot.
+                dgv.Rows.Add(new object[] { v.Id, registroTxt, fechaTxt, actorTxt, v.Detalle ?? "" });
             }
-
-            // Mostrar lo más reciente primero.
-            filas.Reverse();
-            foreach (var f in filas) dgv.Rows.Add(f);
         }
 
         // Una versión proviene de un rollback si su detalle es una restauración (formato nuevo
@@ -183,17 +161,25 @@ namespace GUI
                 return;
             }
 
-            // colId guarda la versión ANTERIOR al cambio: restaurarla revierte la modificación.
-            int idVersionPrev = Convert.ToInt32(dgv.CurrentRow.Cells["colId"].Value);
-            if (_versiones.Find(v => v.Id == idVersionPrev) == null) return;
+            // colId = Id de la versión seleccionada: restaurarla deja al usuario EXACTAMENTE en el
+            // estado de ese snapshot (punto en el tiempo), sin tocar los demás guardados del historial.
+            int idVersion = Convert.ToInt32(dgv.CurrentRow.Cells["colId"].Value);
+            var version = _versiones.Find(v => v.Id == idVersion);
+            if (version == null) return;
 
-            string campo    = dgv.CurrentRow.Cells["colCampo"].Value?.ToString()    ?? "";
-            string anterior = dgv.CurrentRow.Cells["colAnterior"].Value?.ToString() ?? "";
-            string nuevo    = dgv.CurrentRow.Cells["colNuevo"].Value?.ToString()    ?? "";
+            string fechaTxt = version.Fecha.ToString("dd/MM/yyyy HH:mm:ss");
+            string fnac     = version.FechaNacSnapshot?.ToString("dd/MM/yyyy") ?? "—";
+            // Estado completo al que volverá el usuario (datos administrativos no sensibles).
+            string estado =
+                $"Usuario: {version.UsernameSnapshot}\n" +
+                $"Nombre: {version.NombreSnapshot}\n" +
+                $"Apellido: {version.ApellidoSnapshot}\n" +
+                $"Email: {version.EmailSnapshot}\n" +
+                $"Fecha nac.: {fnac}";
 
-            string tpl = T("msg.historial.confirmar.revertir",
-                "¿Revertir al estado anterior a este cambio?\n\n«{0}»:  «{2}»  →  «{1}»\n\nEl usuario volverá a los valores previos a esta modificación. Es reversible (queda registrado como un nuevo cambio).");
-            string msg = string.Format(tpl, campo, anterior, nuevo);
+            string tpl = T("msg.historial.confirmar.restaurar",
+                "¿Restaurar al usuario al estado del {0}?\n\n{1}\n\nEl usuario quedará exactamente en este estado. Es reversible (queda registrado como un nuevo cambio en el historial).");
+            string msg = string.Format(tpl, fechaTxt, estado);
 
             if (MessageBox.Show(msg, T("msg.backup.titulorestaura", "Confirmar Restauración"),
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
@@ -201,7 +187,7 @@ namespace GUI
 
             try
             {
-                _bll.RestaurarVersion(this.Text, idVersionPrev);
+                _bll.RestaurarVersion(this.Text, idVersion);
                 MessageBox.Show(
                     T("msg.historial.restaurado",  "Versión restaurada correctamente."),
                     T("rpt.dlg.exito.titulo",       "Éxito"),

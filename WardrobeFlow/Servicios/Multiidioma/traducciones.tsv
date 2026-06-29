@@ -3598,6 +3598,7 @@ ES	err.adminusr.rol_vacio	Seleccioná un rol.
 ES	col.ver.campo	Campo
 ES	col.ver.anterior	Valor anterior
 ES	col.ver.nuevo	Valor nuevo
+ES	col.ver.detalle	Cambios realizados
 ES	col.ver.f.usuario	Usuario
 ES	col.ver.f.nombre	Nombre
 ES	col.ver.f.apellido	Apellido
@@ -3631,6 +3632,7 @@ EN	err.adminusr.rol_vacio	Select a role.
 EN	col.ver.campo	Field
 EN	col.ver.anterior	Previous value
 EN	col.ver.nuevo	New value
+EN	col.ver.detalle	Changes made
 EN	col.ver.f.usuario	Username
 EN	col.ver.f.nombre	Name
 EN	col.ver.f.apellido	Surname
@@ -3663,6 +3665,7 @@ PT	err.adminusr.rol_vacio	Selecione um papel.
 PT	col.ver.campo	Campo
 PT	col.ver.anterior	Valor anterior
 PT	col.ver.nuevo	Novo valor
+PT	col.ver.detalle	Alterações realizadas
 PT	col.ver.f.usuario	Usuário
 PT	col.ver.f.nombre	Nome
 PT	col.ver.f.apellido	Sobrenome
@@ -3696,6 +3699,7 @@ RU	err.adminusr.rol_vacio	Выберите роль.
 RU	col.ver.campo	Поле
 RU	col.ver.anterior	Прежнее значение
 RU	col.ver.nuevo	Новое значение
+RU	col.ver.detalle	Внесённые изменения
 RU	col.ver.f.usuario	Имя пользователя
 RU	col.ver.f.nombre	Имя
 RU	col.ver.f.apellido	Фамилия
@@ -4061,9 +4065,13 @@ EN	hist.rollback	rollback
 RU	hist.rollback	откат
 PT	hist.rollback	reversão
 ES	msg.historial.confirmar.revertir	¿Revertir al estado anterior a este cambio?\n\n«{0}»:  «{2}»  →  «{1}»\n\nEl usuario volverá a los valores previos a esta modificación. Es reversible (queda registrado como un nuevo cambio).
+ES	msg.historial.confirmar.restaurar	¿Restaurar al usuario al estado del {0}?\n\n{1}\n\nEl usuario quedará exactamente en este estado. Es reversible (queda registrado como un nuevo cambio en el historial).
 EN	msg.historial.confirmar.revertir	Revert to the state before this change?\n\n«{0}»:  «{2}»  →  «{1}»\n\nThe user will return to the values prior to this modification. It is reversible (logged as a new change).
+EN	msg.historial.confirmar.restaurar	Restore the user to the state of {0}?\n\n{1}\n\nThe user will be left exactly in this state. It is reversible (logged as a new change in the history).
 RU	msg.historial.confirmar.revertir	Вернуть состояние до этого изменения?\n\n«{0}»:  «{2}»  →  «{1}»\n\nПользователь вернётся к значениям до этого изменения. Действие обратимо (записывается как новое изменение).
+RU	msg.historial.confirmar.restaurar	Восстановить состояние пользователя на {0}?\n\n{1}\n\nПользователь будет приведён точно к этому состоянию. Действие обратимо (записывается как новое изменение в истории).
 PT	msg.historial.confirmar.revertir	Reverter ao estado anterior a esta alteração?\n\n«{0}»:  «{2}»  →  «{1}»\n\nO usuário voltará aos valores anteriores a esta modificação. É reversível (registrado como uma nova alteração).
+PT	msg.historial.confirmar.restaurar	Restaurar o usuário ao estado de {0}?\n\n{1}\n\nO usuário ficará exatamente neste estado. É reversível (registrado como uma nova alteração no histórico).
 ES	perm.tag.directo	directo
 EN	perm.tag.directo	direct
 RU	perm.tag.directo	прямой
