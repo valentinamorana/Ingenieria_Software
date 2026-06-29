@@ -4092,3 +4092,87 @@ PT	msg.mantenimiento.titulo	Sistema em manutenção
 PT	msg.mantenimiento.cuerpo	O sistema está indisponível no momento por tarefas de manutenção. Tente novamente mais tarde ou contate o Administrador.
 RU	msg.mantenimiento.titulo	Система на обслуживании
 RU	msg.mantenimiento.cuerpo	Система временно недоступна из-за технического обслуживания. Повторите попытку позже или обратитесь к администратору.
+ES	dash.act.login	Inicio de sesión
+ES	dash.act.logout	Cierre de sesión
+ES	dash.act.pwchange	Cambio de contraseña propia
+ES	dash.act.accountlock	Bloqueo de cuenta
+ES	dash.act.loginfail	Intento fallido de login
+ES	dash.act.userdeactivate	Baja lógica de usuario
+ES	dash.act.rolechange	Cambio de rol de usuario
+ES	dash.act.emergencyunlock	Desbloqueo con clave de emergencia
+ES	dash.act.usermod	Modificación de usuario
+ES	dash.act.userpurge	Purga de usuarios archivados
+ES	dash.act.pwreset	Reseteo de contraseña
+ES	dash.act.pwresetmass	Reseteo masivo de contraseñas
+ES	dash.act.pwrecoveryreq	Solicitud de recuperación de clave
+ES	dash.act.backupinitial	Backup de instalación limpia (cifrado) generado: {0}
+ES	dash.act.backupcreate	Backup cifrado generado: {0}
+ES	dash.act.backupdelete	Backup eliminado: {0}
+ES	dash.act.dbrestore	Base de datos restaurada desde {0}
+ES	dash.act.accountunlock	Desbloqueo de cuenta: {0}
+ES	dash.act.useradd	Alta de usuario: {0}
+ES	dash.act.userrestore	Restauración a versión {0}
+ES	dash.act.emergencykeys	Regeneración de {0} claves de emergencia
+EN	dash.act.login	Login
+EN	dash.act.logout	Logout
+EN	dash.act.pwchange	Own password change
+EN	dash.act.accountlock	Account lock
+EN	dash.act.loginfail	Failed login attempt
+EN	dash.act.userdeactivate	User deactivation
+EN	dash.act.rolechange	User role change
+EN	dash.act.emergencyunlock	Unlock with emergency key
+EN	dash.act.usermod	User modification
+EN	dash.act.userpurge	Archived users purge
+EN	dash.act.pwreset	Password reset
+EN	dash.act.pwresetmass	Mass password reset
+EN	dash.act.pwrecoveryreq	Password recovery request
+EN	dash.act.backupinitial	Clean install backup (encrypted) created: {0}
+EN	dash.act.backupcreate	Encrypted backup created: {0}
+EN	dash.act.backupdelete	Backup deleted: {0}
+EN	dash.act.dbrestore	Database restored from {0}
+EN	dash.act.accountunlock	Account unlock: {0}
+EN	dash.act.useradd	User added: {0}
+EN	dash.act.userrestore	Restored to version {0}
+EN	dash.act.emergencykeys	Regeneration of {0} emergency keys
+PT	dash.act.login	Início de sessão
+PT	dash.act.logout	Encerramento de sessão
+PT	dash.act.pwchange	Alteração da própria senha
+PT	dash.act.accountlock	Bloqueio de conta
+PT	dash.act.loginfail	Tentativa de login falhada
+PT	dash.act.userdeactivate	Desativação de usuário
+PT	dash.act.rolechange	Alteração de função do usuário
+PT	dash.act.emergencyunlock	Desbloqueio com chave de emergência
+PT	dash.act.usermod	Modificação de usuário
+PT	dash.act.userpurge	Limpeza de usuários arquivados
+PT	dash.act.pwreset	Redefinição de senha
+PT	dash.act.pwresetmass	Redefinição em massa de senhas
+PT	dash.act.pwrecoveryreq	Solicitação de recuperação de senha
+PT	dash.act.backupinitial	Backup de instalação limpa (criptografado) gerado: {0}
+PT	dash.act.backupcreate	Backup criptografado gerado: {0}
+PT	dash.act.backupdelete	Backup excluído: {0}
+PT	dash.act.dbrestore	Banco de dados restaurado de {0}
+PT	dash.act.accountunlock	Desbloqueio de conta: {0}
+PT	dash.act.useradd	Cadastro de usuário: {0}
+PT	dash.act.userrestore	Restauração para versão {0}
+PT	dash.act.emergencykeys	Regeneração de {0} chaves de emergência
+RU	dash.act.login	Вход в систему
+RU	dash.act.logout	Выход из системы
+RU	dash.act.pwchange	Смена собственного пароля
+RU	dash.act.accountlock	Блокировка учётной записи
+RU	dash.act.loginfail	Неудачная попытка входа
+RU	dash.act.userdeactivate	Деактивация пользователя
+RU	dash.act.rolechange	Изменение роли пользователя
+RU	dash.act.emergencyunlock	Разблокировка аварийным ключом
+RU	dash.act.usermod	Изменение пользователя
+RU	dash.act.userpurge	Очистка архивных пользователей
+RU	dash.act.pwreset	Сброс пароля
+RU	dash.act.pwresetmass	Массовый сброс паролей
+RU	dash.act.pwrecoveryreq	Запрос на восстановление пароля
+RU	dash.act.backupinitial	Создан бэкап чистой установки (зашифрован): {0}
+RU	dash.act.backupcreate	Создан зашифрованный бэкап: {0}
+RU	dash.act.backupdelete	Бэкап удалён: {0}
+RU	dash.act.dbrestore	База данных восстановлена из {0}
+RU	dash.act.accountunlock	Разблокировка учётной записи: {0}
+RU	dash.act.useradd	Создан пользователь: {0}
+RU	dash.act.userrestore	Восстановление до версии {0}
+RU	dash.act.emergencykeys	Перевыпуск аварийных ключей: {0}

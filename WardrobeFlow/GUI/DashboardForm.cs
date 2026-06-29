@@ -219,10 +219,16 @@ namespace GUI
             {
                 FileInfo ultimo = null;
                 if (Directory.Exists(DirBackups))
-                    ultimo = new DirectoryInfo(DirBackups)
-                        .GetFiles("*.bak")
+                {
+                    var dirInfo = new DirectoryInfo(DirBackups);
+                    // Incluye los backups CIFRADOS (.wfbak, el formato actual) además de los .bak
+                    // planos legacy. Antes solo se miraban los .bak → la tarjeta ignoraba los
+                    // backups nuevos y mostraba "días sin backup" usando una copia vieja.
+                    ultimo = dirInfo.GetFiles("*.bak")
+                        .Concat(dirInfo.GetFiles("*" + BLL.Backup.ExtensionCifrada))
                         .OrderByDescending(f => f.LastWriteTime)
                         .FirstOrDefault();
+                }
 
                 int umbral = BLL.Configuracion.ObtenerDiasRecordatorio();
 
@@ -763,6 +769,55 @@ namespace GUI
             });
         }
 
+        // El texto de cada actividad se guarda en español en la bitácora (BD). Esta tabla lo
+        // traduce al idioma activo para la grilla de "Actividad reciente". Las actividades con
+        // parte dinámica (nombre de archivo, usuario, cantidad) traducen solo la parte fija y
+        // conservan el dato; las desconocidas se muestran tal cual.
+        private string TraducirActividad(string actividad)
+        {
+            if (string.IsNullOrWhiteSpace(actividad)) return actividad ?? "";
+            if (GestorIdioma.IdiomaActual?.Id == "ES") return actividad;   // ya está en español
+
+            switch (actividad)
+            {
+                case "Inicio Sesion":                      return T("dash.act.login",           actividad);
+                case "Cierre Sesion":                      return T("dash.act.logout",          actividad);
+                case "Cambio de Contrasena Propia":        return T("dash.act.pwchange",        actividad);
+                case "Bloqueo de Cuenta":                  return T("dash.act.accountlock",     actividad);
+                case "Intento Fallido Login":              return T("dash.act.loginfail",       actividad);
+                case "Baja Logica Usuario":                return T("dash.act.userdeactivate",  actividad);
+                case "Cambio de Rol de Usuario":           return T("dash.act.rolechange",      actividad);
+                case "Desbloqueo con Clave de Emergencia": return T("dash.act.emergencyunlock", actividad);
+                case "Modificación de Usuario":            return T("dash.act.usermod",         actividad);
+                case "Purga Usuarios Archivados":          return T("dash.act.userpurge",       actividad);
+                case "Reset Contrasena":                   return T("dash.act.pwreset",         actividad);
+                case "Reset Masivo Contrasenas":           return T("dash.act.pwresetmass",     actividad);
+                case "Solicitud Recuperacion Clave":       return T("dash.act.pwrecoveryreq",   actividad);
+            }
+
+            // Prefijos con parte dinámica (orden: el más específico primero).
+            var prefijos = new[]
+            {
+                new { Es = "Backup de instalación limpia (cifrado) generado: ", Key = "dash.act.backupinitial" },
+                new { Es = "Backup cifrado generado: ",                         Key = "dash.act.backupcreate"  },
+                new { Es = "Backup eliminado: ",                                Key = "dash.act.backupdelete"  },
+                new { Es = "Base de datos restaurada desde ",                   Key = "dash.act.dbrestore"     },
+                new { Es = "Desbloqueo de Cuenta: ",                            Key = "dash.act.accountunlock" },
+                new { Es = "Alta Usuario: ",                                    Key = "dash.act.useradd"       },
+                new { Es = "Restauración a versión ",                           Key = "dash.act.userrestore"   },
+            };
+            foreach (var p in prefijos)
+                if (actividad.StartsWith(p.Es, StringComparison.Ordinal))
+                    return string.Format(T(p.Key, "{0}"), actividad.Substring(p.Es.Length));
+
+            var m = System.Text.RegularExpressions.Regex.Match(
+                actividad, @"^Regeneración de (\d+) claves de emergencia$");
+            if (m.Success)
+                return string.Format(T("dash.act.emergencykeys", "{0}"), m.Groups[1].Value);
+
+            return actividad;   // actividad desconocida → sin traducir
+        }
+
         private void CargarActividadReciente()
         {
             if (!_verActividad) return;   // sin permiso de auditoría no se construye el panel
@@ -781,7 +836,7 @@ namespace GUI
                     foreach (System.Data.DataRow row in dt.Rows)
                     {
                         if (n >= 8) break;
-                        _dgvActividad.Rows.Add(row["fecha"]?.ToString() ?? "", row["actividad"]?.ToString() ?? "", row["usuario"]?.ToString() ?? "");
+                        _dgvActividad.Rows.Add(row["fecha"]?.ToString() ?? "", TraducirActividad(row["actividad"]?.ToString() ?? ""), row["usuario"]?.ToString() ?? "");
                         n++;
                     }
                 }));
