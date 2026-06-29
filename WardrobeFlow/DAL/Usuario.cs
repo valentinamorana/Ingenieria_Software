@@ -547,6 +547,8 @@ namespace DAL
                         int dvh = svc.CalcularDVH(fila.CamposParaDVH());
                         dvDAL.ActualizarDVH(idUsuario, dvh);
                         fila.DVHAlmacenado = dvh;
+                        // T07 — Espejo de integridad: registrar el nuevo estado legítimo de esta fila.
+                        new EspejoUsuario().Upsert(fila);
                         break;
                     }
                 }
@@ -576,6 +578,8 @@ namespace DAL
                         int dvh = svc.CalcularDVH(fila.CamposParaDVH());
                         dvDAL.ActualizarDVH(fila.Id, dvh);
                         fila.DVHAlmacenado = dvh;
+                        // T07 — Espejo de integridad: registrar el nuevo estado legítimo de esta fila.
+                        new EspejoUsuario().Upsert(fila);
                         break;
                     }
                 }
@@ -605,6 +609,9 @@ namespace DAL
                 }
 
                 ActualizarDVV(dvDAL);
+                // T07 — Cambió el conjunto de filas (p. ej. baja física o reset masivo): el espejo
+                // de integridad se reconstruye completo para reflejar el nuevo estado legítimo.
+                new EspejoUsuario().Reconstruir(filas);
             }
             catch (Exception ex)
             {

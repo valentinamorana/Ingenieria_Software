@@ -4064,3 +4064,19 @@ ES	msg.historial.confirmar.revertir	¿Revertir al estado anterior a este cambio?
 EN	msg.historial.confirmar.revertir	Revert to the state before this change?\n\n«{0}»:  «{2}»  →  «{1}»\n\nThe user will return to the values prior to this modification. It is reversible (logged as a new change).
 RU	msg.historial.confirmar.revertir	Вернуть состояние до этого изменения?\n\n«{0}»:  «{2}»  →  «{1}»\n\nПользователь вернётся к значениям до этого изменения. Действие обратимо (записывается как новое изменение).
 PT	msg.historial.confirmar.revertir	Reverter ao estado anterior a esta alteração?\n\n«{0}»:  «{2}»  →  «{1}»\n\nO usuário voltará aos valores anteriores a esta modificação. É reversível (registrado como uma nova alteração).
+ES	perm.tag.directo	directo
+EN	perm.tag.directo	direct
+RU	perm.tag.directo	прямой
+PT	perm.tag.directo	direto
+ES	perm.tag.heredado	heredado
+EN	perm.tag.heredado	inherited
+RU	perm.tag.heredado	унаследовано
+PT	perm.tag.heredado	herdado
+ES	err.bll.familia.sistema_sin_gestion	Esta acción dejaría al sistema SIN NINGÚN usuario con acceso de Gestión de Usuarios. Asigná la gestión a otro rol o usuario antes de continuar.
+EN	err.bll.familia.sistema_sin_gestion	This action would leave the system with NO user able to access User Management. Assign management to another role or user before continuing.
+RU	err.bll.familia.sistema_sin_gestion	Это действие оставит систему БЕЗ единого пользователя с доступом к управлению пользователями. Назначьте управление другой роли или пользователю, прежде чем продолжить.
+PT	err.bll.familia.sistema_sin_gestion	Esta ação deixaria o sistema SEM NENHUM usuário com acesso à Gestão de Usuários. Atribua a gestão a outro perfil ou usuário antes de continuar.
+ES	err.bll.familia.autobloqueo	No podés quitarte a vos mismo el acceso de Gestión de Usuarios de tu propio rol.
+EN	err.bll.familia.autobloqueo	You cannot remove your own User Management access from your own role.
+RU	err.bll.familia.autobloqueo	Вы не можете убрать у себя доступ к управлению пользователями из своей собственной роли.
+PT	err.bll.familia.autobloqueo	Você não pode remover o seu próprio acesso à Gestão de Usuários do seu próprio perfil.

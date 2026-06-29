@@ -15,6 +15,7 @@ namespace GUI
         private Button      _btnActualizar;
         private Button      _btnReparar;
         private Button      _btnRecalcularTodo;
+        private Button      _btnEspejo;
         private Label       _lblFilasRotas;
         private Label       _lblGridVacio;   // cartel "Todo íntegro" sobre la grilla (estado vacío)
 
@@ -154,7 +155,19 @@ namespace GUI
             _btnActualizar.FlatAppearance.BorderSize = 0;
             _btnActualizar.Click += (s, e) => CargarDiagnostico();
 
-            panelBotones.Controls.AddRange(new Control[] { _btnRecalcularTodo, _btnReparar, _btnActualizar });
+            _btnEspejo = new Button
+            {
+                Text      = T("diag.btn.espejo", "Recuperación (Espejo)..."),
+                Width     = 180,
+                Height    = 32,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(80, 150, 90),
+                ForeColor = Color.White
+            };
+            _btnEspejo.FlatAppearance.BorderSize = 0;
+            _btnEspejo.Click += BtnEspejo_Click;
+
+            panelBotones.Controls.AddRange(new Control[] { _btnRecalcularTodo, _btnReparar, _btnEspejo, _btnActualizar });
 
             // Cartel de estado vacío ("Todo íntegro"): se muestra SOBRE la grilla en vez de
             // inyectar una fila falsa (que antes caía en la columna Usuario y confundía).
@@ -268,6 +281,7 @@ namespace GUI
             _btnActualizar.Text         = T("diag.btn.actualizar",     "Actualizar");
             _btnReparar.Text            = T("diag.btn.reparar",        "Reparar Seleccionadas...");
             _btnRecalcularTodo.Text     = T("diag.btn.recalcular",     "Recalcular Todo");
+            _btnEspejo.Text             = T("diag.btn.espejo",         "Recuperación (Espejo)...");
             _btnActualizarHist.Text     = T("diag.btn.actualizar",     "Actualizar");
 
             if (_tabs.TabPages.Count >= 1)
@@ -478,6 +492,16 @@ namespace GUI
                 }
             }
 
+            CargarDiagnostico();
+            CargarHistorial();
+        }
+
+        private void BtnEspejo_Click(object sender, EventArgs e)
+        {
+            using (var rec = new RecuperacionEspejoForm())
+            {
+                rec.ShowDialog(this);
+            }
             CargarDiagnostico();
             CargarHistorial();
         }

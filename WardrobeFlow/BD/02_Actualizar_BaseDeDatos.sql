@@ -60,6 +60,30 @@ ELSE
     PRINT 'Tabla DVVertical ya existe — sin cambios.';
 GO
 
+-- Usuario_Seguridad (T07 — tabla ESPEJO de integridad)
+-- Copia sombra de los campos que entran al DVH de cada usuario, más su DVH.
+-- Se mantiene en sincronía con cada escritura LEGÍTIMA (la app la actualiza junto al DVH).
+-- Permite, ante una manipulación: (1) diagnosticar QUÉ campo cambió comparando contra el
+-- espejo y (2) REPARAR restaurando el valor legítimo sin necesitar un backup completo.
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Usuario_Seguridad')
+BEGIN
+    CREATE TABLE Usuario_Seguridad (
+        IdUsuario          INT           PRIMARY KEY,   -- mismo Id que Usuario (NO identity: lo fija la app)
+        Username           NVARCHAR(100) NOT NULL,
+        Clave              NVARCHAR(500) NOT NULL,
+        Rol                NVARCHAR(100) NULL,
+        Perfil             NVARCHAR(100) NULL,
+        Estado             BIT           NOT NULL DEFAULT 1,
+        IntentosFallidos   INT           NOT NULL DEFAULT 0,
+        DVH                INT           NULL,
+        FechaActualizacion DATETIME      NOT NULL DEFAULT GETDATE()
+    );
+    PRINT 'Tabla Usuario_Seguridad (espejo de integridad) creada.';
+END
+ELSE
+    PRINT 'Tabla Usuario_Seguridad ya existe — sin cambios.';
+GO
+
 -- PlanSuscripcion
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'PlanSuscripcion')
 BEGIN

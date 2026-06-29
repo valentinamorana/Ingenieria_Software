@@ -188,16 +188,15 @@ namespace GUI
 
             if (_seleccionado == null) { HabilitarTransfer(false); return; }
 
-            // Panel derecho: permisos EFECTIVOS (recursivos) del nodo seleccionado.
+            // Panel derecho: ESTRUCTURA efectiva (recursiva) del nodo seleccionado, distinguiendo
+            // permisos DIRECTOS (hijos inmediatos) de los HEREDADOS (alcanzados a través de un
+            // rol/familia anidado — patrón Composite). Idea de visualización tomada del proyecto Agus.
             var raizEf = new TreeNode(Etiqueta(_seleccionado))
             { NodeFont = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96) };
-            foreach (var p in _seleccionado.ObtenerPatentesEfectivas())
-            {
-                string menu = string.IsNullOrEmpty(p.NombreMenu) ? "" : "   (" + p.NombreMenu + ")";
-                raizEf.Nodes.Add(new TreeNode("🔑 " + p.Nombre + menu));
-            }
+            foreach (var hijo in _seleccionado.Hijos)
+                AgregarNodoEfectivo(raizEf, hijo, 1, new HashSet<int>());
             _tvEfectivo.Nodes.Add(raizEf);
-            raizEf.Expand();
+            raizEf.ExpandAll();
 
             // Solo los contenedores (Familia/Rol) admiten miembros.
             if (!EsContenedor(_seleccionado)) { HabilitarTransfer(false); return; }
@@ -235,6 +234,31 @@ namespace GUI
             foreach (var h in nodo.Hijos) { acc.Add(h.Id); RecolectarSubarbol(h, acc, vis); }
         }
 
+        // Dibuja el subárbol del nodo en el panel "Permisos efectivos", marcando cada permiso (Patente)
+        // como (directo) si cuelga directamente del nodo seleccionado, o (heredado) si llega a través de
+        // un rol/familia anidado. Protegido contra ciclos por 'vis' y un tope de profundidad.
+        private void AgregarNodoEfectivo(TreeNode padreUI, BE.Componente comp, int nivel, HashSet<int> vis)
+        {
+            if (comp == null || nivel > 50) return;
+
+            if (comp is BE.Patente pat)
+            {
+                string menu  = string.IsNullOrEmpty(pat.NombreMenu) ? "" : "   (" + pat.NombreMenu + ")";
+                string marca = nivel == 1 ? T("perm.tag.directo", "directo") : T("perm.tag.heredado", "heredado");
+                var nodoPat  = new TreeNode("🔑 " + pat.Nombre + menu + "   · " + marca);
+                if (nivel > 1) nodoPat.ForeColor = Color.FromArgb(120, 120, 130);   // heredado: atenuado
+                padreUI.Nodes.Add(nodoPat);
+                return;
+            }
+
+            // Familia o Rol: nodo contenedor + recursión sobre sus hijos.
+            var nodoCont = new TreeNode(Etiqueta(comp)) { ForeColor = Color.FromArgb(176, 62, 96) };
+            padreUI.Nodes.Add(nodoCont);
+            if (comp.Id != 0 && !vis.Add(comp.Id)) return;   // corta ciclos / nodos compartidos
+            foreach (var h in comp.Hijos)
+                AgregarNodoEfectivo(nodoCont, h, nivel + 1, vis);
+        }
+
         private void HabilitarTransfer(bool on) { _btnAgregar.Enabled = on; _btnQuitar.Enabled = on; }
 
         private void ActualizarLabelMiembros()
@@ -258,7 +282,7 @@ namespace GUI
                 MostrarOk(string.Format(T("perm.ok.agregado", "'{0}' agregado a '{1}'."), it.Comp.Nombre, _seleccionado.Nombre));
                 CargarArbol();
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         private void Quitar()
@@ -272,7 +296,7 @@ namespace GUI
                 MostrarOk(string.Format(T("perm.ok.quitado", "'{0}' quitado de '{1}'."), it.Comp.Nombre, _seleccionado.Nombre));
                 CargarArbol();
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         // ── CRUD de ROLES (los permisos son un catálogo fijo: no se crean/eliminan) ──
@@ -293,7 +317,7 @@ namespace GUI
                 MostrarOk(string.Format(T("perm.ok.rolcreado", "Rol '{0}' creado con {1} permiso(s)."), nombre.Trim(), idsSel.Count));
                 CargarArbol();
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         // Diálogo de alta de rol: nombre + checklist de permisos del catálogo (no se crean permisos).
@@ -352,7 +376,7 @@ namespace GUI
                 MostrarOk(string.Format(T("perm.ok.modificado", "Rol actualizado a '{0}'."), nombre.Trim()));
                 CargarArbol();
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         private void Eliminar()
@@ -375,7 +399,7 @@ namespace GUI
                 MostrarOk(string.Format(T("perm.ok.eliminado", "Rol '{0}' eliminado."), nombre));
                 CargarArbol();
             }
-            catch (Exception ex) { MostrarError(ex.Message); }
+            catch (Exception ex) { MostrarError(ex); }
         }
 
         // ── Helpers ────────────────────────────────────────────────────────────────

@@ -62,6 +62,78 @@ namespace BLL
             return false;
         }
 
+        // ── Guard SISTÉMICO de "último administrador" (idea tomada del proyecto Stach) ───────────
+        // El anti-autobloqueo de arriba solo protege la PROPIA cuenta. Este guard protege al SISTEMA
+        // ENTERO: ninguna operación destructiva (quitar una relación, vaciar o eliminar un rol) puede
+        // dejar a TODOS los usuarios activos sin acceso de Gestión de Usuarios. Cubre el caso de roles
+        // tipo "admin1 / admin2" (sin el perfil literal "Administrador") y la gestión heredada por
+        // rol-dentro-de-rol, que la protección por nombre de perfil de BLL.Usuario no contempla.
+
+        // Aplica una mutación SIMULADA sobre una copia fresca del árbol y, si el resultado dejaría al
+        // sistema sin ningún usuario capaz de gestionar, aborta la operación con un error de negocio.
+        // Esta parte hace I/O (lee árbol + usuarios); la DECISIÓN vive en el método puro testeable.
+        private void ExigirSistemaConservaGestion(Action<List<BE.Componente>> mutarArbolSimulado)
+        {
+            List<BE.Componente> arbol;
+            try { arbol = permisoDAL.ObtenerArbol(); }
+            catch { return; }   // si no se puede reconstruir el árbol, no bloqueamos por un fallo lateral
+            try { mutarArbolSimulado(arbol); }
+            catch { /* la mutación simulada nunca debe romper la operación real */ }
+
+            List<BE.Usuario> usuarios;
+            try { usuarios = new Usuario().ObtenerTodos(); }
+            catch { return; }   // sin poder enumerar usuarios → fail-open controlado (no romper por un fallo de BD)
+
+            if (!SistemaConservaGestion(arbol, usuarios))
+                throw new BE.AppException("err.bll.familia.sistema_sin_gestion",
+                    "Esta acción dejaría al sistema SIN NINGÚN usuario con acceso de Gestión de Usuarios. " +
+                    "Asigná la gestión a otro rol o usuario antes de continuar.");
+        }
+
+        // Núcleo PURO y testeable (mismo estilo que ValidarPuedeArchivar/ValidarPuedeCambiarRol):
+        // dado un árbol de permisos y una lista de usuarios, ¿al menos uno conserva acceso de gestión?
+        // Un usuario lo conserva si es Administrador por su perfil (bypass) o si su rol resuelve la
+        // patente de gestión (mnuUsuarios), incluso heredada por rol-dentro-de-rol. Sin usuarios que
+        // verificar, devuelve true (no bloquea). No toca BD ni sesión: se puede testear de forma aislada.
+        public static bool SistemaConservaGestion(IList<BE.Componente> arbol, IEnumerable<BE.Usuario> usuarios)
+        {
+            if (usuarios == null) return true;
+            var raices = arbol ?? new List<BE.Componente>();
+
+            bool hayUsuarios = false;
+            foreach (var u in usuarios)
+            {
+                if (u == null) continue;
+                hayUsuarios = true;
+                if (u.EsAdministrador) return true;                       // bypass por perfil Administrador
+                string rol = u.Rol ?? u.Perfil;
+                if (string.IsNullOrWhiteSpace(rol)) continue;
+                var nodo = BuscarRol(raices, rol, new HashSet<int>());
+                if (nodo == null) continue;
+                foreach (var pat in nodo.ObtenerPatentesEfectivas())
+                    if (pat.NombreMenu == MenuGestion) return true;
+            }
+            return !hayUsuarios;   // lista vacía/solo-nulos → no bloquear
+        }
+
+        // Todas las Familias/Roles del árbol (para desanclar un nodo de todos sus padres al simular
+        // una eliminación). Deduplicado por Id.
+        private static IEnumerable<BE.Familia> TodasLasFamilias(IList<BE.Componente> nodos)
+        {
+            var acc = new List<BE.Familia>();
+            var vis = new HashSet<int>();
+            void Rec(IList<BE.Componente> ns)
+            {
+                foreach (var n in ns)
+                {
+                    if (n.Id != 0 && !vis.Add(n.Id)) continue;
+                    if (n is BE.Familia f) { acc.Add(f); Rec(f.Hijos); }
+                }
+            }
+            Rec(nodos);
+            return acc;
+        }
+
         // Retorna la lista de roles disponibles en el sistema.
         public List<string> ObtenerRoles()
         {
@@ -183,6 +255,20 @@ namespace BLL
                         "No podés quitarte a vos mismo el acceso de Gestión de Usuarios de tu propio rol.");
             }
 
+            // Guard sistémico: simular el rol con EXACTAMENTE los hijos seleccionados y verificar que
+            // el sistema entero conserve al menos un usuario con acceso de gestión.
+            ExigirSistemaConservaGestion(arbol =>
+            {
+                var rolNodo = BuscarPorId(arbol, idRol, new HashSet<int>()) as BE.Familia;
+                if (rolNodo == null) return;
+                rolNodo.VaciarHijos();
+                foreach (int id in seleccion)
+                {
+                    var h = BuscarPorId(arbol, id, new HashSet<int>());
+                    if (h != null) { try { rolNodo.AgregarHijo(h); } catch { } }
+                }
+            });
+
             int agregados = 0, quitados = 0;
 
             // Altas: en selección pero no actuales.
@@ -268,6 +354,14 @@ namespace BLL
         public void QuitarComponente(int idPadre, int idHijo)
         {
             VerificarPuedeGestionar();
+            // Guard sistémico: quitar esta relación NO puede dejar al sistema sin acceso de gestión
+            // (cubre quitar la patente de gestión de un rol, o sacar un rol-de-gestión embebido en otro).
+            ExigirSistemaConservaGestion(arbol =>
+            {
+                var padre = BuscarPorId(arbol, idPadre, new HashSet<int>()) as BE.Familia;
+                var hijo  = BuscarPorId(arbol, idHijo,  new HashSet<int>());
+                if (padre != null && hijo != null) padre.QuitarHijo(hijo);
+            });
             permisoDAL.QuitarRelacion(idPadre, idHijo);
             _bitacora.Registrar("Gestión de Perfiles", $"Relación quitada {idPadre}→{idHijo}", BE.Criticidad.Alta);
         }
@@ -289,6 +383,18 @@ namespace BLL
                     "Reasigná esos usuarios a otro rol antes de eliminarlo.",
                     rol, usuarios, string.Join(", ", nombres));
             }
+
+            // Guard sistémico: aunque el rol no tenga usuarios DIRECTOS, puede estar embebido en otros
+            // roles (rol-dentro-de-rol) que SÍ tienen usuarios. Simular su eliminación (desanclarlo de
+            // todos sus padres y de las raíces) y verificar que el sistema conserve la gestión.
+            ExigirSistemaConservaGestion(arbol =>
+            {
+                var objetivo = BuscarPorId(arbol, idRol, new HashSet<int>());
+                if (objetivo == null) return;
+                foreach (var fam in TodasLasFamilias(arbol)) fam.QuitarHijo(objetivo);
+                for (int i = arbol.Count - 1; i >= 0; i--)
+                    if (arbol[i].Id == idRol) arbol.RemoveAt(i);
+            });
 
             permisoDAL.BajaComponente(idRol);
             _bitacora.Registrar("Gestión de Perfiles", $"Rol eliminado: '{rol}'", BE.Criticidad.Alta);

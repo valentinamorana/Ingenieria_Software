@@ -235,6 +235,9 @@
     <Compile Include="ReparacionAsistidaForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="RecuperacionEspejoForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="DesbloqueoEmergenciaForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -204,6 +204,8 @@ namespace BLL
                 if (dvhOk && dvvOk)
                 {
                     LogearVerificacion("Usuario", dvvAlmacenado, dvvCalculado, true, 0, "Arranque");
+                    // Base sana ya migrada pero sin espejo todavía → sembrarlo desde estas filas íntegras.
+                    SeedEspejoSiVacio(filas);
                     return VerificarTablasAdicionales(out resultado);
                 }
 
@@ -476,6 +478,7 @@ namespace BLL
             {
                 int dvh = svc.CalcularDVH(fila.CamposParaDVH());
                 dvDAL.ActualizarDVH(fila.Id, dvh);
+                fila.DVHAlmacenado = dvh;
                 dvhValues.Add(dvh);
             }
             int dvv = svc.CalcularDVV(dvhValues);
@@ -483,6 +486,42 @@ namespace BLL
             // Sellar el formato vigente del DVH: marca que estas filas se calcularon con la
             // fórmula actual (incluye Rol), para que la migración no vuelva a dispararse.
             dvDAL.GuardarDVV(FormatoDVUsuarioMarcador, FormatoDVUsuarioActual);
+            // T07 — Reconstruir el espejo de integridad para que refleje el estado recién
+            // aceptado como legítimo (primer arranque, migración o "Asumir pérdida"/"Recalcular Todo").
+            new DAL.EspejoUsuario().Reconstruir(filas);
+        }
+
+        // T07 — Recalcula DVH/DVV SOLO de la tabla Usuario y reconstruye su espejo de integridad.
+        // Lo usa la recuperación asistida tras restaurar valores desde el espejo (no toca las demás
+        // tablas protegidas, ya verificadas aparte). Exige permiso de Administrador.
+        public static void RecalcularUsuario()
+        {
+            ExigirAdminParaDV("Recalcular Usuario (DV)");
+            var dvDAL = new DAL.DigitoVerificador();
+            var svc   = Seguridad.CalculadorDV.Crear();
+            RecalcularTodoDV(dvDAL, svc, dvDAL.ObtenerFilasUsuario());
+        }
+
+        // Expone el guard de autorización de DV para la recuperación asistida (mismo fail-closed:
+        // con sesión exige Administrador y registra el intento; sin sesión es break-glass de arranque).
+        public static void ExigirAdminDV(string operacion) => ExigirAdminParaDV(operacion);
+
+        // T07 — Siembra el espejo de integridad SOLO si está vacío y la tabla existe, a partir de
+        // filas ya verificadas como íntegras. Permite que bases sanas ya migradas obtengan su espejo
+        // sin forzar un recálculo. Nunca siembra desde datos corruptos (se llama solo en el camino OK).
+        private static void SeedEspejoSiVacio(List<BE.FilaUsuarioDV> filas)
+        {
+            try
+            {
+                var esp = new DAL.EspejoUsuario();
+                if (!esp.Existe()) return;
+                if (filas != null && filas.Count > 0 && esp.ObtenerFilas().Count == 0)
+                    esp.Reconstruir(filas);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError($"[Configuracion.SeedEspejoSiVacio] {ex.Message}");
+            }
         }
 
         // ── DV en tablas ADICIONALES (Cliente, Empleado) — T07 ──────────────────

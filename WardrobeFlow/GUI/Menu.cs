@@ -292,68 +292,76 @@ namespace GUI
         /// </summary>
         private void AplicarPermisos(List<BE.Permiso> permisos)
         {
-            // Panel de Control visible para todos los usuarios autenticados
+            // Panel de Control visible para todos los usuarios autenticados.
             panelControlToolStripMenuItem.Visible = true;
 
-            // Ocultar todo por defecto
-            inventarioToolStripMenuItem.Visible = false;
-            ventasToolStripMenuItem.Visible     = false;
-            gestionToolStripMenuItem.Visible    = false;
-            bitacoraToolStripMenuItem.Visible   = false;
+            // Permisos efectivos del usuario, indexados por NombreMenu (O(1), case-insensitive).
+            var nombresMenu = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (permisos != null)
+                foreach (var p in permisos)
+                    if (!string.IsNullOrEmpty(p.NombreMenu)) nombresMenu.Add(p.NombreMenu);
 
-            if (permisos == null || permisos.Count == 0) return;
+            bool Permite(string nm) => nombresMenu.Contains(nm);
 
-            // HashSet para búsqueda O(1) por NombreMenu
-            var nombresMenu = new HashSet<string>();
-            foreach (var p in permisos)
-                nombresMenu.Add(p.NombreMenu);
+            // ── Mapa declarativo HOJA → permiso (ÚNICA fuente de verdad) ─────────────────────────
+            // En vez de repetir 'item.Visible = nombresMenu.Contains("mnuX")' por cada control, la
+            // relación se declara UNA sola vez. Agregar un módulo nuevo = una línea acá. (Enfoque
+            // data-driven inspirado en el ManejadorSeguridad de Stach, resuelto en código para
+            // conservar la semántica de "grupo visible si ALGÚN hijo lo está", que un mapeo plano
+            // en tabla no expresa por sí solo.)
+            var hojas = new (ToolStripItem Item, string Permiso)[]
+            {
+                (prendasToolStripMenuItem,           "mnuPrendas"),
+                (clientesToolStripMenuItem,          "mnuClientes"),
+                (planesToolStripMenuItem,            "mnuPlanSuscripciones"),
+                (pedidosVentaToolStripMenuItem,      "mnuPedidosVenta"),
+                (pedidosRealizadosToolStripMenuItem, "mnuPedidosRealizados"),
+                // Bloque "Administrar" + "Sistema": todo gobernado por la patente de gestión.
+                (usuariosToolStripMenuItem,          "mnuUsuarios"),
+                (perfilesToolStripMenuItem,          "mnuUsuarios"),
+                (idiomasToolStripMenuItem,           "mnuUsuarios"),
+                (historialUsuariosToolStripMenuItem, "mnuUsuarios"),
+                (backupToolStripMenuItem,            "mnuUsuarios"),
+                (integridadToolStripMenuItem,        "mnuUsuarios"),
+                (_adminUsuariosItem,                 "mnuUsuarios"),
+                // Bitácora.
+                (bitSistemaToolStripMenuItem,        "mnuAuditoria"),
+                (bitNegocioToolStripMenuItem,        "mnuAuditoria"),
+                (reporteJornadaToolStripMenuItem,    "mnuAuditoria"),
+            };
+            foreach (var h in hojas)
+                if (h.Item != null) h.Item.Visible = Permite(h.Permiso);
 
-            // ── Inventario ────────────────────────────────────────────────────
-            bool tienePrendas = nombresMenu.Contains("mnuPrendas");
-            bool tieneStock   = nombresMenu.Contains("mnuStock");
-
-            // Outfits y Categorías eliminados de la interfaz (módulos no implementados)
-            prendasToolStripMenuItem.Visible    = tienePrendas;
+            // Ítems retirados de la interfaz (módulos no implementados): siempre ocultos.
             outfitsToolStripMenuItem.Visible    = false;
             categoriasToolStripMenuItem.Visible = false;
 
-            inventarioToolStripMenuItem.Visible = tienePrendas || tieneStock;
+            // ── Grupos: visibles si AL MENOS un hijo está visible (OR genérico, no hardcodeado) ──
+            // Inventario suma 'mnuStock' (su ítem propio está pendiente en el Designer).
+            inventarioToolStripMenuItem.Visible = prendasToolStripMenuItem.Visible || Permite("mnuStock");
 
-            // ── Ventas ────────────────────────────────────────────────────────
-            bool tieneClientes     = nombresMenu.Contains("mnuClientes");
-            bool tienePlanes       = nombresMenu.Contains("mnuPlanSuscripciones");
-            bool tienePedidosVenta = nombresMenu.Contains("mnuPedidosVenta");
-            bool tienePedidosReal  = nombresMenu.Contains("mnuPedidosRealizados");
+            SetGrupoVisible(ventasToolStripMenuItem,
+                clientesToolStripMenuItem, planesToolStripMenuItem,
+                pedidosVentaToolStripMenuItem, pedidosRealizadosToolStripMenuItem);
 
-            clientesToolStripMenuItem.Visible          = tieneClientes;
-            planesToolStripMenuItem.Visible            = tienePlanes;
-            pedidosVentaToolStripMenuItem.Visible      = tienePedidosVenta;
-            pedidosRealizadosToolStripMenuItem.Visible = tienePedidosReal;
-
-            ventasToolStripMenuItem.Visible =
-                tieneClientes || tienePlanes || tienePedidosVenta || tienePedidosReal;
-
-            // ── Administrar (Usuarios + Perfiles) ─────────────────────────────
-            bool tieneUsuarios = nombresMenu.Contains("mnuUsuarios");
-            usuariosToolStripMenuItem.Visible = tieneUsuarios;
-            if (_adminUsuariosItem != null) _adminUsuariosItem.Visible = tieneUsuarios;
+            // Submenús "Usuarios ▸" / "Sistema ▸" y el menú "Administrar" (todo gobernado por gestión).
+            bool tieneUsuarios = Permite("mnuUsuarios");
             if (_grpUsuarios != null) _grpUsuarios.Visible = tieneUsuarios;
             if (_grpSistema  != null) _grpSistema.Visible  = tieneUsuarios;
-            perfilesToolStripMenuItem.Visible = tieneUsuarios;
-            idiomasToolStripMenuItem.Visible  = tieneUsuarios;   // solo Admin gestiona traducciones
-            historialUsuariosToolStripMenuItem.Visible = tieneUsuarios;
-            backupToolStripMenuItem.Visible            = tieneUsuarios;
-            gestionToolStripMenuItem.Visible  = tieneUsuarios;
+            gestionToolStripMenuItem.Visible = tieneUsuarios;
 
-            // ── Bitácora ──────────────────────────────────────────────────────
-            bool tieneAuditoria = nombresMenu.Contains("mnuAuditoria");
-            bitacoraToolStripMenuItem.Visible        = tieneAuditoria;
-            bitSistemaToolStripMenuItem.Visible      = tieneAuditoria;
-            bitNegocioToolStripMenuItem.Visible      = tieneAuditoria;
-            reporteJornadaToolStripMenuItem.Visible  = tieneAuditoria;
+            SetGrupoVisible(bitacoraToolStripMenuItem,
+                bitSistemaToolStripMenuItem, bitNegocioToolStripMenuItem, reporteJornadaToolStripMenuItem);
+        }
 
-            // Diagnóstico de Integridad — solo Administrador
-            integridadToolStripMenuItem.Visible = tieneUsuarios;
+        // Un grupo (menú contenedor) es visible si alguno de sus ítems hijo está visible.
+        private static void SetGrupoVisible(ToolStripMenuItem grupo, params ToolStripItem[] hijos)
+        {
+            if (grupo == null) return;
+            bool algunoVisible = false;
+            foreach (var h in hijos)
+                if (h != null && h.Visible) { algunoVisible = true; break; }
+            grupo.Visible = algunoVisible;
         }
 
         // ── Etapa 2 — Re-aplicación de seguridad EN VIVO (patrón ManejadorSeguridad de Stach) ──

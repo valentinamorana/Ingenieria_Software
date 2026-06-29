@@ -121,6 +121,7 @@ namespace GUI
             lblDetalle.Text         = T("lbl.rest.detalle",   "Detalle del error:");
             btnRecalcular.Text      = T("btn.rest.recalcular","Recalcular Dígitos");
             btnRestaurarBackup.Text = T("btn.rest.backup",    "Restaurar desde Backup");
+            btnRecuperacion.Text    = T("btn.rest.recuperacion", "Recuperación Asistida...");
             btnSalir.Text           = T("btn.rest.salir",     "Salir");
 
             // Regenerar el mensaje de detalle en el idioma activo
@@ -286,6 +287,21 @@ namespace GUI
                 return sb.ToString();
             }
             catch { return string.Empty; }
+        }
+
+        // Abre la consola de recuperación asistida por el espejo de integridad. Si desde allí se
+        // ejecuta una recuperación con éxito, se desbloquea el ingreso (igual que «Recalcular Dígitos»).
+        private void btnRecuperacion_Click(object sender, EventArgs e)
+        {
+            using (var rec = new RecuperacionEspejoForm())
+            {
+                rec.ShowDialog(this);
+                if (rec.RecuperadoExitosamente)
+                {
+                    RestauradoExitosamente = true;
+                    this.Close();
+                }
+            }
         }
 
         private void btnSalir_Click(object sender, EventArgs e)
