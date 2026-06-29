@@ -63,7 +63,7 @@ namespace GUI
                     return;   // login cancelado → fin
 
                 // T07 — Recién con el usuario AUTENTICADO se verifica la integridad de los DV.
-                if (!BLL.Configuracion.VerificarIntegridadDV(out BLL.ResultadoIntegridad resultadoDV))
+                if (!BLL.Configuracion.VerificarIntegridadDV(out BLL.ResultadoIntegridad _))
                 {
                     var usuario = Seguridad.SessionManager.IsLoggedIn
                         ? Seguridad.SessionManager.GetInstance().Usuario : null;
@@ -86,11 +86,12 @@ namespace GUI
                         return;
                     }
 
-                    // Administrador: mostrar el detalle + opciones de recuperación (Recalcular / Espejo / Backup).
-                    using (var restForm = new RestauracionForm(resultadoDV))
+                    // Administrador: abrir la Consola de Recuperación (Reparar desde Espejo /
+                    // Asumir Pérdida / Restaurar Backup). Única vía de recuperación del sistema.
+                    using (var rec = new RecuperacionEspejoForm())
                     {
-                        Application.Run(restForm);
-                        if (!restForm.RestauradoExitosamente)
+                        Application.Run(rec);
+                        if (!rec.RecuperadoExitosamente)
                             return;   // no reparó → no se entra con la base comprometida
                     }
                 }

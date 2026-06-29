@@ -125,7 +125,7 @@ namespace BLL
         // registros de la base actual son posteriores a esa fecha (los que se perderían al
         // restaurar), desglosados por entidad. Solo incluye entidades con al menos 1 registro.
         // Es de SOLO LECTURA (no abre sesión ni modifica nada): se puede usar también en el
-        // flujo de arranque (RestauracionForm), donde todavía no hay sesión iniciada.
+        // flujo de recuperación de arranque, donde todavía no hay sesión iniciada.
         // Devuelve lista vacía si la fecha es null o no hay cambios posteriores.
         public List<BE.CambioPosterior> ObtenerCambiosDesde(DateTime? fechaBackup)
         {

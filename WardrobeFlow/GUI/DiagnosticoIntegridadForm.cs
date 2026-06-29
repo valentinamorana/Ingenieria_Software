@@ -13,7 +13,6 @@ namespace GUI
         private Label       _lblDVVDetalle;
         private DataGridView _gridRotas;
         private Button      _btnActualizar;
-        private Button      _btnReparar;
         private Button      _btnRecalcularTodo;
         private Button      _btnEspejo;
         private Label       _lblFilasRotas;
@@ -131,18 +130,6 @@ namespace GUI
             _btnRecalcularTodo.FlatAppearance.BorderSize = 0;
             _btnRecalcularTodo.Click += BtnRecalcularTodo_Click;
 
-            _btnReparar = new Button
-            {
-                Text      = T("diag.btn.reparar", "Reparar Seleccionadas..."),
-                Width     = 170,
-                Height    = 32,
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(210, 100, 135),
-                ForeColor = Color.White
-            };
-            _btnReparar.FlatAppearance.BorderSize = 0;
-            _btnReparar.Click += BtnReparar_Click;
-
             _btnActualizar = new Button
             {
                 Text      = T("diag.btn.actualizar", "Actualizar"),
@@ -167,7 +154,7 @@ namespace GUI
             _btnEspejo.FlatAppearance.BorderSize = 0;
             _btnEspejo.Click += BtnEspejo_Click;
 
-            panelBotones.Controls.AddRange(new Control[] { _btnRecalcularTodo, _btnReparar, _btnEspejo, _btnActualizar });
+            panelBotones.Controls.AddRange(new Control[] { _btnRecalcularTodo, _btnEspejo, _btnActualizar });
 
             // Cartel de estado vacío ("Todo íntegro"): se muestra SOBRE la grilla en vez de
             // inyectar una fila falsa (que antes caía en la columna Usuario y confundía).
@@ -279,9 +266,9 @@ namespace GUI
             this.Text                   = T("diag.frm.titulo",         "Diagnóstico de Integridad");
             _lblFilasRotas.Text         = T("diag.lbl.filasrotas",     "Filas con DVH inválido:");
             _btnActualizar.Text         = T("diag.btn.actualizar",     "Actualizar");
-            _btnReparar.Text            = T("diag.btn.reparar",        "Reparar Seleccionadas...");
             _btnRecalcularTodo.Text     = T("diag.btn.recalcular",     "Recalcular Todo");
             _btnEspejo.Text             = T("diag.btn.espejo",         "Recuperación (Espejo)...");
+            // (botón "Reparar Seleccionadas" eliminado: lo reemplaza la consola del Espejo)
             _btnActualizarHist.Text     = T("diag.btn.actualizar",     "Actualizar");
 
             if (_tabs.TabPages.Count >= 1)
@@ -374,7 +361,6 @@ namespace GUI
                 _lblGridVacio.Visible = gridVacio;
                 if (gridVacio) _lblGridVacio.BringToFront(); else _lblGridVacio.SendToBack();
 
-                _btnReparar.Enabled        = diag.FilasRotas.Count > 0;
                 // Habilitar el recálculo total si CUALQUIER tabla protegida está comprometida
                 // (incluye Cliente/Empleado/Pedido, no solo Usuario).
                 _btnRecalcularTodo.Enabled = !diag.Integro;
@@ -469,32 +455,6 @@ namespace GUI
         }
 
         // ── Acciones ──────────────────────────────────────────────────────────
-
-        private void BtnReparar_Click(object sender, EventArgs e)
-        {
-            var diag = BLL.Configuracion.ObtenerDiagnostico();
-            if (diag.FilasRotas.Count == 0)
-            {
-                MessageBox.Show(
-                    T("diag.msg.sinproblemas", "No hay filas con DVH inválido."),
-                    T("diag.msg.sinprob.titulo", "Sin problemas"),
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            using (var admin = new ConfirmarAdminForm())
-            {
-                if (admin.ShowDialog(this) != DialogResult.OK || !admin.Autorizado) return;
-
-                using (var rep = new ReparacionAsistidaForm(diag.FilasRotas))
-                {
-                    rep.ShowDialog(this);
-                }
-            }
-
-            CargarDiagnostico();
-            CargarHistorial();
-        }
 
         private void BtnEspejo_Click(object sender, EventArgs e)
         {

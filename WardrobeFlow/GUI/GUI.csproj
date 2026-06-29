@@ -167,12 +167,6 @@
     <Compile Include="ConfirmarAdminForm.Designer.cs">
       <DependentUpon>ConfirmarAdminForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="RestauracionForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="RestauracionForm.Designer.cs">
-      <DependentUpon>RestauracionForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="OlvideContrasenaForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -230,9 +224,6 @@
       <DependentUpon>Usuarios.cs</DependentUpon>
     </Compile>
     <Compile Include="DiagnosticoIntegridadForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ReparacionAsistidaForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="RecuperacionEspejoForm.cs">

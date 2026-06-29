@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BLL
 {
-    // Resultado estructurado para RestauracionForm — permite formatear el mensaje en cualquier idioma.
+    // Resultado estructurado de la verificación de integridad — permite formatear el mensaje en cualquier idioma.
     public class ResultadoIntegridad
     {
         public List<string> FilasCorruptas { get; set; } = new List<string>();
@@ -49,7 +49,7 @@ namespace BLL
         }
     }
 
-    // Resultado para diagnóstico granular (ObtenerDiagnostico / RepararFilas).
+    // Resultado para diagnóstico granular (ObtenerDiagnostico).
     public class ResultadoDiagnostico
     {
         public bool   Integro          { get; set; }
@@ -106,18 +106,7 @@ namespace BLL
 
         /// <summary>
         /// T07 — Verifica la integridad de la tabla Usuario mediante DVH y DVV.
-        /// Sobrecarga legacy: devuelve el mensaje de error en español para compatibilidad.
-        /// </summary>
-        public static bool VerificarIntegridadDV(out string mensajeError)
-        {
-            bool ok = VerificarIntegridadDV(out ResultadoIntegridad r);
-            mensajeError = r?.MensajeES;
-            return ok;
-        }
-
-        /// <summary>
-        /// T07 — Verifica la integridad de la tabla Usuario mediante DVH y DVV.
-        /// Devuelve datos estructurados para que RestauracionForm formatee el mensaje en el idioma activo.
+        /// Devuelve datos estructurados para que la consola de recuperación formatee el mensaje.
         /// </summary>
         public static bool VerificarIntegridadDV(out ResultadoIntegridad resultado)
         {
@@ -231,7 +220,7 @@ namespace BLL
                     return true;
 
                 // FAIL-SAFE: ante cualquier otro error NO se asume integridad. Se bloquea el
-                // acceso y se informa al administrador (RestauracionForm muestra FilasCorruptas).
+                // acceso y se informa al administrador (la consola de recuperación muestra el detalle).
                 resultado = new ResultadoIntegridad
                 {
                     HayDvhInvalido = true,
@@ -383,28 +372,6 @@ namespace BLL
             }
             if (dvvAlm == null || dvvAlm != svc.CalcularDVV(dvhs)) rota = true;
             if (rota) corruptas.Add(tabla);
-        }
-
-        public static void RepararFilas(IEnumerable<int> ids)
-        {
-            ExigirAdminParaDV("Reparar filas (DV)");
-            var dvDAL  = new DAL.DigitoVerificador();
-            var svc    = Seguridad.CalculadorDV.Crear();
-            var todas  = dvDAL.ObtenerFilasUsuario();
-            var idsSet = new HashSet<int>(ids);
-
-            foreach (var fila in todas)
-            {
-                if (!idsSet.Contains(fila.Id)) continue;
-                int dvh = svc.CalcularDVH(fila.CamposParaDVH());
-                dvDAL.ActualizarDVH(fila.Id, dvh);
-            }
-
-            var todasActualizadas = dvDAL.ObtenerFilasUsuario();
-            var dvhValues = new List<int>();
-            foreach (var f in todasActualizadas)
-                dvhValues.Add(svc.CalcularDVH(f.CamposParaDVH()));
-            dvDAL.GuardarDVV("Usuario", svc.CalcularDVV(dvhValues));
         }
 
         // #5 — Guard fail-closed para operaciones sobre Dígitos Verificadores.

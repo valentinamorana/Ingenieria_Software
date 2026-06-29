@@ -14,8 +14,9 @@ namespace GUI
     ///   • Asumir Pérdida        — acepta los datos actuales y recalcula todos los DV.
     ///   • Restaurar Backup      — cuando el espejo no alcanza (vaciado/eliminación física).
     ///
-    /// Se abre desde el Diagnóstico de Integridad (admin logueado) y desde la pantalla de bloqueo
-    /// de arranque (RestauracionForm). Cada acción se confirma con ConfirmarAdminForm.
+    /// Es la ÚNICA vía de recuperación del sistema. Se abre desde el Diagnóstico de Integridad
+    /// (admin logueado) y desde el arranque (Program), cuando un Administrador autenticado entra
+    /// con la base comprometida. Cada acción se confirma con ConfirmarAdminForm.
     /// </summary>
     public class RecuperacionEspejoForm : Form
     {
