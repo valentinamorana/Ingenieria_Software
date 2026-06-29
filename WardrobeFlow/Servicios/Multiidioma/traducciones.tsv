@@ -4084,3 +4084,11 @@ ES	err.bll.familia.autobloqueo	No podés quitarte a vos mismo el acceso de Gesti
 EN	err.bll.familia.autobloqueo	You cannot remove your own User Management access from your own role.
 RU	err.bll.familia.autobloqueo	Вы не можете убрать у себя доступ к управлению пользователями из своей собственной роли.
 PT	err.bll.familia.autobloqueo	Você não pode remover o seu próprio acesso à Gestão de Usuários do seu próprio perfil.
+ES	msg.mantenimiento.titulo	Sistema en mantenimiento
+ES	msg.mantenimiento.cuerpo	El sistema no está disponible en este momento por tareas de mantenimiento. Reintentá más tarde o contactá al Administrador.
+EN	msg.mantenimiento.titulo	System under maintenance
+EN	msg.mantenimiento.cuerpo	The system is currently unavailable due to maintenance. Please try again later or contact the Administrator.
+PT	msg.mantenimiento.titulo	Sistema em manutenção
+PT	msg.mantenimiento.cuerpo	O sistema está indisponível no momento por tarefas de manutenção. Tente novamente mais tarde ou contate o Administrador.
+RU	msg.mantenimiento.titulo	Система на обслуживании
+RU	msg.mantenimiento.cuerpo	Система временно недоступна из-за технического обслуживания. Повторите попытку позже или обратитесь к администратору.

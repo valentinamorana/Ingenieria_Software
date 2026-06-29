@@ -29,17 +29,9 @@ namespace GUI
             // sigue cayendo a los diccionarios hardcodeados (fallback de seguridad).
             InicializarIdiomaDesdeBD();
 
-            // T07 — Verificar integridad DVH/DVV antes de mostrar el Login.
-            // Si se detecta manipulación, abre RestauracionForm para que el admin pueda reparar.
-            if (!BLL.Configuracion.VerificarIntegridadDV(out BLL.ResultadoIntegridad resultadoDV))
-            {
-                using (var restForm = new RestauracionForm(resultadoDV))
-                {
-                    Application.Run(restForm);
-                    if (!restForm.RestauradoExitosamente)
-                        return;
-                }
-            }
+            // T07 — La verificación de integridad DVH/DVV se hace DESPUÉS del login (ver más abajo),
+            // para exigir autenticación antes de exponer/tocar los dígitos verificadores: solo un
+            // Administrador autenticado puede ver el detalle y repararlos.
 
             // Garantiza que exista admin2 (admin de respaldo para desbloquear al admin1 si se bloquea).
             string rutaAdmin2 = BLL.Configuracion.SeedAdminSecundario();
@@ -67,10 +59,43 @@ namespace GUI
 
             using (var frmLogin = new Login())
             {
-                if (frmLogin.ShowDialog() == DialogResult.OK)
-                    Application.Run(new Menu());
-                else
-                    Application.Exit();
+                if (frmLogin.ShowDialog() != DialogResult.OK)
+                    return;   // login cancelado → fin
+
+                // T07 — Recién con el usuario AUTENTICADO se verifica la integridad de los DV.
+                if (!BLL.Configuracion.VerificarIntegridadDV(out BLL.ResultadoIntegridad resultadoDV))
+                {
+                    var usuario = Seguridad.SessionManager.IsLoggedIn
+                        ? Seguridad.SessionManager.GetInstance().Usuario : null;
+
+                    // Solo un Administrador ve el detalle de los dígitos rotos y puede repararlos.
+                    // A cualquier otro usuario se le bloquea el ingreso con un mensaje GENÉRICO de
+                    // mantenimiento: NO se le revela que la base fue manipulada (no darle esa pista a
+                    // un posible atacante). El detalle real solo lo ve el Administrador.
+                    if (usuario == null || !usuario.EsAdministrador)
+                    {
+                        var t = Servicios.Multiidioma.Traductor.ObtenerTraducciones(
+                                    Servicios.Multiidioma.GestorIdioma.IdiomaActual);
+                        string Tx(string k, string fb) => t.ContainsKey(k) ? t[k].Texto : fb;
+                        MessageBox.Show(
+                            Tx("msg.mantenimiento.cuerpo",
+                               "El sistema no está disponible en este momento por tareas de mantenimiento. Reintentá más tarde o contactá al Administrador."),
+                            Tx("msg.mantenimiento.titulo", "Sistema en mantenimiento"),
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        new BLL.Usuario().Logout("Arranque");
+                        return;
+                    }
+
+                    // Administrador: mostrar el detalle + opciones de recuperación (Recalcular / Espejo / Backup).
+                    using (var restForm = new RestauracionForm(resultadoDV))
+                    {
+                        Application.Run(restForm);
+                        if (!restForm.RestauradoExitosamente)
+                            return;   // no reparó → no se entra con la base comprometida
+                    }
+                }
+
+                Application.Run(new Menu());
             }
         }
 
