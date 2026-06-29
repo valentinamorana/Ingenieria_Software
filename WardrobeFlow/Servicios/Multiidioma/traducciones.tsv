@@ -740,7 +740,6 @@ ES	btn.ver.restaurar	Restaurar Versión Seleccionada
 ES	col.ver.id	ID
 ES	col.ver.fecha	Fecha
 ES	col.ver.actor	Modificado por
-ES	col.ver.detalle	Detalle
 ES	col.ver.estado	Estado
 ES	mnu.historialusr	Historial de Cambios
 ES	frm.confirmaradmin	Confirmar Administrador
@@ -1633,7 +1632,6 @@ EN	btn.ver.restaurar	Restore Selected Version
 EN	col.ver.id	ID
 EN	col.ver.fecha	Date
 EN	col.ver.actor	Modified by
-EN	col.ver.detalle	Detail
 EN	col.ver.estado	Status
 EN	mnu.historialusr	Change History
 EN	frm.confirmaradmin	Confirm Administrator
@@ -2526,7 +2524,6 @@ RU	btn.ver.restaurar	Восстановить выбранную версию
 RU	col.ver.id	ID
 RU	col.ver.fecha	Дата
 RU	col.ver.actor	Изменено кем
-RU	col.ver.detalle	Детали
 RU	col.ver.estado	Состояние
 RU	mnu.historialusr	История изменений
 RU	frm.confirmaradmin	Подтверждение Администратора
@@ -3461,7 +3458,6 @@ PT	btn.ver.restaurar	Restaurar Versão Selecionada
 PT	col.ver.id	ID
 PT	col.ver.fecha	Data
 PT	col.ver.actor	Modificado por
-PT	col.ver.detalle	Detalhe
 PT	col.ver.estado	Estado
 PT	frm.confirmaradmin	Confirmar Administrador
 PT	lbl.confirmaradmin.subtitulo	Somente um Administrador pode continuar
