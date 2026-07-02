@@ -204,12 +204,14 @@ namespace DAL
 
         // ── T04 — CRUD del Composite (Patentes / Familias / Roles) ──────────────
 
-        // Devuelve el Id del nodo-rol cuyo Nombre coincide, o 0 si no existe.
+        // Devuelve el Id del nodo-rol ACTIVO cuyo Nombre coincide, o 0 si no existe.
+        // Filtra Estado = 1: un rol dado de baja (baja lógica) NO debe contar como existente,
+        // así su nombre puede reutilizarse al crear uno nuevo (consistente con ObtenerArbol/ObtenerRoles).
         public int ObtenerIdRol(string rolNombre)
         {
             if (string.IsNullOrWhiteSpace(rolNombre)) return 0;
             DataTable t = acceso.Leer(
-                "SELECT TOP 1 IdPermiso FROM Permiso WHERE Nombre = @n AND ISNULL(EsRol,0) = 1",
+                "SELECT TOP 1 IdPermiso FROM Permiso WHERE Nombre = @n AND ISNULL(EsRol,0) = 1 AND Estado = 1",
                 new[] { new SqlParameter("@n", rolNombre) });
             if (t == null || t.Rows.Count == 0) return 0;
             return Convert.ToInt32(t.Rows[0]["IdPermiso"]);
