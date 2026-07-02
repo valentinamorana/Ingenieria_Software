@@ -42,12 +42,13 @@ namespace GUI
         private Panel    _panelHeader, _panelFooter;
         private ToolTip  _tip;
         private Label    _lblTitulo, _lblSubtitulo, _lblMensaje, _lblEstructura,
-                         _lblDetalle, _lblModo, _lblNombreRol, _lblAsignar;
+                         _lblDetalle, _lblModo, _lblNombreRol, _lblAsignar, _lblAsignados;
         private TreeView _tvEstructura;
         private RadioButton _rbCrear, _rbEditar;
         private TextBox  _txtNombreRol;
         private GroupBox _grpCrear, _grpEditar, _grpAsignar;
         private ComboBox _cmbAsignables;
+        private ListBox  _lstAsignados;
         private Button   _btnCrearRaiz, _btnCrearSub, _btnEditarNombre, _btnEliminarRol,
                          _btnAsignar, _btnQuitar, _btnActualizar, _btnExplorador, _btnCerrar;
 
@@ -102,6 +103,7 @@ namespace GUI
             _grpCrear.Text       = T("grp.permisos.crear",      "Crear rol");
             _grpEditar.Text      = T("grp.permisos.editar",     "Editar rol");
             _grpAsignar.Text     = T("grp.permisos.asignar",    "Asignar permiso o rol");
+            _lblAsignados.Text   = T("lbl.permisos.asignados",  "Contenido del rol (permisos y sub-roles):");
 
             _btnCrearRaiz.Text   = T("btn.permisos.crearraiz",  "➕ Crear rol raíz");
             _btnCrearSub.Text    = T("btn.permisos.crearsub",   "➕ Crear sub-rol");
@@ -193,6 +195,17 @@ namespace GUI
             if (_seleccionado != null && EsRol(_seleccionado))
                 _cmbAsignables.DataSource = CalcularAsignables((BE.Rol)_seleccionado);
 
+            // Lista de miembros DIRECTOS del rol: lo que ya tiene asignado (patentes 🔑 y sub-roles 👥).
+            _lstAsignados.DataSource = null;
+            if (_seleccionado is BE.Rol rolSel)
+            {
+                var miembros = new List<Item>();
+                foreach (var h in rolSel.Hijos) miembros.Add(new Item { Comp = h });
+                miembros.Sort((a, b) => string.Compare(a.Comp.Nombre, b.Comp.Nombre, StringComparison.OrdinalIgnoreCase));
+                _lstAsignados.DataSource = miembros;
+                _lstAsignados.SelectedIndex = -1;
+            }
+
             ActualizarControles();
         }
 
@@ -247,8 +260,10 @@ namespace GUI
                 _txtNombreRol.Enabled    = esRol;
                 if (esRol) _txtNombreRol.Text = _seleccionado.Nombre;
 
-                // Quitar: habilitado si el nodo seleccionado cuelga de un padre en el árbol.
-                _btnQuitar.Enabled = _tvEstructura.SelectedNode?.Parent != null;
+                // Quitar: habilitado si hay un miembro elegido en la lista del rol, o si el
+                // nodo seleccionado en el árbol cuelga de un padre.
+                _btnQuitar.Enabled = _lstAsignados.SelectedItem != null
+                                     || _tvEstructura.SelectedNode?.Parent != null;
             }
         }
 
@@ -353,12 +368,23 @@ namespace GUI
 
         private void QuitarItem()
         {
-            var node = _tvEstructura.SelectedNode;
-            if (node?.Parent == null)
-            { MostrarError(T("perm.msg.selquitar", "Seleccioná un ítem que cuelgue de un rol para quitarlo.")); return; }
+            BE.Componente padre, hijo;
 
-            var padre = node.Parent.Tag as BE.Componente;
-            var hijo  = node.Tag as BE.Componente;
+            // 1) Preferir la lista "Contenido del rol": quita el miembro directo elegido del rol seleccionado.
+            if (_seleccionado is BE.Rol rolSel && _lstAsignados.SelectedItem is Item it)
+            {
+                padre = rolSel;
+                hijo  = it.Comp;
+            }
+            else
+            {
+                // 2) Fallback: quitar según el nodo del árbol (permite quitar ítems anidados).
+                var node = _tvEstructura.SelectedNode;
+                if (node?.Parent == null)
+                { MostrarError(T("perm.msg.selquitar", "Seleccioná un permiso o rol de la lista del rol para quitarlo.")); return; }
+                padre = node.Parent.Tag as BE.Componente;
+                hijo  = node.Tag as BE.Componente;
+            }
             if (padre == null || hijo == null) return;
 
             if (MessageBox.Show(
@@ -473,7 +499,7 @@ namespace GUI
             _grpCrear.Controls.Add(_btnCrearSub);
 
             // Grupo EDITAR
-            _grpEditar = new GroupBox { Text = "Editar rol", Location = new Point(cx, 186), Size = new Size(340, 300),
+            _grpEditar = new GroupBox { Text = "Editar rol", Location = new Point(cx, 186), Size = new Size(340, 430),
                 Font = new Font("Segoe UI", 8.5f, FontStyle.Bold), ForeColor = RosaOscuro, Visible = false };
             _btnEditarNombre = MakeBtn("✏ Renombrar rol", new Point(14, 26), 312, EstiloBtn.Light);
             _btnEditarNombre.Click += (s, e) => EditarNombre();
@@ -491,12 +517,20 @@ namespace GUI
             _grpAsignar.Controls.Add(_cmbAsignables);
             _grpAsignar.Controls.Add(_btnAsignar);
 
-            _btnQuitar = MakeBtn("Quitar ítem seleccionado", new Point(14, 230), 312, EstiloBtn.Light);
+            // Permisos y sub-roles que el rol seleccionado YA tiene (miembros directos del Composite).
+            _lblAsignados = new Label { Text = "Contenido del rol (permisos y sub-roles):", Location = new Point(14, 228),
+                AutoSize = true, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold), ForeColor = RosaOscuro };
+            _lstAsignados = new ListBox { Location = new Point(14, 250), Size = new Size(312, 116), Font = new Font("Segoe UI", 9f) };
+            _lstAsignados.SelectedIndexChanged += (s, e) => ActualizarControles();
+
+            _btnQuitar = MakeBtn("Quitar ítem seleccionado", new Point(14, 376), 312, EstiloBtn.Light);
             _btnQuitar.Click += (s, e) => QuitarItem();
 
             _grpEditar.Controls.Add(_btnEditarNombre);
             _grpEditar.Controls.Add(_btnEliminarRol);
             _grpEditar.Controls.Add(_grpAsignar);
+            _grpEditar.Controls.Add(_lblAsignados);
+            _grpEditar.Controls.Add(_lstAsignados);
             _grpEditar.Controls.Add(_btnQuitar);
 
             this.Controls.AddRange(new Control[]
