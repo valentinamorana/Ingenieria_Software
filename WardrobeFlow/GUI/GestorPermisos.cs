@@ -27,6 +27,15 @@ namespace GUI
     {
         protected override Label MensajeLabel => _lblMensaje;
 
+        // Los ERRORES de esta pantalla se muestran en un MessageBox modal (como la referencia)
+        // para que el usuario no se los pierda —p. ej. "no se puede eliminar el rol: tiene usuarios
+        // asignados"—. Los mensajes de éxito (MostrarOk) siguen en el label del footer.
+        protected override void MostrarError(string msg)
+        {
+            MessageBox.Show(msg, T("msg.error.titulo", "Error"),
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
         private readonly BLL.Familia _familiaBLL = new BLL.Familia();
 
         // ── Controles ──────────────────────────────────────────────────────────

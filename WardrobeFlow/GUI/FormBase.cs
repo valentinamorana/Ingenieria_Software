@@ -87,7 +87,7 @@ namespace GUI
         /// Si el formulario no tiene lblMensaje, usa MessageBox como fallback.
         /// Heredado por todos los formularios hijos — no necesitan redefinirlo.
         /// </summary>
-        protected void MostrarError(string msg)
+        protected virtual void MostrarError(string msg)
         {
             if (MensajeLabel == null)
             {
