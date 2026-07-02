@@ -8,19 +8,20 @@ using Servicios.Multiidioma;
 namespace GUI
 {
     /// <summary>
-    /// T04 — Gestión de Perfiles de Usuario (Patrón Composite) — UI estilo "árbol + dos listas"
-    /// (como el ejemplo de cátedra de lotes-dentro-de-lotes):
+    /// T04 — Gestión de Perfiles de Usuario (Patrón Composite) — UX "árbol + panel de acciones
+    /// con modo Crear/Editar" (misma experiencia que la pantalla de Gestión de Roles de referencia):
     ///
-    ///   • Izquierda: TreeView con TODA la estructura del sistema (Roles 👥, Familias 📁, Patentes 🔑).
-    ///     Se selecciona el NODO PADRE que se quiere editar.
-    ///   • Centro: dos listas — "Disponibles para agregar" y "Miembros de [nodo]". Con Agregar/Quitar
-    ///     se anida cualquier componente DENTRO del nodo seleccionado (familia-en-familia, rol-en-rol,
-    ///     patente-en-familia, etc.). La validación anti-ciclos vive en la BLL.
-    ///   • Derecha: árbol de PERMISOS EFECTIVOS (recursivo) del nodo seleccionado — lo que realmente
-    ///     concede ese rol/familia tras resolver toda la jerarquía.
+    ///   • Izquierda: TreeView con TODA la estructura (Roles 👥 → sub-roles → Patentes 🔑).
+    ///     Se selecciona el nodo sobre el que se quiere operar.
+    ///   • Centro: panel de acciones con un TOGGLE de modo:
+    ///       – Crear:  nombre + "Crear rol raíz" / "Crear sub-rol" (bajo el rol seleccionado).
+    ///       – Editar: renombrar / eliminar el rol, asignar un permiso o rol por ComboBox,
+    ///                 y quitar el ítem seleccionado de su rol padre.
+    ///   • Derecha: árbol de PERMISOS EFECTIVOS (recursivo) del nodo seleccionado — lo que ese
+    ///     rol concede tras resolver toda la jerarquía (visualización del Composite).
     ///
-    /// La composición se persiste en [PermisoRelacion] (motor real de autorización) de forma
-    /// INMEDIATA (cada Agregar/Quitar guarda y re-aplica la seguridad en vivo).
+    /// La composición se persiste en [PermisoRelacion] de forma inmediata (cada acción guarda y
+    /// re-aplica la seguridad en vivo). La validación anti-ciclos vive en la BLL.
     /// </summary>
     public class GestorPermisos : FormBase, IIdiomaObserver
     {
@@ -31,18 +32,22 @@ namespace GUI
         // ── Controles ──────────────────────────────────────────────────────────
         private Panel    _panelHeader, _panelFooter;
         private ToolTip  _tip;
-        private Label    _lblTitulo, _lblSubtitulo, _lblMensaje, _lblEstructura, _lblDisponibles, _lblMiembros, _lblEfectivo, _lblAyuda;
-        private TreeView _tvEstructura, _tvEfectivo;
-        private ListBox  _lstDisponibles, _lstMiembros;
-        private Button   _btnAgregar, _btnQuitar, _btnNuevoRol,
-                         _btnRenombrar, _btnEliminar, _btnActualizar, _btnExplorador, _btnCerrar;
+        private Label    _lblTitulo, _lblSubtitulo, _lblMensaje, _lblEstructura,
+                         _lblDetalle, _lblModo, _lblNombreRol, _lblAsignar;
+        private TreeView _tvEstructura;
+        private RadioButton _rbCrear, _rbEditar;
+        private TextBox  _txtNombreRol;
+        private GroupBox _grpCrear, _grpEditar, _grpAsignar;
+        private ComboBox _cmbAsignables;
+        private Button   _btnCrearRaiz, _btnCrearSub, _btnEditarNombre, _btnEliminarRol,
+                         _btnAsignar, _btnQuitar, _btnActualizar, _btnExplorador, _btnCerrar;
 
         // ── Estado ───────────────────────────────────────────────────────────────
         private List<BE.Componente> _raices = new List<BE.Componente>();
         private readonly Dictionary<int, BE.Componente> _todos = new Dictionary<int, BE.Componente>();
         private BE.Componente _seleccionado;
 
-        // Envoltura para mostrar un componente en las ListBox con su ícono.
+        // Envoltura para mostrar un componente en el ComboBox con su ícono.
         private class Item
         {
             public BE.Componente Comp;
@@ -76,42 +81,34 @@ namespace GUI
 
         private void Traducir()
         {
-            this.Text             = T("frm.gestorpermisos",      "Gestor de Perfiles — Roles y Permisos (Composite)");
-            _lblTitulo.Text       = T("lbl.permisos.titulo",     "Perfiles y Permisos");
-            _lblSubtitulo.Text    = T("lbl.permisos.subtitulo",  "Gestión de roles (los permisos son un catálogo fijo)");
-            _lblEstructura.Text   = T("lbl.permisos.estructura", "Estructura del sistema (roles y permisos)");
-            _lblDisponibles.Text  = T("lbl.permisos.disponibles","Permisos disponibles para asignar");
-            _lblEfectivo.Text     = T("lbl.permisos.efectivos",  "Permisos efectivos (recursivo)");
-            _btnAgregar.Text      = T("btn.permisos.agregar",    "Asignar ↓");
-            _btnQuitar.Text       = T("btn.permisos.quitar",     "Quitar ↑");
-            _btnNuevoRol.Text     = T("btn.permisos.crearrol",   "➕ Rol");
-            _btnRenombrar.Text    = T("btn.permisos.modificar",  "✏ Renombrar rol");
-            _btnEliminar.Text     = T("btn.permisos.eliminar",   "🗑 Eliminar rol");
-            _btnActualizar.Text   = T("btn.permisos.actualizar", "↻ Actualizar");
-            _btnExplorador.Text   = T("btn.explorador",          "🌳 Ver vista completa del sistema");
-            _btnCerrar.Text       = T("btn.permisos.cerrar",     "Cerrar");
+            this.Text            = T("frm.gestorpermisos",      "Gestor de Perfiles — Roles y Permisos (Composite)");
+            _lblTitulo.Text      = T("lbl.permisos.titulo",     "Perfiles y Permisos");
+            _lblSubtitulo.Text   = T("lbl.permisos.subtitulo",  "Gestión de roles (los permisos son un catálogo fijo)");
+            _lblEstructura.Text  = T("lbl.permisos.estructura", "Estructura del sistema (roles y permisos)");
 
-            // Ayuda contextual (tooltips): general en "❔ Ayuda" y específica en el botón ➕ Rol.
-            if (_lblAyuda != null) _lblAyuda.Text = T("lbl.permisos.ayuda", "❔ Ayuda");
+            _lblModo.Text        = T("lbl.permisos.modo",       "Modo:");
+            _rbCrear.Text        = T("rb.permisos.crear",       "Crear");
+            _rbEditar.Text       = T("rb.permisos.editar",      "Editar / Eliminar");
+            _lblNombreRol.Text   = T("lbl.permisos.nombrerol",  "Nombre del rol:");
+            _grpCrear.Text       = T("grp.permisos.crear",      "Crear rol");
+            _grpEditar.Text      = T("grp.permisos.editar",     "Editar rol");
+            _grpAsignar.Text     = T("grp.permisos.asignar",    "Asignar permiso o rol");
+
+            _btnCrearRaiz.Text   = T("btn.permisos.crearraiz",  "➕ Crear rol raíz");
+            _btnCrearSub.Text    = T("btn.permisos.crearsub",   "➕ Crear sub-rol");
+            _btnEditarNombre.Text= T("btn.permisos.editarnom",  "✏ Renombrar rol");
+            _btnEliminarRol.Text = T("btn.permisos.eliminar",   "🗑 Eliminar rol");
+            _btnAsignar.Text     = T("btn.permisos.asignar",    "Asignar ↓");
+            _btnQuitar.Text      = T("btn.permisos.quitar",     "Quitar ítem seleccionado");
+            _btnActualizar.Text  = T("btn.permisos.actualizar", "↻ Actualizar");
+            _btnExplorador.Text  = T("btn.explorador",          "🌳 Ver vista completa del sistema");
+            _btnCerrar.Text      = T("btn.permisos.cerrar",     "Cerrar");
+
             if (_tip != null)
-            {
-                _tip.SetToolTip(_lblAyuda, T("help.permisos.general", AyudaPorDefecto()));
-                _tip.SetToolTip(_btnNuevoRol, T("help.permisos.rol",
+                _tip.SetToolTip(_rbCrear, T("help.permisos.rol",
                     "Rol = perfil que se asigna a un usuario. Puede contener permisos (patentes) y otros roles (rol-en-rol)."));
-            }
 
-            ActualizarLabelMiembros();
-        }
-
-        // Texto de ayuda por defecto (ES) — fallback si no hay traducción en BD.
-        private static string AyudaPorDefecto()
-        {
-            return "🔑 PERMISO (PATENTE) — permiso atómico: una acción o pantalla concreta (ej. \"Ver Prendas\").\n" +
-                   "    Es un catálogo FIJO del sistema: no se crean ni se eliminan, solo se ASIGNAN a roles.\n\n" +
-                   "👥 ROL — es el perfil que SÍ se asigna a un usuario. Se puede crear, renombrar y eliminar.\n" +
-                   "    Puede contener permisos y OTROS ROLES (rol-dentro-de-rol = patrón Composite).\n\n" +
-                   "El usuario tiene un rol; el sistema recorre el árbol de forma recursiva\n" +
-                   "y junta todos los permisos que cuelgan de él = sus permisos efectivos.";
+            ActualizarControles();
         }
 
         // ── Carga / refresco del árbol ─────────────────────────────────────────────
@@ -135,7 +132,7 @@ namespace GUI
                 // Reseleccionar el nodo previo (si sigue existiendo) o limpiar.
                 _seleccionado = idPrev != 0 && _todos.ContainsKey(idPrev) ? _todos[idPrev] : null;
                 if (_seleccionado != null) SeleccionarNodoPorId(_tvEstructura.Nodes, idPrev);
-                ActualizarPanelSeleccion();
+                ActualizarSeleccion();
             }
             catch (Exception ex)
             {
@@ -143,7 +140,7 @@ namespace GUI
             }
         }
 
-        // Aplana el árbol a un diccionario id→componente (deduplicado) para la lista de Disponibles.
+        // Aplana el árbol a un diccionario id→componente (deduplicado) para la lista de asignables.
         private void Aplanar(BE.Componente nodo, HashSet<int> vis)
         {
             if (nodo.Id != 0 && !vis.Add(nodo.Id)) return;
@@ -154,7 +151,7 @@ namespace GUI
         private TreeNode CrearNodo(BE.Componente comp, HashSet<int> vis)
         {
             var nodo = new TreeNode(Etiqueta(comp)) { Tag = comp };
-            if (comp is BE.Familia)
+            if (comp is BE.Rol)
             {
                 nodo.NodeFont  = new Font("Segoe UI", 9f, FontStyle.Bold);
                 nodo.ForeColor = Color.FromArgb(176, 62, 96);
@@ -172,60 +169,78 @@ namespace GUI
         private void Tv_AfterSelect(object sender, TreeViewEventArgs e)
         {
             _seleccionado = e.Node?.Tag as BE.Componente;
-            ActualizarPanelSeleccion();
+            ActualizarSeleccion();
         }
 
-        // Tras eliminar las Familias, el único contenedor editable es el ROL: se le asignan
-        // permisos (patentes) y, opcionalmente, otros roles (rol-en-rol = Composite).
-        private static bool EsContenedor(BE.Componente c) => c is BE.Rol;
+        private static bool EsRol(BE.Componente c) => c is BE.Rol;
 
-        private void ActualizarPanelSeleccion()
+        // ── Refresco central: efectivos + combo + estado de controles ──────────────
+        private void ActualizarSeleccion()
         {
-            _lstDisponibles.DataSource = null;
-            _lstMiembros.DataSource    = null;
-            _tvEfectivo.Nodes.Clear();
-            ActualizarLabelMiembros();
+            _cmbAsignables.DataSource = null;
 
-            if (_seleccionado == null) { HabilitarTransfer(false); return; }
+            // ComboBox de asignables (solo aplica a un Rol): patentes + roles del sistema,
+            // excluyendo el propio nodo, su subárbol (evita ciclos obvios) y sus hijos directos.
+            if (_seleccionado != null && EsRol(_seleccionado))
+                _cmbAsignables.DataSource = CalcularAsignables((BE.Rol)_seleccionado);
 
-            // Panel derecho: ESTRUCTURA efectiva (recursiva) del nodo seleccionado, distinguiendo
-            // permisos DIRECTOS (hijos inmediatos) de los HEREDADOS (alcanzados a través de un
-            // rol/familia anidado — patrón Composite). Idea de visualización tomada del proyecto Agus.
-            var raizEf = new TreeNode(Etiqueta(_seleccionado))
-            { NodeFont = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = Color.FromArgb(176, 62, 96) };
-            foreach (var hijo in _seleccionado.Hijos)
-                AgregarNodoEfectivo(raizEf, hijo, 1, new HashSet<int>());
-            _tvEfectivo.Nodes.Add(raizEf);
-            raizEf.ExpandAll();
+            ActualizarControles();
+        }
 
-            // Solo los contenedores (Familia/Rol) admiten miembros.
-            if (!EsContenedor(_seleccionado)) { HabilitarTransfer(false); return; }
-            HabilitarTransfer(true);
-
-            var contenedor = (BE.Familia)_seleccionado;
-
-            // Miembros = hijos directos.
-            var miembros = new List<Item>();
+        // Patentes + roles asignables a 'rol' (excluye sí mismo, su subárbol y sus hijos directos).
+        private List<Item> CalcularAsignables(BE.Rol rol)
+        {
             var idsHijos = new HashSet<int>();
-            foreach (var h in contenedor.Hijos) { miembros.Add(new Item { Comp = h }); idsHijos.Add(h.Id); }
-            _lstMiembros.DataSource = miembros;
+            foreach (var h in rol.Hijos) idsHijos.Add(h.Id);
 
-            // Excluir de "Disponibles": el propio nodo y todo su subárbol (evita ciclos obvios)
-            // y los que ya son miembros directos. El resto de ciclos los rechaza la BLL.
             var subarbol = new HashSet<int>();
-            RecolectarSubarbol(_seleccionado, subarbol, new HashSet<int>());
+            RecolectarSubarbol(rol, subarbol, new HashSet<int>());
 
-            var disponibles = new List<Item>();
+            var asignables = new List<Item>();
             foreach (var kv in _todos)
             {
                 var c = kv.Value;
-                if (c.Id == _seleccionado.Id) continue;
-                if (idsHijos.Contains(c.Id))    continue;
-                if (subarbol.Contains(c.Id))    continue;
-                disponibles.Add(new Item { Comp = c });
+                if (c.Id == rol.Id)          continue;
+                if (idsHijos.Contains(c.Id)) continue;
+                if (subarbol.Contains(c.Id)) continue;
+                asignables.Add(new Item { Comp = c });
             }
-            disponibles.Sort((a, b) => string.Compare(a.Comp.Nombre, b.Comp.Nombre, StringComparison.OrdinalIgnoreCase));
-            _lstDisponibles.DataSource = disponibles;
+            asignables.Sort((a, b) => string.Compare(a.Comp.Nombre, b.Comp.Nombre, StringComparison.OrdinalIgnoreCase));
+            return asignables;
+        }
+
+        // Habilita/oculta los controles según el MODO (Crear/Editar) y la selección. (Estilo referencia.)
+        private void ActualizarControles()
+        {
+            bool crear = _rbCrear.Checked;
+            _grpCrear.Visible  = crear;
+            _grpEditar.Visible = !crear;
+
+            bool esRol = EsRol(_seleccionado);
+
+            // Detalle de la selección.
+            _lblDetalle.Text = _seleccionado == null
+                ? T("lbl.permisos.detalle.vacio", "Detalle: (sin selección)")
+                : T("lbl.permisos.detalle", "Detalle: ") + Etiqueta(_seleccionado);
+
+            if (crear)
+            {
+                _txtNombreRol.Enabled = true;
+                _btnCrearRaiz.Enabled = true;
+                // Sub-rol solo si hay un Rol seleccionado como padre.
+                _btnCrearSub.Enabled  = esRol;
+            }
+            else
+            {
+                _btnEditarNombre.Enabled = esRol;
+                _btnEliminarRol.Enabled  = esRol;
+                _grpAsignar.Enabled      = esRol;
+                _txtNombreRol.Enabled    = esRol;
+                if (esRol) _txtNombreRol.Text = _seleccionado.Nombre;
+
+                // Quitar: habilitado si el nodo seleccionado cuelga de un padre en el árbol.
+                _btnQuitar.Enabled = _tvEstructura.SelectedNode?.Parent != null;
+            }
         }
 
         private void RecolectarSubarbol(BE.Componente nodo, HashSet<int> acc, HashSet<int> vis)
@@ -234,169 +249,118 @@ namespace GUI
             foreach (var h in nodo.Hijos) { acc.Add(h.Id); RecolectarSubarbol(h, acc, vis); }
         }
 
-        // Dibuja el subárbol del nodo en el panel "Permisos efectivos", marcando cada permiso (Patente)
-        // como (directo) si cuelga directamente del nodo seleccionado, o (heredado) si llega a través de
-        // un rol/familia anidado. Protegido contra ciclos por 'vis' y un tope de profundidad.
-        private void AgregarNodoEfectivo(TreeNode padreUI, BE.Componente comp, int nivel, HashSet<int> vis)
+        // ── Acciones: modo CREAR ───────────────────────────────────────────────────
+        private void CrearRolRaiz()
         {
-            if (comp == null || nivel > 50) return;
-
-            if (comp is BE.Patente pat)
-            {
-                string menu  = string.IsNullOrEmpty(pat.NombreMenu) ? "" : "   (" + pat.NombreMenu + ")";
-                string marca = nivel == 1 ? T("perm.tag.directo", "directo") : T("perm.tag.heredado", "heredado");
-                var nodoPat  = new TreeNode("🔑 " + pat.Nombre + menu + "   · " + marca);
-                if (nivel > 1) nodoPat.ForeColor = Color.FromArgb(120, 120, 130);   // heredado: atenuado
-                padreUI.Nodes.Add(nodoPat);
-                return;
-            }
-
-            // Familia o Rol: nodo contenedor + recursión sobre sus hijos.
-            var nodoCont = new TreeNode(Etiqueta(comp)) { ForeColor = Color.FromArgb(176, 62, 96) };
-            padreUI.Nodes.Add(nodoCont);
-            if (comp.Id != 0 && !vis.Add(comp.Id)) return;   // corta ciclos / nodos compartidos
-            foreach (var h in comp.Hijos)
-                AgregarNodoEfectivo(nodoCont, h, nivel + 1, vis);
-        }
-
-        private void HabilitarTransfer(bool on) { _btnAgregar.Enabled = on; _btnQuitar.Enabled = on; }
-
-        private void ActualizarLabelMiembros()
-        {
-            if (_lblMiembros == null) return;
-            _lblMiembros.Text = _seleccionado != null && EsContenedor(_seleccionado)
-                ? string.Format(T("lbl.permisos.miembros", "Permisos del rol: {0}"), _seleccionado.Nombre)
-                : T("lbl.permisos.miembros.vacio", "Permisos (seleccioná un Rol)");
-        }
-
-        // ── Transferencia (anidar / desanidar) ─────────────────────────────────────
-        private void Agregar()
-        {
-            if (!EsContenedor(_seleccionado))
-            { MostrarError(T("perm.msg.selpadre", "Seleccioná un Rol para asignarle permisos.")); return; }
-            if (!(_lstDisponibles.SelectedItem is Item it)) return;
+            string nombre = _txtNombreRol.Text.Trim();
+            if (string.IsNullOrWhiteSpace(nombre))
+            { MostrarError(T("perm.msg.nombrevacio", "Escribí un nombre para el rol.")); return; }
             try
             {
-                _familiaBLL.AgregarComponente(_seleccionado.Id, it.Comp.Id);
-                GUI.Menu.RefrescarSeguridadAbierta();   // re-aplica seguridad en vivo
-                MostrarOk(string.Format(T("perm.ok.agregado", "'{0}' agregado a '{1}'."), it.Comp.Nombre, _seleccionado.Nombre));
-                CargarArbol();
-            }
-            catch (Exception ex) { MostrarError(ex); }
-        }
-
-        private void Quitar()
-        {
-            if (!EsContenedor(_seleccionado)) return;
-            if (!(_lstMiembros.SelectedItem is Item it)) return;
-            try
-            {
-                _familiaBLL.QuitarComponente(_seleccionado.Id, it.Comp.Id);
+                _familiaBLL.CrearRol(nombre);
                 GUI.Menu.RefrescarSeguridadAbierta();
-                MostrarOk(string.Format(T("perm.ok.quitado", "'{0}' quitado de '{1}'."), it.Comp.Nombre, _seleccionado.Nombre));
+                MostrarOk(string.Format(T("perm.ok.rolcreado", "Rol raíz '{0}' creado."), nombre));
+                _txtNombreRol.Text = "";
                 CargarArbol();
             }
             catch (Exception ex) { MostrarError(ex); }
         }
 
-        // ── CRUD de ROLES (los permisos son un catálogo fijo: no se crean/eliminan) ──
-        // Alta de rol: nombre + selección de permisos (catálogo FIJO) a asignar en el momento
-        // de crearlo. Los permisos del rol se pueden seguir ajustando luego con Asignar/Quitar.
-        private void NuevoRol()
+        private void CrearSubRol()
         {
-            var patentes = _familiaBLL.ObtenerPatentesDisponibles();
-            patentes.Sort((a, b) => string.Compare(a.Nombre, b.Nombre, StringComparison.OrdinalIgnoreCase));
+            if (!(_seleccionado is BE.Rol padre))
+            { MostrarError(T("perm.msg.selpadrerol", "Seleccioná un Rol del árbol para crearle un sub-rol.")); return; }
 
-            if (!PedirRolConPermisos(patentes, out string nombre, out List<int> idsSel)) return;
+            string nombre = _txtNombreRol.Text.Trim();
+            if (string.IsNullOrWhiteSpace(nombre))
+            { MostrarError(T("perm.msg.nombrevacio", "Escribí un nombre para el sub-rol.")); return; }
             try
             {
-                _familiaBLL.CrearRol(nombre.Trim());
-                if (idsSel.Count > 0)
-                    _familiaBLL.GuardarAsignacionRol(nombre.Trim(), idsSel);   // asigna los permisos elegidos
+                int nuevoId = _familiaBLL.CrearRol(nombre);
+                _familiaBLL.AgregarComponente(padre.Id, nuevoId);   // valida ciclos en la BLL
                 GUI.Menu.RefrescarSeguridadAbierta();
-                MostrarOk(string.Format(T("perm.ok.rolcreado", "Rol '{0}' creado con {1} permiso(s)."), nombre.Trim(), idsSel.Count));
+                MostrarOk(string.Format(T("perm.ok.subcreado", "Sub-rol '{0}' creado dentro de '{1}'."), nombre, padre.Nombre));
+                _txtNombreRol.Text = "";
                 CargarArbol();
             }
             catch (Exception ex) { MostrarError(ex); }
         }
 
-        // Diálogo de alta de rol: nombre + checklist de permisos del catálogo (no se crean permisos).
-        private bool PedirRolConPermisos(List<BE.Patente> patentes, out string nombre, out List<int> ids)
+        // ── Acciones: modo EDITAR ──────────────────────────────────────────────────
+        private void EditarNombre()
         {
-            nombre = null; ids = new List<int>();
-            var tr = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
-            string txtOk = tr.ContainsKey("btn.aceptar")  ? tr["btn.aceptar"].Texto  : "Aceptar";
-            string txtCa = tr.ContainsKey("btn.cancelar") ? tr["btn.cancelar"].Texto : "Cancelar";
-            using (var f = new Form())
-            {
-                f.Text = T("perm.dlg.rol.t", "Nuevo rol");
-                f.Size = new Size(430, 470); f.StartPosition = FormStartPosition.CenterParent;
-                f.FormBorderStyle = FormBorderStyle.FixedDialog; f.MinimizeBox = false; f.MaximizeBox = false;
-                f.Font = new Font("Segoe UI", 9f);
-
-                var lblN = new Label { Text = T("perm.dlg.rol.p", "Nombre del nuevo rol:"),
-                    Location = new Point(14, 14), AutoSize = true, ForeColor = RosaOscuro, Font = new Font("Segoe UI", 9f, FontStyle.Bold) };
-                var txt  = new TextBox { Location = new Point(16, 38), Size = new Size(390, 24) };
-                var lblP = new Label { Text = T("perm.dlg.rol.permisos", "Permisos a asignar (catálogo fijo del sistema):"),
-                    Location = new Point(14, 72), AutoSize = true, ForeColor = RosaOscuro, Font = new Font("Segoe UI", 9f, FontStyle.Bold) };
-                var clb  = new CheckedListBox { Location = new Point(16, 96), Size = new Size(390, 290),
-                    CheckOnClick = true, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Segoe UI", 9f) };
-                foreach (var p in patentes) clb.Items.Add(p);   // BE.Patente.ToString() == Nombre
-
-                var ok = new Button { Text = txtOk, DialogResult = DialogResult.OK, Location = new Point(232, 398), Size = new Size(82, 30),
-                    BackColor = RosaPrimario, ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
-                ok.FlatAppearance.BorderSize = 0;
-                var ca = new Button { Text = txtCa, DialogResult = DialogResult.Cancel, Location = new Point(322, 398), Size = new Size(84, 30) };
-                f.AcceptButton = ok; f.CancelButton = ca;
-                f.Controls.AddRange(new Control[] { lblN, txt, lblP, clb, ok, ca });
-
-                if (f.ShowDialog(this) != DialogResult.OK) return false;
-                nombre = txt.Text;
-                if (string.IsNullOrWhiteSpace(nombre))
-                { MostrarError(T("perm.msg.nombrevacio", "El nombre del rol no puede estar vacío.")); return false; }
-                foreach (var o in clb.CheckedItems)
-                    if (o is BE.Patente pat) ids.Add(pat.Id);
-                return true;
-            }
-        }
-
-        private void Renombrar()
-        {
-            // Solo ROLES son editables; los permisos (patentes) son un catálogo fijo.
-            if (!(_seleccionado is BE.Rol))
+            if (!(_seleccionado is BE.Rol rol))
             { MostrarError(T("perm.msg.selmodrol", "Seleccioná un ROL del árbol para renombrar (los permisos no se editan).")); return; }
 
-            string nombre = Pedir(T("perm.dlg.mod.t", "Renombrar rol"), T("perm.dlg.mod.p", "Nuevo nombre:"));
-            if (string.IsNullOrWhiteSpace(nombre)) return;
-
+            string nombre = _txtNombreRol.Text.Trim();
+            if (string.IsNullOrWhiteSpace(nombre))
+            { MostrarError(T("perm.msg.nombrevacio", "El nombre del rol no puede estar vacío.")); return; }
             try
             {
-                _familiaBLL.RenombrarComponente(_seleccionado.Id, nombre.Trim(), nombre.Trim());
+                _familiaBLL.RenombrarComponente(rol.Id, nombre, nombre);
                 GUI.Menu.RefrescarSeguridadAbierta();
-                MostrarOk(string.Format(T("perm.ok.modificado", "Rol actualizado a '{0}'."), nombre.Trim()));
+                MostrarOk(string.Format(T("perm.ok.modificado", "Rol actualizado a '{0}'."), nombre));
                 CargarArbol();
             }
             catch (Exception ex) { MostrarError(ex); }
         }
 
-        private void Eliminar()
+        private void EliminarRolSel()
         {
-            // Solo ROLES se pueden eliminar; los permisos son un catálogo fijo del sistema.
-            if (!(_seleccionado is BE.Rol))
+            if (!(_seleccionado is BE.Rol rol))
             { MostrarError(T("perm.msg.selelirol", "Seleccioná un ROL del árbol para eliminar (los permisos no se eliminan).")); return; }
 
             if (MessageBox.Show(
-                    string.Format(T("perm.conf.elirol", "¿Eliminar el rol '{0}'? No se permite si tiene usuarios asignados."), _seleccionado.Nombre),
+                    string.Format(T("perm.conf.elirol", "¿Eliminar el rol '{0}'? No se permite si tiene usuarios asignados."), rol.Nombre),
                     T("perm.conf.titulo", "Confirmar"),
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
             try
             {
-                _familiaBLL.EliminarRol(_seleccionado.Nombre);   // valida que no tenga usuarios asignados
-
-                string nombre = _seleccionado.Nombre;
+                string nombre = rol.Nombre;
+                _familiaBLL.EliminarRol(nombre);   // valida que no tenga usuarios asignados
                 _seleccionado = null;
                 GUI.Menu.RefrescarSeguridadAbierta();
                 MostrarOk(string.Format(T("perm.ok.eliminado", "Rol '{0}' eliminado."), nombre));
+                CargarArbol();
+            }
+            catch (Exception ex) { MostrarError(ex); }
+        }
+
+        private void Asignar()
+        {
+            if (!(_seleccionado is BE.Rol rol))
+            { MostrarError(T("perm.msg.selpadre", "Seleccioná un Rol para asignarle un permiso o rol.")); return; }
+            if (!(_cmbAsignables.SelectedItem is Item it))
+            { MostrarError(T("perm.msg.selasignable", "Elegí un permiso o rol de la lista para asignar.")); return; }
+            try
+            {
+                _familiaBLL.AgregarComponente(rol.Id, it.Comp.Id);
+                GUI.Menu.RefrescarSeguridadAbierta();
+                MostrarOk(string.Format(T("perm.ok.agregado", "'{0}' asignado a '{1}'."), it.Comp.Nombre, rol.Nombre));
+                CargarArbol();
+            }
+            catch (Exception ex) { MostrarError(ex); }
+        }
+
+        private void QuitarItem()
+        {
+            var node = _tvEstructura.SelectedNode;
+            if (node?.Parent == null)
+            { MostrarError(T("perm.msg.selquitar", "Seleccioná un ítem que cuelgue de un rol para quitarlo.")); return; }
+
+            var padre = node.Parent.Tag as BE.Componente;
+            var hijo  = node.Tag as BE.Componente;
+            if (padre == null || hijo == null) return;
+
+            if (MessageBox.Show(
+                    string.Format(T("perm.conf.quitar", "¿Quitar '{0}' del rol '{1}'?"), hijo.Nombre, padre.Nombre),
+                    T("perm.conf.titulo", "Confirmar"),
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+            try
+            {
+                _familiaBLL.QuitarComponente(padre.Id, hijo.Id);
+                GUI.Menu.RefrescarSeguridadAbierta();
+                MostrarOk(string.Format(T("perm.ok.quitado", "'{0}' quitado de '{1}'."), hijo.Nombre, padre.Nombre));
                 CargarArbol();
             }
             catch (Exception ex) { MostrarError(ex); }
@@ -412,26 +376,6 @@ namespace GUI
             }
         }
 
-        // Mini diálogo de entrada de texto (sin dependencias externas).
-        private static string Pedir(string titulo, string prompt)
-        {
-            var tr = Traductor.ObtenerTraducciones(GestorIdioma.IdiomaActual);
-            string txtOk = tr.ContainsKey("btn.aceptar")  ? tr["btn.aceptar"].Texto  : "Aceptar";
-            string txtCa = tr.ContainsKey("btn.cancelar") ? tr["btn.cancelar"].Texto : "Cancelar";
-            using (var f = new Form())
-            {
-                f.Text = titulo; f.Size = new Size(420, 160); f.StartPosition = FormStartPosition.CenterParent;
-                f.FormBorderStyle = FormBorderStyle.FixedDialog; f.MinimizeBox = false; f.MaximizeBox = false;
-                var lbl = new Label { Text = prompt, Location = new Point(12, 15), AutoSize = true };
-                var txt = new TextBox { Location = new Point(15, 45), Size = new Size(380, 24) };
-                var ok  = new Button { Text = txtOk, DialogResult = DialogResult.OK, Location = new Point(225, 80), Size = new Size(80, 30) };
-                var ca  = new Button { Text = txtCa, DialogResult = DialogResult.Cancel, Location = new Point(315, 80), Size = new Size(80, 30) };
-                f.Controls.AddRange(new Control[] { lbl, txt, ok, ca });
-                f.AcceptButton = ok; f.CancelButton = ca;
-                return f.ShowDialog() == DialogResult.OK ? txt.Text : null;
-            }
-        }
-
         // ── Paleta de marca ────────────────────────────────────────────────────────
         private static readonly Color RosaPrimario = Color.FromArgb(210, 100, 135);  // #D26487
         private static readonly Color RosaOscuro   = Color.FromArgb(176, 62, 96);    // #B03E60
@@ -442,9 +386,9 @@ namespace GUI
         // ── Construcción de UI ─────────────────────────────────────────────────────
         private void ConstruirUI()
         {
-            this.Text          = "Gestor de Perfiles — Permisos (Composite)";
-            this.Size          = new Size(980, 700);
-            this.MinimumSize   = new Size(920, 620);
+            this.Text          = "Gestor de Perfiles — Roles y Permisos (Composite)";
+            this.Size          = new Size(840, 700);
+            this.MinimumSize   = new Size(800, 640);
             this.StartPosition = FormStartPosition.CenterParent;
             this.BackColor     = Color.White;
             this.Font          = new Font("Segoe UI", 9f);
@@ -459,29 +403,15 @@ namespace GUI
             };
             _lblTitulo = new Label { Text = "Perfiles y Permisos", Font = new Font("Segoe UI", 14f, FontStyle.Bold),
                 ForeColor = Color.White, BackColor = Color.Transparent, AutoSize = true, Location = new Point(18, 8) };
-            _lblSubtitulo = new Label { Text = "Gestión de roles, familias y patentes", Font = new Font("Segoe UI", 8.5f, FontStyle.Italic),
+            _lblSubtitulo = new Label { Text = "Gestión de roles (los permisos son un catálogo fijo)", Font = new Font("Segoe UI", 8.5f, FontStyle.Italic),
                 ForeColor = Color.FromArgb(255, 224, 236), BackColor = Color.Transparent, AutoSize = true, Location = new Point(20, 34) };
             _panelHeader.Controls.Add(_lblTitulo);
             _panelHeader.Controls.Add(_lblSubtitulo);
 
-            // Tooltip de ayuda: explica patente/familia/rol. Pasá el mouse por "❔ Ayuda"
-            // (o por los botones ➕). Clic en "❔ Ayuda" abre la explicación completa.
             _tip = new ToolTip { AutoPopDelay = 30000, InitialDelay = 250, ReshowDelay = 100, ShowAlways = true, IsBalloon = true };
-            _lblAyuda = new Label { Dock = DockStyle.Right, Width = 92, Text = "❔ Ayuda",
-                ForeColor = Color.White, BackColor = Color.Transparent, TextAlign = ContentAlignment.MiddleCenter,
-                Font = new Font("Segoe UI", 9f, FontStyle.Bold), Cursor = Cursors.Help };
-            _lblAyuda.Click += (s, e) => MessageBox.Show(this,
-                T("help.permisos.general", AyudaPorDefecto()),
-                T("help.permisos.titulo", "¿Patente, Familia o Rol?"),
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
-            _panelHeader.Controls.Add(_lblAyuda);
-            _lblAyuda.BringToFront();
 
-            // ── Footer: mensaje (izq) + acciones (der) ───────────────────────────
+            // ── Footer: mensaje (izq) + acciones globales (der) ───────────────────
             _panelFooter = new Panel { Dock = DockStyle.Bottom, Height = 52, BackColor = PanelClaro };
-
-            // Las acciones van en un FlowLayoutPanel dock-derecha (se acomodan solas, sin
-            // depender de posiciones fijas que se rompen al cambiar el ancho del panel).
             var flAcciones = new FlowLayoutPanel { Dock = DockStyle.Right, FlowDirection = FlowDirection.RightToLeft,
                 WrapContents = false, AutoSize = false, Width = 500, Padding = new Padding(0, 11, 10, 0), BackColor = PanelClaro };
             _btnCerrar = MakeBtn("Cerrar", Point.Empty, 96, EstiloBtn.Neutral);
@@ -490,68 +420,86 @@ namespace GUI
             _btnExplorador.Margin = new Padding(8, 0, 0, 0); _btnExplorador.Click += (s, e) => new ExploradorCompositeForm().Show(this);
             _btnActualizar = MakeBtn("↻ Actualizar", Point.Empty, 120, EstiloBtn.Light);
             _btnActualizar.Margin = new Padding(8, 0, 0, 0); _btnActualizar.Click += (s, e) => CargarArbol();
-            // En RightToLeft, el primero agregado queda más a la derecha → Cerrar, Vista, Actualizar.
             flAcciones.Controls.Add(_btnCerrar);
             flAcciones.Controls.Add(_btnExplorador);
             flAcciones.Controls.Add(_btnActualizar);
 
             _lblMensaje = new Label { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft,
                 Padding = new Padding(16, 0, 0, 0), Font = new Font("Segoe UI", 8.5f), ForeColor = Color.DimGray };
-
             _panelFooter.Controls.Add(_lblMensaje);
             _panelFooter.Controls.Add(flAcciones);
 
-            // ── Columna izquierda: estructura ──────────────────────────────────────
+            // ── Columna izquierda: estructura (TreeView) ───────────────────────────
             _lblEstructura = SeccionLbl("Estructura del sistema", new Point(16, 70));
-            _tvEstructura = new TreeView { Location = new Point(16, 92), Size = new Size(304, 420),
+            _tvEstructura = new TreeView { Location = new Point(16, 92), Size = new Size(380, 452),
                 Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left,
                 Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle, HideSelection = false };
             _tvEstructura.AfterSelect += Tv_AfterSelect;
 
-            _btnNuevoRol     = MakeBtn("➕ Rol",     new Point(16, 520), 304, EstiloBtn.Light);
-            _btnNuevoRol.Click += (s, e) => NuevoRol();
-            _btnRenombrar    = MakeBtn("✏ Renombrar rol", new Point(16, 554), 148, EstiloBtn.Light);
-            _btnRenombrar.Click += (s, e) => Renombrar();
-            _btnEliminar     = MakeBtn("🗑 Eliminar rol",  new Point(172, 554), 148, EstiloBtn.Danger);
-            _btnEliminar.Click += (s, e) => Eliminar();
-            foreach (var b in new[] { _btnNuevoRol, _btnRenombrar, _btnEliminar })
-                b.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            // ── Columna central: panel de acciones con modo Crear/Editar ───────────
+            int cx = 420;                          // x de la columna central
+            _lblDetalle = new Label { Location = new Point(cx, 72), AutoSize = false, Size = new Size(340, 20),
+                Font = new Font("Segoe UI", 8.5f, FontStyle.Italic), ForeColor = RosaOscuro,
+                Text = "Detalle: (sin selección)" };
 
-            // ── Columna central: dos listas (Disponibles / Miembros) ───────────────
-            _lblDisponibles = SeccionLbl("Disponibles para agregar", new Point(336, 70));
-            _lstDisponibles = new ListBox { Location = new Point(336, 92), Size = new Size(280, 180),
-                Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle, HorizontalScrollbar = true };
-            _lstDisponibles.DoubleClick += (s, e) => { if (_lstDisponibles.SelectedItem != null) Agregar(); };
+            _lblModo = new Label { Text = "Modo:", Location = new Point(cx, 100), AutoSize = true,
+                Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = RosaOscuro };
+            _rbCrear  = new RadioButton { Text = "Crear", Location = new Point(cx + 52, 98), AutoSize = true, Checked = true };
+            _rbEditar = new RadioButton { Text = "Editar / Eliminar", Location = new Point(cx + 120, 98), AutoSize = true };
+            _rbCrear.CheckedChanged  += (s, e) => { if (_rbCrear.Checked)  { _txtNombreRol.Text = ""; ActualizarControles(); } };
+            _rbEditar.CheckedChanged += (s, e) => { if (_rbEditar.Checked) ActualizarControles(); };
 
-            _btnAgregar = MakeBtn("Agregar  ↓", new Point(336, 280), 135, EstiloBtn.Primary);
-            _btnAgregar.Click += (s, e) => Agregar();
-            _btnQuitar  = MakeBtn("Quitar  ↑",  new Point(481, 280), 135, EstiloBtn.Light);
-            _btnQuitar.Click += (s, e) => Quitar();
+            _lblNombreRol = new Label { Text = "Nombre del rol:", Location = new Point(cx, 130), AutoSize = true,
+                Font = new Font("Segoe UI", 9f, FontStyle.Bold), ForeColor = RosaOscuro };
+            _txtNombreRol = new TextBox { Location = new Point(cx, 152), Size = new Size(340, 24), Font = new Font("Segoe UI", 9f) };
 
-            _lblMiembros = SeccionLbl("Miembros", new Point(336, 318));
-            _lstMiembros = new ListBox { Location = new Point(336, 340), Size = new Size(280, 172),
-                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left,
-                Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle, HorizontalScrollbar = true };
-            _lstMiembros.DoubleClick += (s, e) => { if (_lstMiembros.SelectedItem != null) Quitar(); };
+            // Grupo CREAR
+            _grpCrear = new GroupBox { Text = "Crear rol", Location = new Point(cx, 186), Size = new Size(340, 110),
+                Font = new Font("Segoe UI", 8.5f, FontStyle.Bold), ForeColor = RosaOscuro };
+            _btnCrearRaiz = MakeBtn("➕ Crear rol raíz", new Point(14, 26), 312, EstiloBtn.Primary);
+            _btnCrearRaiz.Click += (s, e) => CrearRolRaiz();
+            _btnCrearSub  = MakeBtn("➕ Crear sub-rol", new Point(14, 64), 312, EstiloBtn.Light);
+            _btnCrearSub.Click += (s, e) => CrearSubRol();
+            _grpCrear.Controls.Add(_btnCrearRaiz);
+            _grpCrear.Controls.Add(_btnCrearSub);
 
-            // ── Columna derecha: efectivos ─────────────────────────────────────────
-            _lblEfectivo = SeccionLbl("Permisos efectivos (recursivo)", new Point(632, 70));
-            _lblEfectivo.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            _tvEfectivo = new TreeView { Location = new Point(632, 92), Size = new Size(316, 420),
-                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right,
-                Font = new Font("Segoe UI", 9f), BorderStyle = BorderStyle.FixedSingle, BackColor = Color.FromArgb(250, 246, 250) };
+            // Grupo EDITAR
+            _grpEditar = new GroupBox { Text = "Editar rol", Location = new Point(cx, 186), Size = new Size(340, 300),
+                Font = new Font("Segoe UI", 8.5f, FontStyle.Bold), ForeColor = RosaOscuro, Visible = false };
+            _btnEditarNombre = MakeBtn("✏ Renombrar rol", new Point(14, 26), 312, EstiloBtn.Light);
+            _btnEditarNombre.Click += (s, e) => EditarNombre();
+            _btnEliminarRol  = MakeBtn("🗑 Eliminar rol", new Point(14, 62), 312, EstiloBtn.Danger);
+            _btnEliminarRol.Click += (s, e) => EliminarRolSel();
+
+            _grpAsignar = new GroupBox { Text = "Asignar permiso o rol", Location = new Point(14, 104), Size = new Size(312, 116),
+                Font = new Font("Segoe UI", 8.5f, FontStyle.Bold), ForeColor = RosaOscuro };
+            _lblAsignar = new Label { Text = "Elegí un ítem:", Location = new Point(12, 26), AutoSize = true, Font = new Font("Segoe UI", 8.5f) };
+            _cmbAsignables = new ComboBox { Location = new Point(12, 46), Size = new Size(288, 24),
+                DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 9f) };
+            _btnAsignar = MakeBtn("Asignar ↓", new Point(12, 76), 288, EstiloBtn.Primary);
+            _btnAsignar.Click += (s, e) => Asignar();
+            _grpAsignar.Controls.Add(_lblAsignar);
+            _grpAsignar.Controls.Add(_cmbAsignables);
+            _grpAsignar.Controls.Add(_btnAsignar);
+
+            _btnQuitar = MakeBtn("Quitar ítem seleccionado", new Point(14, 230), 312, EstiloBtn.Light);
+            _btnQuitar.Click += (s, e) => QuitarItem();
+
+            _grpEditar.Controls.Add(_btnEditarNombre);
+            _grpEditar.Controls.Add(_btnEliminarRol);
+            _grpEditar.Controls.Add(_grpAsignar);
+            _grpEditar.Controls.Add(_btnQuitar);
 
             this.Controls.AddRange(new Control[]
             {
                 _lblEstructura, _tvEstructura,
-                _btnNuevoRol, _btnRenombrar, _btnEliminar,
-                _lblDisponibles, _lstDisponibles, _btnAgregar, _btnQuitar, _lblMiembros, _lstMiembros,
-                _lblEfectivo, _tvEfectivo
+                _lblDetalle, _lblModo, _rbCrear, _rbEditar, _lblNombreRol, _txtNombreRol,
+                _grpCrear, _grpEditar
             });
             this.Controls.Add(_panelFooter);  _panelFooter.BringToFront();
             this.Controls.Add(_panelHeader);  _panelHeader.BringToFront();
 
-            HabilitarTransfer(false);
+            ActualizarControles();
         }
 
         // Etiqueta de sección con el estilo de marca.
@@ -561,8 +509,7 @@ namespace GUI
 
         private enum EstiloBtn { Primary, Danger, Light, Neutral }
 
-        // Fábrica de botones con la paleta unificada: un solo primario (rosa), un solo
-        // peligro (rojo), y secundarios "light" (contorno rosa) / neutro (gris).
+        // Fábrica de botones con la paleta unificada.
         private static Button MakeBtn(string text, Point loc, int width, EstiloBtn estilo)
         {
             Color back, fore, borde = Color.Empty; int bsize = 0;
