@@ -1,210 +1,214 @@
 @startuml G07 - Modelo de Datos Integrado
-title G07 - Modelo de Datos Integrado (DER) - WardrobeFlow
+title dm G07 - Modelo de Datos Integrado (DER) - WardrobeFlow
 ' Integracion de los modelos parciales. Balanceado con BD/01_Crear_BaseDeDatos.sql.
-' NEGOCIO (amarillo) vs TECNICO/infraestructura (celeste).
+' MISMOS COLORES QUE LA REFERENCIA (DER.png): todas las tablas en ROSA.
 
 skinparam shadowing false
 hide circle
 skinparam linetype ortho
-
-' ===================== NEGOCIO =====================
-entity Usuario #FFF7CC {
-  * IdUsuario : int <<PK>>
-  --
-  Username : nvarchar(100) <<UQ>>
-  Clave : nvarchar(500)  ' hash PBKDF2
-  Rol : nvarchar(100)
-  Perfil : nvarchar(100)
-  Estado : bit
-  IntentosFallidos : int
-  Nombre / Apellido / Email / FechaNacimiento
-  Activo : bit
-  DVH : int  ' T07
-  IdIdioma : varchar(5)
+skinparam entity {
+  BackgroundColor #F8CBCB
+  BorderColor     #B24A4A
 }
 
-entity Empleado #FFF7CC {
-  * IdEmpleado : int <<PK>>
-  --
-  Nombre / Apellido
-  DNI : nvarchar(200)  ' cifrado AES
-  Puesto / Legajo / Email
-  IdUsuario : int <<FK>>
-  DVH : int  ' T07
-}
+' =================================================================
+  entity Usuario {
+    * IdUsuario : int <<PK>>
+    --
+    Username : nvarchar(100) <<UQ>>
+    Clave : nvarchar(500)  ' hash PBKDF2
+    Rol : nvarchar(100)
+    Perfil : nvarchar(100)
+    Estado : bit
+    IntentosFallidos : int
+    Nombre / Apellido / Email / FechaNacimiento
+    Activo : bit
+    DVH : int  ' T07
+    IdIdioma : varchar(5)
+  }
 
-entity Cliente #FFF7CC {
-  * IdCliente : int <<PK>>
-  --
-  Nombre / Apellido
-  DNI : nvarchar(200)  ' cifrado AES
-  Email / MetodoPago / FechaNacimiento
-  IdPlan : int <<FK>>
-  Activo : bit
-  DVH : int  ' T07
-}
+  entity Empleado {
+    * IdEmpleado : int <<PK>>
+    --
+    Nombre / Apellido
+    DNI : nvarchar(200)  ' cifrado AES
+    Puesto / Legajo / Email
+    IdUsuario : int <<FK>>
+    DVH : int  ' T07
+  }
 
-entity PlanSuscripcion #FFF7CC {
-  * IdPlan : int <<PK>>
-  --
-  Nombre / LimitePrendas / Precio / Estado
-}
+  entity Cliente {
+    * IdCliente : int <<PK>>
+    --
+    Nombre / Apellido
+    DNI : nvarchar(200)  ' cifrado AES
+    Email / MetodoPago / FechaNacimiento
+    IdPlan : int <<FK>>
+    Activo : bit
+    DVH : int  ' T07
+  }
 
-entity Prenda #FFF7CC {
-  * IdPrenda : int <<PK>>
-  --
-  Nombre / Descripcion / Talle / Color / Categoria
-  Estado : int
-  IdClienteActual : int <<FK>>
-}
+  entity PlanSuscripcion {
+    * IdPlan : int <<PK>>
+    --
+    Nombre / LimitePrendas / Precio / Estado
+  }
 
-entity Pedido #FFF7CC {
-  * IdPedido : int <<PK>>
-  --
-  IdCliente : int <<FK>>
-  IdEmpleado : int <<FK>>
-  Estado : int
-  FechaPedido / FechaDespacho / FechaEntrega
-  DVH : int  ' T07 (incluye huella de sus lineas)
-}
+  entity Prenda {
+    * IdPrenda : int <<PK>>
+    --
+    Nombre / Descripcion / Talle / Color / Categoria
+    Estado : int
+    IdClienteActual : int <<FK>>
+  }
 
-entity PedidoPrenda #FFF7CC {
-  * IdPedido : int <<PK,FK>>
-  * IdPrenda : int <<PK,FK>>
-}
+  entity Pedido {
+    * IdPedido : int <<PK>>
+    --
+    IdCliente : int <<FK>>
+    IdEmpleado : int <<FK>>
+    Estado : int
+    FechaPedido / FechaDespacho / FechaEntrega
+    DVH : int  ' T07 (incluye huella de sus lineas)
+  }
 
-entity PedidoHistorial #FFF7CC {
-  * IdHistorial : int <<PK>>
-  --
-  IdPedido : int <<FK>>
-  IdUsuario : int <<FK>>
-  Accion / Campo
-  ValorAnterior / ValorNuevo  ' T06b control de cambios
-  Fecha : datetime
-}
+  entity PedidoPrenda {
+    * IdPedido : int <<PK,FK>>
+    * IdPrenda : int <<PK,FK>>
+  }
 
-entity MantenimientoPrenda #FFF7CC {
-  * IdMantenimiento : int <<PK>>
-  --
-  IdPrenda : int <<FK>>
-  FechaEntrada / FechaSalida / Estado
-}
+  entity PedidoHistorial {
+    * IdHistorial : int <<PK>>
+    --
+    IdPedido : int <<FK>>
+    IdUsuario : int <<FK>>
+    Accion / Campo
+    ValorAnterior / ValorNuevo  ' T06b control de cambios
+    Fecha : datetime
+  }
 
-' ===================== PERMISOS / COMPOSITE (T04) =====================
-entity Permiso #FFF7CC {
-  * IdPermiso : int <<PK>>
-  --
-  Nombre / NombreMenu / TipoComponente
-  EsFamilia : bit
-  EsRol : bit
-  Estado : bit
-}
+  entity MantenimientoPrenda {
+    * IdMantenimiento : int <<PK>>
+    --
+    IdPrenda : int <<FK>>
+    FechaEntrada / FechaSalida / Estado
+  }
 
-entity PermisoRelacion #FFF7CC {
-  * IdPadre : int <<PK,FK>>
-  * IdHijo : int <<PK,FK>>
-  ' auto-relacion -> arbol Composite
-}
+  ' ---- Permisos / Composite (T04) ----
+  entity Permiso {
+    * IdPermiso : int <<PK>>
+    --
+    Nombre / NombreMenu / TipoComponente
+    EsFamilia : bit
+    EsRol : bit
+    Estado : bit
+  }
 
-entity RolPermiso #FFF7CC {
-  * Rol : nvarchar(100) <<PK>>
-  * IdPermiso : int <<PK,FK>>
-  ' legacy / seed-bootstrap
-}
+  entity PermisoRelacion {
+    * IdPadre : int <<PK,FK>>
+    * IdHijo : int <<PK,FK>>
+    ' auto-relacion -> arbol Composite
+  }
 
-entity ControlMapeado #DDF3FF {
-  * IdControlMapeado : int <<PK>>
-  --
-  IdPermiso : int <<FK>>
-  Formulario / NombreControl
-}
+  entity RolPermiso {
+    * Rol : nvarchar(100) <<PK>>
+    * IdPermiso : int <<PK,FK>>
+  }
 
-' ===================== MULTIIDIOMA (T05) =====================
-entity Idioma #FFF7CC {
-  * IdIdioma : int <<PK>>
-  --
-  Codigo : varchar(5) <<UQ>>
-  Nombre / Activo / EsDefault
-}
+  ' ---- Multiidioma (T05) ----
+  entity Idioma {
+    * IdIdioma : int <<PK>>
+    --
+    Codigo : varchar(5) <<UQ>>
+    Nombre / Activo / EsDefault
+  }
 
-entity Control #FFF7CC {
-  * IdControl : int <<PK>>
-  --
-  Clave : varchar(100) <<UQ>>
-  Formulario
-}
+  entity Control {
+    * IdControl : int <<PK>>
+    --
+    Clave : varchar(100) <<UQ>>
+    Formulario
+  }
 
-entity Traduccion #FFF7CC {
-  * IdControl : int <<PK,FK>>
-  * IdIdioma : int <<PK,FK>>
-  --
-  Texto : nvarchar(1000)
-}
+  entity Traduccion {
+    * IdControl : int <<PK,FK>>
+    * IdIdioma : int <<PK,FK>>
+    --
+    Texto : nvarchar(1000)
+  }
 
-' ===================== TECNICO / INFRAESTRUCTURA =====================
-entity Bitacora #DDF3FF {
-  * Id : int <<PK>>
-  --
-  fecha : datetime
-  usuario : int <<FK>>
-  modulo / actividad / detalle
-  criticidad : int
-  ip : nvarchar(50)
-}
+' =================================================================
+  entity Bitacora {
+    * Id : int <<PK>>
+    --
+    fecha : datetime
+    usuario : int <<FK>>
+    modulo / actividad / detalle
+    criticidad : int
+    ip : nvarchar(50)
+  }
 
-entity BitacoraNegocio #DDF3FF {
-  * IdEvento : int <<PK>>
-  --
-  Fecha / Tipo / Descripcion
-  IdUsuario / IdPedido / IdPrenda / IdCliente <<FK>>
-}
+  entity BitacoraNegocio {
+    * IdEvento : int <<PK>>
+    --
+    Fecha / Tipo / Descripcion
+    IdUsuario / IdPedido / IdPrenda / IdCliente <<FK>>
+  }
 
-entity HistorialUsuario #DDF3FF {
-  * IdVersion : int <<PK>>
-  --
-  IdUsuario : int <<FK>>
-  Fecha / Actor / Detalle
-  *Snapshot ...  ' T06b Memento
-}
+  entity HistorialUsuario {
+    * IdVersion : int <<PK>>
+    --
+    IdUsuario : int <<FK>>
+    Fecha / Actor / Detalle
+    *Snapshot ...  ' T06b Memento
+  }
 
-entity DVVertical #DDF3FF {
-  * Id : int <<PK>>
-  --
-  NombreTabla : varchar(100) <<UQ>>
-  DVV : int
-  FechaCalculo : datetime
-}
+  entity DVVertical {
+    * Id : int <<PK>>
+    --
+    NombreTabla : varchar(100) <<UQ>>
+    DVV : int
+    FechaCalculo : datetime
+  }
 
-entity HistorialIntegridad #DDF3FF {
-  * Id : int <<PK>>
-  --
-  NombreTabla / DVVAlmacenado / DVVCalculado
-  Resultado : bit
-  FilasCorruptas : int
-  DisparadoPor : varchar(50)
-}
+  entity HistorialIntegridad {
+    * Id : int <<PK>>
+    --
+    NombreTabla / DVVAlmacenado / DVVCalculado
+    Resultado : bit
+    FilasCorruptas : int
+    DisparadoPor : varchar(50)
+  }
 
-entity Usuario_Seguridad #DDF3FF {
-  * IdUsuario : int <<PK>>
-  --
-  Username / Clave / Rol / Perfil / Estado
-  ' tabla espejo para recuperacion (T07)
-}
+  entity Usuario_Seguridad {
+    * IdUsuario : int <<PK>>
+    --
+    Username / Clave / Rol / Perfil / Estado
+    ' tabla espejo para recuperacion (T07)
+  }
 
-entity ClaveRecuperacion #DDF3FF {
-  * IdClave : int <<PK>>
-  --
-  ClaveHash : nvarchar(500)
-  Usada : bit / UsadaPor / FechaUso
-}
+  entity ClaveRecuperacion {
+    * IdClave : int <<PK>>
+    --
+    ClaveHash : nvarchar(500)
+    Usada : bit / UsadaPor / FechaUso
+  }
 
-entity Preferencia #DDF3FF {
-  * IdUsuario : int <<PK,FK>>
-  --
-  FuenteFamilia / FuenteTamano / Tema / FormatoFecha
-}
+  entity ControlMapeado {
+    * IdControlMapeado : int <<PK>>
+    --
+    IdPermiso : int <<FK>>
+    Formulario / NombreControl
+  }
 
-' ===================== RELACIONES =====================
+  entity Preferencia {
+    * IdUsuario : int <<PK,FK>>
+    --
+    FuenteFamilia / FuenteTamano / Tema / FormatoFecha
+  }
+
+' =================================================================
+' ===================== RELACIONES (pata de gallo) =====================
 PlanSuscripcion ||--o{ Cliente
 Cliente ||--o{ Prenda
 Cliente ||--o{ Pedido
@@ -230,11 +234,7 @@ Usuario ||--o{ HistorialUsuario
 Usuario ||--|| Preferencia
 
 note as N1 #FFFFCC
-  Amarillo = tablas de NEGOCIO.
-  Celeste  = tablas TECNICAS / de
-  infraestructura (auditoria, DV,
-  i18n runtime, recuperacion, prefs).
-  Diseno normalizado (3FN) con
-  integridad referencial (FKs).
+  Modelo de datos integrado de todos los modulos.
+  Diseño normalizado (3FN) con integridad referencial (FKs).
 end note
 @enduml

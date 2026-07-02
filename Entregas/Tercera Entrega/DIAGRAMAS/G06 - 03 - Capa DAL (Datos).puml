@@ -1,0 +1,98 @@
+@startuml G06 - 03 - Capa DAL (Datos)
+title G06 - Capa DAL (Acceso a Datos - ADO.NET) - WardrobeFlow
+' Capa 100% TECNICA (celeste). Patron Singleton (Acceso) + Template Method (BaseDAL<T>)
+' + DAOs contra interfaces I*DAL.
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "DAL - Infraestructura" #DDF3FF {
+  class Acceso <<Singleton>> {
+    -{static} _instancia : Acceso
+    +{static} GetInstance() : Acceso
+    +Leer(sql, params) : DataTable
+    +Escribir(sql, params) : int
+    +VerificarConexion() : bool
+    +EjecutarTransaccion(accion)
+  }
+  abstract class "BaseDAL<T>" as BaseDAL {
+    #acceso : Acceso
+    +{abstract} ObtenerTodos() : List<T>
+    +{abstract} ObtenerPorId(id) : T
+  }
+  BaseDAL o--> Acceso
+}
+
+package "DAL - Contratos (interfaces)" #DDF3FF {
+  interface IUsuarioDAL {
+    +ObtenerPorUsername(u) : Usuario
+    +Alta(user, clave, perfil)
+    +CambiarRol(id, rol)
+    +Bloquear(id) / +BloquearConTiempo(id)
+  }
+  interface IClienteDAL {
+    +ObtenerTodos() : List<Cliente>
+    +Alta(cliente) : int
+    +ExisteDNI(dni) : bool
+  }
+  interface IPermisoDAL {
+    +ObtenerArbol() : List<Componente>
+    +ObtenerPorRol(rol) : List<Permiso>
+    +AgregarRelacion(idPadre, idHijo)
+    +AltaComponente(...) : int
+  }
+  interface IPreferenciaDAL
+  interface IControlMapeadoDAL
+  interface IBackupDAL {
+    +RealizarBackup(ruta)
+    +RestaurarBackup(ruta)
+    +ContarCambiosPosterioresA(fecha) : List
+  }
+  interface IClaveRecuperacionDAL
+}
+
+package "DAL - DAOs (implementaciones)" #DDF3FF {
+  class "DAL.Usuario"          as DALUsuario
+  class "DAL.Cliente"          as DALCliente
+  class "DAL.Prenda"           as DALPrenda
+  class "DAL.Pedido"           as DALPedido
+  class "DAL.Permiso"          as DALPermiso
+  class "DAL.Preferencia"      as DALPref
+  class "DAL.ControlMapeado"   as DALCtrlMap
+  class "DAL.Backup"           as DALBackup
+  class "DAL.DigitoVerificador" as DALDv {
+    +ObtenerFilas(tabla, pk, cols) : List<FilaDV>
+    +RecalcularTabla(tabla, pk, cols)
+  }
+  class "DAL.EspejoUsuario"    as DALEspejo
+  class "DAL.ClaveRecuperacion" as DALClave
+  class "DAL.Traduccion"       as DALTrad
+  class "DAL.Idioma"           as DALIdioma
+  class "DAL.Bitacora"         as DALBitacora
+}
+
+DALUsuario ..|> IUsuarioDAL
+DALCliente ..|> IClienteDAL
+DALPermiso ..|> IPermisoDAL
+DALPref    ..|> IPreferenciaDAL
+DALCtrlMap ..|> IControlMapeadoDAL
+DALBackup  ..|> IBackupDAL
+DALClave   ..|> IClaveRecuperacionDAL
+
+DALUsuario --> Acceso
+DALCliente --> Acceso
+DALPrenda  --> Acceso
+DALPedido  --> Acceso
+DALPermiso --> Acceso
+DALDv      --> Acceso
+
+database "SQL Server\nWardrobeFlowDB" as DB
+Acceso --> DB : ADO.NET (SqlClient)
+
+note as N1 #DDF3FF
+  Capa TECNICA: no contiene reglas de negocio.
+  Acceso centraliza la conexion (Singleton) y expone
+  Leer/Escribir/EjecutarTransaccion. Los DAOs mapean
+  filas <-> entidades BE.
+end note
+@enduml

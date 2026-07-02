@@ -1,0 +1,124 @@
+@startuml G06 - 04 - Capa GUI (Presentacion)
+title G06 - Capa GUI (Presentacion WinForms MDI) - WardrobeFlow
+' Se separan los FORMS DE NEGOCIO (amarillo, agrupados por modulo) de la
+' INFRAESTRUCTURA TECNICA de la UI (celeste): FormBase, seguridad por control,
+' exportacion (Factory Method) y arranque.
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+' =========================================================
+package "GUI - Infraestructura Tecnica" #DDF3FF {
+  class Program <<static>> {
+    +{static} Main()
+  }
+  class FormBase <<abstract>> {
+    #OnLoad(e)
+    #MostrarOk(msg)
+    #MostrarError(msg)
+    #MostrarError(ex : Exception)
+  }
+  class Menu <<MDI>>
+  class ManejadorSeguridad <<static>> {
+    +{static} AplicarSeguridad(form, usuario)
+    +{static} ActualizarSeguridadFormulariosAbiertos(usuario)
+    +{static} InvalidarCache()
+  }
+  class RegistroControles <<static>>
+
+  ' ---- Factory Method: exportacion de reportes ----
+  abstract class GeneradorReporte <<Creator>> {
+    +{abstract} CrearExportador(formato) : Exportador
+  }
+  abstract class Exportador <<Product>> {
+    +{abstract} Exportar(reporte, owner) : string
+  }
+  class ExportadorPdf
+  class ExportadorCsv
+  class ExportadorTxt
+  class ReporteExportable <<DTO>> {
+    +Titulo : string
+    +Encabezados : string[]
+    +Datos : DataTable
+  }
+  ExportadorPdf --|> Exportador
+  ExportadorCsv --|> Exportador
+  ExportadorTxt --|> Exportador
+  GeneradorReporte ..> Exportador : crea >
+  Exportador ..> ReporteExportable
+
+  Menu --|> FormBase
+  Program ..> Menu
+  Menu ..> ManejadorSeguridad
+}
+
+' =========================================================
+package "GUI - Modulo Seguridad / Acceso" #FFF7CC {
+  class Login
+  class OlvideContrasenaForm
+  class CambioClaveObligatorioForm
+  class DesbloqueoEmergenciaForm
+  class ConfirmarAdminForm
+}
+
+package "GUI - Modulo Comercial" #FFF7CC {
+  class Clientes
+  class ClienteForm
+  class Prendas
+  class PrendaForm
+  class Planes
+  class PedidosVenta
+  class NuevoPedidoForm
+  class PedidosRealizados
+  class PedidoHistorialForm
+}
+
+package "GUI - Modulo Administracion" #FFF7CC {
+  class Usuarios
+  class AdministracionUsuariosForm
+  class GestorPermisos
+  class ExploradorCompositeForm
+  class MapeoControlesForm
+  class MiPerfilForm
+  class VersionHistorialForm
+}
+
+package "GUI - Modulo Soporte / Reportes" #FFF7CC {
+  class Bitacora
+  class FormIdiomas
+  class BackupForm
+  class ReporteJornadaForm
+  class DiagnosticoIntegridadForm
+  class RecuperacionEspejoForm
+  class AlertasForm
+  class MantenimientoHistorialForm
+}
+
+package "GUI - Dashboards" #FFF7CC {
+  class DashboardForm
+  class DashboardVendedor
+  class DashboardOperador
+  class DashboardSupervisor
+  class DashboardControlStock
+}
+
+' ---- Herencia comun: todos los forms heredan de FormBase ----
+Login                       --|> FormBase
+Clientes                    --|> FormBase
+PedidosVenta                --|> FormBase
+Usuarios                    --|> FormBase
+GestorPermisos              --|> FormBase
+DashboardForm               --|> FormBase
+DashboardVendedor           --|> DashboardForm
+
+' ---- Observer de idioma (implementado por FormBase/forms) ----
+FormBase ..|> IIdiomaObserver
+
+note as N1 #FFFFCC
+  Amarillo = forms de NEGOCIO, agrupados por modulo funcional.
+  Celeste  = infraestructura tecnica de UI (FormBase, seguridad
+  por control, exportacion Factory Method, arranque).
+  --
+  Los forms solo capturan eventos e invocan BLL; no acceden a DAL.
+end note
+@enduml

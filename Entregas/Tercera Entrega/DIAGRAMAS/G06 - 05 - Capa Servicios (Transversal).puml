@@ -1,0 +1,68 @@
+@startuml G06 - 05 - Capa Servicios (Transversal)
+title G06 - Capa Servicios (Transversal) - WardrobeFlow
+' Capa TECNICA transversal (celeste): bitacora, multiidioma (Observer) y credenciales.
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "Servicios - Bitacora" #DDF3FF {
+  class "Servicios.Bitacora" as SrvBitacora {
+    +Registrar(modulo, act, crit)
+    +RegistrarSinSesion(modulo, act, crit, ...)
+    +BuscarPorFiltros(...) : DataTable
+    +{static} ObtenerIPLocal() : string
+  }
+  class "Servicios.BitacoraNegocio" as SrvBitNeg {
+    +Registrar(tipo, desc, ids...)
+    +BuscarPorFiltros(...) : DataTable
+  }
+}
+
+package "Servicios - Multiidioma (Observer)" #DDF3FF {
+  class GestorIdioma <<Subject>> <<static>> {
+    +SetIdiomasDisponibles(idiomas)
+    +SuscribirObservador(o)
+    +DesuscribirObservador(o)
+    +CambiarIdioma(idioma, traducciones)
+  }
+  interface IIdiomaObserver <<Observer>> {
+    +UpdateLanguage(idioma)
+  }
+  class Traductor <<static>> {
+    +ObtenerIdiomas() : IList<Idioma>
+    +ObtenerTraducciones(idioma) : IDictionary
+    +ObtenerIdiomaDefault() : Idioma
+  }
+  class TraductorPerfil <<static>>
+  class Idioma {
+    +Id : string
+    +Nombre : string
+    +EsDefault : bool
+  }
+  class Traduccion
+  class Etiqueta
+
+  GestorIdioma o--> "0..*" IIdiomaObserver : notifica
+  GestorIdioma ..> Traductor
+  Traductor ..> Idioma
+  Traductor ..> Traduccion
+}
+
+package "Servicios - Credenciales / Export" #DDF3FF {
+  class GeneradorCredenciales <<static>> {
+    +GenerarContrasena() : string
+    +ExportarCredenciales(user, pass) : string
+    +GenerarClaveRecuperacion() : string
+  }
+  class SerializadorCsv <<static>> {
+    +Generar(encabezados, datos) : string
+  }
+}
+
+note as N1 #DDF3FF
+  Capa TECNICA transversal: usada por GUI y BLL.
+  El patron OBSERVER permite el cambio de idioma en vivo:
+  GestorIdioma (Subject) notifica a los forms (Observers)
+  sin reiniciar la aplicacion.
+end note
+@enduml

@@ -1,0 +1,123 @@
+@startuml G06 - 02 - Capa BLL (Negocio)
+title G06 - Capa BLL (Logica de Negocio) - WardrobeFlow
+' Servicios de negocio (contra interfaces I*Service) + servicios de soporte.
+' Todo BLL es NEGOCIO (amarillo); se marcan en celeste las piezas de rol tecnico.
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+' =========================================================
+package "BLL - Servicios de Negocio" #FFF7CC {
+
+  interface IClienteService {
+    +ObtenerTodos() : List<Cliente>
+    +Alta(modulo, cliente)
+    +Modificar(modulo, cliente)
+    +Baja(modulo, cliente)
+    +ObtenerEstadoComercial(cliente, n) : EstadoComercialCliente
+  }
+  class "BLL.Cliente" as BLLCliente
+
+  interface IPedidoService {
+    +CrearPedido(modulo, idCliente, prendas) : int
+    +Despachar(modulo, pedido)
+    +MarcarEntregado(modulo, pedido)
+    +RegistrarDevolucion(modulo, pedido)
+    +Cancelar(modulo, pedido, motivo)
+    +DesCancelar(modulo, pedido)
+    +RestaurarOperacion(modulo, idPedido, idOp)
+    +CalcularNivelUrgencia(pedido) : NivelUrgencia
+  }
+  class "BLL.Pedido" as BLLPedido
+
+  interface IPrendaService {
+    +ObtenerTodos() : List<Prenda>
+    +ObtenerDisponibles() : List<Prenda>
+    +Alta(modulo, prenda)
+    +CambiarEstado(modulo, prenda, nuevo, actor)
+    +ObtenerOcupacion() : OcupacionStock
+  }
+  class "BLL.Prenda" as BLLPrenda
+
+  interface IPlanSuscripcionService {
+    +ObtenerActivos() : List<PlanSuscripcion>
+    +Alta(plan) / +Modificar(plan)
+    +Activar(id) / +Desactivar(id)
+  }
+  class "BLL.PlanSuscripcion" as BLLPlan
+
+  BLLCliente ..|> IClienteService
+  BLLPedido  ..|> IPedidoService
+  BLLPrenda  ..|> IPrendaService
+  BLLPlan    ..|> IPlanSuscripcionService
+
+  class "BLL.Usuario" as BLLUsuario {
+    +Login(modulo, user, pass) : Usuario
+    +Logout(modulo)
+    +Alta(...) : string
+    +ResetearClave(...) : string
+    +CambiarRol(modulo, id, rol)
+    +Desbloquear(id) / +Archivar(id)
+  }
+
+  class "BLL.Familia" as BLLFamilia {
+    +ObtenerArbol() : List<Componente>
+    +ObtenerPermisosEfectivos(rol) : List<Permiso>
+    +GuardarAsignacionRol(rol, ids)
+    +ValidarSinCiclo(idPadre, idHijo) : bool
+  }
+}
+
+' =========================================================
+package "BLL - Servicios de Soporte" #FFF7CC {
+
+  class "BLL.VersionUsuario" as BLLVersion {
+    +GrabarVersion(id, actor, detalle)
+    +RestaurarVersion(modulo, idVersion)
+    +ObtenerHistorial(idUsuario) : List
+  }
+  class "BLL.CuidadorHistorial" as Caretaker <<Caretaker>> {
+    +Guardar(idUsuario, memento)
+    +ObtenerHistorial(idUsuario) : List<IMemento>
+  }
+  class "BLL.Backup" as BLLBackup {
+    +CrearBackup(ruta, password)
+    +Restaurar(ruta, password)
+    +ObtenerCambiosDesde(fecha) : List<CambioPosterior>
+  }
+  class "BLL.Bitacora" as BLLBitacora
+  class "BLL.Idioma" as BLLIdioma {
+    +CargarTraducciones(idIdioma) : Dictionary
+    +ObtenerControles() : List<Control>
+  }
+  class "BLL.Preferencia" as BLLPref
+  class "BLL.Configuracion" as BLLConfig {
+    +VerificarConexionDAL(out msg) : bool
+    +VerificarIntegridadDV(out res) : ResultadoIntegridad
+  }
+
+  BLLVersion ..> Caretaker
+}
+
+' =========================================================
+package "BLL - Utilitarios (tecnico)" #DDF3FF {
+  class BLLHelper <<static>>
+  class PermisosAccion <<static>> {
+    +Exigir(usuario, permiso)
+    +Tiene(usuario, permiso) : bool
+  }
+  class RecuperacionIntegridad <<static>>
+}
+
+' ---- dependencias hacia abajo ----
+BLLCliente  ..> "DAL / BE"
+BLLPedido   ..> "DAL / BE"
+BLLUsuario  ..> PermisosAccion
+BLLFamilia  ..> BLLHelper
+
+note as N1 #FFFFCC
+  Toda validacion de negocio vive aca (limite de plan,
+  pedido duplicado despachado, transiciones de estado,
+  permisos por operacion). La GUI solo invoca estos servicios.
+end note
+@enduml

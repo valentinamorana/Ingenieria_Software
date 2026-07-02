@@ -1,0 +1,62 @@
+@startuml G06 - 00 - Vista General (Paquetes)
+title G06 - Vista General de la Solucion WardrobeFlow (Arquitectura en Capas)
+' Integracion de alto nivel: como se relacionan las capas de la arquitectura.
+' NEGOCIO (amarillo): GUI, BLL, BE.   TECNICO/transversal (celeste): Servicios, Seguridad, DAL.
+
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+package "GUI  (Presentacion - WinForms MDI)" #FFF7CC {
+  [Forms de negocio\n(Clientes, Prendas, Pedidos, Planes...)]
+  [Forms tecnicos\n(FormBase, Exportadores, ManejadorSeguridad)]
+}
+
+package "BLL  (Logica de Negocio)" #FFF7CC {
+  [Servicios de negocio\n(Cliente, Pedido, Prenda, Plan, Usuario)]
+  [Familia / VersionUsuario / Backup / Configuracion]
+}
+
+package "BE  (Entidades de Dominio + DTOs)" #FFF7CC {
+  [Entidades de negocio\n(Cliente, Prenda, Pedido, Plan, Usuario)]
+  [Infra de patrones\n(Componente, Patente, Rol, Memento)]
+}
+
+package "Servicios  (Transversal)" #DDF3FF {
+  [Bitacora / BitacoraNegocio]
+  [Multiidioma (GestorIdioma - Observer)]
+  [GeneradorCredenciales]
+}
+
+package "Seguridad  (Transversal)" #DDF3FF {
+  [SessionManager / ContadorSesion]
+  [Encriptador / CifradorArchivos]
+  [DigitoVerificador (DV)]
+}
+
+package "DAL  (Acceso a Datos - ADO.NET)" #DDF3FF {
+  [Acceso (Singleton conexion)]
+  [DAOs (Usuario, Cliente, Prenda, Pedido, Permiso...)]
+}
+
+database "SQL Server\nWardrobeFlowDB" as DB
+
+' ---- Dependencias permitidas entre capas ----
+"GUI  (Presentacion - WinForms MDI)"        --> "BLL  (Logica de Negocio)"
+"GUI  (Presentacion - WinForms MDI)"        ..> "Servicios  (Transversal)"       : usa (idioma, export)
+"BLL  (Logica de Negocio)"                  --> "DAL  (Acceso a Datos - ADO.NET)"
+"BLL  (Logica de Negocio)"                  --> "BE  (Entidades de Dominio + DTOs)"
+"BLL  (Logica de Negocio)"                  ..> "Servicios  (Transversal)"
+"BLL  (Logica de Negocio)"                  ..> "Seguridad  (Transversal)"
+"DAL  (Acceso a Datos - ADO.NET)"           --> "BE  (Entidades de Dominio + DTOs)"
+"DAL  (Acceso a Datos - ADO.NET)"           --> DB
+"Seguridad  (Transversal)"                  ..> "DAL  (Acceso a Datos - ADO.NET)" : DV / espejo
+
+note as N1 #FFFFCC
+  Regla de dependencia: la GUI **nunca** accede
+  a DAL ni a Seguridad directamente.
+  Toda la logica y validaciones viven en BLL.
+  --
+  Amarillo = NEGOCIO.  Celeste = TECNICO / transversal.
+end note
+@enduml

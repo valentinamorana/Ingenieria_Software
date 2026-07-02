@@ -1,0 +1,435 @@
+@startuml G06 - Diagrama de Clases INTEGRADO (Todo en Uno)
+title class Diagrama de Clases INTEGRADO (Todo en Uno) - WardrobeFlow
+' ============================================================================
+' Estilo DISEÑO (Enterprise Architect): firmas completas, estereotipos y colores por capa.
+'   Amarillo  = BE (entidades de dominio)      Rosa   = Interfaces + DAL
+'   Verde     = BLL (logica de negocio)        Azul   = GUI / Servicios / Seguridad
+' Relaciones de DISEÑO (no DER): herencia, realizacion, composicion, dependencias
+'   etiquetadas («instancia», «construye», «inyeccion DI», «usa», «retorna»).
+' ============================================================================
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam class {
+  BorderColor #666666
+  ArrowColor  #444444
+}
+skinparam linetype ortho
+
+!$BE  = "#FCF3CF"
+!$DAL = "#FADBD8"
+!$BLL = "#D5F5E3"
+!$UI  = "#D6EAF8"
+
+' ############################## CAPA BE (dominio) ##############################
+enum "BE.TipoPermiso" as TipoPermiso <<enumeration>> $BE {
+  + Ninguno = 0
+  + VerPrendas
+  + VerClientes
+  + VerPedidosVenta
+  + VerUsuarios
+  + VerBitacora
+}
+enum "BE.EstadoPrenda" as EstadoPrenda <<enumeration>> $BE {
+  + Disponible
+  + EnUso
+  + EnLimpieza
+  + Baja
+}
+enum "BE.EstadoPedido" as EstadoPedido <<enumeration>> $BE {
+  + Pendiente
+  + Despachado
+  + Entregado
+  + Cancelado
+}
+
+abstract class "BE.Componente" as Componente <<abstract>> $BE {
+  + Id : int
+  + Nombre : string
+  + Permiso : TipoPermiso
+  --
+  + {abstract} Hijos : IList<Componente>
+  + {abstract} AgregarHijo(c : Componente) : void
+  + {abstract} QuitarHijo(c : Componente) : void
+  + {abstract} VaciarHijos() : void
+  + ObtenerPatentesEfectivas() : IList<Patente>
+  + {abstract} ObtenerDescripcion(nivel : int) : string
+}
+class "BE.Patente" as Patente $BE {
+  + NombreMenu : string
+  + Asignado : bool
+  --
+  + AgregarHijo(c) : void  {throws InvalidOperation}
+  + QuitarHijo(c) : void   {throws InvalidOperation}
+  + ObtenerDescripcion(nivel : int) : string
+}
+class "BE.Familia" as Familia $BE {
+  - _hijos : List<Componente>
+  --
+  + AgregarHijo(c : Componente) : void
+  + QuitarHijo(c : Componente) : void
+  + VaciarHijos() : void
+  + ObtenerDescripcion(nivel : int) : string
+}
+class "BE.Rol" as Rol $BE {
+  + EsFijo : bool
+}
+class "BE.Permiso" as Permiso $BE {
+  + Id : int
+  + Nombre : string
+  + NombreMenu : string
+  + TipoComponente : string
+  + Estado : bool
+}
+
+interface "BE.Memento.IOriginator" as IOriginator <<interface>> $BE {
+  + CrearMemento() : IMemento
+  + RestaurarDesde(m : IMemento) : void
+}
+interface "BE.Memento.IMemento" as IMemento <<interface>> $BE {
+}
+class "BE.Usuario" as Usuario <<Originator>> $BE {
+  + Id : int
+  + Username : string
+  + Contraseña : string
+  + Rol : string
+  + Nombre : string
+  + Apellido : string
+  + Email : string
+  + Permisos : List<Permiso>
+  + Bloqueado : bool
+  + Activo : bool
+  --
+  + CrearMemento() : IMemento
+  + RestaurarDesde(m : IMemento) : void
+}
+class "BE.VersionUsuario" as VersionUsuario <<Memento>> $BE {
+  + IdUsuario : int
+  + Fecha : DateTime
+  + Actor : string
+  + NombreSnapshot : string
+  + ApellidoSnapshot : string
+  + EmailSnapshot : string
+  + ClaveSnapshot : string
+}
+
+class "BE.Cliente" as Cliente $BE {
+  + IdCliente : int
+  + Nombre : string
+  + Apellido : string
+  + DNI : string
+  + Email : string
+  + IdPlan : int?
+  + StockUtilizado : int
+  + LimitePrendas : int
+  --
+  + TienePlan() : bool
+  + PuedeSolicitarPrendas(n : int) : bool
+  + SuscripcionVigente() : bool
+  + SuscripcionProximaAVencer(dias : int) : bool
+}
+class "BE.Prenda" as Prenda $BE {
+  + IdPrenda : int
+  + Nombre : string
+  + Talle : string
+  + Estado : EstadoPrenda
+  + IdClienteActual : int?
+  --
+  + EstaDisponible() : bool
+  + TransicionPermitida(nuevo : EstadoPrenda) : bool
+}
+class "BE.Pedido" as Pedido $BE {
+  + IdPedido : int
+  + IdCliente : int
+  + Estado : EstadoPedido
+  + Prendas : List<Prenda>
+  --
+  + PuedeDespachar() : bool
+  + PuedeEntregarse() : bool
+  + TransicionValida(destino : EstadoPedido) : bool
+}
+class "BE.PlanSuscripcion" as PlanSusc $BE {
+  + IdPlan : int
+  + Nombre : string
+  + LimitePrendas : int
+  + Precio : decimal
+  + Estado : bool
+  --
+  + PermiteAgregarPrendas(enUso, nuevas) : bool
+  + LugaresDisponibles(enUso : int) : int
+}
+
+' -- relaciones de patron/herencia BE --
+Patente        --|> Componente
+Familia        --|> Componente
+Rol            --|> Familia
+Componente "1" *-- "0..* hijos" Componente
+Usuario        ..|> IOriginator
+VersionUsuario ..|> IMemento
+Usuario        ..> VersionUsuario : «crea»
+Componente     ..> TipoPermiso   : «usa»
+
+' ############################## CAPA BLL (negocio) ##############################
+interface "BLL.IClienteService" as IClienteSvc <<interface>> $DAL {
+  + ObtenerTodos() : List<Cliente>
+  + Alta(modulo, cliente) : void
+  + Modificar(modulo, cliente) : void
+  + Baja(modulo, cliente) : void
+  + ObtenerEstadoComercial(c, n) : EstadoComercialCliente
+}
+interface "BLL.IPedidoService" as IPedidoSvc <<interface>> $DAL {
+  + CrearPedido(modulo, idCli, prendas) : int
+  + Despachar(modulo, pedido) : void
+  + MarcarEntregado(modulo, pedido) : void
+  + RegistrarDevolucion(modulo, pedido) : void
+  + Cancelar(modulo, pedido, motivo) : void
+  + RestaurarOperacion(modulo, idPedido, idOp) : void
+}
+interface "BLL.IPrendaService" as IPrendaSvc <<interface>> $DAL {
+  + ObtenerDisponibles() : List<Prenda>
+  + Alta(modulo, prenda) : void
+  + CambiarEstado(modulo, prenda, nuevo, actor) : void
+  + ObtenerOcupacion() : OcupacionStock
+}
+
+class "BLL.Cliente" as BLLCliente $BLL {
+  - _dal : IClienteDAL
+  - _bitacora : Servicios.Bitacora
+  --
+  + ObtenerTodos() : List<Cliente>
+  + Alta(modulo, cliente) : void
+  + Modificar(modulo, cliente) : void
+  + Baja(modulo, cliente) : void
+}
+class "BLL.Pedido" as BLLPedido $BLL {
+  + CrearPedido(modulo, idCli, prendas) : int
+  + Despachar(modulo, pedido) : void
+  + MarcarEntregado(modulo, pedido) : void
+  + RegistrarDevolucion(modulo, pedido) : void
+  + Cancelar(modulo, pedido, motivo) : void
+  + CalcularNivelUrgencia(pedido) : NivelUrgencia
+}
+class "BLL.Prenda" as BLLPrenda $BLL {
+  + Alta(modulo, prenda) : void
+  + CambiarEstado(modulo, prenda, nuevo, actor) : void
+  + ObtenerOcupacion() : OcupacionStock
+}
+class "BLL.PlanSuscripcion" as BLLPlan $BLL {
+  + ObtenerActivos() : List<PlanSuscripcion>
+  + Alta(plan) : void
+  + Activar(id) : void
+  + Desactivar(id) : void
+}
+class "BLL.Usuario" as BLLUsuario $BLL {
+  + Login(modulo, user, pass) : Usuario
+  + Logout(modulo) : void
+  + Alta(...) : string
+  + ResetearClave(...) : string
+  + CambiarRol(modulo, id, rol) : void
+  + Archivar(id) : void
+}
+class "BLL.Familia" as BLLFamilia $BLL {
+  - permisoDAL : IPermisoDAL
+  - _bitacoraLazy : Servicios.Bitacora
+  --
+  + ObtenerArbol() : List<Componente>
+  + ObtenerPermisosEfectivos(rol) : List<Permiso>
+  + GuardarAsignacionRol(rol, ids) : void
+  + CrearRol(nombre) : int
+  + AgregarComponente(idPadre, idHijo) : void
+  + ValidarSinCiclo(idPadre, idHijo) : bool
+}
+class "BLL.CuidadorHistorial" as Caretaker <<Caretaker>> $BLL {
+  + Guardar(idUsuario, m : IMemento) : void
+  + ObtenerHistorial(idUsuario) : List<IMemento>
+}
+class "BLL.VersionUsuario" as BLLVersion $BLL {
+  + GrabarVersion(id, actor, detalle) : void
+  + RestaurarVersion(modulo, idVersion) : void
+}
+class "BLL.Backup" as BLLBackup $BLL {
+  + CrearBackup(ruta, password) : void
+  + Restaurar(ruta, password) : void
+}
+class "BLL.Configuracion" as BLLConfig $BLL {
+  + VerificarConexionDAL(out msg) : bool
+  + VerificarIntegridadDV(out res) : bool
+}
+class "BLL.PanelAlertas" as BLLPanel $BLL {
+  + ObtenerAlertas() : List<Alerta>
+}
+
+BLLCliente ..|> IClienteSvc
+BLLPedido  ..|> IPedidoSvc
+BLLPrenda  ..|> IPrendaSvc
+BLLVersion *-- Caretaker : _cuidador
+
+' ############################## CAPA DAL (datos) ##############################
+class "DAL.Acceso" as Acceso <<Singleton>> $DAL {
+  - {static} _instancia : Acceso
+  --
+  + {static} GetInstance() : Acceso
+  + Leer(sql, params) : DataTable
+  + Escribir(sql, params) : int
+  + EjecutarTransaccion(accion) : void
+}
+abstract class "DAL.BaseDAL<T>" as BaseDAL <<abstract>> $DAL {
+  # acceso : Acceso
+  --
+  + {abstract} ObtenerTodos() : List<T>
+  + {abstract} ObtenerPorId(id) : T
+}
+interface "DAL.IUsuarioDAL" as IUsuarioDAL <<interface>> $DAL {
+  + ObtenerPorUsername(u) : Usuario
+  + Alta(user, clave, perfil) : void
+  + CambiarRol(id, rol) : void
+  + BloquearConTiempo(id) : void
+}
+interface "DAL.IClienteDAL" as IClienteDAL <<interface>> $DAL {
+  + ObtenerTodos() : List<Cliente>
+  + Alta(cliente) : int
+  + ExisteDNI(dni) : bool
+}
+interface "DAL.IPermisoDAL" as IPermisoDAL <<interface>> $DAL {
+  + ObtenerArbol() : List<Componente>
+  + ObtenerPorRol(rol) : List<Permiso>
+  + AgregarRelacion(idPadre, idHijo) : void
+  + AltaComponente(...) : int
+}
+class "DAL.Usuario" as DALUsuario $DAL {
+  + ObtenerPorUsername(u) : Usuario
+  + Alta(user, clave, perfil) : void
+}
+class "DAL.Cliente" as DALCliente $DAL {
+  + ObtenerTodos() : List<Cliente>
+  + Alta(cliente) : int
+}
+class "DAL.Permiso" as DALPermiso $DAL {
+  - acceso : Acceso
+  --
+  + ObtenerArbol() : List<Componente>
+  + ObtenerPorRol(rol) : List<Permiso>
+  + AgregarRelacion(idPadre, idHijo) : void
+  + AltaComponente(...) : int
+}
+class "DAL.DigitoVerificador" as DALDv $DAL {
+  + ObtenerFilas(tabla, pk, cols) : List<FilaDV>
+  + RecalcularTabla(tabla, pk, cols) : void
+}
+
+DALUsuario ..|> IUsuarioDAL
+DALCliente ..|> IClienteDAL
+DALPermiso ..|> IPermisoDAL
+BaseDAL o-- Acceso
+DALPermiso ..> Componente : «instancia»
+DALPermiso ..> Familia    : «instancia»
+
+' ############################## CAPA SEGURIDAD ##############################
+class "Seguridad.SessionManager" as Session <<Singleton>> $UI {
+  - {static} _session : SessionManager
+  + Usuario : Usuario
+  --
+  + {static} GetInstance() : SessionManager
+  + {static} Login(usuario) : void
+  + {static} Logout() : void
+  + TienePermiso(menu) : bool
+}
+class "Seguridad.Encriptador" as Encriptador <<static>> $UI {
+  + {static} Hash(pass) : string
+  + {static} VerificarContrasena(ing, hash) : bool
+  + {static} Encriptar(texto) : string
+  + {static} Desencriptar(cifrado) : string
+}
+interface "Seguridad.ICalculadorDV" as ICalcDV <<interface>> $DAL {
+  + CalcularDVH(campos) : int
+  + CalcularDVV(dvhs) : int
+}
+class "Seguridad.DigitoVerificador" as SegDV $UI {
+  + CalcularDVH(campos) : int
+  + CalcularDVV(dvhs) : int
+}
+class "Seguridad.CalculadorDV" as CalcDV <<Factory>> $UI {
+  + {static} Crear() : ICalculadorDV
+}
+SegDV  ..|> ICalcDV
+CalcDV ..> ICalcDV : «construye»
+Session --> Usuario
+
+' ############################## CAPA SERVICIOS ##############################
+class "Servicios.Bitacora" as SrvBitacora $UI {
+  - bitacoraDAL : DAL.Bitacora
+  --
+  + Registrar(modulo, act, crit) : void
+  + BuscarPorFiltros(...) : DataTable
+}
+class "Servicios.Multiidioma.GestorIdioma" as GestorIdioma <<Subject>> $UI {
+  + {static} SuscribirObservador(o) : void
+  + {static} DesuscribirObservador(o) : void
+  + {static} CambiarIdioma(idioma, traducciones) : void
+}
+interface "Servicios.Multiidioma.IIdiomaObserver" as IIdiomaObs <<interface>> $DAL {
+  + UpdateLanguage(idioma : Idioma) : void
+}
+GestorIdioma o-- "0..* observers" IIdiomaObs
+
+' ############################## CAPA GUI (presentacion) ##############################
+class "UI.FormBase" as FormBase <<Form>> $UI {
+  # {abstract} MensajeLabel : Label
+  --
+  # MostrarOk(msg : string) : void
+  # MostrarError(msg : string) : void
+  # MostrarError(ex : Exception) : void
+}
+class "UI.Login" as Login <<Form>> $UI {
+  - _bllUsuario : BLL.Usuario
+  --
+  - btnIngresar_Click() : void
+  + UpdateLanguage(idioma) : void
+}
+class "UI.GestorPermisos" as GestorPermisos <<Form>> $UI {
+  - _familiaBLL : BLL.Familia
+  - _seleccionado : Componente
+  - _tvEfectivo : TreeView
+  --
+  + CargarArbol() : void
+  + Agregar() : void
+  + Quitar() : void
+  + NuevoRol() : void
+  + UpdateLanguage(idioma) : void
+}
+class "UI.Menu" as Menu <<Form>> $UI {
+  - VerificarIntegridadPeriodica() : void
+  + UpdateLanguage(idioma) : void
+}
+
+Login          --|> FormBase
+GestorPermisos --|> FormBase
+Menu           --|> FormBase
+FormBase       ..|> IIdiomaObs
+
+' ############################## DEPENDENCIAS ENTRE CAPAS ##############################
+Login          ..> BLLUsuario   : «inyección DI»
+GestorPermisos *-- "_familiaBLL" BLLFamilia
+BLLCliente     ..> IClienteDAL   : «inyección DI»
+BLLFamilia     ..> IPermisoDAL   : «inyección DI»
+BLLFamilia     ..> Componente    : «retorna/recorre»
+BLLFamilia     ..> SrvBitacora
+BLLUsuario     ..> IUsuarioDAL
+BLLUsuario     ..> Session
+BLLUsuario     ..> Encriptador
+Caretaker      ..> IMemento
+BLLConfig      ..> ICalcDV
+BLLConfig      ..> DALDv
+DALUsuario     --> Acceso
+DALCliente     --> Acceso
+DALPermiso     --> Acceso
+
+note as N1 $BE
+  **Colores por capa**
+  Amarillo = BE (dominio)   Rosa = Interfaces + DAL
+  Verde = BLL (negocio)     Azul = GUI / Servicios / Seguridad
+  --
+  Diagrama de DISEÑO (POO): herencia, realización, composición (◆)
+  y dependencias («instancia», «construye», «inyección DI»).
+  NO es un DER: no hay tablas ni cardinalidades de datos.
+end note
+@enduml

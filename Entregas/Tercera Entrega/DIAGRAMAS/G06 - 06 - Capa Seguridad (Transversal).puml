@@ -1,0 +1,67 @@
+@startuml G06 - 06 - Capa Seguridad (Transversal)
+title G06 - Capa Seguridad (Transversal) - WardrobeFlow
+' Capa TECNICA transversal (celeste): sesion (Singleton), encriptado,
+' digitos verificadores (Factory) y cifrado de backups.
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "Seguridad - Sesion" #DDF3FF {
+  class SessionManager <<Singleton>> {
+    -{static} _session : SessionManager
+    +Usuario : Usuario
+    +FechaInicio : DateTime
+    +{static} GetInstance() : SessionManager
+    +{static} Login(usuario)
+    +{static} Logout()
+    +TienePermiso(nombreMenu) : bool
+  }
+  class ContadorSesion <<Singleton>> {
+    +{static} GetInstance() : ContadorSesion
+    +RegistrarIntento()
+    +Resetear()
+  }
+}
+
+package "Seguridad - Criptografia" #DDF3FF {
+  class Encriptador <<static>> {
+    +Hash(pass) : string  {PBKDF2-SHA256}
+    +VerificarContrasena(ingresada, hash) : bool
+    +VerificacionSenuelo(pass) : bool  {anti-enumeracion}
+    +ValidarContrasena(pass) : (bool, string)
+    +Encriptar(texto) : string  {AES-128-CBC}
+    +Desencriptar(cifrado) : string
+  }
+  class CifradorArchivos <<static>> {
+    +Cifrar(origen, destino, password)  {AES+PBKDF2 .wfbak}
+    +Descifrar(origen, destino, password)
+  }
+}
+
+package "Seguridad - Digitos Verificadores (Factory)" #DDF3FF {
+  interface ICalculadorDV {
+    +CalcularDVH(campos) : int
+    +CalcularDVV(dvhs) : int
+  }
+  class DigitoVerificador {
+    +CalcularDVH(campos) : int  {DV por fila}
+    +CalcularDVV(dvhs) : int  {DV por tabla}
+  }
+  class CalculadorDV <<Factory>> {
+    +{static} Crear() : ICalculadorDV
+  }
+  DigitoVerificador ..|> ICalculadorDV
+  CalculadorDV ..> ICalculadorDV : crea >
+}
+
+' ---- relaciones ----
+SessionManager --> Usuario : sesion activa
+ContadorSesion ..> SessionManager
+
+note as N1 #DDF3FF
+  Capa TECNICA transversal. Contrasenas nunca en texto plano
+  (PBKDF2-SHA256, verificacion en tiempo constante). Datos
+  sensibles con AES-128-CBC. Los DVH/DVV detectan manipulacion
+  directa en BD antes de permitir el login.
+end note
+@enduml

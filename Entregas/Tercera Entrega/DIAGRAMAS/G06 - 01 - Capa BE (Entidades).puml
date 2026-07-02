@@ -1,0 +1,187 @@
+@startuml G06 - 01 - Capa BE (Entidades)
+title G06 - Capa BE (Entidades de Dominio) - WardrobeFlow
+' Se separan las ENTIDADES DE NEGOCIO (amarillo) de la INFRAESTRUCTURA
+' DE PATRONES / DTOs tecnicos (celeste) que tambien viven en BE.
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+' =========================================================
+package "BE - Entidades de Negocio" #FFF7CC {
+
+  class Cliente {
+    +IdCliente : int
+    +Nombre : string
+    +Apellido : string
+    +DNI : string
+    +Email : string
+    +IdPlan : int?
+    +StockUtilizado : int
+    +LimitePrendas : int
+    +FechaVencimiento : DateTime?
+    +TienePlan() : bool
+    +PuedeSolicitarPrendas(n) : bool
+    +SuscripcionVigente() : bool
+    +SuscripcionProximaAVencer(dias=7) : bool
+    +DiasHastaVencimiento() : int
+  }
+
+  class Prenda {
+    +IdPrenda : int
+    +Nombre : string
+    +Talle : string
+    +Color : string
+    +Categoria : string
+    +Estado : EstadoPrenda
+    +IdClienteActual : int?
+    +EstaDisponible() : bool
+    +TransicionPermitida(nuevo) : bool
+  }
+
+  class Pedido {
+    +IdPedido : int
+    +IdCliente : int
+    +IdEmpleado : int
+    +Estado : EstadoPedido
+    +FechaPedido : DateTime
+    +FechaDespacho : DateTime?
+    +FechaEntrega : DateTime?
+    +Prendas : List<Prenda>
+    +PuedeDespachar() : bool
+    +PuedeEntregarse() : bool
+    +TransicionValida(destino) : bool
+  }
+
+  class PlanSuscripcion {
+    +IdPlan : int
+    +Nombre : string
+    +LimitePrendas : int
+    +Precio : decimal
+    +Estado : bool
+    +PermiteAgregarPrendas(enUso, nuevas) : bool
+    +LugaresDisponibles(enUso) : int
+  }
+
+  class Empleado {
+    +IdEmpleado : int
+    +Nombre : string
+    +Apellido : string
+    +DNI : string
+    +Legajo : string
+    +IdUsuario : int?
+  }
+
+  class MantenimientoPrenda {
+    +IdMantenimiento : int
+    +IdPrenda : int
+    +FechaEntrada : DateTime
+    +FechaSalida : DateTime?
+    +Actor : string
+  }
+
+  class OcupacionStock <<DTO>>
+  class Bitacora
+  class BitacoraNegocio
+
+  Cliente "1" o--> "0..1" PlanSuscripcion : plan
+  Pedido "1" *--> "0..*" Prenda : lineas
+  Pedido "1" --> "1" Cliente
+  Pedido "1" --> "1" Empleado
+  Prenda "0..*" --> "0..1" Cliente : en uso
+  Prenda "1" --> "0..*" MantenimientoPrenda
+}
+
+' =========================================================
+package "BE - Infraestructura de Patrones (tecnico)" #DDF3FF {
+
+  ' ---- Composite (arbol de permisos) ----
+  abstract class Componente {
+    +Id : int
+    +Nombre : string
+    +Permiso : TipoPermiso
+    +{abstract} Hijos : IList<Componente>
+    +{abstract} AgregarHijo(c)
+    +{abstract} QuitarHijo(c)
+    +ObtenerPatentesEfectivas() : IList<Patente>
+    +{abstract} ObtenerDescripcion(nivel)
+  }
+  class Patente <<Leaf>> {
+    +NombreMenu : string
+    +Asignado : bool
+  }
+  class Familia <<Composite>> {
+    -_hijos : List<Componente>
+  }
+  class Rol <<Composite>> {
+    +EsFijo : bool
+  }
+  Patente  --|> Componente
+  Familia  --|> Componente
+  Rol      --|> Familia
+  Familia o--> "0..*" Componente : hijos
+
+  ' ---- Memento (historial de usuario) ----
+  interface IOriginator {
+    +CrearMemento() : IMemento
+    +RestaurarDesde(m)
+  }
+  interface IMemento
+  class Usuario <<Originator>> {
+    +Id : int
+    +Username : string
+    +Contrasena : string
+    +Rol : string
+    +Nombre : string
+    +Apellido : string
+    +Email : string
+    +Permisos : List<Permiso>
+    +Bloqueado : bool
+    +Activo : bool
+    +CrearMemento() : IMemento
+    +RestaurarDesde(m)
+  }
+  class VersionUsuario <<Memento>> {
+    +IdUsuario : int
+    +Fecha : DateTime
+    +Actor : string
+    +NombreSnapshot : string
+    +ApellidoSnapshot : string
+    +EmailSnapshot : string
+  }
+  Usuario ..|> IOriginator
+  VersionUsuario ..|> IMemento
+  Usuario ..> VersionUsuario : crea >
+  Usuario "1" o--> "0..*" Permiso
+
+  class Permiso {
+    +Id : int
+    +Nombre : string
+    +NombreMenu : string
+  }
+  class ControlMapeado {
+    +IdPermiso : int
+    +Formulario : string
+    +NombreControl : string
+  }
+}
+
+' =========================================================
+package "BE - Enumeraciones" #DDF3FF {
+  enum EstadoPrenda { Disponible \n EnUso \n EnLimpieza \n Baja }
+  enum EstadoPedido { Pendiente \n Despachado \n Entregado \n Cancelado }
+  enum Criticidad { Baja \n Media \n Alta \n IntentosLogin \n ... }
+  enum TipoPermiso { VerPrendas \n VerClientes \n VerPedidosVenta \n ... }
+  enum TipoEventoNegocio { Venta \n Despacho \n Entrega \n Devolucion \n ... }
+  enum NivelUrgencia { NoAplica \n Reciente \n Normal \n Urgente }
+}
+
+Prenda ..> EstadoPrenda
+Pedido ..> EstadoPedido
+Componente ..> TipoPermiso
+
+note as N1 #FFFFCC
+  Amarillo = entidades de NEGOCIO puro.
+  Celeste  = plumbing tecnico de patrones (Composite, Memento)
+  y enums, que residen fisicamente en BE.
+end note
+@enduml
