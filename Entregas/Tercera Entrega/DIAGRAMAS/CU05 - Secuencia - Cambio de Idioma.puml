@@ -1,0 +1,50 @@
+@startuml CU05 - Secuencia - Cambio de Idioma
+title CU05 - Diagrama de Secuencia - Cambio de Idioma (Observer) - WardrobeFlow
+' Balanceado con: GUI.FormIdiomas, BLL.Idioma, DAL.Traduccion,
+' Servicios.Multiidioma.GestorIdioma (Subject), IIdiomaObserver (Observer).
+
+actor Usuario
+participant "FormIdiomas\n<<Form, Observer>>" as UI
+participant "BLL.Idioma" as BLL
+participant "DAL.Traduccion" as DAL
+participant "GestorIdioma\n<<Subject>>" as Subject
+participant "Ventanas abiertas\n(IIdiomaObserver)" as Obs
+
+== Suscripcion (al abrir cada ventana) ==
+UI -> Subject : SuscribirObservador(this)
+Obs -> Subject : SuscribirObservador(this)
+note right of Subject
+  El Subject solo conoce la interfaz
+  IIdiomaObserver, no los forms concretos.
+end note
+
+== Cambio de idioma en runtime ==
+Usuario -> UI : seleccionar idioma "EN" y aplicar
+activate UI
+UI -> BLL : CargarTraducciones(idIdioma)
+activate BLL
+BLL -> DAL : ObtenerTraducciones(idIdioma)
+activate DAL
+DAL --> BLL : diccionario {clave -> texto} (desde BD)
+deactivate DAL
+BLL --> UI : Dictionary traducciones
+deactivate BLL
+
+UI -> Subject : CambiarIdioma(idioma, traducciones)
+activate Subject
+Subject -> Subject : Notificar(idioma)\n(copia defensiva bajo lock)
+loop por cada observer suscripto
+    Subject -> Obs : UpdateLanguage(idioma)
+    activate Obs
+    Obs -> Obs : Traducir() -> reasigna .Text\nde cada control
+    Obs --> Subject : ok (un fallo no corta a los demas)
+    deactivate Obs
+end
+Subject --> UI : notificacion completada
+deactivate Subject
+UI --> Usuario : toda la UI abierta queda en EN (dinamico)
+deactivate UI
+
+== Baja (al cerrar la ventana) ==
+UI -> Subject : DesuscribirObservador(this)
+@enduml

@@ -1,0 +1,53 @@
+@startuml CU07 - Secuencia - Verificacion Integridad en Arranque
+title CU07 - Secuencia - Verificacion de Integridad DV en el Arranque (ANTES del Login) - WardrobeFlow
+' Balanceado con GUI.Program.Main tras la correccion: la verificacion de integridad
+' se ejecuta ANTES de mostrar la ventana de Login (requisito de catedra).
+
+participant "Program.Main" as Prog
+participant "BLL.Configuracion" as Cfg
+participant "DAL.DigitoVerificador" as DAL
+participant "Seguridad.CalculadorDV" as Calc
+participant "Servicios.Bitacora" as Bit
+participant "Login <<Form>>" as Login
+participant "RecuperacionEspejoForm" as Rec
+
+Prog -> Cfg : VerificarConexionDAL()
+Cfg --> Prog : ok
+
+== T07: VERIFICACION DE INTEGRIDAD (antes del Login) ==
+Prog -> Cfg : VerificarIntegridadDV(out resultado)
+activate Cfg
+Cfg -> DAL : ObtenerFilasUsuario()
+DAL --> Cfg : filas + DVH almacenado
+Cfg -> Calc : CalcularDVH(campos) / CalcularDVV(dvhs)
+Calc --> Cfg : DVH/DVV recalculados
+Cfg -> DAL : ObtenerDVV("Usuario")
+DAL --> Cfg : DVV almacenado
+Cfg --> Prog : integridadOk (bool)
+deactivate Cfg
+
+alt integridad INVALIDA
+    Prog -> Bit : RegistrarSinSesion("Integridad DV invalida antes del Login", Alta)
+    note right of Prog
+      Se informa al administrador (bitacora).
+      NO se revela el detalle al usuario aun:
+      requiere autenticacion de Administrador.
+    end note
+end
+
+== Login (siempre se solicita autenticacion) ==
+Prog -> Login : ShowDialog()
+Login --> Prog : DialogResult (usuario autenticado)
+
+alt integridad fue INVALIDA
+    alt usuario NO es Administrador
+        Prog -> Login : mensaje generico de mantenimiento
+        Prog -> Prog : Logout() y salir
+    else usuario Administrador
+        Prog -> Rec : Application.Run (Reparar / Recalcular / Restaurar)
+        Rec --> Prog : RecuperadoExitosamente?
+    end
+else integridad OK
+    Prog -> Prog : Application.Run(new Menu())
+end
+@enduml

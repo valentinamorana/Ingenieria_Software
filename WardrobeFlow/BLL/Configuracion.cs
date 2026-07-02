@@ -67,8 +67,10 @@ namespace BLL
     ///
     /// Responsabilidades de arranque (Program.Main):
     ///   1. VerificarConexionDAL()  — confirma que SQL Server responde antes del Login.
-    ///   2. VerificarIntegridadDV() — T07: controla DVH/DVV de la tabla Usuario.
-    ///      Retorna false si detecta manipulación externa; Program bloquea el Login.
+    ///   2. VerificarIntegridadDV() — T07: controla DVH/DVV de la tabla Usuario. Se ejecuta
+    ///      ANTES de mostrar la ventana de Login (requisito de cátedra). Retorna false si detecta
+    ///      manipulación externa; Program deja constancia en bitácora y, tras autenticarse,
+    ///      reserva el detalle y la reparación al Administrador.
     /// </summary>
     public class Configuracion
     {

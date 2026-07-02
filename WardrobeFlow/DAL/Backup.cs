@@ -34,7 +34,11 @@ namespace DAL
             if (string.IsNullOrEmpty(publico)) publico = @"C:\Users\Public";
             string dir = Path.Combine(publico, "WardrobeFlow_Temp");
             try { if (!Directory.Exists(dir)) Directory.CreateDirectory(dir); return dir; }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceWarning(
+                    "[Backup.DirectorioTempSeguro] No se pudo usar la carpeta Public, se prueba el fallback: " + ex.Message);
+            }
 
             // Fallback: carpeta junto al ejecutable con permiso de lectura para Todos.
             string alt = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TempBackups");
@@ -50,7 +54,11 @@ namespace DAL
                     PropagationFlags.None, AccessControlType.Allow));
                 dInfo.SetAccessControl(sec);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceWarning(
+                    "[Backup.DirectorioTempSeguro] No se pudo fijar la ACL en la carpeta de respaldo temporal: " + ex.Message);
+            }
             return alt;
         }
 

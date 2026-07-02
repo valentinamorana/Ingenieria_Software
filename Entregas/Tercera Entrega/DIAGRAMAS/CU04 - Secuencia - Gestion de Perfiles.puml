@@ -1,0 +1,60 @@
+@startuml CU04 - Secuencia - Gestion de Perfiles
+title CU04 - Diagrama de Secuencia - Gestion de Perfiles (Composite) - WardrobeFlow
+' Balanceado con: GUI.GestorPermisos, BLL.Familia, DAL.Permiso, BE.Componente/Familia/Rol/Patente.
+
+actor Administrador as Admin
+participant "GestorPermisos\n<<Form>>" as UI
+participant "BLL.Familia" as BLL
+participant "DAL.Permiso" as DAL
+participant "BE.Rol/Familia\n(Componente)" as Arbol
+participant "Servicios.Bitacora" as Bit
+
+== Abrir gestion de perfiles ==
+Admin -> UI : abrir GestorPermisos
+activate UI
+UI -> BLL : ObtenerArbol()
+activate BLL
+BLL -> DAL : ObtenerArbol()
+activate DAL
+DAL --> BLL : nodos + aristas (PermisoRelacion)
+deactivate DAL
+BLL -> Arbol : construir arbol Composite\n(AgregarHijo, valida ciclos)
+BLL --> UI : List<Componente> (raices)
+deactivate BLL
+UI -> UI : CargarArbol() -> TreeView\n(recorrido RECURSIVO con checkboxes)
+UI --> Admin : muestra arbol de permisos
+
+== Guardar asignacion de un Rol ==
+Admin -> UI : marca/desmarca patentes y Guardar
+UI -> BLL : GuardarAsignacionRol(rol, idsSeleccionados)
+activate BLL
+BLL -> BLL : ValidarSinCiclo(idPadre, idHijo)
+note right of BLL
+  Reusa BE.Familia.AgregarHijo sobre el arbol real:
+  detecta referencia circular ANTES de persistir.
+end note
+alt Ciclo detectado
+    BLL --> UI : InvalidOperationException
+    UI --> Admin : error "referencia circular"
+else Sin ciclo
+    BLL -> DAL : AgregarRelacion / QuitarRelacion (altas y bajas)
+    activate DAL
+    DAL --> BLL : ok
+    deactivate DAL
+    BLL -> Bit : Registrar("Gestion de permisos del rol X")
+    BLL --> UI : ok
+end
+deactivate BLL
+
+== Resolver permisos efectivos (usado en Login) ==
+UI -> BLL : ObtenerPermisosEfectivos(rol)
+activate BLL
+BLL -> Arbol : ObtenerPatentesEfectivas()
+activate Arbol
+Arbol -> Arbol : RecolectarPatentes()\n(RECURSIVO: rol -> roles/patentes,\ndeduplicado)
+Arbol --> BLL : List<Patente> efectivas
+deactivate Arbol
+BLL --> UI : permisos efectivos
+deactivate BLL
+deactivate UI
+@enduml

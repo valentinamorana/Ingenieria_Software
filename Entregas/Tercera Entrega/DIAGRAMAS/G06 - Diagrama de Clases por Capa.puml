@@ -1,0 +1,177 @@
+@startuml G06 - Diagrama de Clases por Capa
+title G06 - Diagrama de Clases por Capa (integracion) - WardrobeFlow
+' Un bloque por capa de la arquitectura. Se separan los aspectos de NEGOCIO
+' (amarillo) de los aspectos TECNICOS/transversales (celeste).
+' Balanceado con las clases reales del codigo.
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+' ============================================================
+package "Capa de Presentacion (GUI)" #FFF7CC {
+  class Program <<static>>
+  class Login
+  class Menu <<MDI>>
+  class GestorPermisos <<Form>>
+  class ExploradorCompositeForm <<Form>>
+  class FormIdiomas <<Form>>
+  class DiagnosticoIntegridadForm <<Form>>
+  class RecuperacionEspejoForm <<Form>>
+  class FormBase <<abstract>>
+  Menu --|> FormBase
+  GestorPermisos --|> FormBase
+}
+
+' ============================================================
+package "Capa de Negocio (BLL)" #FFF7CC {
+  class "BLL.Usuario" as BLLUsuario {
+    +Login(modulo, user, pass) : bool
+    +Logout(modulo) : void
+    +Alta(...) : string
+  }
+  class "BLL.Familia" as BLLFamilia {
+    +ObtenerArbol() : List<Componente>
+    +ObtenerPermisosEfectivos(rol) : List<Permiso>
+    +GuardarAsignacionRol(rol, ids) : void
+    +ValidarSinCiclo(idPadre, idHijo) : bool
+  }
+  class "BLL.Idioma" as BLLIdioma {
+    +CargarTraducciones(idIdioma) : Dictionary
+    +GuardarTraduccion(...) : void
+  }
+  class "BLL.VersionUsuario" as BLLVersion {
+    +GrabarVersion(id, actor, detalle)
+    +RestaurarVersion(modulo, idVersion)
+  }
+  class "BLL.CuidadorHistorial\n<<Caretaker>>" as Caretaker {
+    +Guardar(idUsuario, IMemento)
+    +ObtenerHistorial(idUsuario) : List<IMemento>
+  }
+  class "BLL.Configuracion" as BLLConfig {
+    +VerificarConexionDAL(out msg) : bool
+    +VerificarIntegridadDV(out res) : bool
+  }
+  class BLLHelper <<static>>
+}
+
+' ============================================================
+package "Capa de Entidades de Negocio (BE)" #FFF7CC {
+  abstract class Componente {
+    +Id : int
+    +Nombre : string
+    +{abstract} RecolectarPatentes()
+    +ObtenerPatentesEfectivas() : IList<Patente>
+  }
+  class Patente {
+    +NombreMenu : string
+    +Asignado : bool
+  }
+  class Familia
+  class Rol
+  Patente --|> Componente
+  Familia --|> Componente
+  Rol --|> Familia
+
+  class Usuario <<Originator>>
+  class VersionUsuario <<Memento>>
+  interface IOriginator
+  interface IMemento
+  Usuario ..|> IOriginator
+  VersionUsuario ..|> IMemento
+
+  class Bitacora
+  class Pedido
+  class Cliente
+}
+
+' ============================================================
+package "Capa de Servicios (transversal)" #DDF3FF {
+  class "Servicios.Bitacora" as SrvBitacora {
+    +Registrar(modulo, act, crit)
+    +BuscarPorFiltros(...) : DataTable
+  }
+  class "GestorIdioma\n<<Subject>>" as GestorIdioma <<static>> {
+    +SuscribirObservador(o)
+    +DesuscribirObservador(o)
+    +CambiarIdioma(idioma, tradus)
+  }
+  interface IIdiomaObserver {
+    +UpdateLanguage(idioma)
+  }
+}
+
+' ============================================================
+package "Capa de Seguridad (transversal)" #DDF3FF {
+  class "SessionManager\n<<Singleton>>" as Session {
+    -{static} _session : SessionManager
+    +{static} GetInstance() : SessionManager
+    +{static} Login(usuario)
+    +{static} Logout()
+    +TienePermiso(menu) : bool
+  }
+  class Encriptador <<static>> {
+    +Hash(pass) : string
+    +VerificarContrasena(...) : bool
+    +Encriptar(texto) : string
+  }
+  interface ICalculadorDV
+  class DigitoVerificador {
+    +CalcularDVH(campos) : int
+    +CalcularDVV(dvhs) : int
+  }
+  class CalculadorDV <<Factory>>
+  DigitoVerificador ..|> ICalculadorDV
+  CalculadorDV ..> ICalculadorDV : crea
+}
+
+' ============================================================
+package "Capa de Acceso a Datos (DAL)" #DDF3FF {
+  class "Acceso\n<<Singleton>>" as Acceso {
+    +{static} GetInstance() : Acceso
+    +Leer(sql, params) : DataTable
+    +Escribir(sql, params) : int
+    +EjecutarTransaccion(accion)
+  }
+  interface IUsuarioDAL
+  interface IPermisoDAL
+  class "DAL.Usuario" as DALUsuario
+  class "DAL.Permiso" as DALPermiso
+  class "DAL.DigitoVerificador" as DALDv {
+    +ObtenerFilas(tabla, pk, cols) : List<FilaDV>
+    +RecalcularTabla(tabla, pk, cols)
+  }
+  DALUsuario ..|> IUsuarioDAL
+  DALPermiso ..|> IPermisoDAL
+  DALUsuario --> Acceso
+  DALPermiso --> Acceso
+  DALDv --> Acceso
+}
+
+' ===== Dependencias entre capas (resumen) =====
+Login ..> BLLUsuario
+Menu ..> BLLFamilia
+GestorPermisos ..> BLLFamilia
+FormIdiomas ..> BLLIdioma
+FormIdiomas ..|> IIdiomaObserver
+DiagnosticoIntegridadForm ..> BLLConfig
+
+BLLUsuario ..> IUsuarioDAL
+BLLUsuario ..> Session
+BLLUsuario ..> Encriptador
+BLLUsuario ..> SrvBitacora
+BLLFamilia ..> IPermisoDAL
+BLLFamilia ..> Componente
+BLLVersion ..> Caretaker
+Caretaker ..> IMemento
+BLLConfig ..> DALDv
+BLLConfig ..> ICalculadorDV
+
+GestorIdioma o--> IIdiomaObserver
+Session --> Usuario
+
+note as N1 #FFFFCC
+  Amarillo = NEGOCIO (GUI, BLL, BE).
+  Celeste  = TECNICO / transversal
+  (Servicios, Seguridad, DAL).
+end note
+@enduml

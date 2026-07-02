@@ -29,10 +29,6 @@ namespace GUI
             // sigue cayendo a los diccionarios hardcodeados (fallback de seguridad).
             InicializarIdiomaDesdeBD();
 
-            // T07 — La verificación de integridad DVH/DVV se hace DESPUÉS del login (ver más abajo),
-            // para exigir autenticación antes de exponer/tocar los dígitos verificadores: solo un
-            // Administrador autenticado puede ver el detalle y repararlos.
-
             // Garantiza que exista admin2 (admin de respaldo para desbloquear al admin1 si se bloquea).
             string rutaAdmin2 = BLL.Configuracion.SeedAdminSecundario();
             if (rutaAdmin2 != null)
@@ -57,13 +53,41 @@ namespace GUI
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
 
+            // T07 — VERIFICACIÓN DE INTEGRIDAD ANTES DEL LOGIN (requisito de cátedra).
+            // "Al iniciar la aplicación, y antes de dar acceso a la ventana de log-in, se debe
+            //  realizar el proceso de verificación de integridad de la base de datos."
+            // El proceso de cálculo/comparación de DVH+DVV se ejecuta ACÁ, previo a mostrar el Login.
+            // Por seguridad, el DETALLE de las filas rotas y la REPARACIÓN siguen reservados a un
+            // Administrador autenticado: si la verificación falla, se deja constancia en la bitácora
+            // (informar al administrador) y, tras el login, se enruta según el rol (ver más abajo).
+            bool integridadOk = BLL.Configuracion.VerificarIntegridadDV(out BLL.ResultadoIntegridad _);
+            if (!integridadOk)
+            {
+                try
+                {
+                    new Servicios.Bitacora().RegistrarSinSesion(
+                        modulo:     "Arranque",
+                        actividad:  "Integridad DV inválida detectada antes del Login",
+                        criticidad: BE.Criticidad.Alta,
+                        detalle:    "La verificación de dígitos verificadores (DVH/DVV) previa al Login " +
+                                    "detectó una posible manipulación externa de la base. Se requiere que un " +
+                                    "Administrador inicie sesión para reparar o restaurar el sistema.");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.TraceError(
+                        "[Program] No se pudo auditar la falla de integridad de arranque: " + ex.Message);
+                }
+            }
+
             using (var frmLogin = new Login())
             {
                 if (frmLogin.ShowDialog() != DialogResult.OK)
                     return;   // login cancelado → fin
 
-                // T07 — Recién con el usuario AUTENTICADO se verifica la integridad de los DV.
-                if (!BLL.Configuracion.VerificarIntegridadDV(out BLL.ResultadoIntegridad _))
+                // T07 — La verificación ya se ejecutó ANTES del Login (arriba). Con el usuario
+                // autenticado solo se ENRUTA la respuesta: el detalle y la reparación son solo-admin.
+                if (!integridadOk)
                 {
                     var usuario = Seguridad.SessionManager.IsLoggedIn
                         ? Seguridad.SessionManager.GetInstance().Usuario : null;

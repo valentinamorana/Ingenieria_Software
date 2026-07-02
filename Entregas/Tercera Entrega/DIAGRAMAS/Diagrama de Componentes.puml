@@ -1,0 +1,61 @@
+@startuml Diagrama de Componentes - WardrobeFlow
+title Diagrama de Componentes - WardrobeFlow (T01)
+' Balanceado con las referencias reales de los .csproj (ProjectReference).
+' Capas de negocio (amarillo), capas tecnicas/transversales (celeste), datos (gris).
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+package "Presentacion" #FFF7CC {
+  [GUI\n(WinExe - WinForms MDI)] as GUI
+}
+
+package "Negocio" #FFF7CC {
+  [BLL\n(Logica de Negocio)] as BLL
+  [BE\n(Entidades de Negocio)] as BE
+}
+
+package "Transversales" #DDF3FF {
+  [Servicios\n(Bitacora, Multiidioma,\nExportacion)] as SRV
+  [Seguridad\n(Sesion, Hash/AES,\nDigito Verificador)] as SEG
+}
+
+package "Acceso a Datos" #DDF3FF {
+  [DAL\n(ADO.NET - SqlClient)] as DAL
+}
+
+database "SQL Server\nWardrobeFlowDB" as DB #EEEEEE
+
+' Dependencias EXACTAS segun los .csproj:
+GUI --> BLL
+GUI --> BE
+GUI --> SRV
+GUI --> SEG
+
+BLL --> BE
+BLL --> DAL
+BLL --> SEG
+BLL --> SRV
+
+SRV --> BE
+SRV --> DAL
+SRV --> SEG
+
+DAL --> BE
+DAL --> SEG
+
+SEG --> BE
+
+DAL --> DB : ADO.NET\n(Singleton Acceso)
+
+note bottom of GUI
+  La GUI NO referencia DAL ni abre
+  conexiones: no hay acceso directo a
+  la base desde la capa de presentacion.
+end note
+
+note right of DAL
+  Persistencia PROPIA con ADO.NET.
+  Sin Entity Framework / NHibernate.
+end note
+@enduml
